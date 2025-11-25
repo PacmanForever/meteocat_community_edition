@@ -147,7 +147,7 @@ Aquests exemples estan sota la mateixa llicència GPL-3.0 del projecte principal
 ---
 
 **Enllaços útils:**
-- [Repositori principal](https://github.com/yourusername/meteocat-community-edition)
+- [Repositori principal](https://github.com/PacmanForever/meteocat_community_edition)
 - [Documentació Home Assistant](https://www.home-assistant.io/docs/)
 - [Documentació Lovelace](https://www.home-assistant.io/lovelace/)
 - [HACS](https://hacs.xyz/)

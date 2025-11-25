@@ -32,11 +32,11 @@ IntegraciÃ³n **comunitaria** y **no oficial** para Home Assistant del Servicio
 
 ### VÃ­a HACS (Recomendado)
 
-1. AsegÃºrate de tener [HACS](https://hacs.xyz/) instalado
+1. Asegúrate de tener [HACS](https://hacs.xyz/) instalado
 2. En HACS, ve a "Integraciones"
-3. Haz clic en el menÃº de 3 puntos (arriba a la derecha) y selecciona "Repositorios personalizados"
-4. AÃ±ade esta URL: `https://github.com/yourusername/meteocat-community-edition`
-5. CategorÃ­a: `Integration`
+3. Haz clic en el menú de 3 puntos (arriba a la derecha) y selecciona "Repositorios personalizados"
+4. Añade esta URL: `https://github.com/PacmanForever/meteocat_community_edition`
+5. Categoría: `Integration`
 6. Haz clic en "AÃ±adir"
 7. Busca "Meteocat" e instala
 8. Reinicia Home Assistant
@@ -632,9 +632,9 @@ Consulta el archivo [LICENSE](LICENSE) para la licencia completa.
 
 ---
 
-[releases-shield]: https://img.shields.io/github/release/yourusername/meteocat-community-edition.svg
-[releases]: https://github.com/yourusername/meteocat-community-edition/releases
-[license-shield]: https://img.shields.io/github/license/yourusername/meteocat-community-edition.svg
+[releases-shield]: https://img.shields.io/github/release/PacmanForever/meteocat_community_edition.svg
+[releases]: https://github.com/PacmanForever/meteocat_community_edition/releases
+[license-shield]: https://img.shields.io/github/license/PacmanForever/meteocat_community_edition.svg
 [hacs]: https://github.com/hacs/integration
 [hacsbadge]: https://img.shields.io/badge/HACS-Custom-orange.svg
 

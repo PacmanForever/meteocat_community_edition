@@ -114,7 +114,7 @@ Modifica la configuració a **Dispositius i Serveis** → 3 punts → **Opcions*
 
 ## 📚 Documentació completa
 
-Consulta el [**README complet**](https://github.com/yourusername/meteocat-community-edition) per:
+Consulta el [**README complet**](https://github.com/PacmanForever/meteocat_community_edition) per:
 - 📖 Exemples d'automatitzacions avançades
 - 🎨 Targetes Lovelace personalitzades
 - 🔧 Sensors template

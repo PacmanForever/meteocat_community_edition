@@ -35,7 +35,7 @@
 1. Make sure you have [HACS](https://hacs.xyz/) installed
 2. In HACS, go to "Integrations"
 3. Click the 3-dot menu (top right) and select "Custom repositories"
-4. Add this URL: `https://github.com/yourusername/meteocat-community-edition`
+4. Add this URL: `https://github.com/PacmanForever/meteocat_community_edition`
 5. Category: `Integration`
 6. Click "Add"
 7. Search for "Meteocat" and install
@@ -632,9 +632,9 @@ See the [LICENSE](LICENSE) file for the complete license.
 
 ---
 
-[releases-shield]: https://img.shields.io/github/release/yourusername/meteocat-community-edition.svg
-[releases]: https://github.com/yourusername/meteocat-community-edition/releases
-[license-shield]: https://img.shields.io/github/license/yourusername/meteocat-community-edition.svg
+[releases-shield]: https://img.shields.io/github/release/PacmanForever/meteocat_community_edition.svg
+[releases]: https://github.com/PacmanForever/meteocat_community_edition/releases
+[license-shield]: https://img.shields.io/github/license/PacmanForever/meteocat_community_edition.svg
 [hacs]: https://github.com/hacs/integration
 [hacsbadge]: https://img.shields.io/badge/HACS-Custom-orange.svg
 

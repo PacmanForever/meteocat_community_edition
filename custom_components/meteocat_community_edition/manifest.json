@@ -1,12 +1,12 @@
 {
   "domain": "meteocat_community_edition",
   "name": "Meteocat (Edició Comunitària)",
-  "codeowners": ["@pacman"],
+  "codeowners": ["@PacmanForever"],
   "config_flow": true,
-  "documentation": "https://github.com/yourusername/meteocat-community-edition",
+  "documentation": "https://github.com/PacmanForever/meteocat_community_edition",
   "integration_type": "hub",
   "iot_class": "cloud_polling",
-  "issue_tracker": "https://github.com/yourusername/meteocat-community-edition/issues",
+  "issue_tracker": "https://github.com/PacmanForever/meteocat_community_edition/issues",
   "requirements": ["aiohttp>=3.9.0"],
   "version": "1.0.3"
 }

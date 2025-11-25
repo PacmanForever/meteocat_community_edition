@@ -28,7 +28,18 @@ pip install homeassistant
 pip install -r requirements-test.txt
 ```
 
-**Nota**: Els tests requereixen Home Assistant, que pot tenir dependències específiques de Linux. A Windows, alguns tests poden fallar per dependències de sistema operatiu.
+### ⚠️ Limitació important en Windows
+
+**Els tests NO funcionen en Windows** perquè Home Assistant depèn del mòdul `fcntl` que només està disponible en sistemes Linux/Unix. Això és una limitació coneguda de Home Assistant, no d'aquesta integració.
+
+**Solucions per executar els tests:**
+1. **Utilitzar WSL2 (Windows Subsystem for Linux)** - recomanat
+2. **Utilitzar GitHub Actions** - els tests s'executen automàticament al CI/CD
+3. **Utilitzar un entorn Linux** (màquina virtual, contenidor Docker, etc.)
+
+**Proves manuals en Windows:**
+- Instal·la la integració directament a la teva instància de Home Assistant
+- Verifica manualment totes les funcionalitats (veure secció "Proves manuals recomanades" més avall)
 
 ## Executar tots els tests
 

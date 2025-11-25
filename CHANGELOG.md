@@ -172,4 +172,4 @@ i aquest projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
 ---
 
-[1.0.0]: https://github.com/yourusername/meteocat-community-edition/releases/tag/v1.0.0
+[1.0.0]: https://github.com/PacmanForever/meteocat_community_edition/releases/tag/v1.0.0

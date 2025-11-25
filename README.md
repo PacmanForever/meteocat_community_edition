@@ -35,7 +35,7 @@ Integració **comunitària** i **no oficial** per a Home Assistant del Servei Me
 1. Assegura't que tens [HACS](https://hacs.xyz/) instal·lat
 2. A HACS, ves a "Integracions"
 3. Fes clic al menú de 3 punts (dalt a la dreta) i selecciona "Repositoris personalitzats"
-4. Afegeix aquest URL: `https://github.com/yourusername/meteocat-community-edition`
+4. Afegeix aquest URL: `https://github.com/PacmanForever/meteocat_community_edition`
 5. Categoria: `Integration`
 6. Fes clic a "Afegir"
 7. Cerca "Meteocat" i instal·la
@@ -638,9 +638,9 @@ Consulta el fitxer [LICENSE](LICENSE) per la llicència completa.
 
 ---
 
-[releases-shield]: https://img.shields.io/github/release/yourusername/meteocat-community-edition.svg
-[releases]: https://github.com/yourusername/meteocat-community-edition/releases
-[license-shield]: https://img.shields.io/github/license/yourusername/meteocat-community-edition.svg
+[releases-shield]: https://img.shields.io/github/release/PacmanForever/meteocat_community_edition.svg
+[releases]: https://github.com/PacmanForever/meteocat_community_edition/releases
+[license-shield]: https://img.shields.io/github/license/PacmanForever/meteocat_community_edition.svg
 [hacs]: https://github.com/hacs/integration
 [hacsbadge]: https://img.shields.io/badge/HACS-Custom-orange.svg
 
