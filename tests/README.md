@@ -1,0 +1,143 @@
+﻿# Tests de Meteocat Community Edition
+
+## 🎯 Objectiu: Home Assistant Silver Level + HACS
+
+Aquesta integració té com a objectiu:
+
+- 🏆 **Home Assistant Silver Level**: Cobertura de codi > 95%
+- ✅ **Validació HACS**: Complir tots els requisits per ser acceptada
+- ✅ **Tests comprehensius** per totes les funcionalitats
+- ✅ **Validació Hassfest** sense errors
+- ✅ **GitHub Actions CI/CD** configurats
+
+**Estat actual**: **102 tests**, **>95% cobertura** ✅
+
+Quan desenvolupis noves funcionalitats o facis canvis:
+1. Afegeix tests que cobreixin **tots els casos** (happy path + edge cases)
+2. Verifica que la cobertura es mantingui **>95%**
+3. Assegura't que **tots els tests passen**
+
+---
+
+## Instal·lació de dependències
+
+Per executar els tests, necessites instal·lar Home Assistant i les dependències de test:
+
+```bash
+pip install homeassistant
+pip install -r requirements-test.txt
+```
+
+**Nota**: Els tests requereixen Home Assistant, que pot tenir dependències específiques de Linux. A Windows, alguns tests poden fallar per dependències de sistema operatiu.
+
+## Executar tots els tests
+
+```bash
+pytest tests/
+```
+
+## Executar tests específics
+
+```bash
+# Tests de sensors
+pytest tests/test_sensor.py -v
+
+# Tests de l'API
+pytest tests/test_api.py -v
+
+# Tests del botó
+pytest tests/test_button.py -v
+
+# Tests del coordinator
+pytest tests/test_coordinator.py -v
+
+# Tests d'agrupació de dispositius
+pytest tests/test_device_grouping.py -v
+
+# Tests de configuració
+pytest tests/test_config_flow.py -v
+```
+
+## Executar un test concret
+
+```bash
+pytest tests/test_sensor.py::test_quota_sensor_normalizes_plan_names -v
+```
+
+## Tests amb cobertura
+
+```bash
+pytest tests/ --cov=custom_components.meteocat_community_edition --cov-report=html
+```
+
+## Tests principals
+
+### test_sensor.py
+- `test_quota_sensor_normalizes_plan_names`: Verifica que els noms dels plans es normalitzen correctament (Predicció, Referència, XDDE, XEMA)
+- `test_quota_sensor_entity_id_xema_mode`: Verifica que els entity_id inclouen el codi d'estació en mode XEMA
+- `test_quota_sensor_entity_id_municipal_mode`: Verifica que els entity_id són correctes en mode Municipal
+- `test_quota_sensor_device_info`: Verifica que els sensors usen el device_name correcte per agrupar-se
+- `test_forecast_sensor_daily`: Verifica el sensor de temperatura màxima
+- `test_forecast_sensor_hourly`: Verifica el sensor de temperatura horària
+- `test_uv_sensor`: Verifica el sensor d'índex UV
+- `test_last_update_sensor`: Verifica el sensor de darrera actualització
+- `test_next_update_sensor`: Verifica el sensor de pròxima actualització
+- `test_timestamp_sensors_device_info`: Verifica que els sensors de timestamp s'agrupen correctament
+
+### test_button.py
+- `test_button_entity_id_xema_mode`: Verifica que el botó té entity_id correcte en mode XEMA
+- `test_button_entity_id_municipal_mode`: Verifica que el botó té entity_id correcte en mode Municipal
+- `test_button_device_info_xema`: Verifica que el botó s'agrupa correctament en mode XEMA
+- `test_button_press_triggers_refresh`: Verifica que el botó dispara l'actualització
+
+### test_device_grouping.py
+- `test_all_entities_share_same_device_identifier`: Verifica que totes les entitats comparteixen el mateix identificador de dispositiu
+- `test_all_entities_share_same_device_name`: Verifica que totes les entitats usen el mateix nom de dispositiu ("Granollers YM" en Mode Estació)
+- `test_entity_ids_include_station_code`: Verifica que tots els entity_id inclouen el codi de l'estació
+
+### test_api.py
+- `test_get_comarques`: Verifica la crida a comarques
+- `test_get_stations`: Verifica la crida a estacions
+- `test_api_error_handling`: Verifica el maneig d'errors
+- `test_get_station_measurements`: Verifica la crida a mesures d'estació
+- `test_get_quotes`: Verifica la crida a quotes/consums
+- `test_get_municipal_forecast`: Verifica la crida a Predicció municipal
+- `test_get_uv_index`: Verifica la crida a índex UV
+
+### test_coordinator.py
+- `test_coordinator_xema_mode_update`: Verifica l'actualització en mode XEMA
+- `test_coordinator_municipal_mode_update`: Verifica l'actualització en mode Municipal
+- `test_coordinator_calculates_next_update`: Verifica el càlcul de la pròxima actualització
+- `test_coordinator_handles_api_error`: Verifica el maneig d'errors de l'API
+- `test_coordinator_quotes_fetched_after_other_apis`: Verifica que quotes es criden després de les altres APIs
+- `test_coordinator_handles_missing_quotes`: Verifica que continua funcionant si quotes falla
+- `test_coordinator_finds_municipality_for_station`: Verifica que troba el codi de municipi per l'estació
+
+### test_config_flow.py
+- Tests bàsics de constants i configuració
+- **Nota**: Els tests complets del config flow requereixen Home Assistant instal·lat
+
+## Proves manuals recomanades
+
+A Windows, la millor opció és **provar la integració directament a Home Assistant**:
+
+1. Copia la carpeta `custom_components/meteocat_community_edition` al teu Home Assistant
+2. Reinicia Home Assistant
+3. Afegeix la integració des de la UI
+4. Comprova especialment:
+   - Tots els sensors d'una estació s'agrupen sota un únic dispositiu amb nom "Estació YM" (o el nom que sigui)
+   - Els entity_id inclouen el codi d'estació (per exemple: `sensor.granollers_ym_quota_prediccio`)
+   - Els noms dels sensors de quota són nets: "Peticions disponibles Predicció"
+   - El botó "Actualitzar dades" actualitza immediatament el timestamp
+   - Els sensors de timestamp mostren "fa X segons/minuts"
+
+## Notes
+
+- Els tests són unit tests que verifiquen la lògica del codi sense necessitar una instància real de Home Assistant executant-se
+- Es fan servir mocks per simular les respostes de l'API
+- Els tests verifiquen especialment:
+  - Normalització de noms de plans de quotes
+  - Agrupació correcta de dispositius (tots sota "Granollers YM")
+  - Entity IDs únics amb codi d'estació
+  - Noms de dispositiu amb codi vs noms d'entitat sense codi
+  - Timestamp capturats al moment correcte

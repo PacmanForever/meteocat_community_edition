@@ -1,0 +1,98 @@
+{
+  "title": "Meteocat (Edición Comunitaria)",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Acceso a la API",
+        "description": "Introduce tu clave API de Meteocat",
+        "data": {
+          "api_key": "Clave API",
+          "api_base_url": "URL de la API (opcional, por defecto producción)"
+        }
+      },
+      "mode": {
+        "title": "Tipo de entrada",
+        "description": "Selecciona el tipo de entrada",
+        "data": {
+          "mode": "Modo"
+        }
+      },
+      "comarca": {
+        "title": "Selecciona una comarca",
+        "description": "Elige la comarca donde se encuentra la estación meteorológica",
+        "data": {
+          "comarca_code": "Comarca"
+        }
+      },
+      "station": {
+        "title": "Selecciona una estación",
+        "description": "Elige la estación meteorológica que deseas añadir",
+        "data": {
+          "station_code": "Estación"
+        }
+      },
+      "municipality": {
+        "title": "Selecciona un municipio",
+        "description": "Elige el municipio para obtener predicciones",
+        "data": {
+          "municipality_code": "Municipio"
+        }
+      },
+      "update_times": {
+        "title": "Actualización de datos",
+        "description": "Configura las dos horas del día en que se realizará la actualización automática de datos (formato 24h: HH:MM)",
+        "data": {
+          "update_time_1": "Primera actualización (HH:MM)",
+          "update_time_2": "Segunda actualización (HH:MM)"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Re-autenticación necesaria",
+        "description": "Tu clave API ha expirado o no es válida. Por favor, introduce una nueva clave API válida."
+      }
+    },
+    "error": {
+      "cannot_connect": "No se pudo conectar con la API de Meteocat. Verifica la clave API.",
+      "no_comarques": "No se encontraron comarcas disponibles",
+      "no_stations": "No se han encontrado estaciones en esta comarca",
+      "no_municipalities": "No se han encontrado municipios en esta comarca",
+      "no_comarca_selected": "Debes seleccionar una comarca",
+      "no_station_selected": "Debes seleccionar una estación",
+      "invalid_time_format": "Formato de hora no válido. Utiliza el formato 24h: HH:MM (ejemplo: 06:00 o 14:30)",
+      "times_must_differ": "Las dos horas de actualización deben ser diferentes",
+      "required": "Este campo es obligatorio",
+      "invalid_auth": "Clave API no válida. Por favor, comprueba que la clave API sea correcta.",
+      "unknown": "Error desconocido"
+    },
+    "abort": {
+      "already_configured": "Esta estación ya está configurada",
+      "reauth_successful": "Re-autenticación completada correctamente"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opciones de Meteocat",
+        "description": "Configura opciones avanzadas y horas de actualización",
+        "data": {
+          "api_base_url": "URL base de la API (deja por defecto para producción)",
+          "update_time_1": "Primera actualización (HH:MM)",
+          "update_time_2": "Segunda actualización (HH:MM)"
+        }
+      }
+    }
+  },
+  "events": {
+    "meteocat_community_edition_data_updated": {
+      "name": "Datos actualizados",
+      "description": "Se ha completado una actualización de datos de Meteocat (automática o manual)"
+    }
+  },
+  "device_automation": {
+    "trigger_type": {
+      "data_updated": "Datos actualizados",
+      "next_update_changed": "Cambio de próxima actualización"
+    }
+  }
+}
+

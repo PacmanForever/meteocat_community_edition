@@ -1,0 +1,473 @@
+# ==============================================================================
+# EXEMPLES DE TARGETES LOVELACE - Meteocat (Community Edition)
+# ==============================================================================
+#
+# Aquest fitxer conté exemples de targetes personalitzades per al dashboard
+# de Home Assistant utilitzant la integració Meteocat.
+#
+# NOTA: Canvia els noms d'entitats per adaptar-los a la teva configuració!
+#
+# Per afegir-les al teu dashboard:
+# 1. Edita el dashboard en mode YAML
+# 2. Copia i enganxa les targetes que necessitis
+# 3. Adapta els entity_id segons la teva configuració
+#
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. TARGETA WEATHER - MODE ESTACIÓ
+# ------------------------------------------------------------------------------
+
+# Targeta Weather estàndard per Mode Estació
+type: weather-forecast
+entity: weather.granollers_ym  # Canvia per la teva entitat
+show_forecast: true
+
+# ------------------------------------------------------------------------------
+# 2. TARGETES PERSONALITZADES - MODE MUNICIPAL
+# ------------------------------------------------------------------------------
+
+# Predicció horària amb markdown
+type: markdown
+content: |
+  ## 📊 Predicció Horària - Pròximes 24h
+  
+  {% set forecast = state_attr('sensor.granollers_prediccio_horaria', 'forecast') %}
+  {% if forecast and forecast.dies %}
+    {% set avui = forecast.dies[0] %}
+    {% set ara = now().hour %}
+    
+    | Hora | 🌡️ Temp | 💧 Humitat | 💨 Vent | ☔ Pluja |
+    |------|---------|-----------|---------|---------|
+    {% for h in range(ara, 24) %}
+    | {{ '%02d' % h }}:00 | {{ avui.variables.temp.valors[h] | round(1) }}°C | {{ avui.variables.hr.valors[h] | round(0) }}% | {{ avui.variables.ws.valors[h] | round(0) }} km/h | {{ avui.variables.ppcp.valors[h] | default(0) | round(1) }} mm |
+    {% endfor %}
+  {% else %}
+    _Dades no disponibles_
+  {% endif %}
+title: Predicció Horària
+
+# Predicció diària amb markdown
+type: markdown
+content: |
+  ## 📅 Predicció Diària - Pròxims 7 dies
+  
+  {% set forecast = state_attr('sensor.granollers_prediccio_diaria', 'forecast') %}
+  {% if forecast and forecast.dies %}
+    
+    | Data | 🌡️ Min/Max | ☔ Pluja | 💧 Humitat |
+    |------|-----------|---------|-----------|
+    {% for dia in forecast.dies[:7] %}
+    | {{ dia.data }} | {{ dia.variables.tmin.valor | round(1) }}° / {{ dia.variables.tmax.valor | round(1) }}°C | {{ dia.variables.ppcp.valor | default(0) | round(1) }} mm | {{ dia.variables.hrmin.valor | round(0) }}-{{ dia.variables.hrmax.valor | round(0) }}% |
+    {% endfor %}
+  {% else %}
+    _Dades no disponibles_
+  {% endif %}
+title: Predicció Setmanal
+
+# Índex UV amb gauge
+type: gauge
+entity: sensor.granollers_index_uv
+name: Índex UV
+min: 0
+max: 11
+severity:
+  green: 0
+  yellow: 3
+  orange: 6
+  red: 8
+
+# ------------------------------------------------------------------------------
+# 3. TARGETES DE QUOTES API
+# ------------------------------------------------------------------------------
+
+# Vista vertical amb totes les quotes
+type: vertical-stack
+cards:
+  - type: horizontal-stack
+    cards:
+      - type: entity
+        entity: sensor.granollers_ym_quota_prediccio
+        name: Predicció
+        icon: mdi:weather-partly-cloudy
+      
+      - type: entity
+        entity: sensor.granollers_ym_quota_referencia
+        name: Referència
+        icon: mdi:map-marker
+  
+  - type: horizontal-stack
+    cards:
+      - type: entity
+        entity: sensor.granollers_ym_quota_xdde
+        name: XDDE
+        icon: mdi:database
+      
+      - type: entity
+        entity: sensor.granollers_ym_quota_xema
+        name: XEMA
+        icon: mdi:weather-pouring
+
+# Targeta amb detalls de quotes (custom button-card recomanat)
+type: custom:button-card
+entity: sensor.granollers_ym_quota_prediccio
+name: Quotes API Predicció
+show_state: true
+show_label: true
+label: |
+  [[[
+    const limit = states['sensor.granollers_ym_quota_prediccio'].attributes.limit;
+    const used = states['sensor.granollers_ym_quota_prediccio'].attributes.used;
+    const reset = states['sensor.granollers_ym_quota_prediccio'].attributes.reset_date;
+    return `Usades: ${used}/${limit}<br>Reset: ${reset}`;
+  ]]]
+styles:
+  card:
+    - height: 120px
+  label:
+    - font-size: 12px
+    - margin-top: 10px
+
+# ------------------------------------------------------------------------------
+# 4. TARGETES DE TIMESTAMPS
+# ------------------------------------------------------------------------------
+
+# Informació d'actualitzacions
+type: entities
+entities:
+  - entity: sensor.granollers_ym_last_update
+    name: Última actualització
+    icon: mdi:clock-check
+  
+  - entity: sensor.granollers_ym_next_update
+    name: Pròxima actualització
+    icon: mdi:clock-outline
+  
+  - entity: sensor.granollers_ym_update_time_1
+    name: Hora actualització 1
+    icon: mdi:clock-time-one
+  
+  - entity: sensor.granollers_ym_update_time_2
+    name: Hora actualització 2
+    icon: mdi:clock-time-two
+  
+  - entity: button.granollers_ym_refresh
+    name: Actualitzar ara
+    icon: mdi:refresh
+title: Gestió Actualitzacions
+
+# ------------------------------------------------------------------------------
+# 5. DASHBOARD COMPLET - MODE ESTACIÓ
+# ------------------------------------------------------------------------------
+
+type: vertical-stack
+title: "🌦️ Meteocat - Granollers"
+cards:
+  # Targeta principal Weather
+  - type: weather-forecast
+    entity: weather.granollers_ym
+    show_forecast: true
+  
+  # Informació d'actualitzacions
+  - type: horizontal-stack
+    cards:
+      - type: entity
+        entity: sensor.granollers_ym_last_update
+        name: Última
+        icon: mdi:clock-check
+      
+      - type: entity
+        entity: sensor.granollers_ym_next_update
+        name: Pròxima
+        icon: mdi:clock-outline
+      
+      - type: button
+        entity: button.granollers_ym_refresh
+        name: Actualitzar
+        icon: mdi:refresh
+        tap_action:
+          action: call-service
+          service: button.press
+          service_data:
+            entity_id: button.granollers_ym_refresh
+  
+  # Quotes API
+  - type: horizontal-stack
+    cards:
+      - type: sensor
+        entity: sensor.granollers_ym_quota_prediccio
+        name: Predicció
+        graph: line
+      
+      - type: sensor
+        entity: sensor.granollers_ym_quota_xema
+        name: XEMA
+        graph: line
+
+# ------------------------------------------------------------------------------
+# 6. DASHBOARD COMPLET - MODE MUNICIPAL
+# ------------------------------------------------------------------------------
+
+type: vertical-stack
+title: "🏙️ Prediccions - Granollers"
+cards:
+  # Resum del dia
+  - type: markdown
+    content: |
+      ## 📍 {{ state_attr('sensor.granollers_prediccio_diaria', 'forecast').nom if state_attr('sensor.granollers_prediccio_diaria', 'forecast') else 'Granollers' }}
+      
+      {% set forecast = state_attr('sensor.granollers_prediccio_diaria', 'forecast') %}
+      {% if forecast and forecast.dies %}
+        {% set avui = forecast.dies[0] %}
+        
+        ### Avui - {{ avui.data }}
+        
+        🌡️ **Temperatura:** {{ avui.variables.tmin.valor }}°C - {{ avui.variables.tmax.valor }}°C
+        
+        ☔ **Pluja:** {{ avui.variables.ppcp.valor | default(0) }} mm
+        
+        💧 **Humitat:** {{ avui.variables.hrmin.valor }}% - {{ avui.variables.hrmax.valor }}%
+        
+        ☀️ **UV Màxim:** {{ states('sensor.granollers_index_uv') }}
+      {% else %}
+        _Carregant dades..._
+      {% endif %}
+  
+  # Predicció horària
+  - type: markdown
+    content: |
+      ### 🕐 Pròximes hores
+      
+      {% set forecast = state_attr('sensor.granollers_prediccio_horaria', 'forecast') %}
+      {% if forecast and forecast.dies %}
+        {% set avui = forecast.dies[0] %}
+        {% set ara = now().hour %}
+        
+        | Hora | Temp | Pluja | Vent |
+        |------|------|-------|------|
+        {% for h in range(ara, min(ara + 6, 24)) %}
+        | {{ '%02d' % h }}h | {{ avui.variables.temp.valors[h] | round(1) }}°C | {{ avui.variables.ppcp.valors[h] | default(0) | round(1) }}mm | {{ avui.variables.ws.valors[h] | round(0) }}km/h |
+        {% endfor %}
+      {% endif %}
+  
+  # Predicció setmanal
+  - type: markdown
+    content: |
+      ### 📅 Pròxims dies
+      
+      {% set forecast = state_attr('sensor.granollers_prediccio_diaria', 'forecast') %}
+      {% if forecast and forecast.dies %}
+        {% for dia in forecast.dies[1:6] %}
+        **{{ dia.data }}**: {{ dia.variables.tmin.valor }}°C - {{ dia.variables.tmax.valor }}°C, {{ dia.variables.ppcp.valor | default(0) }}mm
+        {% endfor %}
+      {% endif %}
+  
+  # UV Index
+  - type: gauge
+    entity: sensor.granollers_index_uv
+    name: Índex UV
+    min: 0
+    max: 11
+    severity:
+      green: 0
+      yellow: 3
+      orange: 6
+      red: 8
+  
+  # Botó actualització i quotes
+  - type: horizontal-stack
+    cards:
+      - type: button
+        entity: button.granollers_refresh
+        name: Actualitzar
+        icon: mdi:refresh
+        tap_action:
+          action: call-service
+          service: button.press
+          service_data:
+            entity_id: button.granollers_refresh
+      
+      - type: entity
+        entity: sensor.granollers_quota_prediccio
+        name: Quotes
+        icon: mdi:counter
+
+# ------------------------------------------------------------------------------
+# 7. TARGETES AVANÇADES AMB CUSTOM CARDS
+# ------------------------------------------------------------------------------
+
+# Mini Graph Card per visualitzar tendències (requereix custom:mini-graph-card)
+type: custom:mini-graph-card
+entities:
+  - entity: sensor.granollers_quota_prediccio
+    name: Predicció
+  - entity: sensor.granollers_quota_xema
+    name: XEMA
+name: Ús Quotes API
+hours_to_show: 168
+points_per_hour: 0.5
+line_width: 2
+font_size: 75
+show:
+  labels: true
+  points: false
+
+# Apexcharts per gràfics avançats (requereix custom:apexcharts-card)
+type: custom:apexcharts-card
+header:
+  show: true
+  title: Temperatura Prevista
+series:
+  - entity: sensor.granollers_prediccio_horaria
+    data_generator: |
+      const forecast = entity.attributes.forecast;
+      if (!forecast || !forecast.dies) return [];
+      const data = [];
+      forecast.dies.forEach(dia => {
+        dia.variables.temp.valors.forEach((temp, hora) => {
+          const timestamp = new Date(dia.data + 'T' + String(hora).padStart(2, '0') + ':00:00');
+          data.push([timestamp.getTime(), temp]);
+        });
+      });
+      return data;
+    name: Temperatura
+    type: line
+    color: '#ff6384'
+
+# Mushroom Cards per disseny modern (requereix custom:mushroom-cards)
+type: vertical-stack
+cards:
+  - type: custom:mushroom-title-card
+    title: Meteocat Granollers
+  
+  - type: custom:mushroom-entity-card
+    entity: weather.granollers_ym
+    icon: mdi:weather-partly-cloudy
+    name: Estat Actual
+  
+  - type: custom:mushroom-chips-card
+    chips:
+      - type: entity
+        entity: sensor.granollers_ym_last_update
+        icon: mdi:clock-check
+      
+      - type: entity
+        entity: sensor.granollers_index_uv
+        icon: mdi:weather-sunny
+      
+      - type: entity
+        entity: button.granollers_ym_refresh
+        icon: mdi:refresh
+        tap_action:
+          action: call-service
+          service: button.press
+          service_data:
+            entity_id: button.granollers_ym_refresh
+
+# ------------------------------------------------------------------------------
+# 8. TARGETA AMB MAPA (MODE ESTACIÓ)
+# ------------------------------------------------------------------------------
+
+# Targeta de mapa mostrant ubicació de l'estació
+type: map
+entities:
+  - entity: weather.granollers_ym
+default_zoom: 12
+dark_mode: auto
+
+# ------------------------------------------------------------------------------
+# 9. TARGETA CONDICIONAL - MOSTRA AVISOS
+# ------------------------------------------------------------------------------
+
+# Mostra avís només si farà molt de calor
+type: conditional
+conditions:
+  - entity: sensor.granollers_prediccio_diaria
+    state_not: unavailable
+  - condition: template
+    value_template: >
+      {% set forecast = state_attr('sensor.granollers_prediccio_diaria', 'forecast') %}
+      {{ forecast.dies[0].variables.tmax.valor | float > 30 if forecast else false }}
+card:
+  type: markdown
+  content: |
+    ## ⚠️ Avís Temperatura Alta
+    
+    Avui es preveuen més de 30°C!
+    
+    Recorda beure molta aigua i evitar l'exposició solar durant les hores centrals del dia.
+  card_mod:
+    style: |
+      ha-card {
+        background-color: rgba(255, 165, 0, 0.2);
+        border-left: 4px solid orange;
+      }
+
+# Mostra avís només si plourà
+type: conditional
+conditions:
+  - entity: sensor.granollers_prediccio_diaria
+    state_not: unavailable
+  - condition: template
+    value_template: >
+      {% set forecast = state_attr('sensor.granollers_prediccio_diaria', 'forecast') %}
+      {{ forecast.dies[0].variables.ppcp.valor | default(0) | float > 5 if forecast else false }}
+card:
+  type: markdown
+  content: |
+    ## ☔ Avís de Pluja
+    
+    Avui es preveuen més de 5mm de pluja.
+    
+    Porta't el paraigua!
+  card_mod:
+    style: |
+      ha-card {
+        background-color: rgba(0, 123, 255, 0.2);
+        border-left: 4px solid blue;
+      }
+
+# ------------------------------------------------------------------------------
+# 10. TARGETA DE TENDÈNCIES (requereix Sensors Template personalitzats)
+# ------------------------------------------------------------------------------
+
+# Crear primer aquests sensors template a configuration.yaml:
+# 
+# template:
+#   - sensor:
+#       - name: "Tendència Temperatura Demà"
+#         unit_of_measurement: "°C"
+#         state: >
+#           {% set forecast = state_attr('sensor.granollers_prediccio_diaria', 'forecast') %}
+#           {% if forecast and forecast.dies | length > 1 %}
+#             {{ (forecast.dies[1].variables.tmax.valor - forecast.dies[0].variables.tmax.valor) | round(1) }}
+#           {% else %}
+#             0
+#           {% endif %}
+
+type: entities
+entities:
+  - type: custom:template-entity-row
+    entity: sensor.tendencia_temperatura_dema
+    name: Tendència Temperatura
+    state: >
+      {% if states('sensor.tendencia_temperatura_dema') | float > 0 %}
+        ⬆️ +{{ states('sensor.tendencia_temperatura_dema') }}°C respecte avui
+      {% elif states('sensor.tendencia_temperatura_dema') | float < 0 %}
+        ⬇️ {{ states('sensor.tendencia_temperatura_dema') }}°C respecte avui
+      {% else %}
+        ➡️ Igual que avui
+      {% endif %}
+
+# ==============================================================================
+# FI D'EXEMPLES
+# ==============================================================================
+#
+# Per més informació sobre Lovelace i custom cards:
+# - https://www.home-assistant.io/lovelace/
+# - HACS per instal·lar custom cards
+#
+# Repositori del projecte:
+# https://github.com/yourusername/meteocat-community-edition
+#
+# ==============================================================================

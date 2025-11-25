@@ -1,0 +1,98 @@
+{
+  "title": "Meteocat (Community Edition)",
+  "config": {
+    "step": {
+      "user": {
+        "title": "API Access",
+        "description": "Enter your Meteocat API key",
+        "data": {
+          "api_key": "API Key",
+          "api_base_url": "API URL (optional, defaults to production)"
+        }
+      },
+      "mode": {
+        "title": "Entry type",
+        "description": "Select the entry type",
+        "data": {
+          "mode": "Mode"
+        }
+      },
+      "comarca": {
+        "title": "Select a region",
+        "description": "Choose the region where the weather station is located",
+        "data": {
+          "comarca_code": "Region"
+        }
+      },
+      "station": {
+        "title": "Select a station",
+        "description": "Choose the weather station you want to add",
+        "data": {
+          "station_code": "Station"
+        }
+      },
+      "municipality": {
+        "title": "Select a municipality",
+        "description": "Choose the municipality to get forecasts",
+        "data": {
+          "municipality_code": "Municipality"
+        }
+      },
+      "update_times": {
+        "title": "Data update",
+        "description": "Configure the two times of day when automatic data update will occur (24h format: HH:MM)",
+        "data": {
+          "update_time_1": "First update (HH:MM)",
+          "update_time_2": "Second update (HH:MM)"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Re-authentication required",
+        "description": "Your API key has expired or is invalid. Please enter a new valid API key."
+      }
+    },
+    "error": {
+      "cannot_connect": "Could not connect to Meteocat API. Check API key.",
+      "no_comarques": "No regions found",
+      "no_stations": "No stations found in this region",
+      "no_municipalities": "No municipalities found in this region",
+      "no_comarca_selected": "You must select a region",
+      "no_station_selected": "You must select a station",
+      "invalid_time_format": "Invalid time format. Use 24h format: HH:MM (example: 06:00 or 14:30)",
+      "times_must_differ": "The two update times must be different",
+      "required": "This field is required",
+      "invalid_auth": "Invalid API key. Please check that your API key is correct.",
+      "unknown": "Unknown error"
+    },
+    "abort": {
+      "already_configured": "This station is already configured",
+      "reauth_successful": "Re-authentication completed successfully"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Meteocat Options",
+        "description": "Configure advanced options and update times",
+        "data": {
+          "api_base_url": "API Base URL (leave default for production)",
+          "update_time_1": "First update (HH:MM)",
+          "update_time_2": "Second update (HH:MM)"
+        }
+      }
+    }
+  },
+  "events": {
+    "meteocat_community_edition_data_updated": {
+      "name": "Data updated",
+      "description": "A Meteocat data update has been completed (automatic or manual)"
+    }
+  },
+  "device_automation": {
+    "trigger_type": {
+      "data_updated": "Data updated",
+      "next_update_changed": "Next update changed"
+    }
+  }
+}
+

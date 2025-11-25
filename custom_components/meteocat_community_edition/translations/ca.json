@@ -1,0 +1,98 @@
+{
+  "title": "Meteocat (Edició Comunitària)",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Accés a l'API",
+        "description": "Introdueix la teva clau API de Meteocat",
+        "data": {
+          "api_key": "Clau API",
+          "api_base_url": "URL de l'API (opcional, per defecte producció)"
+        }
+      },
+      "mode": {
+        "title": "Tipus d'entrada",
+        "description": "Selecciona el tipus d'entrada",
+        "data": {
+          "mode": "Mode"
+        }
+      },
+      "comarca": {
+        "title": "Selecciona una comarca",
+        "description": "Tria la comarca on es troba l'estació meteorològica",
+        "data": {
+          "comarca_code": "Comarca"
+        }
+      },
+      "station": {
+        "title": "Selecciona una estació",
+        "description": "Tria l'estació meteorològica que vols afegir",
+        "data": {
+          "station_code": "Estació"
+        }
+      },
+      "municipality": {
+        "title": "Selecciona un municipi",
+        "description": "Tria el municipi per obtenir prediccions",
+        "data": {
+          "municipality_code": "Municipi"
+        }
+      },
+      "update_times": {
+        "title": "Actualització de dades",
+        "description": "Configura les dues hores del dia en què es realitzarà l'actualització automàtica de dades (format 24h: HH:MM)",
+        "data": {
+          "update_time_1": "Primera actualització (HH:MM)",
+          "update_time_2": "Segona actualització (HH:MM)"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Re-autenticació necessària",
+        "description": "La teva clau API ha expirat o no és vàlida. Si us plau, introdueix una nova clau API vàlida."
+      }
+    },
+    "error": {
+      "cannot_connect": "No s'ha pogut connectar amb l'API de Meteocat. Comprova la clau API.",
+      "no_comarques": "No s'han trobat comarques disponibles",
+      "no_stations": "No s'han trobat estacions en aquesta comarca",
+      "no_municipalities": "No s'han trobat municipis en aquesta comarca",
+      "no_comarca_selected": "Has de seleccionar una comarca",
+      "no_station_selected": "Has de seleccionar una estació",
+      "invalid_time_format": "Format d'hora no vàlid. Utilitza el format 24h: HH:MM (exemple: 06:00 o 14:30)",
+      "times_must_differ": "Les dues hores d'actualització han de ser diferents",
+      "required": "Aquest camp és obligatori",
+      "invalid_auth": "Clau API no vàlida. Si us plau, comprova que la clau API sigui correcta.",
+      "unknown": "Error desconegut"
+    },
+    "abort": {
+      "already_configured": "Aquesta estació ja està configurada",
+      "reauth_successful": "Re-autenticació completada correctament"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opcions de Meteocat",
+        "description": "Configura opcions avançades i hores d'actualització",
+        "data": {
+          "api_base_url": "URL base de l'API (deixa per defecte per a producció)",
+          "update_time_1": "Primera actualització (HH:MM)",
+          "update_time_2": "Segona actualització (HH:MM)"
+        }
+      }
+    }
+  },
+  "events": {
+    "meteocat_community_edition_data_updated": {
+      "name": "Dades actualitzades",
+      "description": "S'ha completat una actualització de dades de Meteocat (automàtica o manual)"
+    }
+  },
+  "device_automation": {
+    "trigger_type": {
+      "data_updated": "Dades actualitzades",
+      "next_update_changed": "Canvi de pròxima actualització"
+    }
+  }
+}
+

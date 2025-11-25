@@ -1,0 +1,403 @@
+# ==============================================================================
+# EXEMPLES D'AUTOMATITZACIONS - Meteocat (Community Edition)
+# ==============================================================================
+#
+# Aquest fitxer conté exemples pràctics d'automatitzacions per utilitzar
+# la integració Meteocat amb Home Assistant.
+#
+# NOTA: Canvia els noms d'entitats per adaptar-los a la teva configuració!
+#
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. NOTIFICACIONS BASADES EN ESDEVENIMENTS
+# ------------------------------------------------------------------------------
+
+# Notificació quan hi ha noves dades disponibles
+- alias: "Meteocat - Notificació actualització dades"
+  description: "Envia notificació cada cop que s'actualitzen les dades de Meteocat"
+  trigger:
+    - platform: event
+      event_type: meteocat_community_edition_data_updated
+  action:
+    - service: notify.mobile_app
+      data:
+        title: "☁️ Meteocat actualitzat"
+        message: >
+          Noves dades meteorològiques disponibles.
+          Mode: {{ trigger.event.data.mode }}
+          Timestamp: {{ trigger.event.data.timestamp }}
+
+# Notificació només per una estació específica
+- alias: "Meteocat - Notificació estació Granollers"
+  description: "Notifica només quan s'actualitza l'estació de Granollers"
+  trigger:
+    - platform: event
+      event_type: meteocat_community_edition_data_updated
+      event_data:
+        mode: estacio
+        station_code: YM  # Canvia pel codi de la teva estació
+  action:
+    - service: notify.mobile_app
+      data:
+        title: "🌡️ Estació Granollers actualitzada"
+        message: "Noves dades de l'estació meteorològica de Granollers!"
+
+# Notificació només per un municipi específic
+- alias: "Meteocat - Notificació municipi Granollers"
+  description: "Notifica només quan s'actualitza el municipi de Granollers"
+  trigger:
+    - platform: event
+      event_type: meteocat_community_edition_data_updated
+      event_data:
+        mode: municipi
+        municipality_code: "080759"  # Canvia pel codi del teu municipi
+  action:
+    - service: notify.mobile_app
+      data:
+        title: "🏙️ Prediccions Granollers"
+        message: "Noves prediccions municipals disponibles!"
+
+# ------------------------------------------------------------------------------
+# 2. ALERTES METEOROLÒGIQUES BASADES EN PREDICCIONS
+# ------------------------------------------------------------------------------
+
+# Avís de temperatura alta demà (Mode Municipal)
+- alias: "Meteocat - Avís temperatura alta demà"
+  description: "Notifica a les 20h si demà farà més de 30°C"
+  trigger:
+    - platform: time
+      at: "20:00:00"
+  condition:
+    - condition: template
+      value_template: >
+        {% set forecast = state_attr('sensor.granollers_prediccio_diaria', 'forecast') %}
+        {% if forecast and forecast.dies | length > 1 %}
+          {{ forecast.dies[1].variables.tmax.valor | float > 30 }}
+        {% else %}
+          false
+        {% endif %}
+  action:
+    - service: notify.mobile_app
+      data:
+        title: "🔥 Temperatura alta demà"
+        message: >
+          {% set forecast = state_attr('sensor.granollers_prediccio_diaria', 'forecast') %}
+          Demà es preveuen {{ forecast.dies[1].variables.tmax.valor }}°C.
+          Porta't aigua i protector solar!
+
+# Avís de temperatura baixa demà (Mode Municipal)
+- alias: "Meteocat - Avís temperatura baixa demà"
+  description: "Notifica a les 20h si demà farà menys de 5°C"
+  trigger:
+    - platform: time
+      at: "20:00:00"
+  condition:
+    - condition: template
+      value_template: >
+        {% set forecast = state_attr('sensor.granollers_prediccio_diaria', 'forecast') %}
+        {% if forecast and forecast.dies | length > 1 %}
+          {{ forecast.dies[1].variables.tmin.valor | float < 5 }}
+        {% else %}
+          false
+        {% endif %}
+  action:
+    - service: notify.mobile_app
+      data:
+        title: "❄️ Temperatura baixa demà"
+        message: >
+          {% set forecast = state_attr('sensor.granollers_prediccio_diaria', 'forecast') %}
+          Demà es preveuen {{ forecast.dies[1].variables.tmin.valor }}°C de mínima.
+          Abriga't bé!
+
+# Avís de pluja prevista avui
+- alias: "Meteocat - Avís pluja avui"
+  description: "Notifica al matí si avui plourà"
+  trigger:
+    - platform: time
+      at: "07:00:00"
+  condition:
+    - condition: template
+      value_template: >
+        {% set forecast = state_attr('sensor.granollers_prediccio_diaria', 'forecast') %}
+        {% if forecast and forecast.dies | length > 0 %}
+          {{ forecast.dies[0].variables.ppcp.valor | default(0) | float > 0 }}
+        {% else %}
+          false
+        {% endif %}
+  action:
+    - service: notify.mobile_app
+      data:
+        title: "☔ Pluja prevista avui"
+        message: >
+          {% set forecast = state_attr('sensor.granollers_prediccio_diaria', 'forecast') %}
+          Es preveuen {{ forecast.dies[0].variables.ppcp.valor }}mm de pluja.
+          Porta't el paraigua!
+
+# Avís d'índex UV alt
+- alias: "Meteocat - Avís UV alt"
+  description: "Notifica quan l'índex UV és superior a 6"
+  trigger:
+    - platform: numeric_state
+      entity_id: sensor.granollers_index_uv
+      above: 6
+  action:
+    - service: notify.mobile_app
+      data:
+        title: "☀️ Índex UV alt"
+        message: >
+          L'índex UV és {{ states('sensor.granollers_index_uv') }}.
+          Protegeix-te del sol amb crema solar!
+
+# ------------------------------------------------------------------------------
+# 3. AUTOMATITZACIONS INTEL·LIGENTS DE CASA
+# ------------------------------------------------------------------------------
+
+# Tancar persianes si farà molta calor demà
+- alias: "Meteocat - Tancar persianes si calor demà"
+  description: "Tanca persianes a les 7h si demà farà més de 32°C"
+  trigger:
+    - platform: time
+      at: "07:00:00"
+  condition:
+    - condition: template
+      value_template: >
+        {% set forecast = state_attr('sensor.granollers_prediccio_diaria', 'forecast') %}
+        {% if forecast and forecast.dies | length > 0 %}
+          {{ forecast.dies[0].variables.tmax.valor | float > 32 }}
+        {% else %}
+          false
+        {% endif %}
+  action:
+    - service: cover.close_cover
+      target:
+        entity_id: cover.persiana_saló  # Canvia per les teves persianes
+    - service: notify.mobile_app
+      data:
+        message: "Persianes tancades automàticament. Avui farà molta calor!"
+
+# Activar reg si no ha plogut
+- alias: "Meteocat - Reg automàtic si no plou"
+  description: "Activa el reg si ahir no va ploure"
+  trigger:
+    - platform: time
+      at: "06:30:00"
+  condition:
+    - condition: template
+      value_template: >
+        {% set forecast = state_attr('sensor.granollers_prediccio_diaria', 'forecast') %}
+        {% if forecast and forecast.dies | length > 0 %}
+          {{ forecast.dies[0].variables.ppcp.valor | default(0) | float == 0 }}
+        {% else %}
+          true
+        {% endif %}
+  action:
+    - service: switch.turn_on
+      target:
+        entity_id: switch.reg_jardí  # Canvia per la teva entitat de reg
+    - delay:
+        minutes: 15
+    - service: switch.turn_off
+      target:
+        entity_id: switch.reg_jardí
+
+# Escalfar casa si farà fred al vespre
+- alias: "Meteocat - Pre-escalfar casa"
+  description: "Escalfa la casa si a la nit farà menys de 12°C"
+  trigger:
+    - platform: time
+      at: "18:00:00"
+  condition:
+    - condition: template
+      value_template: >
+        {% set forecast = state_attr('sensor.granollers_prediccio_horaria', 'forecast') %}
+        {% if forecast and forecast.dies | length > 0 %}
+          {% set temp_22h = forecast.dies[0].variables.temp.valors[22] | default(15) %}
+          {{ temp_22h | float < 12 }}
+        {% else %}
+          false
+        {% endif %}
+  action:
+    - service: climate.set_temperature
+      target:
+        entity_id: climate.termòstat_saló  # Canvia per la teva entitat
+      data:
+        temperature: 21
+
+# ------------------------------------------------------------------------------
+# 4. GESTIÓ DE QUOTES API
+# ------------------------------------------------------------------------------
+
+# Avís de quotes baixes (menys del 20%)
+- alias: "Meteocat - Avís quotes baixes"
+  description: "Notifica quan queden menys del 20% de quotes disponibles"
+  trigger:
+    - platform: numeric_state
+      entity_id:
+        - sensor.granollers_ym_quota_prediccio
+        - sensor.granollers_ym_quota_xema
+      below: 200  # Ajusta segons el teu pla (20% de 1000 = 200)
+  action:
+    - service: notify.mobile_app
+      data:
+        title: "⚠️ Quotes Meteocat baixes"
+        message: >
+          Queden poques peticions disponibles:
+          Predicció: {{ states('sensor.granollers_ym_quota_prediccio') }}
+          XEMA: {{ states('sensor.granollers_ym_quota_xema') }}
+
+# Notificació quan es resetegin les quotes
+- alias: "Meteocat - Notificació reset quotes"
+  description: "Informa quan es resetegin les quotes mensuals"
+  trigger:
+    - platform: state
+      entity_id: sensor.granollers_ym_quota_prediccio
+  condition:
+    - condition: template
+      value_template: >
+        {{ trigger.to_state.state | int > trigger.from_state.state | int + 500 }}
+  action:
+    - service: notify.mobile_app
+      data:
+        title: "🔄 Quotes Meteocat resetejades"
+        message: >
+          Les quotes mensuals s'han resetejat.
+          Disponibles: {{ states('sensor.granollers_ym_quota_prediccio') }}
+
+# ------------------------------------------------------------------------------
+# 5. ACTUALITZACIONS MANUALS INTEL·LIGENTS
+# ------------------------------------------------------------------------------
+
+# Actualització manual abans de sortir de casa
+- alias: "Meteocat - Actualitzar abans de sortir"
+  description: "Actualitza dades quan obris la porta al matí"
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.porta_entrada  # Canvia per la teva entitat
+      to: "on"
+  condition:
+    - condition: time
+      after: "06:00:00"
+      before: "10:00:00"
+    - condition: template
+      value_template: >
+        {{ (now() - states.sensor.granollers_ym_last_update.last_changed).total_seconds() > 3600 }}
+  action:
+    - service: button.press
+      target:
+        entity_id: button.granollers_ym_refresh
+
+# Actualització manual si fa més d'una hora que no s'ha actualitzat
+- alias: "Meteocat - Actualització d'emergència"
+  description: "Força actualització si fa més de 6 hores sense actualitzar"
+  trigger:
+    - platform: time_pattern
+      hours: "/1"  # Comprova cada hora
+  condition:
+    - condition: template
+      value_template: >
+        {{ (now() - states.sensor.granollers_ym_last_update.last_changed).total_seconds() > 21600 }}
+  action:
+    - service: button.press
+      target:
+        entity_id: button.granollers_ym_refresh
+    - service: notify.mobile_app
+      data:
+        title: "⚠️ Actualització Meteocat forçada"
+        message: "Feia més de 6 hores sense actualitzar. Actualització forçada."
+
+# ------------------------------------------------------------------------------
+# 6. AUTOMATITZACIONS BASADES EN TIMESTAMPS
+# ------------------------------------------------------------------------------
+
+# Notificació 5 minuts abans de l'actualització programada
+- alias: "Meteocat - Recordatori actualització propera"
+  description: "Avisa 5 minuts abans de l'actualització programada"
+  trigger:
+    - platform: template
+      value_template: >
+        {{ (as_timestamp(states('sensor.granollers_ym_next_update')) - now().timestamp()) < 300 and
+           (as_timestamp(states('sensor.granollers_ym_next_update')) - now().timestamp()) > 0 }}
+  action:
+    - service: notify.mobile_app
+      data:
+        title: "🕐 Actualització Meteocat en 5 minuts"
+        message: >
+          Pròxima actualització a les {{ states('sensor.granollers_ym_next_update') | as_timestamp | timestamp_custom('%H:%M') }}
+
+# Registrar al logbook cada actualització
+- alias: "Meteocat - Log actualitzacions"
+  description: "Registra cada actualització al logbook de Home Assistant"
+  trigger:
+    - platform: event
+      event_type: meteocat_community_edition_data_updated
+  action:
+    - service: logbook.log
+      data:
+        name: "Meteocat"
+        message: >
+          Actualització completada:
+          Mode: {{ trigger.event.data.mode }}
+          {% if trigger.event.data.station_code %}
+          Estació: {{ trigger.event.data.station_code }}
+          {% endif %}
+          {% if trigger.event.data.municipality_code %}
+          Municipi: {{ trigger.event.data.municipality_code }}
+          {% endif %}
+          Hora: {{ trigger.event.data.timestamp }}
+
+# ------------------------------------------------------------------------------
+# 7. INTEGRACIONS AMB ALTRES SERVEIS
+# ------------------------------------------------------------------------------
+
+# Actualitzar dashboard de Lovelace després d'actualització
+- alias: "Meteocat - Refresh dashboard"
+  description: "Actualitza el dashboard meteorològic després de cada actualització"
+  trigger:
+    - platform: event
+      event_type: meteocat_community_edition_data_updated
+  action:
+    - service: browser_mod.navigate
+      data:
+        path: /lovelace/meteo  # Canvia per la teva vista
+    - delay:
+        seconds: 1
+    - service: browser_mod.navigate
+      data:
+        path: /lovelace/0
+
+# Enviar dades a InfluxDB per històric
+- alias: "Meteocat - Export to InfluxDB"
+  description: "Exporta dades a InfluxDB per anàlisi històrica"
+  trigger:
+    - platform: event
+      event_type: meteocat_community_edition_data_updated
+  action:
+    - service: script.export_meteocat_to_influxdb  # Defineix el teu script
+
+# Publicar a MQTT per integració amb Node-RED
+- alias: "Meteocat - Publish to MQTT"
+  description: "Publica actualitzacions a MQTT"
+  trigger:
+    - platform: event
+      event_type: meteocat_community_edition_data_updated
+  action:
+    - service: mqtt.publish
+      data:
+        topic: "home/meteocat/update"
+        payload: >
+          {
+            "mode": "{{ trigger.event.data.mode }}",
+            "timestamp": "{{ trigger.event.data.timestamp }}",
+            "station_code": "{{ trigger.event.data.station_code | default('') }}",
+            "municipality_code": "{{ trigger.event.data.municipality_code | default('') }}"
+          }
+
+# ==============================================================================
+# FI D'EXEMPLES
+# ==============================================================================
+#
+# Per més informació i exemples avançats:
+# https://github.com/yourusername/meteocat-community-edition
+#
+# ==============================================================================
