@@ -9,5 +9,5 @@
   "issue_tracker": "https://github.com/PacmanForever/meteocat_community_edition/issues",
   "requirements": ["aiohttp>=3.9.0"],
   "version": "1.0.3",
-  "homeassistant": "2023.8.0"
+  "homeassistant": "2024.1.0"
 }
