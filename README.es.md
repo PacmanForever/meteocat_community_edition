@@ -5,274 +5,275 @@
 [![hacs][hacsbadge]][hacs]
 ![Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)
 
-IntegraciÃ³n **comunitaria** y **no oficial** para Home Assistant del Servicio MeteorolÃ³gico de CataluÃ±a (Meteocat).
+Integración **comunitaria** y **no oficial** para Home Assistant del Servicio Meteorológico de Cataluña (Meteocat).
 
-> ðŸ“¢ **IntegraciÃ³n de la Comunidad**
+>  **Integración de la Comunidad**
 >
-> Esta es una integraciÃ³n **creada por la comunidad**, **gratuita** y de **cÃ³digo abierto**. No estÃ¡ afiliada, patrocinada ni aprobada por el Servicio MeteorolÃ³gico de CataluÃ±a.
+> Esta es una integración **creada por la comunidad**, **gratuita** y de **código abierto**. No está afiliada, patrocinada ni aprobada por el Servicio Meteorológico de Cataluña.
 >
-> âœ… **Uso Legal y Oficial de la API**: Utiliza la [**API oficial del Meteocat**](https://apidocs.meteocat.gencat.cat/) de manera completamente legal y siguiendo sus condiciones de uso.
+>  **Uso Legal y Oficial de la API**: Utiliza la [**API oficial del Meteocat**](https://apidocs.meteocat.gencat.cat/) de manera completamente legal y siguiendo sus condiciones de uso.
 >
-> ðŸŽ¯ **Objetivo**: Facilitar la integraciÃ³n con Home Assistant sin necesidad de conocer el funcionamiento interno de la API. No tiene ningÃºn fin comercial ni busca obtener ningÃºn beneficio econÃ³mico.
+>  **Objetivo**: Facilitar la integración con Home Assistant sin necesidad de conocer el funcionamiento interno de la API. No tiene ningún fin comercial ni busca obtener ningún beneficio económico.
 
 **Es necesario registrarse** en la API de Meteocat para obtener una clave API gratuita (plan ciudadano) o de pago (plan empresa).
 
-**Idiomas**: [CatalÃ ](README.md) | [English](README.en.md) | **EspaÃ±ol**
+**Idiomas**: [Català](README.md) | [English](README.en.md) | **Español**
+## Característiques
 
-## CaracterÃ­sticas
+- 🌡️ **Dades meteorològiques en temps real** de les estacions XEMA
+- 📊 **Prediccions horàries** (72 hores) i **diàries** (8 dies)
+- ☀️ **Índex UV** previst
+- 📈 **Sensors de quotes API** per controlar l'ús
+- 🏢 **Múltiples estacions** configurables
+- 🏙️ **Mode Municipi** per obtenir només prediccions (sense estació)
+- 🌍 Traduccions en **català**, **castellà** i **anglès**
 
-- ðŸŒ¡ï¸ **Datos meteorolÃ³gicos en tiempo real** de las estaciones XEMA
-- ðŸ“Š **Predicciones horarias** (72 horas) y **diarias** (8 dÃ­as)
-- â˜€ï¸ **Ãndice UV** previsto
-- ðŸ“ˆ **Sensores de cuotas API** para controlar el uso
-- ðŸ¢ **MÃºltiples estaciones** configurables
-- ðŸ™ï¸ **Modo Municipio** para obtener solo predicciones (sin estaciÃ³n)
-- ðŸŒ Traducciones en **catalÃ¡n**, **castellano** e **inglÃ©s**
+## Instal·lació
 
-## InstalaciÃ³n
+### Via HACS (Recomanat)
 
-### VÃ­a HACS (Recomendado)
-
-1. Asegúrate de tener [HACS](https://hacs.xyz/) instalado
-2. En HACS, ve a "Integraciones"
-3. Haz clic en el menú de 3 puntos (arriba a la derecha) y selecciona "Repositorios personalizados"
-4. Añade esta URL: `https://github.com/PacmanForever/meteocat_community_edition`
-5. Categoría: `Integration`
-6. Haz clic en "AÃ±adir"
-7. Busca "Meteocat" e instala
+1. Assegura't que tens [HACS](https://hacs.xyz/) instal·lat
+2. A HACS, ves a "Integracions"
+3. Fes clic al menú de 3 punts (dalt a la dreta) i selecciona "Repositoris personalitzats"
+4. Afegeix aquest URL: `https://github.com/PacmanForever/meteocat_community_edition`
+5. Categoria: `Integration`
+6. Fes clic a "Afegir"
+7. Cerca "Meteocat" i instal·la
 8. Reinicia Home Assistant
 
 ### Manual
 
-1. Descarga la carpeta `custom_components/meteocat_community_edition`
-2. CÃ³piala a `<config>/custom_components/meteocat_community_edition`
+1. Descarrega la carpeta `custom_components/meteocat_community_edition`
+2. Copia-la a `<config>/custom_components/meteocat_community_edition`
 3. Reinicia Home Assistant
 
-## ConfiguraciÃ³n
+## Configuració
 
-### Obtener una API Key
+### Obtenir una API Key
 
-1. RegÃ­strate en [https://apidocs.meteocat.gencat.cat/](https://apidocs.meteocat.gencat.cat/)
-2. Sigue el [proceso de registro](https://apidocs.meteocat.gencat.cat/documentacio/proces-de-registre/)
-3. ObtendrÃ¡s una clave API Ãºnica
+1. Registra't a [https://apidocs.meteocat.gencat.cat/](https://apidocs.meteocat.gencat.cat/)
+2. Segueix el [procés de registre](https://apidocs.meteocat.gencat.cat/documentacio/proces-de-registre/)
+3. Obtindràs una clau API única
 
-### AÃ±adir una estaciÃ³n o municipio
+### Afegir una estació o municipi
 
-#### Modo EstaciÃ³n (con datos en tiempo real)
+#### Mode Estació (amb dades en temps real)
 
-1. En Home Assistant, ve a **ConfiguraciÃ³n** â†’ **Dispositivos y Servicios**
-2. Haz clic en **AÃ±adir integraciÃ³n**
-3. Busca **Meteocat (Community Edition)**
-4. Introduce tu **clave API**
-5. Selecciona **"EstaciÃ³n XEMA"**
+1. A Home Assistant, ves a **Configuració** → **Dispositius i Serveis**
+2. Fes clic a **Afegir integració**
+3. Cerca **Meteocat (Community Edition)**
+4. Introdueix la teva **clau API**
+5. Selecciona **"Estació XEMA"**
 6. Selecciona la **comarca**
-7. Selecciona la **estaciÃ³n meteorolÃ³gica**
-8. Configura las **horas de actualizaciÃ³n** (por defecto 06:00 y 14:00)
+7. Selecciona l'**estació meteorològica**
+8. Configura les **hores d'actualització** (per defecte 06:00 i 14:00)
 
-Esto crearÃ¡:
-- **Entidad Weather** con datos actuales de la estaciÃ³n y predicciones
-- **Sensores de cuotas** API
-- **Sensores de horas de actualizaciÃ³n** configuradas
+Això crearà:
+- **Entitat Weather** amb dades actuals de l'estació i prediccions
+- **Sensors de quotes** API
+- **Sensors d'hores d'actualització** configurades
 
-#### Modo Municipio (sin estaciÃ³n)
+#### Mode Municipi (només prediccions)
 
-1. En Home Assistant, ve a **ConfiguraciÃ³n** â†’ **Dispositivos y Servicios**
-2. Haz clic en **AÃ±adir integraciÃ³n**
-3. Busca **Meteocat (Community Edition)**
-4. Introduce tu **clave API**
-5. Selecciona **"predicciones municipales"**
+> ⚠️ **Important:** Aquest mode està pensat **exclusivament** per a usuaris que tenen una **estació meteorològica local** (personal, Netatmo, Ecowitt, etc.) i volen complementar-la amb les **prediccions horàries i diàries oficials** de Meteocat. Si no tens cap estació meteorològica local, utilitza el **Mode Estació** que et proporcionarà tant dades en temps real com prediccions.
+
+Aquest mode crea sensors amb les prediccions en els seus atributs, permetent-te utilitzar-les en entitats `weather.template` personalitzades que combinin dades de la teva estació local amb prediccions oficials.
+
+1. A Home Assistant, ves a **Configuració** → **Dispositius i Serveis**
+2. Fes clic a **Afegir integració**
+3. Cerca **Meteocat (Community Edition)**
+4. Introdueix la teva **clau API**
+5. Selecciona **"Prediccions municipals""
 6. Selecciona la **comarca**
-7. Selecciona el **municipio**
-8. Configura las **horas de actualizaciÃ³n** (por defecto 06:00 y 14:00)
+7. Selecciona el **municipi**
+8. Configura les **hores d'actualització** (per defecte 06:00 i 14:00)
 
-Esto crearÃ¡:
-- **Sensor de predicciÃ³n horaria** (72h en atributos)
-- **Sensor de predicciÃ³n diaria** (8 dÃ­as en atributos)
-- **Sensor de Ã­ndice UV**
-- **Sensores de cuotas** API
-- **Sensores de horas de actualizaciÃ³n** configuradas
+Això crearà:
+- **Sensor de predicció horària** (72h en atributs) - Per utilitzar en `weather.template`
+- **Sensor de predicció diària** (8 dies en atributs) - Per utilitzar en `weather.template`
+- **Sensor d'índex UV**
+- **Sensors de quotes** API
+- **Sensors d'hores d'actualització** configurades
 
-> **Nota:** El Modo Municipio es ideal si tienes una estaciÃ³n meteorolÃ³gica local y solo quieres aÃ±adir las predicciones oficiales de Meteocat.
+**Pots configurar múltiples estacions i municipis** (amb diferents API keys per incrementar els límits).
 
-**Puedes configurar mÃºltiples estaciones y municipios** (con diferentes API keys para incrementar los lÃ­mites).
+### Opcions avançades
 
-### Opciones avanzadas
+Per configurar un endpoint personalitzat o modificar les hores d'actualització:
 
-Para configurar un endpoint personalizado o modificar las horas de actualizaciÃ³n:
-
-1. Ve a **ConfiguraciÃ³n** â†’ **Dispositivos y Servicios**
-2. Encuentra **Meteocat (Community Edition)**
-3. Haz clic en los 3 puntos â†’ **Opciones**
+1. Ves a **Configuració** → **Dispositius i Serveis**
+2. Troba **Meteocat (Community Edition)**
+3. Fes clic als 3 punts → **Opcions**
 4. Modifica:
-   - **URL base de la API** (deja vacÃ­o para producciÃ³n)
-   - **Horas de actualizaciÃ³n** (formato 24h: HH:MM)
+   - **URL base de l'API** (deixa valor per defecte o buit per a producció)
+   - **Hores d'actualització** (format 24h: HH:MM)
 
-## Entidades
+## Entitats
 
-### Modo EstaciÃ³n XEMA
+### Mode Estació XEMA
 
-Para cada estaciÃ³n configurada se crean:
+Per cada estació configurada es creen:
 
 #### Weather Entity
-- `weather.{estacion}_{codigo}`: Entidad principal con datos actuales y predicciones
-- Ejemplo: `weather.Barcelona_ym`
+- `weather.{estacio}_{codi}`: Entitat principal amb dades actuals i prediccions
+- Exemple: `weather.Barcelona_ym`
 
-#### Sensores de Cuotas
-- **Peticiones disponibles PredicciÃ³n**: Consumos restantes del plan PredicciÃ³n
-- **Peticiones disponibles Referencia**: Consumos restantes del plan Referencia  
-- **Peticiones disponibles XDDE**: Consumos restantes del plan XDDE
-- **Peticiones disponibles XEMA**: Consumos restantes del plan XEMA
-- Entity IDs: `sensor.{estacion}_{codigo}_quota_{plan}`
-- Ejemplo: `sensor.Barcelona_ym_quota_prediccio`
-- Atributos: lÃ­mite total, peticiones utilizadas, fecha de reset
+#### Sensors de Quotes
+- **Peticions disponibles Predicció**: Consums restants del pla Predicció
+- **Peticions disponibles Referència**: Consums restants del pla Referència  
+- **Peticions disponibles XDDE**: Consums restants del pla XDDE
+- **Peticions disponibles XEMA**: Consums restants del pla XEMA
+- Entity IDs: `sensor.{estacio}_{codi}_quota_{pla}`
+- Exemple: `sensor.Barcelona_ym_quota_prediccio`
+- Atributs: límit total, peticions utilitzades, data de reset
 
-#### Sensores de Timestamps
-- **Ãšltima actualizaciÃ³n**: Timestamp de la Ãºltima actualizaciÃ³n exitosa
-- **PrÃ³xima actualizaciÃ³n**: Timestamp de la prÃ³xima actualizaciÃ³n programada
-- Entity IDs: `sensor.{estacion}_{codigo}_last_update`, `sensor.{estacion}_{codigo}_next_update`
+#### Sensors de Timestamps
+- **Última actualització**: Timestamp de la darrera actualització exitosa
+- **Pròxima actualització**: Timestamp de la pròxima actualització programada
+- Entity IDs: `sensor.{estacio}_{codi}_last_update`, `sensor.{estacio}_{codi}_next_update`
 
-#### Sensores de Horas de ActualizaciÃ³n
-- **Hora de actualizaciÃ³n 1**: Muestra la primera hora configurada (solo lectura)
-- **Hora de actualizaciÃ³n 2**: Muestra la segunda hora configurada (solo lectura)
-- Entity IDs: `sensor.{estacion}_{codigo}_update_time_1`, `sensor.{estacion}_{codigo}_update_time_2`
-- Formato: HH:MM (24h)
+#### Sensors d'Hores d'Actualització
+- **Hora d'actualització 1**: Mostra la primera hora configurada (read-only)
+- **Hora d'actualització 2**: Mostra la segona hora configurada (read-only)
+- Entity IDs: `sensor.{estacio}_{codi}_update_time_1`, `sensor.{estacio}_{codi}_update_time_2`
+- Format: HH:MM (24h)
 
-#### BotÃ³n de ActualizaciÃ³n
-- **Actualizar datos**: Fuerza una actualizaciÃ³n inmediata de todos los datos
-- Entity ID: `button.{estacion}_{codigo}_refresh`
-- Ejemplo: `button.Barcelona_ym_refresh`
+#### Botó d'Actualització
+- **Actualitzar dades**: Força una actualització immediata de totes les dades
+- Entity ID: `button.{estacio}_{codi}_refresh`
+- Exemple: `button.Barcelona_ym_refresh`
 
-> **Nota:** Todas las entidades se agrupan bajo un Ãºnico dispositivo con nombre "{EstaciÃ³n} {CÃ³digo}" (ej: "Barcelona YM")
+> **Nota:** Totes les entitats s'agrupen sota un únic dispositiu amb nom "{Estació} {Codi}" (ex: "Barcelona YM")
 
-### Modo Predicciones Municipales
+### Mode Prediccions Municipals
 
-Para cada municipio configurado se crean:
+Per cada municipi configurat es creen:
 
-#### Sensor PredicciÃ³n Horaria
-- **Nombre**: {Municipio} PredicciÃ³n Horaria
-- **Entity ID**: `sensor.{municipio}_prediccio_horaria`
-- Estado: NÃºmero de horas de predicciÃ³n disponibles (ej: "72 horas")
-- Atributos: Datos completos de predicciÃ³n horaria (72h)
+#### Sensor Predicció Horària
+- **Nom**: {Municipi} Predicció Horària
+- **Entity ID**: `sensor.{municipi}_prediccio_horaria`
+- Estat: Nombre d'hores de predicció disponibles (ex: "72 hores")
+- Atributs: Dades completes de predicció horària (72h)
 
-#### Sensor PredicciÃ³n Diaria
-- **Nombre**: {Municipio} PredicciÃ³n Diaria
-- **Entity ID**: `sensor.{municipio}_prediccio_diaria`
-- Estado: NÃºmero de dÃ­as de predicciÃ³n disponibles (ej: "8 dÃ­as")
-- Atributos: Datos completos de predicciÃ³n diaria (8 dÃ­as)
+#### Sensor Predicció Diària
+- **Nom**: {Municipi} Predicció Diària
+- **Entity ID**: `sensor.{municipi}_prediccio_diaria`
+- Estat: Nombre de dies de predicció disponibles (ex: "8 dies")
+- Atributs: Dades completes de predicció diària (8 dies)
 
-#### Sensor PredicciÃ³n Ãndice UV
-- **Nombre**: {Municipio} PredicciÃ³n Ãndice UV
-- **Entity ID**: `sensor.{municipio}_prediccio_index_uv`
-- Estado: NÃºmero de dÃ­as con predicciÃ³n UV disponible (ej: "3 dies")
-- Atributos: Datos completos de previsiÃ³n UV (datos horarios para 3 dÃ­as)
+#### Sensor Predicció Índex UV
+- **Nom**: {Municipi} Predicció Índex UV
+- **Entity ID**: `sensor.{municipi}_prediccio_index_uv`
+- Estat: Nombre de dies de predicció UV disponibles (ex: "3 dies")
+- Atributs: Dades completes de previsió UV (dades horàries per 3 dies)
 
-#### Sensores de Cuotas
-- **Peticiones disponibles PredicciÃ³n**: Consumos restantes del plan PredicciÃ³n
-- **Peticiones disponibles Referencia**: Consumos restantes del plan Referencia  
-- **Peticiones disponibles XDDE**: Consumos restantes del plan XDDE
-- **Peticiones disponibles XEMA**: Consumos restantes del plan XEMA
-- Entity IDs: `sensor.{municipio}_quota_{plan}`
-- Ejemplo: `sensor.Barcelona_quota_prediccio`
-- Atributos: lÃ­mite total, peticiones utilizadas, fecha de reset
+#### Sensors de Quotes
+- **Peticions disponibles Predicció**: Consums restants del pla Predicció
+- **Peticions disponibles Referència**: Consums restants del pla Referència  
+- **Peticions disponibles XDDE**: Consums restants del pla XDDE
+- **Peticions disponibles XEMA**: Consums restants del pla XEMA
+- Entity IDs: `sensor.{municipi}_quota_{pla}`
+- Exemple: `sensor.Barcelona_quota_prediccio`
+- Atributs: límit total, peticions utilitzades, data de reset
 
-#### Sensores de Timestamps
-- **Ãšltima actualizaciÃ³n**: Timestamp de la Ãºltima actualizaciÃ³n exitosa
-- **PrÃ³xima actualizaciÃ³n**: Timestamp de la prÃ³xima actualizaciÃ³n programada
-- Entity IDs: `sensor.{municipio}_last_update`, `sensor.{municipio}_next_update`
+#### Sensors de Timestamps
+- **Última actualització**: Timestamp de la darrera actualització exitosa
+- **Pròxima actualització**: Timestamp de la pròxima actualització programada
+- Entity IDs: `sensor.{municipi}_last_update`, `sensor.{municipi}_next_update`
 
-#### Sensores de Horas de ActualizaciÃ³n
-- **Hora de actualizaciÃ³n 1**: Muestra la primera hora configurada (solo lectura)
-- **Hora de actualizaciÃ³n 2**: Muestra la segunda hora configurada (solo lectura)
-- Entity IDs: `sensor.{municipio}_update_time_1`, `sensor.{municipio}_update_time_2`
-- Formato: HH:MM (24h)
+#### Sensors d'Hores d'Actualització
+- **Hora d'actualització 1**: Mostra la primera hora configurada (read-only)
+- **Hora d'actualització 2**: Mostra la segona hora configurada (read-only)
+- Entity IDs: `sensor.{municipi}_update_time_1`, `sensor.{municipi}_update_time_2`
+- Format: HH:MM (24h)
 
-#### BotÃ³n de ActualizaciÃ³n
-- **Actualizar datos**: Fuerza una actualizaciÃ³n inmediata de todos los datos
-- Entity ID: `button.{municipio}_refresh`
-- Ejemplo: `button.Barcelona_refresh`
+#### Botó d'Actualització
+- **Actualitzar dades**: Força una actualització immediata de totes les dades
+- Entity ID: `button.{municipi}_refresh`
+- Exemple: `button.Barcelona_refresh`
 
-> **Nota:** Todas las entidades se agrupan bajo un Ãºnico dispositivo con nombre "{Municipio}" (ej: "Barcelona")
+> **Nota:** Totes les entitats s'agrupen sota un únic dispositiu amb nom "{Municipi}" (ex: "Barcelona")
 
-## Actualización de datos
+## Actualització de dades
 
-### 📊 Sistema de actualizaciones programadas
+### 📊 Sistema d'actualitzacions programades
 
-La integración está **optimizada para ahorrar cuota de la API** y asegurar que llegas a fin de mes sin problemas.
+La integració està **optimitzada per estalviar quota de l'API** i assegurar que arribes a final de mes sense problemes.
 
-#### Comportamiento del sistema
+#### Comportament del sistema
 
-Los datos se actualizan **SOLO** en estos casos:
+Les dades s'actualitzen **NOMÉS** en aquests casos:
 
-1. **Al inicio**: Cuando se enciende Home Assistant o se activa la integración (1 vez)
-2. **A las horas programadas**: Por defecto a las **06:00** y **14:00** (2 veces/día)
-3. **Manualmente**: Cuando presionas el botón "Actualizar datos"
+1. **A l'inici**: Quan s'engega Home Assistant o s'activa la integració (1 vegada)
+2. **A les hores programades**: Per defecte a les **06:00** i **14:00** (2 vegades/dia)
+3. **Manualment**: Quan prems el botó "Actualitzar dades"
 
-⚠️ **IMPORTANTE**: La integración **NO hace polling automático**. Esto significa que NO se actualiza cada X minutos/horas de forma continua, sino que solo lo hace en los momentos exactos configurados.
+⚠️ **IMPORTANT**: La integració **NO fa polling automàtic**. Això vol dir que NO s'actualitza cada X minuts/hores de forma contínua, sinó que només ho fa als moments exactes configurats.
 
-#### Consumo de cuota por actualización
+#### Consum de quota per actualització
 
-Cada actualización realiza las siguientes llamadas a la API:
+Cada actualització fa les següents crides a l'API:
 
-**Modo Estación (XEMA)**:
-- Primera actualización: 6 llamadas (stations + measurements + forecast + hourly + uv + quotes)
-- Actualizaciones posteriores: 5 llamadas (measurements + forecast + hourly + uv + quotes)
-- **Media diaria**: ~16 llamadas (1 inicial + 2 programadas × 5)
+**Mode Estació (XEMA)**:
+- Primera actualització: 6 crides (stations + measurements + forecast + hourly + uv + quotes)
+- Actualitzacions posteriors: 5 crides (measurements + forecast + hourly + uv + quotes)
+- **Mitjana diària**: ~16 crides (1 inicial + 2 programades × 5)
 
-**Modo Municipal**:
-- Cada actualización: 4 llamadas (forecast + hourly + uv + quotes)
-- **Media diaria**: ~8 llamadas (2 programadas × 4)
+**Mode Municipal**:
+- Cada actualització: 4 crides (forecast + hourly + uv + quotes)
+- **Mitjana diària**: ~8 crides (2 programades × 4)
 
-#### Cálculo mensual (30 días)
+#### Càlcul mensual (30 dies)
 
-| Modo | Llamadas/día | Llamadas/mes | Cuota restante* | Actualizaciones manuales disponibles |
-|------|--------------|--------------|-----------------|--------------------------------------|
-| **Estación** | 16 | 480 | 520 | ~17/día (520÷30) |
-| **Municipal** | 8 | 240 | 760 | ~25/día (760÷30) |
+| Mode | Crides/dia | Crides/mes | Quota restant* | Actualitzacions manuals disponibles |
+|------|-----------|-----------|----------------|-------------------------------------|
+| **Estació** | 16 | 480 | 520 | ~17/dia (520÷30) |
+| **Municipal** | 8 | 240 | 760 | ~25/dia (760÷30) |
 
-\* Asumiendo cuota de 1000 llamadas/mes (plan Predicció estándar)
+\* Assumint quota de 1000 crides/mes (pla Predicció estàndard)
 
-#### Personalizar horas de actualización
+#### Personalitzar hores d'actualització
 
-Puedes modificar las horas de actualización a través de:
+Pots modificar les hores d'actualització a través de:
 
-**Configuración** → **Dispositivos y Servicios** → (3 puntos de la integración) → **Opciones**
+**Configuració** → **Dispositius i Serveis** → (3 punts de la integració) → **Opcions**
 
-- **Hora de actualización 1**: Primera hora del día (formato 24h: HH:MM)
-- **Hora de actualización 2**: Segunda hora del día (formato 24h: HH:MM)
+- **Hora d'actualització 1**: Primera hora del dia (format 24h: HH:MM)
+- **Hora d'actualització 2**: Segona hora del dia (format 24h: HH:MM)
 
-Ejemplos de configuración:
-- **Predeterminado**: 06:00 y 14:00
-- **Noctámbulo**: 10:00 y 22:00
-- **Madrugador**: 05:00 y 12:00
+Exemples de configuració:
+- **Predeterminat**: 06:00 i 14:00
+- **Noctàmbul**: 10:00 i 22:00
+- **Matiner**: 05:00 i 12:00
 
-⚠️ **Recomendación**: Mantener 2 actualizaciones diarias. Con 3 o más actualizaciones diarias, puedes agotar la cuota antes de fin de mes.
+⚠️ **Recomanació**: Mantenir 2 actualitzacions diàries. Amb 3 o més actualitzacions diàries, pots esgotar la quota abans de final de mes.
 
-#### Botón de actualización manual
+#### Botó d'actualització manual
 
-Cada entrada crea un botón **"Actualizar datos"** que te permite forzar una actualización inmediata cuando la necesites:
+Cada entrada crea un botó **"Actualitzar dades"** que et permet forçar una actualització immediata quan la necessitis:
 
-- No afecta las actualizaciones programadas
-- Consume cuota de la API (5 llamadas en modo Estación, 4 en modo Municipal)
-- Útil para obtener datos frescos antes de un evento o viaje
+- No afecta les actualitzacions programades
+- Consumeix quota de l'API (5 crides en mode Estació, 4 en mode Municipal)
+- Útil per obtenir dades fresques abans d'un esdeveniment o viatge
 
-## Eventos
+## Esdeveniments
 
-Cada entrada de la integraciÃ³n dispara un **evento** (`meteocat_community_edition_data_updated`) cada vez que se actualizan los datos, tanto si es una actualizaciÃ³n automÃ¡tica programada como si es manual (vÃ­a botÃ³n).
+Cada entrada de la integració dispara un **esdeveniment** (`meteocat_community_edition_data_updated`) cada cop que s'actualitzen les dades, tant si és una actualització automàtica programada com si és manual (via botó).
 
-Este evento contiene la siguiente informaciÃ³n:
+Aquest esdeveniment conté la següent informació:
 
-- **`mode`**: Modo de la entrada (`estacio` o `municipi`)
-- **`station_code`**: CÃ³digo de la estaciÃ³n (solo en Modo EstaciÃ³n)
-- **`municipality_code`**: CÃ³digo del municipio (si estÃ¡ disponible)
-- **`timestamp`**: Momento exacto de la actualizaciÃ³n (ISO 8601)
+- **`mode`**: Mode de l'entrada (`estacio` o `municipi`)
+- **`station_code`**: Codi de l'estació (només en Mode Estació)
+- **`municipality_code`**: Codi del municipi (si està disponible)
+- **`timestamp`**: Moment exacte de l'actualització (ISO 8601)
 
-### Utilizar eventos en automatizaciones
+### Utilitzar esdeveniments en automatitzacions
 
-Puedes crear automatizaciones que se desencadenen cuando haya nuevos datos:
+Pots crear automatitzacions que es desencadenin quan hi hagi noves dades:
 
 ```yaml
 automation:
-  - alias: "NotificaciÃ³n cuando se actualiza Meteocat"
+  - alias: "Notificació quan s'actualitza Meteocat"
     trigger:
       - platform: event
         event_type: meteocat_community_edition_data_updated
@@ -282,9 +283,9 @@ automation:
     action:
       - service: notify.mobile_app
         data:
-          message: "Â¡Nuevos datos meteorolÃ³gicos disponibles de la estaciÃ³n Barcelona!"
+          message: "Noves dades meteorològiques disponibles de l'estació Barcelona!"
 
-  - alias: "Actualizar dashboard con nuevas predicciones"
+  - alias: "Actualitzar dashboard amb noves prediccions"
     trigger:
       - platform: event
         event_type: meteocat_community_edition_data_updated
@@ -296,11 +297,11 @@ automation:
         data: {}
 ```
 
-TambiÃ©n puedes escuchar el evento sin filtros para actuar con cualquier actualizaciÃ³n:
+També pots escoltar l'esdeveniment sense filtres per actuar amb qualsevol actualització:
 
 ```yaml
 automation:
-  - alias: "Log actualizaciones Meteocat"
+  - alias: "Log actualitzacions Meteocat"
     trigger:
       - platform: event
         event_type: meteocat_community_edition_data_updated
@@ -309,119 +310,123 @@ automation:
         data:
           name: Meteocat
           message: >
-            ActualizaciÃ³n de datos completada: 
+            Actualització de dades completada: 
             Mode={{ trigger.event.data.mode }}, 
             Timestamp={{ trigger.event.data.timestamp }}
 ```
 
-## Utilizar las predicciones municipales en una entidad Weather personalizada
+## Utilitzar les prediccions municipals en una entitat Weather personalitzada
 
-Si has configurado el **Modo Municipio**, puedes utilizar los datos de los sensores para crear tu propia entidad Weather mediante el componente [`template` de Home Assistant](https://www.home-assistant.io/integrations/weather.template/).
+> 💡 **Per a què serveix aquesta secció?** Si tens una **estació meteorològica local** (Netatmo, Ecowitt, personal, etc.) que proporciona dades actuals però **no té prediccions**, aquesta secció t'explica com combinar les dades de la teva estació amb les prediccions oficials de Meteocat utilitzant el **Mode Municipi**.
 
-### Sensores disponibles en Modo Municipio
+Si has configurat el **Mode Municipi**, pots utilitzar les dades dels sensors de predicció per crear la teva pròpia entitat Weather mitjançant el component [`weather.template` de Home Assistant](https://www.home-assistant.io/integrations/weather.template/), combinant:
+- **Dades actuals** de la teva estació meteorològica local
+- **Prediccions oficials** de Meteocat (horàries i diàries)
 
-El Modo Municipio crea estos sensores:
+### Sensors disponibles en Mode Municipi
 
-- **`sensor.{municipio}_prediccio_horaria`**: PredicciÃ³n de las prÃ³ximas 72 horas
-- **`sensor.{municipio}_prediccio_diaria`**: PredicciÃ³n de los prÃ³ximos 8 dÃ­as
-- **`sensor.{municipio}_prediccio_index_uv`**: PredicciÃ³n de Ã­ndice UV (3 dÃ­as)
-- **`sensor.{municipio}_quota_{plan}`**: Consumos API (PredicciÃ³n, Referencia, XDDE, XEMA)
-- **`sensor.{municipio}_last_update`**: Ãšltima actualizaciÃ³n
-- **`sensor.{municipio}_next_update`**: PrÃ³xima actualizaciÃ³n programada
-- **`button.{municipio}_refresh`**: BotÃ³n para actualizar manualmente
+El Mode Municipi crea aquests sensors:
 
-### Acceder a los datos de predicciÃ³n
+- **`sensor.{municipi}_prediccio_horaria`**: Predicció de les pròximes 72 hores
+- **`sensor.{municipi}_prediccio_diaria`**: Predicció dels pròxims 8 dies  
+- **`sensor.{municipi}_prediccio_index_uv`**: Predicció d'índex UV (3 dies)
+- **`sensor.{municipi}_quota_{pla}`**: Consums API (Predicció, Referència, XDDE, XEMA)
+- **`sensor.{municipi}_last_update`**: Darrera actualització
+- **`sensor.{municipi}_next_update`**: Pròxima actualització programada
+- **`button.{municipi}_refresh`**: Botó per actualitzar manualment
 
-Los sensores almacenan las predicciones completas en sus **atributos**:
+### Accedir a les dades de predicció
 
-#### PredicciÃ³n Horaria (`sensor.{municipio}_prediccio_horaria`)
+Els sensors emmagatzemen les prediccions completes als seus **atributs**::
 
-El estado del sensor muestra el nÃºmero de horas disponibles (ej: "72 horas").
+#### Predicció Horària (`sensor.{municipi}_prediccio_horaria`)
 
-Atributos disponibles:
+L'estat del sensor mostra el nombre d'hores disponibles (ex: "72 hores").
+
+Atributs disponibles:
 ```yaml
-# Acceder a todos los datos de predicciÃ³n horaria
-{{ state_attr('sensor.Barcelona_previsio_horaria', 'forecast') }}
+# Accedir a totes les dades de predicció horària
+{{ state_attr('sensor.Barcelona_prediccio_horaria', 'forecast') }}
 
-# La estructura contiene:
-# - dies: array de dÃ­as con predicciones
-#   - data: fecha del dÃ­a (ej: "2025-11-24")
-#   - variables: diccionario con las variables meteorolÃ³gicas
-#     - temp: temperatura (valores por hora)
-#     - hr: humedad relativa
-#     - ws: velocidad del viento
-#     - wd: direcciÃ³n del viento
-#     - ppcp: precipitaciÃ³n
+# L'estructura conté:
+# - dies: array de dies amb prediccions
+#   - data: data del dia (ex: "2025-11-24")
+#   - variables: diccionari amb les variables meteorològiques
+#     - temp: temperatura (valors per hora)
+#     - hr: humitat relativa
+#     - ws: velocitat del vent
+#     - wd: direcció del vent
+#     - ppcp: precipitació
 #     - etc.
 
-# Ejemplo: acceder a las temperaturas de hoy
-{{ state_attr('sensor.Barcelona_previsio_horaria', 'forecast').dies[0].variables.temp.valors }}
+# Exemple: accedir a les temperatures d'avui
+{{ state_attr('sensor.Barcelona_prediccio_horaria', 'forecast').dies[0].variables.temp.valors }}
 ```
 
-#### PredicciÃ³n Diaria (`sensor.{municipio}_prediccio_diaria`)
+#### Predicció Diària (`sensor.{municipi}_prediccio_diaria`)
 
-El estado del sensor muestra el nÃºmero de dÃ­as disponibles (ej: "8 dÃ­as").
+L'estat del sensor mostra el nombre de dies disponibles (ex: "8 dies").
 
-Atributos disponibles:
+Atributs disponibles:
 ```yaml
-# Acceder a todos los datos de predicciÃ³n diaria
-{{ state_attr('sensor.Barcelona_previsio_diaria', 'forecast') }}
+# Accedir a totes les dades de predicció diària
+{{ state_attr('sensor.Barcelona_prediccio_diaria', 'forecast') }}
 
-# La estructura contiene:
-# - dies: array de dÃ­as con predicciones
-#   - data: fecha del dÃ­a (ej: "2025-11-24")
+# L'estructura conté:
+# - dies: array de dies amb prediccions
+#   - data: data del dia (ex: "2025-11-24")
 #   - variables:
-#     - tmax: temperatura mÃ¡xima
-#     - tmin: temperatura mÃ­nima
-#     - ppcp: precipitaciÃ³n total
+#     - tmax: temperatura màxima
+#     - tmin: temperatura mínima
+#     - ppcp: precipitació total
 #     - etc.
 
-# Ejemplo: temperatura mÃ¡xima de maÃ±ana
-{{ state_attr('sensor.Barcelona_previsio_diaria', 'forecast').dies[1].variables.tmax.valor }}
+# Exemple: temperatura màxima de demà
+{{ state_attr('sensor.Barcelona_prediccio_diaria', 'forecast').dies[1].variables.tmax.valor }}
 
-# Ejemplo: temperatura mÃ­nima de maÃ±ana
-{{ state_attr('sensor.Barcelona_previsio_diaria', 'forecast').dies[1].variables.tmin.valor }}
+# Exemple: temperatura mínima de demà
+{{ state_attr('sensor.Barcelona_prediccio_diaria', 'forecast').dies[1].variables.tmin.valor }}
 ```
 
-#### PredicciÃ³n Ãndice UV (`sensor.{municipio}_prediccio_index_uv`)
+#### Predicció Índex UV (`sensor.{municipi}_prediccio_index_uv`)
 
-El estado del sensor muestra el nÃºmero de dÃ­as con predicciÃ³n UV disponible (ej: "3 dies").
+L'estat del sensor mostra el nombre de dies de predicció UV disponibles (ex: "3 dies").
 
-Atributos disponibles:
+Atributs disponibles:
 ```yaml
-# Acceder a todos los datos UV
+# Accedir a totes les dades UV
 {{ state_attr('sensor.Barcelona_prediccio_index_uv', 'uv_forecast') }}
 
-# La estructura contiene:
-# - ine: cÃ³digo INE del municipio
-# - nom: nombre del municipio
-# - uvi: array con predicciones UV por dÃ­as (normalmente 3 dÃ­as)
-#   - date: fecha (ej: "2025-11-24")
-#   - hours: array de horas con valores UV
+# L'estructura conté:
+# - ine: codi INE del municipi
+# - nom: nom del municipi
+# - uvi: array amb prediccions UV per dies (normalment 3 dies)
+#   - date: data (ex: "2025-11-24")
+#   - hours: array d'hores amb valors UV
 #     - hour: hora (0-23)
-#     - uvi: Ã­ndice UV
-#     - uvi_clouds: Ã­ndice UV con nubes
+#     - uvi: índex UV
+#     - uvi_clouds: índex UV amb núvols
 
-# Ejemplo: UV a las 12:00 de hoy
+# Exemple: UV a les 12:00 d'avui
 {% set uv_data = state_attr('sensor.Barcelona_prediccio_index_uv', 'uv_forecast') %}
 {% if uv_data and uv_data.uvi %}
   {{ uv_data.uvi[0].hours | selectattr('hour', 'equalto', 12) | map(attribute='uvi') | first }}
 {% endif %}
 
-# Ejemplo: UV mÃ¡ximo de hoy
+# Exemple: UV màxim d'avui
 {% set uv_data = state_attr('sensor.Barcelona_prediccio_index_uv', 'uv_forecast') %}
 {% if uv_data and uv_data.uvi %}
   {{ uv_data.uvi[0].hours | map(attribute='uvi') | max }}
 {% endif %}
 ```
 
-### Ejemplo de entidad Weather personalizada
+### Exemple d'entitat Weather personalitzada
 
-âš ï¸ **Nota importante**: El componente `weather.template` requiere preprocesar los datos ya que la API de Meteocat devuelve estructuras complejas. Es mÃ¡s prÃ¡ctico utilizar **tarjetas personalizadas** o **sensores template** para mostrar las predicciones.
+⚠️ **Nota important**: El component `weather.template` requereix preprocessar les dades ja que l'API de Meteocat retorna estructures complexes. És més pràctic utilitzar **targetes personalitzades** o **sensors template** per mostrar les prediccions.
 
-#### AÃ±adir Ã­ndice UV a una entidad weather local
+#### Afegir índex UV a una entitat weather local
 
-Si tienes una estaciÃ³n meteorolÃ³gica local y quieres aÃ±adirle la predicciÃ³n de Ã­ndice UV de Meteocat, puedes crear un sensor template que extraiga el valor UV mÃ¡ximo:
+Si tens una estació meteorològica local i vols afegir-hi la predicció d'índex UV de Meteocat, pots crear un sensor template que extregui el valor UV màxim:
 
 ```yaml
 template:
@@ -439,109 +444,109 @@ template:
         icon: mdi:weather-sunny-alert
 ```
 
-Este sensor extrae el valor UV mÃ¡ximo del primer dÃ­a y puedes utilizarlo en una entidad `weather.template`:
+Aquest sensor extreu el valor UV màxim del primer dia i pots utilitzar-lo en una entitat `weather.template`:
 
 ```yaml
 weather:
   - platform: template
-    name: "Casa con UV"
-    condition_template: "{{ states('weather.mi_estacion_local') }}"
-    temperature_template: "{{ state_attr('weather.mi_estacion_local', 'temperature') }}"
-    humidity_template: "{{ state_attr('weather.mi_estacion_local', 'humidity') }}"
-    # ... otros campos de tu estaciÃ³n local ...
+    name: "Casa amb UV"
+    condition_template: "{{ states('weather.la_meva_estacio_local') }}"
+    temperature_template: "{{ state_attr('weather.la_meva_estacio_local', 'temperature') }}"
+    humidity_template: "{{ state_attr('weather.la_meva_estacio_local', 'humidity') }}"
+    # ... altres camps de la teva estació local ...
     
-    # AÃ±adir Ã­ndice UV de Meteocat
+    # Afegir índex UV de Meteocat
     uv_index_template: "{{ states('sensor.uv_index_weather') }}"
     
-    # Predicciones horarias/diarias de Meteocat
+    # Prediccions horàries/diàries de Meteocat
     forecast_hourly_template: "{{ state_attr('sensor.Barcelona_prediccio_horaria', 'forecast') }}"
     forecast_daily_template: "{{ state_attr('sensor.Barcelona_prediccio_diaria', 'forecast') }}"
 ```
 
-> **Importante**: Las predicciones de Meteocat siguen la estructura de su API, que puede no ser directamente compatible con `weather.template`. Consulta la documentaciÃ³n de [`weather.template`](https://www.home-assistant.io/integrations/weather.template/) para adaptar los datos al formato esperado.
+> **Important**: Les prediccions de Meteocat segueixen l'estructura de la seva API, que pot no ser compatible directament amb `weather.template`. Consulta la documentació de [`weather.template`](https://www.home-assistant.io/integrations/weather.template/) per adaptar les dades al format esperat.
 
-### Crear tarjetas personalizadas
+### Crear targetes personalitzades
 
-Utiliza estos datos para crear tarjetas en tu dashboard:
+Utilitza aquestes dades per crear targetes al teu dashboard:
 
 ```yaml
 type: vertical-stack
 cards:
   - type: markdown
     content: |
-      ## PredicciÃ³n Horaria - {{ state_attr('sensor.Barcelona_previsio_horaria', 'forecast').nom }}
+      ## Predicció Horària - {{ state_attr('sensor.Barcelona_prediccio_horaria', 'forecast').nom }}
       
-      **Disponibles:** {{ states('sensor.Barcelona_previsio_horaria') }}
+      **Disponibles:** {{ states('sensor.Barcelona_prediccio_horaria') }}
       
-      {% set forecast = state_attr('sensor.Barcelona_previsio_horaria', 'forecast') %}
+      {% set forecast = state_attr('sensor.Barcelona_prediccio_horaria', 'forecast') %}
       {% if forecast and forecast.dies %}
         {% for dia in forecast.dies[:2] %}
         ### {{ dia.data }}
-        Temperatura: {{ dia.variables.temp.valors[:6] | join(', ') }}Â°C
+        Temperatura: {{ dia.variables.temp.valors[:6] | join(', ') }}°C
         {% endfor %}
       {% endif %}
 
   - type: markdown
     content: |
-      ## PredicciÃ³n Diaria - PrÃ³ximos dÃ­as
+      ## Predicció Diària - Pròxims dies
       
-      **Disponibles:** {{ states('sensor.Barcelona_previsio_diaria') }}
+      **Disponibles:** {{ states('sensor.Barcelona_prediccio_diaria') }}
       
-      {% set forecast = state_attr('sensor.Barcelona_previsio_diaria', 'forecast') %}
+      {% set forecast = state_attr('sensor.Barcelona_prediccio_diaria', 'forecast') %}
       {% if forecast and forecast.dies %}
         {% for dia in forecast.dies[:5] %}
-        **{{ dia.data }}**: {{ dia.variables.tmin.valor }}Â°C - {{ dia.variables.tmax.valor }}Â°C
+        **{{ dia.data }}**: {{ dia.variables.tmin.valor }}°C - {{ dia.variables.tmax.valor }}°C
         {% endfor %}
       {% endif %}
 
   - type: markdown
     content: |
-      ## PredicciÃ³n Ãndice UV
+      ## Predicció Índex UV
       
       **Disponibles:** {{ states('sensor.Barcelona_prediccio_index_uv') }}
       
       {% set uv = state_attr('sensor.Barcelona_prediccio_index_uv', 'uv_forecast') %}
       {% if uv and uv.uvi %}
-        **UV MÃ¡ximo hoy:** {{ uv.uvi[0].hours | map(attribute='uvi') | max }}
+        **UV Màxim avui:** {{ uv.uvi[0].hours | map(attribute='uvi') | max }}
         
-        **Valores por horas:**
+        **Valors per hores:**
         {% for hour in uv.uvi[0].hours | selectattr('uvi', 'gt', 0) %}
         {{ hour.hour }}h: UV {{ hour.uvi }}
         {% endfor %}
       {% endif %}
 ```
 
-### Sensores template personalizados
+### Sensors template personalitzats
 
-Puedes crear sensores template para extraer datos especÃ­ficos:
+Pots crear sensors template per extreure dades específiques:
 
 ```yaml
 template:
   - sensor:
       - name: "Temperatura actual Barcelona"
-        unit_of_measurement: "Â°C"
+        unit_of_measurement: "°C"
         state: >
-          {% set forecast = state_attr('sensor.Barcelona_previsio_horaria', 'forecast') %}
+          {% set forecast = state_attr('sensor.Barcelona_prediccio_horaria', 'forecast') %}
           {% if forecast and forecast.dies %}
             {{ forecast.dies[0].variables.temp.valors[now().hour] }}
           {% else %}
             unknown
           {% endif %}
       
-      - name: "Temperatura mÃ¡xima maÃ±ana"
-        unit_of_measurement: "Â°C"
+      - name: "Temperatura màxima demà"
+        unit_of_measurement: "°C"
         state: >
-          {% set forecast = state_attr('sensor.Barcelona_previsio_diaria', 'forecast') %}
+          {% set forecast = state_attr('sensor.Barcelona_prediccio_diaria', 'forecast') %}
           {% if forecast and forecast.dies | length > 1 %}
             {{ forecast.dies[1].variables.tmax.valor }}
           {% else %}
             unknown
           {% endif %}
       
-      - name: "Lluvia prevista hoy"
+      - name: "Pluja prevista avui"
         unit_of_measurement: "mm"
         state: >
-          {% set forecast = state_attr('sensor.Barcelona_previsio_diaria', 'forecast') %}
+          {% set forecast = state_attr('sensor.Barcelona_prediccio_diaria', 'forecast') %}
           {% if forecast and forecast.dies %}
             {{ forecast.dies[0].variables.ppcp.valor | default(0) }}
           {% else %}
@@ -549,27 +554,27 @@ template:
           {% endif %}
 ```
 
-### Automatizaciones con predicciones
+### Automatitzacions amb prediccions
 
-Crea automatizaciones basadas en las predicciones futuras:
+Crea automatitzacions basades en les prediccions futures:
 
 ```yaml
 automation:
-  - alias: "Aviso temperatura alta maÃ±ana"
+  - alias: "Avís temperatura alta demà"
     trigger:
       - platform: time
         at: "20:00:00"
     condition:
       - condition: template
         value_template: >
-          {% set forecast = state_attr('sensor.Barcelona_previsio_diaria', 'forecast') %}
+          {% set forecast = state_attr('sensor.Barcelona_prediccio_diaria', 'forecast') %}
           {{ forecast.dies[1].variables.tmax.valor | float > 30 }}
     action:
       - service: notify.mobile_app
         data:
-          message: "Â¡MaÃ±ana harÃ¡ mÃ¡s de 30Â°C!"
+          message: "Demà farà més de 30°C!"
 
-  - alias: "Aviso UV alto"
+  - alias: "Avís UV alt"
     trigger:
       - platform: time
         at: "09:00:00"
@@ -585,101 +590,101 @@ automation:
     action:
       - service: notify.mobile_app
         data:
-          message: "Â¡Hoy el Ã­ndice UV serÃ¡ alto! ProtÃ©gete del sol."
+          message: "Avui l'índex UV serà alt! Protegeix-te del sol."
 ```
 
-### Explorar los datos
+### Explorar les dades
 
-Utiliza **Developer Tools â†’ Template** de Home Assistant para explorar la estructura completa de los datos:
+Utilitza **Developer Tools → Template** de Home Assistant per explorar l'estructura completa de les dades:
 
 ```yaml
-# Ver toda la estructura de predicciÃ³n horaria
-{{ state_attr('sensor.Barcelona_previsio_horaria', 'forecast') }}
+# Veure tota l'estructura de predicció horària
+{{ state_attr('sensor.Barcelona_prediccio_horaria', 'forecast') }}
 
-# Ver toda la estructura de predicciÃ³n diaria
-{{ state_attr('sensor.Barcelona_previsio_diaria', 'forecast') }}
+# Veure tota l'estructura de predicció diària
+{{ state_attr('sensor.Barcelona_prediccio_diaria', 'forecast') %}
 
-# Ver toda la estructura UV
+# Veure tota l'estructura UV
 {{ state_attr('sensor.Barcelona_prediccio_index_uv', 'uv_forecast') }}
 ```
 
-> **Consejo:** Las estructuras de datos siguen exactamente el formato de la API de Meteocat. Consulta la [documentaciÃ³n oficial de la API](https://apidocs.meteocat.gencat.cat/) para conocer todos los campos disponibles.
+> **Consell:** Les estructures de dades segueixen exactament el format de l'API de Meteocat. Consulta la [documentació oficial de l'API](https://apidocs.meteocat.gencat.cat/) per conèixer tots els camps disponibles.
 
-## Limitaciones
+## Limitacions
 
-### Cuotas de la API
+### Quotes de l'API
 
-La API de Meteocat tiene lÃ­mites de peticiones que dependen del plan contratado. Consulta la [documentaciÃ³n oficial de Meteocat](https://apidocs.meteocat.gencat.cat/documentacio/consums/) para conocer los lÃ­mites actualizados de cada plan.
+L'API de Meteocat té límits de peticions que depenen del pla contractat. Consulta la [documentació oficial de Meteocat](https://apidocs.meteocat.gencat.cat/documentacio/consums/) per conèixer els límits actualitzats de cada pla.
 
-Cada entrada de la integraciÃ³n crea **sensores de cuotas** que muestran las peticiones disponibles de los cuatro planes (PredicciÃ³n, Referencia, XDDE, XEMA), independientemente del plan contratado en tu API key.
+Cada entrada de la integració crea **sensors de quotes** que mostren les peticions disponibles dels quatre plans (Predicció, Referència, XDDE, XEMA), independentment del pla contractat a la teva API key.
 
-Esta integraciÃ³n estÃ¡ optimizada para minimizar el uso:
-- Solo 2 actualizaciones automÃ¡ticas al dÃ­a (6:00 y 14:00)
-- Las cuotas se consultan **despuÃ©s** de las otras APIs para contabilizar correctamente
-- Los sensores de cuotas te permiten monitorizar el uso en tiempo real
+Aquesta integració està optimitzada per minimitzar l'ús:
+- Només 2 actualitzacions automàtiques al dia (6:00 i 14:00)
+- Les quotes es consulten **després** de les altres APIs per comptabilitzar correctament
+- Els sensors de quotes et permeten monitoritzar l'ús en temps real
 
-**Consejo**: Si necesitas mÃ¡s peticiones, puedes crear mÃºltiples entradas con diferentes API Keys.
+**Consell**: Si necessites més peticions, pots crear múltiples entrades amb diferents API Keys.
 
-### Otras limitaciones
+### Altres limitacions
 
-- Las predicciones municipales dependen de la disponibilidad en la API de Meteocat
-- En Modo EstaciÃ³n, algunas estaciones pueden no tener municipio asociado para predicciones
-- Requiere conexiÃ³n a Internet
+- Les prediccions municipals depenen de la disponibilitat a l'API de Meteocat
+- En Mode Estació, algunes estacions poden no tenir municipi associat per a prediccions
+- Requereix connexió a Internet
 
 ## Troubleshooting
 
 ### Error "cannot_connect"
-- Verifica que la clave API sea correcta
-- Comprueba la conexiÃ³n a Internet
-- AsegÃºrate de que no has superado los lÃ­mites de cuotas
+- Verifica que la clau API sigui correcta
+- Comprova la connexió a Internet
+- Assegura't que no has superat els límits de quotes
 
-### No se muestran predicciones
-- Algunas estaciones pueden no tener municipio asociado
-- Espera a la siguiente actualizaciÃ³n programada
+### No es mostren prediccions
+- Algunes estacions poden no tenir municipi associat
+- Espera a la següent actualització programada
 
-### Cuotas agotadas
-- AÃ±ade la estaciÃ³n con una API Key diferente
-- Espera al reset de cuotas (consultable en los sensores)
+### Quotes esgotades
+- Afegeix l'estació amb una API Key diferent
+- Espera al reset de quotes (consultable als sensors)
 
 ## Contribuir
 
-Â¡Las contribuciones son bienvenidas! Por favor:
+Les contribucions són benvingudes! Si us plau:
 
-1. Fork del repositorio
-2. Crea una rama para tu caracterÃ­stica
-3. Haz commit de los cambios
-4. EnvÃ­a un Pull Request
+1. Fork del repositori
+2. Crea una branca per a la teva característica
+3. Fes commit dels canvis
+4. Envia un Pull Request
 
-## Licencia
+## Llicència
 
-Este proyecto estÃ¡ licenciado bajo GPL-3.0 - ver [LICENSE](LICENSE) para detalles.
+Aquest projecte està llicenciat sota GPL-3.0 - veure [LICENSE](LICENSE) per detalls.
 
-## Agradecimientos
+## Agraïments
 
-- [Servicio MeteorolÃ³gico de CataluÃ±a](https://www.meteo.cat/) por proporcionar la API
-- Comunidad de Home Assistant
+- [Servei Meteorològic de Catalunya](https://www.meteo.cat/) per proporcionar l'API
+- Comunitat de Home Assistant
 
 ## Disclaimer
 
-Esta es una integraciÃ³n **no oficial** creada por la comunidad para facilitar el uso de la API pÃºblica del Meteocat en Home Assistant.
+Aquesta és una integració **no oficial** creada per la comunitat per facilitar l'ús de l'API pública del Meteocat a Home Assistant.
 
-- âŒ **NO** estÃ¡ afiliada, patrocinada ni aprobada por el Servicio MeteorolÃ³gico de CataluÃ±a
-- âœ… **SÃ** utiliza la API oficial del Meteocat de manera legal y respetando sus condiciones de uso
-- ðŸ’° **Gratuita**: Proyecto de cÃ³digo abierto sin Ã¡nimo de lucro
-- ðŸŽ¯ **PropÃ³sito**: Simplificar la integraciÃ³n con Home Assistant sin necesidad de programar llamadas directas a la API
+- ❌ **NO** està afiliada, patrocinada ni aprovada pel Servei Meteorològic de Catalunya
+- ✅ **SÍ** utilitza l'API oficial del Meteocat de manera legal i respectant les seves condicions d'ús
+- 💰 **Gratuïta**: Projecte de codi obert sense ànim de lucre
+- 🎯 **Propòsit**: Simplificar la integració amb Home Assistant sense necessitat de programar crides directes a l'API
 
-Para utilizar esta integraciÃ³n, debes registrarte en https://apidocs.meteocat.gencat.cat/ y obtener tu propia clave API segÃºn las condiciones establecidas por Meteocat.
+Per utilitzar aquesta integració, cal que et registris a https://apidocs.meteocat.gencat.cat/ i obtinguis la teva pròpia clau API segons les condicions establertes pel Meteocat.
 
-### Licencia y GarantÃ­as
+### Llicència i Garanties
 
-Este software se distribuye bajo la **licencia GPL-3.0** (GNU General Public License v3.0):
+Aquest programari es distribueix sota la **llicència GPL-3.0** (GNU General Public License v3.0):
 
-- âœ… **Software libre**: Puedes usar, modificar y redistribuir este cÃ³digo
-- ðŸ“– **CÃ³digo abierto**: Todo el cÃ³digo fuente estÃ¡ disponible pÃºblicamente
-- ðŸ”„ **Copyleft**: Las modificaciones deben mantener la misma licencia GPL-3.0
-- âš ï¸ **Sin garantÃ­as**: Este software se proporciona "TAL CUAL" (AS IS), sin garantÃ­a de ningÃºn tipo, expresa o implÃ­cita, incluyendo pero no limitÃ¡ndose a las garantÃ­as de comercializaciÃ³n, idoneidad para un propÃ³sito particular y no infracciÃ³n. En ningÃºn caso los autores serÃ¡n responsables de ninguna reclamaciÃ³n, daÃ±o u otra responsabilidad.
+- ✅ **Programari lliure**: Pots usar, modificar i redistribuir aquest codi
+- 📖 **Codi obert**: Tot el codi font està disponible públicament
+- 🔄 **Copyleft**: Les modificacions han de mantenir la mateixa llicència GPL-3.0
+- ⚠️ **Sense garanties**: Aquest programari es proporciona "TAL QUAL" (AS IS), sense cap mena de garantia, ni explícita ni implícita, incloent-hi però sense limitar-se a les garanties de comercialització, idoneïtat per a un propòsit particular i no infracció. En cap cas els autors seran responsables de cap reclamació, dany o altra responsabilitat.
 
-Consulta el archivo [LICENSE](LICENSE) para la licencia completa.
+Consulta el fitxer [LICENSE](LICENSE) per la llicència completa.
 
 ---
 
