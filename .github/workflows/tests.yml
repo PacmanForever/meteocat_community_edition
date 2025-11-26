@@ -29,4 +29,5 @@ jobs:
 
       - name: Run tests with coverage
         run: |
-          pytest tests/ --cov=custom_components.meteocat_community_edition --cov-report=term
+          export PYTHONPATH="${PYTHONPATH}:${PWD}"
+          pytest tests/ --cov=custom_components.meteocat_community_edition --cov-report=term -v
