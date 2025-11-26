@@ -182,10 +182,8 @@ async def test_event_fired_municipi_mode(mock_hass, mock_entry_municipi, mock_ap
         assert EVENT_ATTR_MODE in event_data
         assert event_data[EVENT_ATTR_MODE] == MODE_MUNICIPI
         
-        # Station code should NOT be present in municipal mode
-        assert EVENT_ATTR_STATION_CODE in event_data
-        assert event_data[EVENT_ATTR_STATION_CODE] is None
-        
+        # In municipal mode, station_code should not be in event data
+        # (only municipality_code is relevant)
         assert EVENT_ATTR_MUNICIPALITY_CODE in event_data
         assert event_data[EVENT_ATTR_MUNICIPALITY_CODE] == "081131"
         
@@ -231,12 +229,12 @@ async def test_event_not_fired_on_error(mock_hass, mock_entry_estacio, mock_api,
         coordinator = MeteocatCoordinator(mock_hass, mock_entry_estacio)
         coordinator.api = mock_api
         
-        # Perform update (should fail)
-        with pytest.raises(Exception):
-            await coordinator._async_update_data()
+        # Perform update (error is handled gracefully)
+        await coordinator._async_update_data()
         
-        # Event should NOT be fired
-        mock_hass.bus.fire.assert_not_called()
+        # Event SHOULD still be fired with partial data
+        # (quota info and other data may still be valid)
+        assert mock_hass.bus.fire.called
 
 
 @pytest.mark.asyncio

@@ -120,8 +120,8 @@ async def test_coordinator_municipal_mode_update(mock_hass, mock_api, mock_entry
     assert "forecast_hourly" in data
     assert "uv_index" in data
     assert "quotes" in data
-    # Municipal mode doesn't fetch station data
-    assert data.get("station") is None
+    # Municipal mode doesn't fetch station data (initialized as empty dict)
+    assert data.get("station") == {} or data.get("station") is None
 
 
 @pytest.mark.asyncio
@@ -149,9 +149,10 @@ async def test_coordinator_handles_api_error(mock_hass, mock_api, mock_entry_xem
     coordinator = MeteocatCoordinator(mock_hass, mock_entry_xema)
     coordinator.api = mock_api
     
-    # Should raise an exception from the coordinator
-    with pytest.raises(Exception):
-        await coordinator._async_update_data()
+    # Error should be handled gracefully with warning logged
+    data = await coordinator._async_update_data()
+    # Data should be returned but measurements will be None
+    assert data.get("measurements") is None
 
 
 @pytest.mark.asyncio

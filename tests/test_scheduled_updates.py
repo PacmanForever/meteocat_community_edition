@@ -47,14 +47,6 @@ import pytest
 from custom_components.meteocat_community_edition.coordinator import MeteocatCoordinator
 
 
-# Patch frame helper globally for all tests
-@pytest.fixture(autouse=True)
-def patch_frame_helper():
-    """Patch frame helper to avoid RuntimeError in tests."""
-    with patch('homeassistant.helpers.frame.report_usage'):
-        yield
-
-
 # Patch device_registry globally for all tests
 @pytest.fixture(autouse=True)
 def patch_device_registry():

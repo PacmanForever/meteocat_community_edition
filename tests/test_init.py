@@ -161,7 +161,9 @@ async def test_async_update_options(mock_hass, mock_entry_estacio):
 async def test_async_unload_entry_estacio_mode(mock_hass, mock_entry_estacio):
     """Test unload entry for MODE_ESTACIO unloads all platforms."""
     # Setup: add coordinator to hass.data
-    mock_hass.data[DOMAIN] = {mock_entry_estacio.entry_id: MagicMock()}
+    mock_coordinator = MagicMock()
+    mock_coordinator.async_shutdown = AsyncMock()
+    mock_hass.data[DOMAIN] = {mock_entry_estacio.entry_id: mock_coordinator}
     
     result = await async_unload_entry(mock_hass, mock_entry_estacio)
     
@@ -183,9 +185,11 @@ async def test_async_unload_entry_estacio_mode(mock_hass, mock_entry_estacio):
 
 @pytest.mark.asyncio
 async def test_async_unload_entry_municipi_mode(mock_hass, mock_entry_municipi):
-    """Test unload entry for MODE_MUNICIPI unloads only sensor and button."""
+    """Test unload entry for MODE_MUNICIPI unloads all platforms."""
     # Setup: add coordinator to hass.data
-    mock_hass.data[DOMAIN] = {mock_entry_municipi.entry_id: MagicMock()}
+    mock_coordinator = MagicMock()
+    mock_coordinator.async_shutdown = AsyncMock()
+    mock_hass.data[DOMAIN] = {mock_entry_municipi.entry_id: mock_coordinator}
     
     result = await async_unload_entry(mock_hass, mock_entry_municipi)
     
@@ -206,6 +210,7 @@ async def test_async_unload_entry_failed_unload(mock_hass, mock_entry_estacio):
     """Test unload entry when platform unload fails."""
     # Setup: add coordinator to hass.data
     mock_coordinator = MagicMock()
+    mock_coordinator.async_shutdown = AsyncMock()
     mock_hass.data[DOMAIN] = {mock_entry_estacio.entry_id: mock_coordinator}
     
     # Make unload fail
