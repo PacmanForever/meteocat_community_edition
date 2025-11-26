@@ -23,13 +23,28 @@ CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up Meteocat (Community Edition) from a config entry."""
+    """Set up Meteocat (Community Edition) from a config entry.
+    
+    ⚠️ CRITICAL: Update Sequence for API Quota Management
+    
+    The order of operations is CRITICAL to prevent API quota exhaustion:
+    
+    1. async_config_entry_first_refresh() - Performs EXACTLY ONE initial update
+    2. _schedule_next_update() - Schedules future updates at configured times
+    
+    DO NOT add any additional update calls here, as they would waste API quota.
+    Updates will automatically happen at the configured times (default 06:00 and 14:00).
+    
+    Test Coverage: test_no_duplicate_updates_on_ha_restart in test_scheduled_updates.py
+    """
     coordinator = MeteocatCoordinator(hass, entry)
     
-    # First refresh on startup (this is the only automatic refresh)
+    # ⚠️ CRITICAL: First refresh - this is the ONLY manual update call
+    # All future updates will be scheduled automatically
     await coordinator.async_config_entry_first_refresh()
     
-    # Schedule future updates at configured times
+    # ⚠️ CRITICAL: Schedule future updates at configured times
+    # This MUST be called to enable scheduled updates
     coordinator._schedule_next_update()
     
     hass.data.setdefault(DOMAIN, {})
@@ -59,8 +74,17 @@ async def async_update_options(hass: HomeAssistant, entry: ConfigEntry) -> None:
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Unload a config entry."""
-    # Clean up scheduled updates
+    """Unload a config entry.
+    
+    ⚠️ CRITICAL: Cleanup for API Quota Management
+    
+    async_shutdown() MUST be called to cancel pending scheduled updates.
+    Without this, orphaned schedulers would continue making API calls even after
+    the integration is unloaded, wasting quota.
+    
+    Test Coverage: test_cleanup_cancels_scheduled_update in test_scheduled_updates.py
+    """
+    # ⚠️ CRITICAL: Clean up scheduled updates to prevent orphaned schedulers
     coordinator: MeteocatCoordinator = hass.data[DOMAIN].get(entry.entry_id)
     if coordinator:
         await coordinator.async_shutdown()

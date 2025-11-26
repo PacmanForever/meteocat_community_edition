@@ -1,4 +1,39 @@
-"""Tests for scheduled updates and API quota management."""
+"""Tests for scheduled updates and API quota management.
+
+⚠️ CRITICAL TEST SUITE ⚠️
+
+This test suite is CRITICAL for ensuring API quota preservation in production.
+DO NOT modify or remove these tests without understanding the quota implications.
+
+What This Suite Tests:
+- Automatic polling is DISABLED (update_interval=None)
+- Scheduled updates work correctly at configured times
+- Scheduler cleanup prevents orphaned updates
+- API call counts are correct for quota calculations
+- Quotes are fetched AFTER other APIs for accurate tracking
+- Scheduler cancellation prevents duplicate updates
+- System recovers from network errors without breaking scheduling
+- Time-based scheduling works in all scenarios (midnight, between times, etc.)
+- HA restart doesn't cause duplicate updates
+- Custom update times work correctly
+
+Why These Tests Are Critical:
+If any of these tests fail, the integration could:
+1. Exhaust monthly API quota in days instead of lasting the full month
+2. Make duplicate API calls, wasting quota
+3. Show incorrect quota information to users
+4. Continue making calls after being unloaded
+5. Fail to update at configured times
+
+Quota Impact:
+- MODE_ESTACIO: ~16 calls/day = 480/month (with 06:00, 14:00 schedule)
+- MODE_MUNICIPI: ~8 calls/day = 240/month (with 06:00, 14:00 schedule)
+- With 1000 calls/month quota, this leaves 520-760 for manual updates
+
+Last Updated: 2025-11-26
+Test Count: 17 tests
+Status: ALL MUST PASS
+"""
 import sys
 import os
 from datetime import datetime, timedelta

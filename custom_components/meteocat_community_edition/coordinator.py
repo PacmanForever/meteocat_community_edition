@@ -1,4 +1,24 @@
-"""Data coordinator for Meteocat (Community Edition)."""
+"""Data coordinator for Meteocat (Community Edition).
+
+⚠️ CRITICAL: API Quota Management System ⚠️
+
+This coordinator implements a CRITICAL scheduled update system to prevent API quota exhaustion.
+DO NOT modify the update mechanism without understanding the quota implications.
+
+Key Implementation Points:
+1. update_interval=None - MUST remain None (no automatic polling)
+2. _schedule_next_update() - MUST be called after first refresh
+3. async_shutdown() - MUST be called on unload to prevent orphaned schedulers
+4. Quotes API - MUST be called AFTER all other APIs for accurate consumption tracking
+5. Scheduler cancellation - MUST cancel previous scheduler when rescheduling to avoid duplicates
+
+Quota Usage (with default 06:00 and 14:00 updates):
+- MODE_ESTACIO: ~16 calls/day = 480 calls/month (520 remaining from 1000 quota)
+- MODE_MUNICIPI: ~8 calls/day = 240 calls/month (760 remaining from 1000 quota)
+
+Test Coverage: 17 comprehensive tests in tests/test_scheduled_updates.py
+Last Reviewed: 2025-11-26
+"""
 from __future__ import annotations
 
 import asyncio
@@ -89,21 +109,42 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         if self.mode == MODE_MUNICIPI and not self.municipality_code:
             _LOGGER.error("Municipal mode requires municipality_code!")
         
-        # IMPORTANT: Set update_interval to None to disable automatic polling
-        # Updates will only happen:
-        # 1. On first setup (async_config_entry_first_refresh)
-        # 2. Manual button press (async_request_refresh)
-        # 3. Scheduled updates (via async_track_time_interval)
+        # ⚠️ CRITICAL: API QUOTA PRESERVATION ⚠️
+        # update_interval MUST be None to disable automatic polling.
+        # Automatic polling would cause updates every few minutes, exhausting the monthly
+        # API quota in just a few days instead of lasting the full month.
+        #
+        # Updates will ONLY happen in these cases:
+        # 1. On first setup (async_config_entry_first_refresh) - 1 time
+        # 2. At scheduled times (via _schedule_next_update) - 2 times/day by default
+        # 3. Manual button press (async_request_refresh) - user controlled
+        #
+        # DO NOT change update_interval to any value other than None without reviewing
+        # quota calculations and updating tests in test_scheduled_updates.py
         super().__init__(
             hass,
             _LOGGER,
             name=f"{DOMAIN}_{self.station_code}",
-            update_interval=None,  # Disable automatic polling to save API quota
+            update_interval=None,  # ⚠️ CRITICAL: Must be None to prevent quota exhaustion
         )
 
     def _schedule_next_update(self) -> None:
-        """Schedule the next automatic update at the configured time."""
-        # Cancel any existing scheduled update
+        """Schedule the next automatic update at the configured time.
+        
+        ⚠️ CRITICAL: This method MUST be called after first refresh to enable scheduled updates.
+        
+        It calculates the next update time based on configured hours (update_time_1, update_time_2)
+        and schedules an exact-time update using async_track_point_in_utc_time.
+        
+        IMPORTANT: Always cancels the previous scheduler to prevent duplicate scheduled updates,
+        which would double the API quota consumption.
+        
+        Called from:
+        - async_setup_entry in __init__.py (after first refresh)
+        - _async_scheduled_update (after each scheduled update completes)
+        """
+        # ⚠️ CRITICAL: Cancel any existing scheduled update to prevent duplicates
+        # Duplicate schedulers would double API quota consumption
         if self._scheduled_update_remover:
             self._scheduled_update_remover()
             self._scheduled_update_remover = None
@@ -155,19 +196,46 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self._schedule_next_update()
 
     async def async_shutdown(self) -> None:
-        """Clean up when shutting down."""
+        """Clean up when shutting down.
+        
+        ⚠️ CRITICAL: This method MUST be called when unloading the integration.
+        
+        Cancels any pending scheduled updates to prevent orphaned schedulers that would
+        continue making API calls even after the integration is unloaded, wasting quota.
+        
+        Called from:
+        - async_unload_entry in __init__.py
+        """
         if self._scheduled_update_remover:
             self._scheduled_update_remover()
             self._scheduled_update_remover = None
 
     async def _async_update_data(self) -> dict[str, Any]:
-        """Fetch data from Meteocat API."""
+        """Fetch data from Meteocat API.
+        
+        ⚠️ CRITICAL: API Call Order for Accurate Quota Tracking
+        
+        The order of API calls is CRITICAL for accurate quota consumption tracking:
+        1. Fetch all data APIs first (stations, measurements, forecasts, UV)
+        2. Fetch quotes API LAST to reflect accurate consumption after all calls
+        
+        If quotes is fetched first, it won't include the consumption from this update,
+        leading to incorrect quota reporting to users.
+        
+        API Calls per Update:
+        - MODE_ESTACIO (first): get_stations(1) + measurements(1) + forecast(1) + hourly(1) + uv(1) + quotes(1) = 6 calls
+        - MODE_ESTACIO (subsequent): measurements(1) + forecast(1) + hourly(1) + uv(1) + quotes(1) = 5 calls
+        - MODE_MUNICIPI: forecast(1) + hourly(1) + uv(1) + quotes(1) = 4 calls
+        
+        Test Coverage: test_quotes_fetched_after_other_api_calls in test_scheduled_updates.py
+        """
         
         # Capture timestamp at the START of the update (when button is pressed)
         self.last_successful_update_time = dt_util.utcnow()
         
         try:
-            # Build tasks based on mode (NOTE: quotes fetched AFTER other API calls)
+            # Build tasks based on mode
+            # ⚠️ CRITICAL: Quotes will be fetched AFTER these tasks complete
             tasks = {}
             
             # ESTACIO mode: fetch station measurements and find municipality
@@ -212,7 +280,9 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 else:
                     data[key] = result
             
-            # Fetch quotes AFTER all other API calls to get accurate consumption
+            # ⚠️ CRITICAL: Fetch quotes AFTER all other API calls to get accurate consumption
+            # This ensures the quota sensors show consumption that includes this update's calls
+            # Test: test_quotes_fetched_after_other_api_calls
             try:
                 data["quotes"] = await self.api.get_quotes()
             except Exception as err:
