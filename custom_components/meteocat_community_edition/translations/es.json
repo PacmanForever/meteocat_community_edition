@@ -82,12 +82,6 @@
       }
     }
   },
-  "events": {
-    "meteocat_community_edition_data_updated": {
-      "name": "Datos actualizados",
-      "description": "Se ha completado una actualización de datos de Meteocat (automática o manual)"
-    }
-  },
   "device_automation": {
     "trigger_type": {
       "data_updated": "Datos actualizados",
