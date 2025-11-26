@@ -1,5 +1,5 @@
 """Tests for re-authentication flow."""
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from homeassistant.config_entries import ConfigEntryState
@@ -18,7 +18,7 @@ from custom_components.meteocat_community_edition.const import (
 @pytest.fixture
 def mock_entry_estacio():
     """Create a mock config entry for station mode."""
-    entry = AsyncMock()
+    entry = MagicMock()
     entry.entry_id = "test_entry_id"
     entry.data = {
         CONF_API_KEY: "test_api_key",
@@ -32,9 +32,11 @@ def mock_entry_estacio():
 @pytest.fixture
 def mock_hass():
     """Create a mock Home Assistant instance."""
-    hass = AsyncMock()
+    hass = MagicMock()
     hass.data = {DOMAIN: {}}
-    hass.config_entries = AsyncMock()
+    hass.config_entries = MagicMock()
+    hass.config_entries.async_update_entry = AsyncMock()
+    hass.config_entries.async_reload = AsyncMock()
     return hass
 
 
@@ -74,7 +76,7 @@ async def test_reauth_flow_validates_new_api_key(mock_hass):
     from custom_components.meteocat_community_edition.config_flow import MeteocatOptionsFlow
     
     # Create mock config entry
-    mock_entry = AsyncMock()
+    mock_entry = MagicMock()
     mock_entry.data = {
         CONF_API_KEY: "old_key",
         CONF_MODE: MODE_ESTACIO,
@@ -106,7 +108,7 @@ async def test_reauth_flow_rejects_invalid_api_key(mock_hass):
     from custom_components.meteocat_community_edition.config_flow import MeteocatOptionsFlow
     from custom_components.meteocat_community_edition.api import MeteocatAPIError
     
-    mock_entry = AsyncMock()
+    mock_entry = MagicMock()
     mock_entry.data = {
         CONF_API_KEY: "old_key",
         CONF_MODE: MODE_ESTACIO,
@@ -132,7 +134,7 @@ async def test_reauth_flow_triggers_reload(mock_hass):
     """Test that successful reauth triggers config entry reload."""
     from custom_components.meteocat_community_edition.config_flow import MeteocatOptionsFlow
     
-    mock_entry = AsyncMock()
+    mock_entry = MagicMock()
     mock_entry.entry_id = "test_entry"
     mock_entry.data = {CONF_API_KEY: "old_key"}
     

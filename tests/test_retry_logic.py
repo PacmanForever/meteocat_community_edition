@@ -1,6 +1,6 @@
 """Tests for retry logic and error handling."""
 import asyncio
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import aiohttp
 import pytest
@@ -30,6 +30,11 @@ async def test_auth_error_401_no_retry(api_client, mock_session):
     mock_response = AsyncMock()
     mock_response.status = 401
     mock_response.headers = {}
+    mock_response.raise_for_status = MagicMock(side_effect=aiohttp.ClientResponseError(
+        request_info=MagicMock(),
+        history=(),
+        status=401
+    ))
     mock_session.request.return_value.__aenter__.return_value = mock_response
 
     with pytest.raises(MeteocatAuthError) as exc_info:
@@ -46,6 +51,11 @@ async def test_auth_error_403_no_retry(api_client, mock_session):
     mock_response = AsyncMock()
     mock_response.status = 403
     mock_response.headers = {}
+    mock_response.raise_for_status = MagicMock(side_effect=aiohttp.ClientResponseError(
+        request_info=MagicMock(),
+        history=(),
+        status=403
+    ))
     mock_session.request.return_value.__aenter__.return_value = mock_response
 
     with pytest.raises(MeteocatAuthError) as exc_info:
@@ -62,10 +72,16 @@ async def test_rate_limit_retry_with_backoff(api_client, mock_session):
     mock_response_429 = AsyncMock()
     mock_response_429.status = 429
     mock_response_429.headers = {"Retry-After": "1"}
+    mock_response_429.raise_for_status = MagicMock(side_effect=aiohttp.ClientResponseError(
+        request_info=MagicMock(),
+        history=(),
+        status=429
+    ))
     
     mock_response_200 = AsyncMock()
     mock_response_200.status = 200
     mock_response_200.read = AsyncMock(return_value=b'{"result": "success"}')
+    mock_response_200.raise_for_status = MagicMock()
     
     mock_session.request.return_value.__aenter__.side_effect = [
         mock_response_429,
@@ -88,6 +104,11 @@ async def test_rate_limit_max_retries_exceeded(api_client, mock_session):
     mock_response = AsyncMock()
     mock_response.status = 429
     mock_response.headers = {"Retry-After": "1"}
+    mock_response.raise_for_status = MagicMock(side_effect=aiohttp.ClientResponseError(
+        request_info=MagicMock(),
+        history=(),
+        status=429
+    ))
     mock_session.request.return_value.__aenter__.return_value = mock_response
 
     with patch("asyncio.sleep"):
@@ -106,6 +127,7 @@ async def test_network_error_retry_with_exponential_backoff(api_client, mock_ses
     mock_response = AsyncMock()
     mock_response.status = 200
     mock_response.read = AsyncMock(return_value=b'{"result": "success"}')
+    mock_response.raise_for_status = MagicMock()
     
     mock_session.request.return_value.__aenter__.side_effect = [
         aiohttp.ClientError("Connection error"),
@@ -130,6 +152,7 @@ async def test_timeout_error_retry(api_client, mock_session):
     mock_response = AsyncMock()
     mock_response.status = 200
     mock_response.read = AsyncMock(return_value=b'{"result": "success"}')
+    mock_response.raise_for_status = MagicMock()
     
     mock_session.request.return_value.__aenter__.side_effect = [
         asyncio.TimeoutError(),
@@ -162,6 +185,7 @@ async def test_successful_request_no_retry(api_client, mock_session):
     mock_response = AsyncMock()
     mock_response.status = 200
     mock_response.read = AsyncMock(return_value=b'{"data": "test"}')
+    mock_response.raise_for_status = MagicMock()
     mock_session.request.return_value.__aenter__.return_value = mock_response
 
     result = await api_client._request("GET", "/test")

@@ -35,6 +35,12 @@ from homeassistant.helpers.event import async_track_point_in_utc_time
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.util import dt as dt_util
 
+try:
+    from aiohttp import ClientError, ServerTimeoutError
+except ImportError:
+    # Fallback for potential future aiohttp changes
+    from aiohttp.client_exceptions import ClientError, ServerTimeoutError
+
 from .api import MeteocatAPI, MeteocatAPIError, MeteocatAuthError
 from .const import (
     CONF_API_BASE_URL,
@@ -229,19 +235,8 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         - Not found errors (404) - station/municipality doesn't exist
         - Rate limit (429) - already has retry logic with backoff in api.py
         """
-        try:
-            from aiohttp import ClientError, ServerTimeoutError
-        except ImportError:
-            # Fallback for potential future aiohttp changes
-            from aiohttp.client_exceptions import ClientError, ServerTimeoutError
-        
-        from custom_components.meteocat_community_edition.api import (
-            MeteocatAPIAuthenticationError,
-            MeteocatAPIError,
-        )
-        
         # Authentication errors should trigger reauth, not retry
-        if isinstance(error, MeteocatAPIAuthenticationError):
+        if isinstance(error, MeteocatAuthError):
             return False
         
         # Network/timeout errors are retryable
@@ -505,6 +500,13 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             raise ConfigEntryAuthFailed(
                 f"Authentication failed: {err}. Please reconfigure with a valid API key."
             ) from err
+        
+        except (MeteocatAPIError, ClientError, ServerTimeoutError, asyncio.TimeoutError) as err:
+            # Check if this is a retryable error and we're not already in retry mode
+            if not self._is_retry_update and self._is_retryable_error(err):
+                _LOGGER.warning("Retryable error: %s. Scheduling retry in 60 seconds", err)
+                await self._schedule_retry_update(delay_seconds=60)
+                raise UpdateFailed(f"Temporary error - retry scheduled: {err}") from err
             
-        except MeteocatAPIError as err:
+            # Non-retryable or already retrying
             raise UpdateFailed(f"Error communicating with Meteocat API: {err}") from err
