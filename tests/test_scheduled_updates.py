@@ -725,8 +725,15 @@ async def test_retry_does_not_interfere_with_scheduled_updates(mock_hass, mock_a
     """Test that retry system doesn't interfere with regular scheduled updates."""
     from aiohttp import ServerTimeoutError
     
+    # Create different removers for scheduled and retry updates
+    scheduled_remover = MagicMock()
+    retry_remover = MagicMock()
+    
     with patch('custom_components.meteocat_community_edition.coordinator.async_get_clientsession'), \
          patch('custom_components.meteocat_community_edition.coordinator.async_track_point_in_utc_time') as mock_track:
+        
+        # Configure mock to return different removers
+        mock_track.side_effect = [scheduled_remover, retry_remover]
         
         coordinator = MeteocatCoordinator(mock_hass, mock_entry_estacio)
         coordinator.api = mock_api
