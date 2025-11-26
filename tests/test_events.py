@@ -67,8 +67,18 @@ def mock_hass():
     """Create a mock Home Assistant instance."""
     hass = MagicMock()
     hass.bus = MagicMock()
-    hass.bus.async_fire = AsyncMock()
+    hass.bus.fire = MagicMock()  # Usar fire, no fire
     return hass
+
+
+@pytest.fixture
+def mock_device_registry():
+    """Create a mock device registry."""
+    mock_device = MagicMock()
+    mock_device.id = "test_device_id"
+    mock_registry = MagicMock()
+    mock_registry.fire_get_device.return_value = mock_device
+    return mock_registry
 
 
 @pytest.fixture
@@ -104,7 +114,17 @@ def mock_entry_municipi():
 @pytest.mark.asyncio
 async def test_event_fired_estacio_mode(mock_hass, mock_entry_estacio, mock_api):
     """Test that event is fired after update in MODE_ESTACIO."""
-    with patch('custom_components.meteocat_community_edition.coordinator.async_get_clientsession'):
+    # Mock device registry
+    mock_device = MagicMock()
+    mock_device.id = "test_device_id"
+    
+    with patch('custom_components.meteocat_community_edition.coordinator.async_get_clientsession'), \
+         patch('custom_components.meteocat_community_edition.coordinator.dr.async_get') as mock_dr:
+        
+        mock_registry = MagicMock()
+        mock_registry.async_get_device.return_value = mock_device
+        mock_dr.return_value = mock_registry
+        
         coordinator = MeteocatCoordinator(mock_hass, mock_entry_estacio)
         coordinator.api = mock_api
         
@@ -112,10 +132,10 @@ async def test_event_fired_estacio_mode(mock_hass, mock_entry_estacio, mock_api)
         await coordinator._async_update_data()
         
         # Check that event was fired
-        mock_hass.bus.async_fire.assert_called()
+        mock_hass.bus.fire.assert_called()
         
         # Get the data_updated event call (second call, after next_update_changed)
-        calls = mock_hass.bus.async_fire.call_args_list
+        calls = mock_hass.bus.fire.call_args_list
         data_update_call = [c for c in calls if c[0][0] == EVENT_DATA_UPDATED][0]
         
         event_type = data_update_call[0][0]
@@ -154,10 +174,10 @@ async def test_event_fired_municipi_mode(mock_hass, mock_entry_municipi, mock_ap
         await coordinator._async_update_data()
         
         # Check that event was fired
-        mock_hass.bus.async_fire.assert_called()
+        mock_hass.bus.fire.assert_called()
         
         # Get the data_updated event call
-        calls = mock_hass.bus.async_fire.call_args_list
+        calls = mock_hass.bus.fire.call_args_list
         data_update_call = [c for c in calls if c[0][0] == EVENT_DATA_UPDATED][0]
         
         event_type = data_update_call[0][0]
@@ -189,7 +209,7 @@ async def test_event_contains_valid_timestamp_format(mock_hass, mock_entry_estac
         
         await coordinator._async_update_data()
         
-        calls = mock_hass.bus.async_fire.call_args_list
+        calls = mock_hass.bus.fire.call_args_list
         data_update_call = [c for c in calls if c[0][0] == EVENT_DATA_UPDATED][0]
         event_data = data_update_call[0][1]
         timestamp_str = event_data[EVENT_ATTR_TIMESTAMP]
@@ -222,7 +242,7 @@ async def test_event_not_fired_on_error(mock_hass, mock_entry_estacio, mock_api)
             await coordinator._async_update_data()
         
         # Event should NOT be fired
-        mock_hass.bus.async_fire.assert_not_called()
+        mock_hass.bus.fire.assert_not_called()
 
 
 @pytest.mark.asyncio
@@ -234,15 +254,15 @@ async def test_multiple_updates_fire_multiple_events(mock_hass, mock_entry_estac
         
         # First update
         await coordinator._async_update_data()
-        first_count = mock_hass.bus.async_fire.call_count
+        first_count = mock_hass.bus.fire.call_count
         
         # Second update
         await coordinator._async_update_data()
-        second_count = mock_hass.bus.async_fire.call_count
+        second_count = mock_hass.bus.fire.call_count
         
         # Third update
         await coordinator._async_update_data()
-        third_count = mock_hass.bus.async_fire.call_count
+        third_count = mock_hass.bus.fire.call_count
         
         # Each update should fire events (both data_updated + potentially next_update_changed)
         assert second_count > first_count
@@ -264,10 +284,10 @@ async def test_next_update_changed_event_fired(mock_hass, mock_entry_estacio, mo
         await coordinator._async_update_data()
         
         # Should have 2 events: next_update_changed + data_updated
-        assert mock_hass.bus.async_fire.call_count == 2
+        assert mock_hass.bus.fire.call_count == 2
         
         # Get the calls
-        calls = mock_hass.bus.async_fire.call_args_list
+        calls = mock_hass.bus.fire.call_args_list
         
         # First call should be next_update_changed (fires first)
         next_update_call = calls[0]
@@ -295,11 +315,11 @@ async def test_next_update_changed_event_not_fired_when_same(mock_hass, mock_ent
         
         # First update
         await coordinator._async_update_data()
-        initial_call_count = mock_hass.bus.async_fire.call_count
+        initial_call_count = mock_hass.bus.fire.call_count
         assert initial_call_count == 2  # next_update_changed + data_updated
         
         # Get the next_update value from first call
-        first_next_update = mock_hass.bus.async_fire.call_args_list[0][0][1][EVENT_ATTR_NEXT_UPDATE]
+        first_next_update = mock_hass.bus.fire.call_args_list[0][0][1][EVENT_ATTR_NEXT_UPDATE]
         
         # Store it so second update has same value
         coordinator._previous_next_update = coordinator.last_successful_update_time + coordinator.update_interval if coordinator.last_successful_update_time and coordinator.update_interval else None
@@ -309,10 +329,10 @@ async def test_next_update_changed_event_not_fired_when_same(mock_hass, mock_ent
         
         # Should only fire data_updated (not next_update_changed)
         # If next update didn't change, only 1 new event
-        assert mock_hass.bus.async_fire.call_count == initial_call_count + 1
+        assert mock_hass.bus.fire.call_count == initial_call_count + 1
         
         # Last call should be data_updated only
-        last_call = mock_hass.bus.async_fire.call_args_list[-1]
+        last_call = mock_hass.bus.fire.call_args_list[-1]
         assert last_call[0][0] == EVENT_DATA_UPDATED
 
 
@@ -326,7 +346,7 @@ async def test_next_update_changed_event_includes_station_code(mock_hass, mock_e
         await coordinator._async_update_data()
         
         # Get next_update_changed event (first call)
-        next_update_call = mock_hass.bus.async_fire.call_args_list[0]
+        next_update_call = mock_hass.bus.fire.call_args_list[0]
         event_data = next_update_call[0][1]
         
         assert EVENT_ATTR_STATION_CODE in event_data
@@ -343,7 +363,7 @@ async def test_next_update_changed_event_includes_municipality_code(mock_hass, m
         await coordinator._async_update_data()
         
         # Get next_update_changed event (first call)
-        next_update_call = mock_hass.bus.async_fire.call_args_list[0]
+        next_update_call = mock_hass.bus.fire.call_args_list[0]
         event_data = next_update_call[0][1]
         
         assert EVENT_ATTR_MUNICIPALITY_CODE in event_data
@@ -360,7 +380,7 @@ async def test_next_update_changed_event_has_valid_timestamp_format(mock_hass, m
         await coordinator._async_update_data()
         
         # Get next_update_changed event
-        next_update_call = mock_hass.bus.async_fire.call_args_list[0]
+        next_update_call = mock_hass.bus.fire.call_args_list[0]
         event_data = next_update_call[0][1]
         
         next_update_str = event_data[EVENT_ATTR_NEXT_UPDATE]
