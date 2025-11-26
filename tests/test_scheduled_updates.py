@@ -718,3 +718,43 @@ async def test_custom_update_times(mock_hass, mock_api):
             assert scheduled_time.date() == expected_time.date()
             assert scheduled_time.hour == expected_time.hour
             assert scheduled_time.minute == expected_time.minute
+
+
+@pytest.mark.asyncio
+async def test_retry_does_not_interfere_with_scheduled_updates(mock_hass, mock_api, mock_entry_xema):
+    "Test that retry system doesn't interfere with regular scheduled updates."
+    from aiohttp import ServerTimeoutError
+    
+    with patch('custom_components.meteocat_community_edition.coordinator.async_get_clientsession'), \
+         patch('custom_components.meteocat_community_edition.coordinator.async_track_point_in_utc_time') as mock_track:
+        
+        coordinator = MeteocatCoordinator(mock_hass, mock_entry_xema)
+        coordinator.api = mock_api
+        
+        # Schedule regular update
+        coordinator._schedule_next_update()
+        scheduled_update_call = mock_track.call_args
+        
+        # Verify scheduled update registered
+        assert mock_track.call_count == 1
+        assert scheduled_update_call[0][1] == coordinator._async_scheduled_update
+        
+        # Now trigger a retry due to error
+        mock_api.get_station_measurements.side_effect = ServerTimeoutError("Timeout")
+        
+        try:
+            await coordinator._async_update_data()
+        except Exception:
+            pass
+        
+        # Should have 2 calls now: scheduled + retry
+        assert mock_track.call_count == 2
+        
+        # Last call should be retry
+        retry_call = mock_track.call_args
+        assert retry_call[0][1] == coordinator._async_retry_update
+        
+        # Verify both removers are different
+        assert coordinator._scheduled_update_remover is not None
+        assert coordinator._retry_remover is not None
+        assert coordinator._scheduled_update_remover != coordinator._retry_remover
