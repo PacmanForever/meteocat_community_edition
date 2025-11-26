@@ -41,10 +41,10 @@ def mock_hass():
 @pytest.mark.asyncio
 async def test_coordinator_raises_auth_failed_on_401(mock_hass, mock_entry_estacio):
     """Test that coordinator raises ConfigEntryAuthFailed on 401 error."""
-    from custom_components.meteocat_community_edition.coordinator import MeteocatDataUpdateCoordinator
+    from custom_components.meteocat_community_edition.coordinator import MeteocatCoordinator
     
     # Create coordinator
-    coordinator = MeteocatDataUpdateCoordinator(mock_hass, mock_entry_estacio)
+    coordinator = MeteocatCoordinator(mock_hass, mock_entry_estacio)
     
     # Mock API to raise auth error
     with patch.object(coordinator.api, "get_station_measurements", side_effect=MeteocatAuthError("401 error")):
@@ -57,9 +57,9 @@ async def test_coordinator_raises_auth_failed_on_401(mock_hass, mock_entry_estac
 @pytest.mark.asyncio
 async def test_coordinator_raises_auth_failed_on_403(mock_hass, mock_entry_estacio):
     """Test that coordinator raises ConfigEntryAuthFailed on 403 error."""
-    from custom_components.meteocat_community_edition.coordinator import MeteocatDataUpdateCoordinator
+    from custom_components.meteocat_community_edition.coordinator import MeteocatCoordinator
     
-    coordinator = MeteocatDataUpdateCoordinator(mock_hass, mock_entry_estacio)
+    coordinator = MeteocatCoordinator(mock_hass, mock_entry_estacio)
     
     with patch.object(coordinator.api, "get_station_measurements", side_effect=MeteocatAuthError("403 error")):
         with pytest.raises(ConfigEntryAuthFailed) as exc_info:

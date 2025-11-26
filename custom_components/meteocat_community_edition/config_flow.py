@@ -39,6 +39,13 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 
+def is_valid_time_format(time_str: str) -> bool:
+    """Validate time format HH:MM."""
+    import re
+    time_pattern = re.compile(r'^([01]\d|2[0-3]):([0-5]\d)$')
+    return bool(time_pattern.match(time_str)) if time_str else False
+
+
 def validate_update_times(time1: str, time2: str) -> dict[str, str]:
     """Validate update times format and uniqueness."""
     import re

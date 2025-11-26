@@ -60,19 +60,42 @@ def mock_api():
 def mock_hass():
     """Create a mock Home Assistant instance."""
     hass = MagicMock()
+    hass.bus = MagicMock()
+    hass.bus.async_fire = AsyncMock()
     return hass
 
 
+@pytest.fixture
+def mock_entry_xema():
+    """Create a mock config entry for XEMA mode."""
+    entry = MagicMock()
+    entry.data = {
+        "api_key": "test_api_key",
+        "mode": MODE_ESTACIO,
+        "station_code": "YM",
+    }
+    entry.options = {}
+    return entry
+
+
+@pytest.fixture
+def mock_entry_municipal():
+    """Create a mock config entry for Municipal mode."""
+    entry = MagicMock()
+    entry.data = {
+        "api_key": "test_api_key",
+        "mode": MODE_MUNICIPI,
+        "municipality_code": "081131",
+    }
+    entry.options = {}
+    return entry
+
+
 @pytest.mark.asyncio
-async def test_coordinator_xema_mode_update(mock_hass, mock_api):
+async def test_coordinator_xema_mode_update(mock_hass, mock_api, mock_entry_xema):
     """Test coordinator update in XEMA mode."""
-    coordinator = MeteocatCoordinator(
-        mock_hass,
-        mock_api,
-        MODE_ESTACIO,
-        station_code="YM",
-        municipality_code=None
-    )
+    coordinator = MeteocatCoordinator(mock_hass, mock_entry_xema)
+    coordinator.api = mock_api
     
     data = await coordinator._async_update_data()
     
@@ -85,15 +108,10 @@ async def test_coordinator_xema_mode_update(mock_hass, mock_api):
 
 
 @pytest.mark.asyncio
-async def test_coordinator_municipal_mode_update(mock_hass, mock_api):
+async def test_coordinator_municipal_mode_update(mock_hass, mock_api, mock_entry_municipal):
     """Test coordinator update in Municipal mode."""
-    coordinator = MeteocatCoordinator(
-        mock_hass,
-        mock_api,
-        MODE_MUNICIPI,
-        station_code=None,
-        municipality_code="081131"
-    )
+    coordinator = MeteocatCoordinator(mock_hass, mock_entry_municipal)
+    coordinator.api = mock_api
     
     data = await coordinator._async_update_data()
     
@@ -107,15 +125,10 @@ async def test_coordinator_municipal_mode_update(mock_hass, mock_api):
 
 
 @pytest.mark.asyncio
-async def test_coordinator_calculates_next_update(mock_hass, mock_api):
+async def test_coordinator_calculates_next_update(mock_hass, mock_api, mock_entry_xema):
     """Test that coordinator calculates next update interval."""
-    coordinator = MeteocatCoordinator(
-        mock_hass,
-        mock_api,
-        MODE_ESTACIO,
-        station_code="YM",
-        municipality_code=None
-    )
+    coordinator = MeteocatCoordinator(mock_hass, mock_entry_xema)
+    coordinator.api = mock_api
     
     await coordinator._async_update_data()
     
@@ -126,19 +139,14 @@ async def test_coordinator_calculates_next_update(mock_hass, mock_api):
 
 
 @pytest.mark.asyncio
-async def test_coordinator_handles_api_error(mock_hass, mock_api):
+async def test_coordinator_handles_api_error(mock_hass, mock_api, mock_entry_xema):
     """Test coordinator handles API errors gracefully."""
     from custom_components.meteocat_community_edition.api import MeteocatAPIError
     
     mock_api.get_station_measurements.side_effect = MeteocatAPIError("API Error")
     
-    coordinator = MeteocatCoordinator(
-        mock_hass,
-        mock_api,
-        MODE_ESTACIO,
-        station_code="YM",
-        municipality_code=None
-    )
+    coordinator = MeteocatCoordinator(mock_hass, mock_entry_xema)
+    coordinator.api = mock_api
     
     # Should raise an exception from the coordinator
     with pytest.raises(Exception):
@@ -146,7 +154,7 @@ async def test_coordinator_handles_api_error(mock_hass, mock_api):
 
 
 @pytest.mark.asyncio
-async def test_coordinator_quotes_fetched_after_other_apis(mock_hass, mock_api):
+async def test_coordinator_quotes_fetched_after_other_apis(mock_hass, mock_api, mock_entry_xema):
     """Test that quotes are fetched after other API calls."""
     call_order = []
     
@@ -161,13 +169,8 @@ async def test_coordinator_quotes_fetched_after_other_apis(mock_hass, mock_api):
     mock_api.get_station_measurements = track_get_station_measurements
     mock_api.get_quotes = track_get_quotes
     
-    coordinator = MeteocatCoordinator(
-        mock_hass,
-        mock_api,
-        MODE_ESTACIO,
-        station_code="YM",
-        municipality_code=None
-    )
+    coordinator = MeteocatCoordinator(mock_hass, mock_entry_xema)
+    coordinator.api = mock_api
     
     await coordinator._async_update_data()
     
@@ -178,17 +181,12 @@ async def test_coordinator_quotes_fetched_after_other_apis(mock_hass, mock_api):
 
 
 @pytest.mark.asyncio
-async def test_coordinator_handles_missing_quotes(mock_hass, mock_api):
+async def test_coordinator_handles_missing_quotes(mock_hass, mock_api, mock_entry_xema):
     """Test coordinator handles missing quotes gracefully."""
     mock_api.get_quotes.side_effect = Exception("Quotes API error")
     
-    coordinator = MeteocatCoordinator(
-        mock_hass,
-        mock_api,
-        MODE_ESTACIO,
-        station_code="YM",
-        municipality_code=None
-    )
+    coordinator = MeteocatCoordinator(mock_hass, mock_entry_xema)
+    coordinator.api = mock_api
     
     data = await coordinator._async_update_data()
     
@@ -198,15 +196,10 @@ async def test_coordinator_handles_missing_quotes(mock_hass, mock_api):
 
 
 @pytest.mark.asyncio
-async def test_coordinator_finds_municipality_for_station(mock_hass, mock_api):
+async def test_coordinator_finds_municipality_for_station(mock_hass, mock_api, mock_entry_xema):
     """Test coordinator finds municipality code for station."""
-    coordinator = MeteocatCoordinator(
-        mock_hass,
-        mock_api,
-        MODE_ESTACIO,
-        station_code="YM",
-        municipality_code=None
-    )
+    coordinator = MeteocatCoordinator(mock_hass, mock_entry_xema)
+    coordinator.api = mock_api
     
     await coordinator._async_update_data()
     

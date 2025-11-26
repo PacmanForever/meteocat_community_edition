@@ -30,12 +30,15 @@ def api_client(mock_session):
 @pytest.mark.asyncio
 async def test_get_comarques(api_client, mock_session):
     """Test getting comarques list."""
+    import json
     mock_response = AsyncMock()
-    mock_response.json.return_value = [
+    mock_data = [
         {"codi": "01", "nom": "Alt Camp"},
         {"codi": "02", "nom": "Alt Empordà"},
     ]
+    mock_response.read = AsyncMock(return_value=json.dumps(mock_data).encode('utf-8'))
     mock_response.raise_for_status = MagicMock()
+    mock_response.status = 200
     
     mock_session.request.return_value.__aenter__.return_value = mock_response
     
@@ -49,12 +52,15 @@ async def test_get_comarques(api_client, mock_session):
 @pytest.mark.asyncio
 async def test_get_stations(api_client, mock_session):
     """Test getting stations list."""
+    import json
     mock_response = AsyncMock()
-    mock_response.json.return_value = [
+    mock_data = [
         {"codi": "UG", "nom": "Girona"},
         {"codi": "D5", "nom": "Barcelona"},
     ]
+    mock_response.read = AsyncMock(return_value=json.dumps(mock_data).encode('utf-8'))
     mock_response.raise_for_status = MagicMock()
+    mock_response.status = 200
     
     mock_session.request.return_value.__aenter__.return_value = mock_response
     
@@ -80,8 +86,9 @@ async def test_api_error_handling(api_client, mock_session):
 @pytest.mark.asyncio
 async def test_get_station_measurements(api_client, mock_session):
     """Test getting station measurements."""
+    import json
     mock_response = AsyncMock()
-    mock_response.json.return_value = [
+    mock_data = [
         {
             "codi": "UG",
             "variables": [
@@ -90,7 +97,9 @@ async def test_get_station_measurements(api_client, mock_session):
             ],
         }
     ]
+    mock_response.read = AsyncMock(return_value=json.dumps(mock_data).encode('utf-8'))
     mock_response.raise_for_status = MagicMock()
+    mock_response.status = 200
     
     mock_session.request.return_value.__aenter__.return_value = mock_response
     
@@ -105,15 +114,18 @@ async def test_get_station_measurements(api_client, mock_session):
 @pytest.mark.asyncio
 async def test_get_quotes(api_client, mock_session):
     """Test getting API quota information."""
+    import json
     mock_response = AsyncMock()
-    mock_response.json.return_value = {
+    mock_data = {
         "client": {"nom": "Test Client"},
         "plans": [
             {"nom": "Prediccio_100", "requests_left": 950, "requests_total": 1000},
             {"nom": "Referencia_200", "requests_left": 1800, "requests_total": 2000},
         ]
     }
+    mock_response.read = AsyncMock(return_value=json.dumps(mock_data).encode('utf-8'))
     mock_response.raise_for_status = MagicMock()
+    mock_response.status = 200
     
     mock_session.request.return_value.__aenter__.return_value = mock_response
     
@@ -128,8 +140,9 @@ async def test_get_quotes(api_client, mock_session):
 @pytest.mark.asyncio
 async def test_get_municipal_forecast(api_client, mock_session):
     """Test getting municipal forecast."""
+    import json
     mock_response = AsyncMock()
-    mock_response.json.return_value = {
+    mock_data = {
         "dies": [
             {
                 "data": "2025-11-24",
@@ -140,7 +153,9 @@ async def test_get_municipal_forecast(api_client, mock_session):
             }
         ]
     }
+    mock_response.read = AsyncMock(return_value=json.dumps(mock_data).encode('utf-8'))
     mock_response.raise_for_status = MagicMock()
+    mock_response.status = 200
     
     mock_session.request.return_value.__aenter__.return_value = mock_response
     
@@ -154,8 +169,9 @@ async def test_get_municipal_forecast(api_client, mock_session):
 @pytest.mark.asyncio
 async def test_get_uv_index(api_client, mock_session):
     """Test getting UV index forecast."""
+    import json
     mock_response = AsyncMock()
-    mock_response.json.return_value = {
+    mock_data = {
         "ine": "081131",
         "nom": "Granollers",
         "comarca": 39,
@@ -170,7 +186,9 @@ async def test_get_uv_index(api_client, mock_session):
             }
         ]
     }
+    mock_response.read = AsyncMock(return_value=json.dumps(mock_data).encode('utf-8'))
     mock_response.raise_for_status = MagicMock()
+    mock_response.status = 200
     
     mock_session.request.return_value.__aenter__.return_value = mock_response
     
