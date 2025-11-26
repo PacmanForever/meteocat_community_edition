@@ -146,7 +146,6 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             next_update - now,
         )
 
-    @callback
     async def _async_scheduled_update(self, now: datetime) -> None:
         """Handle scheduled update."""
         _LOGGER.info("Running scheduled update at %s", now)
