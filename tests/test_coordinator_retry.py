@@ -25,7 +25,7 @@ from aiohttp import ClientError, ServerTimeoutError
 from custom_components.meteocat_community_edition.coordinator import MeteocatCoordinator
 from custom_components.meteocat_community_edition.api import (
     MeteocatAPIError,
-    MeteocatAPIAuthenticationError,
+    MeteocatAuthError,
 )
 from custom_components.meteocat_community_edition.const import (
     CONF_API_KEY,
@@ -185,7 +185,7 @@ async def test_auth_error_401_no_retry(mock_hass, mock_api, mock_entry_xema, moc
     """Test that 401 authentication errors do NOT trigger retry."""
     from homeassistant.exceptions import ConfigEntryAuthFailed
     
-    mock_api.get_station_measurements.side_effect = MeteocatAPIAuthenticationError("401 Unauthorized")
+    mock_api.get_station_measurements.side_effect = MeteocatAuthError("401 Unauthorized")
     
     with patch('custom_components.meteocat_community_edition.coordinator.async_get_clientsession'), \
          patch('custom_components.meteocat_community_edition.coordinator.dr.async_get', return_value=mock_device_registry), \
