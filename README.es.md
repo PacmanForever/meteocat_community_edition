@@ -13,9 +13,14 @@ Integración **comunitaria** y **no oficial** para Home Assistant del Servicio M
 >
 >  **Uso Legal y Oficial de la API**: Utiliza la [**API oficial del Meteocat**](https://apidocs.meteocat.gencat.cat/) de manera completamente legal y siguiendo sus condiciones de uso.
 >
->  **Objetivo**: Facilitar la integración con Home Assistant sin necesidad de conocer el funcionamiento interno de la API. No tiene ningún fin comercial ni busca obtener ningún beneficio económico.
+> 🎯 **Objetivo**: Facilitar la integración con Home Assistant sin necesidad de conocer el funcionamiento interno de la API. No tiene ningún fin comercial ni busca obtener ningún beneficio económico.
 
-**Es necesario registrarse** en la API de Meteocat para obtener una clave API gratuita (plan ciudadano) o de pago (plan empresa).
+> [!IMPORTANT]
+> **Es necesario registrarse en la API de Meteocat** para obtener una clave API:
+> - 🆓 **Plan ciudadano** (gratuito)
+> - 💼 **Plan empresa** (de pago)
+>
+> Regístrate en: https://apidocs.meteocat.gencat.cat/
 
 **Idiomas**: [Català](README.md) | [English](README.en.md) | **Español**
 ## Característiques

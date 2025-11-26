@@ -15,7 +15,12 @@
 >
 > 🎯 **Purpose**: Simplify Home Assistant integration without needing to understand the internal workings of the API. It has no commercial purpose and seeks no economic benefit.
 
-**Registration required** at the Meteocat API to obtain a free API key (citizen plan) or paid (business plan).
+> [!IMPORTANT]
+> **Registration required at the Meteocat API** to obtain an API key:
+> - 🆓 **Citizen plan** (free)
+> - 💼 **Business plan** (paid)
+>
+> Register at: https://apidocs.meteocat.gencat.cat/
 
 **Languages**: [Català](README.md) | **English** | [Español](README.es.md)
 

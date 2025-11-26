@@ -15,7 +15,12 @@ Integració **comunitària** i **no oficial** per a Home Assistant del Servei Me
 >
 > 🎯 **Objectiu**: Facilitar la integració amb Home Assistant sense necessitat de conèixer el funcionament intern de l'API. No té cap finalitat comercial ni busca obtenir cap benefici econòmic.
 
-**Cal registrar-se** a l'API de Meteocat per obtenir una clau API gratuïta (pla ciutadà) o de pagament (pla empresa).
+> [!IMPORTANT]
+> **Cal registrar-se a l'API de Meteocat** per obtenir una clau API:
+> - 🆓 **Pla ciutadà** (gratuït)
+> - 💼 **Pla empresa** (de pagament)
+>
+> Registra't a: https://apidocs.meteocat.gencat.cat/
 
 **Idiomes**: **Català** | [English](README.en.md) | [Español](README.es.md)
 
