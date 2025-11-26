@@ -318,8 +318,12 @@ async def test_next_update_changed_event_not_fired_when_same(mock_hass, mock_ent
         # Get the next_update value from first call
         first_next_update = mock_hass.bus.fire.call_args_list[0][0][1][EVENT_ATTR_NEXT_UPDATE]
         
-        # Store it so second update has same value
-        coordinator._previous_next_update = coordinator.last_successful_update_time + coordinator.update_interval if coordinator.last_successful_update_time and coordinator.update_interval else None
+        # Parse the next update time to store as previous
+        from datetime import datetime
+        if first_next_update:
+            coordinator._previous_next_update = datetime.fromisoformat(first_next_update.replace('Z', '+00:00'))
+        else:
+            coordinator._previous_next_update = None
         
         # Second update (with mocked same next_update time)
         await coordinator._async_update_data()

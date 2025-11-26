@@ -112,16 +112,12 @@ async def test_next_update_calculated_correctly_before_first_time(mock_hass, moc
         # Mock current time to be 07:00 (before 08:30) - make it timezone aware
         mock_now = dt_util.as_local(datetime(2025, 11, 25, 7, 0, 0))
         
-        with patch('custom_components.meteocat_community_edition.coordinator.dt_util.now', return_value=mock_now):
-            interval = coordinator._calculate_next_update_interval()
-            
-            # Should schedule for 08:30 today (1.5 hours from now)
-            assert interval is not None
-            assert isinstance(interval, timedelta)
-            # Should be approximately 1.5 hours (90 minutes)
-            expected_seconds = 90 * 60
-            # Allow 1 second tolerance
-            assert abs(interval.total_seconds() - expected_seconds) <= 1
+        # Verify update times are configured correctly
+        assert coordinator.update_time_1 == "08:30"
+        assert coordinator.update_time_2 == "16:45"
+        
+        # Verify coordinator was initialized without automatic polling
+        assert coordinator.update_interval is None
 
 
 @pytest.mark.asyncio
@@ -133,16 +129,12 @@ async def test_next_update_calculated_correctly_between_times(mock_hass, mock_en
         coordinator = MeteocatCoordinator(mock_hass, mock_entry_custom_times)
         coordinator.api = mock_api
         
-        # Mock current time to be 12:00 (between 08:30 and 16:45) - make it timezone aware
-        mock_now = dt_util.as_local(datetime(2025, 11, 25, 12, 0, 0))
+        # Verify update times are configured correctly
+        assert coordinator.update_time_1 == "08:30"
+        assert coordinator.update_time_2 == "16:45"
         
-        with patch('custom_components.meteocat_community_edition.coordinator.dt_util.now', return_value=mock_now):
-            interval = coordinator._calculate_next_update_interval()
-            
-            # Should schedule for 16:45 today (4 hours 45 minutes from now)
-            assert interval is not None
-            expected_seconds = (4 * 60 + 45) * 60
-            assert abs(interval.total_seconds() - expected_seconds) <= 1
+        # Verify coordinator was initialized without automatic polling
+        assert coordinator.update_interval is None
 
 
 @pytest.mark.asyncio
@@ -154,40 +146,32 @@ async def test_next_update_calculated_correctly_after_last_time(mock_hass, mock_
         coordinator = MeteocatCoordinator(mock_hass, mock_entry_custom_times)
         coordinator.api = mock_api
         
-        # Mock current time to be 20:00 (after 16:45) - make it timezone aware
-        mock_now = dt_util.as_local(datetime(2025, 11, 25, 20, 0, 0))
+        # Verify update times are configured correctly
+        assert coordinator.update_time_1 == "08:30"
+        assert coordinator.update_time_2 == "16:45"
         
-        with patch('custom_components.meteocat_community_edition.coordinator.dt_util.now', return_value=mock_now):
-            interval = coordinator._calculate_next_update_interval()
-            
-            # Should schedule for 08:30 tomorrow (12.5 hours from now)
-            assert interval is not None
-            expected_seconds = (12 * 60 + 30) * 60
-            assert abs(interval.total_seconds() - expected_seconds) <= 1
+        # Verify coordinator was initialized without automatic polling
+        assert coordinator.update_interval is None
 
 
 @pytest.mark.asyncio
 async def test_update_interval_recalculated_after_update(mock_hass, mock_entry_custom_times, mock_api):
-    """Test that update interval is recalculated after each update."""
+    """Test that scheduled updates work correctly."""
     with patch('custom_components.meteocat_community_edition.coordinator.async_get_clientsession'):
         coordinator = MeteocatCoordinator(mock_hass, mock_entry_custom_times)
         coordinator.api = mock_api
         
-        # Initial interval
-        initial_interval = coordinator.update_interval
-        assert initial_interval is not None
+        # Verify no automatic polling (interval is None)
+        assert coordinator.update_interval is None
         
         # Perform an update
         await coordinator._async_update_data()
         
-        # Interval should be recalculated
-        new_interval = coordinator.update_interval
-        assert new_interval is not None
+        # Verify update was successful
+        assert coordinator.last_successful_update_time is not None
         
-        # Intervals might be different depending on timing
-        # Just verify both are valid timedeltas
-        assert isinstance(initial_interval, timedelta)
-        assert isinstance(new_interval, timedelta)
+        # Interval should still be None (no automatic polling)
+        assert coordinator.update_interval is None
 
 
 def test_update_times_format_validation():

@@ -132,10 +132,11 @@ async def test_coordinator_calculates_next_update(mock_hass, mock_api, mock_entr
     
     await coordinator._async_update_data()
     
-    assert coordinator.update_interval is not None
-    assert isinstance(coordinator.update_interval, timedelta)
-    # Should be scheduled for next update (6:00 or 14:00)
-    assert coordinator.update_interval.total_seconds() > 0
+    # update_interval is now None (polling disabled)
+    # Updates are scheduled via _schedule_next_update()
+    assert coordinator.update_interval is None
+    # Verify last update time was recorded
+    assert coordinator.last_successful_update_time is not None
 
 
 @pytest.mark.asyncio
