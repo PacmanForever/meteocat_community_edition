@@ -229,12 +229,12 @@ async def test_event_not_fired_on_error(mock_hass, mock_entry_estacio, mock_api,
         coordinator = MeteocatCoordinator(mock_hass, mock_entry_estacio)
         coordinator.api = mock_api
         
-        # Perform update (error is handled gracefully)
-        await coordinator._async_update_data()
+        # Update should fail with exception
+        with pytest.raises(Exception):
+            await coordinator._async_update_data()
         
-        # Event SHOULD still be fired with partial data
-        # (quota info and other data may still be valid)
-        assert mock_hass.bus.fire.called
+        # Event should NOT be fired when update fails
+        mock_hass.bus.fire.assert_not_called()
 
 
 @pytest.mark.asyncio

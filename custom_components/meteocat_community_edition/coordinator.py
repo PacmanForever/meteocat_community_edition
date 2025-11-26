@@ -103,6 +103,8 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self.last_successful_update_time: datetime | None = None
         self._previous_next_update: datetime | None = None
         self._scheduled_update_remover = None
+        self._retry_remover = None  # For intelligent retry scheduling
+        self._is_retry_update = False  # Track if current update is a retry
         
         # For XEMA mode, municipality code will be found from station
         # For MUNICIPAL mode, municipality code is already set
@@ -209,6 +211,83 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         if self._scheduled_update_remover:
             self._scheduled_update_remover()
             self._scheduled_update_remover = None
+        if self._retry_remover:
+            self._retry_remover()
+            self._retry_remover = None
+
+    def _is_retryable_error(self, error: Exception) -> bool:
+        """Determine if an error is temporary and should trigger a retry.
+        
+        Returns True for temporary/transient errors:
+        - Network timeouts and connection errors
+        - Server errors (500, 502, 503)
+        
+        Returns False for permanent errors that won't benefit from retry:
+        - Authentication errors (401, 403) - triggers reauth flow instead
+        - Not found errors (404) - station/municipality doesn't exist
+        - Rate limit (429) - already has retry logic with backoff in api.py
+        """
+        from aiohttp import ClientError, ServerTimeoutError
+        from custom_components.meteocat_community_edition.api import (
+            MeteocatAPIAuthenticationError,
+            MeteocatAPIError,
+        )
+        
+        # Authentication errors should trigger reauth, not retry
+        if isinstance(error, MeteocatAPIAuthenticationError):
+            return False
+        
+        # Network/timeout errors are retryable
+        if isinstance(error, (ServerTimeoutError, ClientError)):
+            return True
+        
+        # Check for server errors in API error messages
+        if isinstance(error, MeteocatAPIError):
+            error_msg = str(error).lower()
+            # Server errors are retryable
+            if any(code in error_msg for code in ['500', '502', '503']):
+                return True
+            # Client errors (404, etc.) are not retryable
+            if any(code in error_msg for code in ['404', '400']):
+                return False
+        
+        # By default, don't retry unknown errors
+        return False
+
+    async def _schedule_retry_update(self, delay_seconds: int = 60) -> None:
+        """Schedule a retry update after a delay.
+        
+        Only schedules retry for temporary/transient errors. Quota is preserved by:
+        1. Only 1 retry attempt (no infinite retries)
+        2. Quotes API is only called if retry succeeds
+        3. Retry is skipped if already in retry mode
+        
+        Args:
+            delay_seconds: Seconds to wait before retry (default: 60)
+        """
+        # Cancel any existing retry to prevent duplicates
+        if self._retry_remover:
+            self._retry_remover()
+            self._retry_remover = None
+        
+        retry_time = dt_util.utcnow() + timedelta(seconds=delay_seconds)
+        _LOGGER.info("Scheduling retry update in %d seconds at %s", delay_seconds, retry_time)
+        
+        self._retry_remover = async_track_point_in_utc_time(
+            self.hass,
+            self._async_retry_update,
+            retry_time,
+        )
+
+    async def _async_retry_update(self, now: datetime) -> None:
+        """Handle retry update after a temporary failure."""
+        _LOGGER.info("Running retry update at %s", now)
+        self._is_retry_update = True
+        try:
+            await self.async_request_refresh()
+        finally:
+            self._is_retry_update = False
+            self._retry_remover = None
 
     async def _async_update_data(self) -> dict[str, Any]:
         """Fetch data from Meteocat API.
@@ -267,27 +346,59 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             
             results = await asyncio.gather(*tasks.values(), return_exceptions=True)
             
-            # Process results
+            # Process results and track if we have any retryable errors
+            # Station should be None in MUNICIPI mode
             data: dict[str, Any] = {
-                "station": self.station_data,
+                "station": self.station_data if self.mode == MODE_ESTACIO else None,
                 "municipality_code": self.municipality_code,
             }
             
+            has_retryable_error = False
             for key, result in zip(tasks.keys(), results):
                 if isinstance(result, Exception):
                     _LOGGER.warning("Error fetching %s: %s", key, result)
                     data[key] = None
+                    # Check if this is a retryable error and we're not already retrying
+                    if not self._is_retry_update and self._is_retryable_error(result):
+                        has_retryable_error = True
                 else:
                     data[key] = result
             
             # ⚠️ CRITICAL: Fetch quotes AFTER all other API calls to get accurate consumption
             # This ensures the quota sensors show consumption that includes this update's calls
             # Test: test_quotes_fetched_after_other_api_calls
-            try:
-                data["quotes"] = await self.api.get_quotes()
-            except Exception as err:
-                _LOGGER.warning("Error fetching quotes: %s", err)
+            # IMPORTANT: Skip quotes on retry to avoid double-counting quota consumption
+            if not self._is_retry_update:
+                try:
+                    data["quotes"] = await self.api.get_quotes()
+                except Exception as err:
+                    _LOGGER.warning("Error fetching quotes: %s", err)
+                    data["quotes"] = None
+            else:
+                # On retry, keep previous quotes data
+                _LOGGER.debug("Skipping quotes fetch on retry to preserve quota accuracy")
                 data["quotes"] = None
+            
+            # Schedule retry if we had retryable errors (only on first attempt, not on retry)
+            if has_retryable_error:
+                _LOGGER.warning("Retryable error detected, scheduling retry in 60 seconds")
+                await self._schedule_retry_update(delay_seconds=60)
+                # Don't fire events or return data if we have errors - wait for retry
+                raise UpdateFailed("Temporary error - retry scheduled")
+            
+            # Check if we have all required data (no None values in critical fields)
+            critical_fields = []
+            if self.mode == MODE_ESTACIO:
+                critical_fields = ["measurements"]
+            # Forecasts and UV are important for both modes if municipality_code exists
+            if self.municipality_code:
+                critical_fields.extend(["forecast", "forecast_hourly", "uv_index"])
+            
+            missing_data = [field for field in critical_fields if data.get(field) is None]
+            if missing_data:
+                error_msg = f"Missing critical data: {', '.join(missing_data)}"
+                _LOGGER.error(error_msg)
+                raise UpdateFailed(error_msg)
             
             # Calculate next scheduled update time
             now = dt_util.now()
