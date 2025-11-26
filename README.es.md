@@ -193,17 +193,67 @@ Para cada municipio configurado se crean:
 
 > **Nota:** Todas las entidades se agrupan bajo un Ãºnico dispositivo con nombre "{Municipio}" (ej: "Barcelona")
 
-## ActualizaciÃ³n de datos
+## Actualización de datos
 
-Los datos se actualizan **solo 2 veces al dÃ­a**. Durante la configuraciÃ³n inicial puedes personalizar las horas, pero por defecto son:
-- **6:00** de la maÃ±ana
-- **14:00** de la tarde
+### 📊 Sistema de actualizaciones programadas
 
-Esto estÃ¡ optimizado para **no gastar peticiones** y asegurar que las cuotas del **plan ciudadano lleguen a fin de mes**. Si se hicieran 3 actualizaciones diarias, no se llegarÃ­a a fin de mes con el plan gratuito.
+La integración está **optimizada para ahorrar cuota de la API** y asegurar que llegas a fin de mes sin problemas.
 
-Puedes **modificar las horas** a travÃ©s de **ConfiguraciÃ³n** â†’ **Dispositivos y Servicios** â†’ Haz clic en los 3 puntos de la integraciÃ³n â†’ **Opciones**.
+#### Comportamiento del sistema
 
-TambiÃ©n puedes **actualizar manualmente** los datos con el botÃ³n **"Actualizar datos"** que se crea para cada entrada.
+Los datos se actualizan **SOLO** en estos casos:
+
+1. **Al inicio**: Cuando se enciende Home Assistant o se activa la integración (1 vez)
+2. **A las horas programadas**: Por defecto a las **06:00** y **14:00** (2 veces/día)
+3. **Manualmente**: Cuando presionas el botón "Actualizar datos"
+
+⚠️ **IMPORTANTE**: La integración **NO hace polling automático**. Esto significa que NO se actualiza cada X minutos/horas de forma continua, sino que solo lo hace en los momentos exactos configurados.
+
+#### Consumo de cuota por actualización
+
+Cada actualización realiza las siguientes llamadas a la API:
+
+**Modo Estación (XEMA)**:
+- Primera actualización: 6 llamadas (stations + measurements + forecast + hourly + uv + quotes)
+- Actualizaciones posteriores: 5 llamadas (measurements + forecast + hourly + uv + quotes)
+- **Media diaria**: ~16 llamadas (1 inicial + 2 programadas × 5)
+
+**Modo Municipal**:
+- Cada actualización: 4 llamadas (forecast + hourly + uv + quotes)
+- **Media diaria**: ~8 llamadas (2 programadas × 4)
+
+#### Cálculo mensual (30 días)
+
+| Modo | Llamadas/día | Llamadas/mes | Cuota restante* | Actualizaciones manuales disponibles |
+|------|--------------|--------------|-----------------|--------------------------------------|
+| **Estación** | 16 | 480 | 520 | ~17/día (520÷30) |
+| **Municipal** | 8 | 240 | 760 | ~25/día (760÷30) |
+
+\* Asumiendo cuota de 1000 llamadas/mes (plan Predicció estándar)
+
+#### Personalizar horas de actualización
+
+Puedes modificar las horas de actualización a través de:
+
+**Configuración** → **Dispositivos y Servicios** → (3 puntos de la integración) → **Opciones**
+
+- **Hora de actualización 1**: Primera hora del día (formato 24h: HH:MM)
+- **Hora de actualización 2**: Segunda hora del día (formato 24h: HH:MM)
+
+Ejemplos de configuración:
+- **Predeterminado**: 06:00 y 14:00
+- **Noctámbulo**: 10:00 y 22:00
+- **Madrugador**: 05:00 y 12:00
+
+⚠️ **Recomendación**: Mantener 2 actualizaciones diarias. Con 3 o más actualizaciones diarias, puedes agotar la cuota antes de fin de mes.
+
+#### Botón de actualización manual
+
+Cada entrada crea un botón **"Actualizar datos"** que te permite forzar una actualización inmediata cuando la necesites:
+
+- No afecta las actualizaciones programadas
+- Consume cuota de la API (5 llamadas en modo Estación, 4 en modo Municipal)
+- Útil para obtener datos frescos antes de un evento o viaje
 
 ## Eventos
 

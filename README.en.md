@@ -195,15 +195,65 @@ For each configured municipality, these entities are created:
 
 ## Data Updates
 
-Data is updated **only twice daily**. During initial setup you can customize the times, but defaults are:
-- **6:00 AM**
-- **2:00 PM**
+### 📊 Scheduled Update System
 
-This is optimized to **minimize request consumption** and ensure that the **citizen plan quotas last the entire month**. If 3 daily updates were made, the free plan would not last until the end of the month.
+The integration is **optimized to save API quota** and ensure you reach the end of the month without issues.
 
-You can **modify the times** through **Settings** → **Devices & Services** → Click the 3 dots on the integration → **Options**.
+#### System Behavior
 
-You can also **manually update** data using the **"Refresh data"** button created for each entry.
+Data is updated **ONLY** in these cases:
+
+1. **At startup**: When Home Assistant starts or the integration is activated (1 time)
+2. **At scheduled times**: By default at **06:00** and **14:00** (2 times/day)
+3. **Manually**: When you press the "Refresh data" button
+
+⚠️ **IMPORTANT**: The integration **does NOT do automatic polling**. This means it does NOT update every X minutes/hours continuously, but only at the exact configured moments.
+
+#### Quota Consumption per Update
+
+Each update makes the following API calls:
+
+**Station Mode (XEMA)**:
+- First update: 6 calls (stations + measurements + forecast + hourly + uv + quotes)
+- Subsequent updates: 5 calls (measurements + forecast + hourly + uv + quotes)
+- **Daily average**: ~16 calls (1 initial + 2 scheduled × 5)
+
+**Municipal Mode**:
+- Each update: 4 calls (forecast + hourly + uv + quotes)
+- **Daily average**: ~8 calls (2 scheduled × 4)
+
+#### Monthly Calculation (30 days)
+
+| Mode | Calls/day | Calls/month | Remaining quota* | Available manual updates |
+|------|-----------|-------------|------------------|-------------------------|
+| **Station** | 16 | 480 | 520 | ~17/day (520÷30) |
+| **Municipal** | 8 | 240 | 760 | ~25/day (760÷30) |
+
+\* Assuming 1000 calls/month quota (standard Predicció plan)
+
+#### Customize Update Times
+
+You can modify the update times through:
+
+**Settings** → **Devices & Services** → (integration's 3 dots) → **Options**
+
+- **Update time 1**: First time of day (24h format: HH:MM)
+- **Update time 2**: Second time of day (24h format: HH:MM)
+
+Configuration examples:
+- **Default**: 06:00 and 14:00
+- **Night owl**: 10:00 and 22:00
+- **Early bird**: 05:00 and 12:00
+
+⚠️ **Recommendation**: Keep 2 daily updates. With 3 or more daily updates, you may exhaust the quota before month end.
+
+#### Manual Update Button
+
+Each entry creates a **"Refresh data"** button that allows you to force an immediate update when needed:
+
+- Does not affect scheduled updates
+- Consumes API quota (5 calls in Station mode, 4 in Municipal mode)
+- Useful to get fresh data before an event or trip
 
 ## Events
 

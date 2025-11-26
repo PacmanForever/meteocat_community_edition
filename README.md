@@ -197,15 +197,65 @@ Per cada municipi configurat es creen:
 
 ## Actualització de dades
 
-Les dades s'actualitzen **només 2 cops al dia**. Durant la configuració inicial pots personalitzar les hores, però per defecte són:
-- **6:00** del matí
-- **14:00** de la tarda
+### 📊 Sistema d'actualitzacions programades
 
-Això està optimitzat per **no gastar peticions** i assegurar que les quotes del **pla ciutadà arribin a final de mes**. Si es fessin 3 actualitzacions diàries, no s'arribaria a final de mes amb el pla gratuït.
+La integració està **optimitzada per estalviar quota de l'API** i assegurar que arribes a final de mes sense problemes.
 
-Pots **modificar les hores** a través de **Configuració** → **Dispositius i Serveis** → Fes clic als 3 punts de la integració → **Opcions**.
+#### Comportament del sistema
 
-També pots **actualitzar manualment** les dades amb el botó **"Actualitzar dades"** que es crea per cada entrada.
+Les dades s'actualitzen **NOMÉS** en aquests casos:
+
+1. **A l'inici**: Quan s'engega Home Assistant o s'activa la integració (1 vegada)
+2. **A les hores programades**: Per defecte a les **06:00** i **14:00** (2 vegades/dia)
+3. **Manualment**: Quan prems el botó "Actualitzar dades"
+
+⚠️ **IMPORTANT**: La integració **NO fa polling automàtic**. Això vol dir que NO s'actualitza cada X minuts/hores de forma contínua, sinó que només ho fa als moments exactes configurats.
+
+#### Consum de quota per actualització
+
+Cada actualització fa les següents crides a l'API:
+
+**Mode Estació (XEMA)**:
+- Primera actualització: 6 crides (stations + measurements + forecast + hourly + uv + quotes)
+- Actualitzacions posteriors: 5 crides (measurements + forecast + hourly + uv + quotes)
+- **Mitjana diària**: ~16 crides (1 inicial + 2 programades × 5)
+
+**Mode Municipal**:
+- Cada actualització: 4 crides (forecast + hourly + uv + quotes)
+- **Mitjana diària**: ~8 crides (2 programades × 4)
+
+#### Càlcul mensual (30 dies)
+
+| Mode | Crides/dia | Crides/mes | Quota restant* | Actualitzacions manuals disponibles |
+|------|-----------|-----------|----------------|-------------------------------------|
+| **Estació** | 16 | 480 | 520 | ~17/dia (520÷30) |
+| **Municipal** | 8 | 240 | 760 | ~25/dia (760÷30) |
+
+\* Assumint quota de 1000 crides/mes (pla Predicció estàndard)
+
+#### Personalitzar hores d'actualització
+
+Pots modificar les hores d'actualització a través de:
+
+**Configuració** → **Dispositius i Serveis** → (3 punts de la integració) → **Opcions**
+
+- **Hora d'actualització 1**: Primera hora del dia (format 24h: HH:MM)
+- **Hora d'actualització 2**: Segona hora del dia (format 24h: HH:MM)
+
+Exemples de configuració:
+- **Predeterminat**: 06:00 i 14:00
+- **Noctàmbul**: 10:00 i 22:00
+- **Matiner**: 05:00 i 12:00
+
+⚠️ **Recomanació**: Mantenir 2 actualitzacions diàries. Amb 3 o més actualitzacions diàries, pots esgotar la quota abans de final de mes.
+
+#### Botó d'actualització manual
+
+Cada entrada crea un botó **"Actualitzar dades"** que et permet forçar una actualització immediata quan la necessitis:
+
+- No afecta les actualitzacions programades
+- Consumeix quota de l'API (5 crides en mode Estació, 4 en mode Municipal)
+- Útil per obtenir dades fresques abans d'un esdeveniment o viatge
 
 ## Esdeveniments
 
