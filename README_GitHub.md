@@ -30,7 +30,7 @@ Copia l'URL del teu repositori i executa (canvia USERNAME pel teu usuari):
 
 ```powershell
 # Afegir el remote
-git remote add origin https://github.com/USERNAME/meteocat-community-edition.git
+git remote add origin https://github.com/PacmanForever/meteocat_community_edition.git
 
 # Pujar el codi
 git branch -M main
