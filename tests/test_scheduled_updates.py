@@ -721,14 +721,14 @@ async def test_custom_update_times(mock_hass, mock_api):
 
 
 @pytest.mark.asyncio
-async def test_retry_does_not_interfere_with_scheduled_updates(mock_hass, mock_api, mock_entry_xema):
-    "Test that retry system doesn't interfere with regular scheduled updates."
+async def test_retry_does_not_interfere_with_scheduled_updates(mock_hass, mock_api, mock_entry_estacio):
+    """Test that retry system doesn't interfere with regular scheduled updates."""
     from aiohttp import ServerTimeoutError
     
     with patch('custom_components.meteocat_community_edition.coordinator.async_get_clientsession'), \
          patch('custom_components.meteocat_community_edition.coordinator.async_track_point_in_utc_time') as mock_track:
         
-        coordinator = MeteocatCoordinator(mock_hass, mock_entry_xema)
+        coordinator = MeteocatCoordinator(mock_hass, mock_entry_estacio)
         coordinator.api = mock_api
         
         # Schedule regular update

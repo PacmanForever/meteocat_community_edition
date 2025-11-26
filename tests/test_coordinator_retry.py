@@ -359,6 +359,9 @@ async def test_retry_update_sets_flag_correctly(mock_hass, mock_api, mock_entry_
         coordinator = MeteocatCoordinator(mock_hass, mock_entry_xema)
         coordinator.api = mock_api
         
+        # Mock async_request_refresh to avoid actual refresh
+        coordinator.async_request_refresh = AsyncMock()
+        
         # Initially should be False
         assert coordinator._is_retry_update is False
         
@@ -367,6 +370,9 @@ async def test_retry_update_sets_flag_correctly(mock_hass, mock_api, mock_entry_
         
         # After retry completes, flag should be False again
         assert coordinator._is_retry_update is False
+        
+        # Verify refresh was called
+        coordinator.async_request_refresh.assert_called_once()
 
 
 # ============================================================================
@@ -404,6 +410,9 @@ async def test_full_retry_cycle_success(mock_hass, mock_api, mock_entry_xema, mo
         
         # Verify retry scheduled
         assert mock_track.called
+        
+        # Reset quotes mock to verify it's not called on retry
+        mock_api.get_quotes.reset_mock()
         
         # Simulate retry execution
         coordinator._is_retry_update = True

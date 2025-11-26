@@ -359,6 +359,9 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             for key, result in zip(tasks.keys(), results):
                 if isinstance(result, Exception):
                     _LOGGER.warning("Error fetching %s: %s", key, result)
+                    # Authentication errors should be re-raised immediately
+                    if isinstance(result, MeteocatAuthError):
+                        raise result
                     data[key] = None
                     # Check if this is a retryable error and we're not already retrying
                     if not self._is_retry_update and self._is_retryable_error(result):
