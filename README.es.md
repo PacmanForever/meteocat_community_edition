@@ -89,7 +89,7 @@ Este modo crea sensores con las predicciones en sus atributos, permitiéndote ut
 2. Haz clic en **Añadir integración**
 3. Busca **Meteocat (Community Edition)**
 4. Introduce tu **clave API**
-5. Selecciona **"Predicciones municipales"**
+5. Selecciona **"Predicción municipal"**
 6. Selecciona la **comarca**
 7. Selecciona el **municipio**
 8. Configura las **horas de actualización** (por defecto 06:00 y 14:00)
@@ -151,7 +151,7 @@ Para cada estación configurada se crean:
 
 > **Nota:** Todas las entidades se agrupan bajo un único dispositivo con nombre "{Estación} {Código}" (ej: "Barcelona YM")
 
-### Modo Predicciones Municipales
+### Modo Predicción Municipal
 
 Para cada municipio configurado se crean:
 
