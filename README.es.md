@@ -3,6 +3,7 @@
 [![GitHub Release][releases-shield]][releases]
 [![License][license-shield]](LICENSE)
 [![hacs][hacsbadge]][hacs]
+![Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)
 
 IntegraciÃ³n **comunitaria** y **no oficial** para Home Assistant del Servicio MeteorolÃ³gico de CataluÃ±a (Meteocat).
 

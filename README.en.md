@@ -3,6 +3,7 @@
 [![GitHub Release][releases-shield]][releases]
 [![License][license-shield]](LICENSE)
 [![hacs][hacsbadge]][hacs]
+![Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)
 
 **Community-created** and **unofficial** integration for Home Assistant of the Meteorological Service of Catalonia (Meteocat).
 
