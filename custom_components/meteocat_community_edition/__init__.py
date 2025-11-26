@@ -60,6 +60,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         # Municipal mode: load only sensors (forecasts) + button
         platforms = [Platform.SENSOR, Platform.BUTTON]
     
+    # Use async_forward_entry_setups for HA 2022.8+
+    # This method batches platform loading for better performance
     await hass.config_entries.async_forward_entry_setups(entry, platforms)
     
     # Register update listener for options flow

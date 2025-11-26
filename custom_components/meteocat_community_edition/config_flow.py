@@ -387,7 +387,7 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     @callback
     def async_get_options_flow(
         config_entry: config_entries.ConfigEntry,
-    ) -> MeteocatOptionsFlow:
+    ) -> config_entries.OptionsFlow:
         """Get the options flow for this handler."""
         return MeteocatOptionsFlow(config_entry)
 
@@ -415,8 +415,9 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
             
             if not errors:
                 # Update both options and data
+                # Using kwargs for forward compatibility with future HA versions
                 self.hass.config_entries.async_update_entry(
-                    self.config_entry,
+                    entry=self.config_entry,
                     data={**self.config_entry.data, CONF_UPDATE_TIME_1: time1, CONF_UPDATE_TIME_2: time2},
                     options=user_input,
                 )
@@ -474,8 +475,9 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                 await api.get_comarques()
                 
                 # Update the config entry with new API key
+                # Using kwargs for forward compatibility
                 self.hass.config_entries.async_update_entry(
-                    self.config_entry,
+                    entry=self.config_entry,
                     data={**self.config_entry.data, CONF_API_KEY: new_api_key}
                 )
                 

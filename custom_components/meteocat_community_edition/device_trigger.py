@@ -60,15 +60,18 @@ async def async_attach_trigger(
     trigger_type = config[CONF_TYPE]
     event_type = EVENT_DATA_UPDATED if trigger_type == TRIGGER_DATA_UPDATED else EVENT_NEXT_UPDATE_CHANGED
     
-    event_config = event_trigger.TRIGGER_SCHEMA(
-        {
-            event_trigger.CONF_PLATFORM: "event",
-            event_trigger.CONF_EVENT_TYPE: event_type,
-            event_trigger.CONF_EVENT_DATA: {
-                "device_id": config[CONF_DEVICE_ID],
-            },
-        }
-    )
+    # Build event config compatible with current and future HA versions
+    event_config = {
+        event_trigger.CONF_PLATFORM: "event",
+        event_trigger.CONF_EVENT_TYPE: event_type,
+        event_trigger.CONF_EVENT_DATA: {
+            "device_id": config[CONF_DEVICE_ID],
+        },
+    }
+    
+    # Validate config using schema (compatible with schema changes)
+    event_config = event_trigger.TRIGGER_SCHEMA(event_config)
+    
     return await event_trigger.async_attach_trigger(
         hass, event_config, action, trigger_info, platform_type="device"
     )

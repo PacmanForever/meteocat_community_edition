@@ -130,6 +130,7 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             update_interval=None,  # ⚠️ CRITICAL: Must be None to prevent quota exhaustion
         )
 
+    @callback
     def _schedule_next_update(self) -> None:
         """Schedule the next automatic update at the configured time.
         
@@ -215,6 +216,7 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             self._retry_remover()
             self._retry_remover = None
 
+    @callback
     def _is_retryable_error(self, error: Exception) -> bool:
         """Determine if an error is temporary and should trigger a retry.
         
@@ -227,7 +229,12 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         - Not found errors (404) - station/municipality doesn't exist
         - Rate limit (429) - already has retry logic with backoff in api.py
         """
-        from aiohttp import ClientError, ServerTimeoutError
+        try:
+            from aiohttp import ClientError, ServerTimeoutError
+        except ImportError:
+            # Fallback for potential future aiohttp changes
+            from aiohttp.client_exceptions import ClientError, ServerTimeoutError
+        
         from custom_components.meteocat_community_edition.api import (
             MeteocatAPIAuthenticationError,
             MeteocatAPIError,
@@ -443,12 +450,15 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     next_update_event_data[EVENT_ATTR_MUNICIPALITY_CODE] = self.municipality_code
                 
                 # Add device_id for device triggers
-                device_registry = dr.async_get(self.hass)
-                device = device_registry.async_get_device(
-                    identifiers={(DOMAIN, self.entry.entry_id)}
-                )
-                if device:
-                    next_update_event_data["device_id"] = device.id
+                try:
+                    device_registry = dr.async_get(self.hass)
+                    device = device_registry.async_get_device(
+                        identifiers={(DOMAIN, self.entry.entry_id)}
+                    )
+                    if device and device.id:
+                        next_update_event_data["device_id"] = device.id
+                except (AttributeError, ValueError) as err:
+                    _LOGGER.debug("Could not get device_id: %s", err)
                 
                 self.hass.bus.fire(EVENT_NEXT_UPDATE_CHANGED, next_update_event_data)
                 _LOGGER.debug("Fired event %s with data: %s", EVENT_NEXT_UPDATE_CHANGED, next_update_event_data)
@@ -471,12 +481,15 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 event_data[EVENT_ATTR_MUNICIPALITY_CODE] = self.municipality_code
             
             # Add device_id for device triggers
-            device_registry = dr.async_get(self.hass)
-            device = device_registry.async_get_device(
-                identifiers={(DOMAIN, self.entry.entry_id)}
-            )
-            if device:
-                event_data["device_id"] = device.id
+            try:
+                device_registry = dr.async_get(self.hass)
+                device = device_registry.async_get_device(
+                    identifiers={(DOMAIN, self.entry.entry_id)}
+                )
+                if device and device.id:
+                    event_data["device_id"] = device.id
+            except (AttributeError, ValueError) as err:
+                _LOGGER.debug("Could not get device_id: %s", err)
             
             self.hass.bus.fire(EVENT_DATA_UPDATED, event_data)
             _LOGGER.debug("Fired event %s with data: %s", EVENT_DATA_UPDATED, event_data)
