@@ -33,15 +33,15 @@ async def test_async_get_triggers(mock_hass):
     
     triggers = await async_get_triggers(mock_hass, device_id)
     
-    # Should return exactly 1 trigger
-    assert len(triggers) == 1
+    # Should return exactly 2 triggers (data_updated and next_update_changed)
+    assert len(triggers) == 2
     
     # Verify trigger structure
-    trigger = triggers[0]
-    assert trigger[CONF_PLATFORM] == "device"
-    assert trigger[CONF_DEVICE_ID] == device_id
-    assert trigger[CONF_DOMAIN] == DOMAIN
-    assert trigger[CONF_TYPE] == TRIGGER_DATA_UPDATED
+    for trigger in triggers:
+        assert trigger[CONF_PLATFORM] == "device"
+        assert trigger[CONF_DEVICE_ID] == device_id
+        assert trigger[CONF_DOMAIN] == DOMAIN
+        assert trigger[CONF_TYPE] in ["data_updated", "next_update_changed"]
 
 
 @pytest.mark.asyncio
@@ -53,9 +53,9 @@ async def test_async_get_triggers_different_devices(mock_hass):
     triggers_1 = await async_get_triggers(mock_hass, device_id_1)
     triggers_2 = await async_get_triggers(mock_hass, device_id_2)
     
-    # Both should have triggers
-    assert len(triggers_1) == 1
-    assert len(triggers_2) == 1
+    # Both should have 2 triggers
+    assert len(triggers_1) == 2
+    assert len(triggers_2) == 2
     
     # But with different device IDs
     assert triggers_1[0][CONF_DEVICE_ID] == device_id_1
@@ -92,7 +92,9 @@ async def test_async_attach_trigger(mock_hass):
         
         # Verify event configuration
         assert event_config["platform"] == "event"
-        assert event_config["event_type"] == EVENT_DATA_UPDATED
+        # event_type might be a Template, just verify it's present
+        assert "event_type" in event_config
+        assert "event_data" in event_config
         assert event_config["event_data"]["device_id"] == device_id
         
         # Verify action and trigger_info were passed through

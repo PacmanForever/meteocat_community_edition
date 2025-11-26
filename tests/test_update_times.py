@@ -103,12 +103,14 @@ def test_custom_update_times_used(mock_hass, mock_entry_custom_times, mock_api):
 @pytest.mark.asyncio
 async def test_next_update_calculated_correctly_before_first_time(mock_hass, mock_entry_custom_times, mock_api):
     """Test next update calculation when current time is before first update time."""
+    from homeassistant.util import dt as dt_util
+    
     with patch('custom_components.meteocat_community_edition.coordinator.async_get_clientsession'):
         coordinator = MeteocatCoordinator(mock_hass, mock_entry_custom_times)
         coordinator.api = mock_api
         
-        # Mock current time to be 07:00 (before 08:30)
-        mock_now = datetime(2025, 11, 25, 7, 0, 0)
+        # Mock current time to be 07:00 (before 08:30) - make it timezone aware
+        mock_now = dt_util.as_local(datetime(2025, 11, 25, 7, 0, 0))
         
         with patch('custom_components.meteocat_community_edition.coordinator.dt_util.now', return_value=mock_now):
             interval = coordinator._calculate_next_update_interval()
@@ -125,12 +127,14 @@ async def test_next_update_calculated_correctly_before_first_time(mock_hass, moc
 @pytest.mark.asyncio
 async def test_next_update_calculated_correctly_between_times(mock_hass, mock_entry_custom_times, mock_api):
     """Test next update calculation when current time is between update times."""
+    from homeassistant.util import dt as dt_util
+    
     with patch('custom_components.meteocat_community_edition.coordinator.async_get_clientsession'):
         coordinator = MeteocatCoordinator(mock_hass, mock_entry_custom_times)
         coordinator.api = mock_api
         
-        # Mock current time to be 12:00 (between 08:30 and 16:45)
-        mock_now = datetime(2025, 11, 25, 12, 0, 0)
+        # Mock current time to be 12:00 (between 08:30 and 16:45) - make it timezone aware
+        mock_now = dt_util.as_local(datetime(2025, 11, 25, 12, 0, 0))
         
         with patch('custom_components.meteocat_community_edition.coordinator.dt_util.now', return_value=mock_now):
             interval = coordinator._calculate_next_update_interval()
@@ -144,12 +148,14 @@ async def test_next_update_calculated_correctly_between_times(mock_hass, mock_en
 @pytest.mark.asyncio
 async def test_next_update_calculated_correctly_after_last_time(mock_hass, mock_entry_custom_times, mock_api):
     """Test next update calculation when current time is after last update time."""
+    from homeassistant.util import dt as dt_util
+    
     with patch('custom_components.meteocat_community_edition.coordinator.async_get_clientsession'):
         coordinator = MeteocatCoordinator(mock_hass, mock_entry_custom_times)
         coordinator.api = mock_api
         
-        # Mock current time to be 20:00 (after 16:45)
-        mock_now = datetime(2025, 11, 25, 20, 0, 0)
+        # Mock current time to be 20:00 (after 16:45) - make it timezone aware
+        mock_now = dt_util.as_local(datetime(2025, 11, 25, 20, 0, 0))
         
         with patch('custom_components.meteocat_community_edition.coordinator.dt_util.now', return_value=mock_now):
             interval = coordinator._calculate_next_update_interval()
