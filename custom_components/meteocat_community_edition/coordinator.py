@@ -7,10 +7,11 @@ import logging
 from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.event import async_track_point_in_utc_time
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.util import dt as dt_util
 
@@ -81,21 +82,33 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self.station_data: dict[str, Any] = {}
         self.last_successful_update_time: datetime | None = None
         self._previous_next_update: datetime | None = None
+        self._scheduled_update_remover = None
         
         # For XEMA mode, municipality code will be found from station
         # For MUNICIPAL mode, municipality code is already set
         if self.mode == MODE_MUNICIPI and not self.municipality_code:
             _LOGGER.error("Municipal mode requires municipality_code!")
         
+        # IMPORTANT: Set update_interval to None to disable automatic polling
+        # Updates will only happen:
+        # 1. On first setup (async_config_entry_first_refresh)
+        # 2. Manual button press (async_request_refresh)
+        # 3. Scheduled updates (via async_track_time_interval)
         super().__init__(
             hass,
             _LOGGER,
             name=f"{DOMAIN}_{self.station_code}",
-            update_interval=self._calculate_next_update_interval(),
+            update_interval=None,  # Disable automatic polling to save API quota
         )
 
-    def _calculate_next_update_interval(self) -> timedelta:
-        """Calculate time until next scheduled update."""
+    def _schedule_next_update(self) -> None:
+        """Schedule the next automatic update at the configured time."""
+        # Cancel any existing scheduled update
+        if self._scheduled_update_remover:
+            self._scheduled_update_remover()
+            self._scheduled_update_remover = None
+        
+        # Calculate next update time
         now = dt_util.now()
         today = now.date()
         
@@ -120,14 +133,33 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 datetime.combine(tomorrow, time.fromisoformat(self.update_time_1))
             )
         
-        interval = next_update - now
-        _LOGGER.debug(
-            "Next update scheduled in %s (at %s)",
-            interval,
-            next_update,
+        # Schedule the update at the exact time
+        self._scheduled_update_remover = async_track_point_in_utc_time(
+            self.hass,
+            self._async_scheduled_update,
+            dt_util.as_utc(next_update),
         )
         
-        return interval
+        _LOGGER.info(
+            "Scheduled next automatic update at %s (in %s)",
+            next_update,
+            next_update - now,
+        )
+
+    @callback
+    async def _async_scheduled_update(self, now: datetime) -> None:
+        """Handle scheduled update."""
+        _LOGGER.info("Running scheduled update at %s", now)
+        await self.async_request_refresh()
+        
+        # Reschedule for the next update time
+        self._schedule_next_update()
+
+    async def async_shutdown(self) -> None:
+        """Clean up when shutting down."""
+        if self._scheduled_update_remover:
+            self._scheduled_update_remover()
+            self._scheduled_update_remover = None
 
     async def _async_update_data(self) -> dict[str, Any]:
         """Fetch data from Meteocat API."""
@@ -188,13 +220,30 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 _LOGGER.warning("Error fetching quotes: %s", err)
                 data["quotes"] = None
             
-            # Schedule next update interval
-            self.update_interval = self._calculate_next_update_interval()
+            # Calculate next scheduled update time
+            now = dt_util.now()
+            today = now.date()
             
-            # Calculate next update timestamp and check if it changed
+            update_datetimes = [
+                dt_util.as_local(
+                    datetime.combine(today, time.fromisoformat(update_time))
+                )
+                for update_time in [self.update_time_1, self.update_time_2]
+            ]
+            
+            # Find the next update time
             current_next_update = None
-            if self.last_successful_update_time and self.update_interval:
-                current_next_update = self.last_successful_update_time + self.update_interval
+            for update_dt in update_datetimes:
+                if update_dt > now:
+                    current_next_update = update_dt
+                    break
+            
+            # If no update today, use first update tomorrow
+            if current_next_update is None:
+                tomorrow = today + timedelta(days=1)
+                current_next_update = dt_util.as_local(
+                    datetime.combine(tomorrow, time.fromisoformat(self.update_time_1))
+                )
             
             # Fire event if next update time changed
             if current_next_update != self._previous_next_update:

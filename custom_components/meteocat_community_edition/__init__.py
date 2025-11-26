@@ -26,7 +26,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Meteocat (Community Edition) from a config entry."""
     coordinator = MeteocatCoordinator(hass, entry)
     
+    # First refresh on startup (this is the only automatic refresh)
     await coordinator.async_config_entry_first_refresh()
+    
+    # Schedule future updates at configured times
+    coordinator._schedule_next_update()
     
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = coordinator
@@ -56,6 +60,11 @@ async def async_update_options(hass: HomeAssistant, entry: ConfigEntry) -> None:
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
+    # Clean up scheduled updates
+    coordinator: MeteocatCoordinator = hass.data[DOMAIN].get(entry.entry_id)
+    if coordinator:
+        await coordinator.async_shutdown()
+    
     # Determine platforms based on mode
     mode = entry.data.get(CONF_MODE, MODE_ESTACIO)
     if mode == MODE_ESTACIO:
