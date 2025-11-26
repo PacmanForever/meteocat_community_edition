@@ -157,7 +157,8 @@ async def test_event_fired_estacio_mode(mock_hass, mock_entry_estacio, mock_api,
 @pytest.mark.asyncio
 async def test_event_fired_municipi_mode(mock_hass, mock_entry_municipi, mock_api, mock_device_registry):
     """Test that event is fired after update in MODE_MUNICIPI."""
-    with patch('custom_components.meteocat_community_edition.coordinator.async_get_clientsession'), `\n         patch('custom_components.meteocat_community_edition.coordinator.dr.async_get', return_value=mock_device_registry):
+    with patch('custom_components.meteocat_community_edition.coordinator.async_get_clientsession'), \
+         patch('custom_components.meteocat_community_edition.coordinator.dr.async_get', return_value=mock_device_registry):
         coordinator = MeteocatCoordinator(mock_hass, mock_entry_municipi)
         coordinator.api = mock_api
         
@@ -194,7 +195,8 @@ async def test_event_fired_municipi_mode(mock_hass, mock_entry_municipi, mock_ap
 @pytest.mark.asyncio
 async def test_event_contains_valid_timestamp_format(mock_hass, mock_entry_estacio, mock_api, mock_device_registry):
     """Test that event timestamp is in valid ISO 8601 format."""
-    with patch('custom_components.meteocat_community_edition.coordinator.async_get_clientsession'), `\n         patch('custom_components.meteocat_community_edition.coordinator.dr.async_get', return_value=mock_device_registry):
+    with patch('custom_components.meteocat_community_edition.coordinator.async_get_clientsession'), \
+         patch('custom_components.meteocat_community_edition.coordinator.dr.async_get', return_value=mock_device_registry):
         coordinator = MeteocatCoordinator(mock_hass, mock_entry_estacio)
         coordinator.api = mock_api
         
@@ -224,7 +226,8 @@ async def test_event_not_fired_on_error(mock_hass, mock_entry_estacio, mock_api,
     # Make API fail
     mock_api.get_station_measurements.side_effect = MeteocatAPIError("API Error")
     
-    with patch('custom_components.meteocat_community_edition.coordinator.async_get_clientsession'), `\n         patch('custom_components.meteocat_community_edition.coordinator.dr.async_get', return_value=mock_device_registry):
+    with patch('custom_components.meteocat_community_edition.coordinator.async_get_clientsession'), \
+         patch('custom_components.meteocat_community_edition.coordinator.dr.async_get', return_value=mock_device_registry):
         coordinator = MeteocatCoordinator(mock_hass, mock_entry_estacio)
         coordinator.api = mock_api
         
@@ -239,7 +242,8 @@ async def test_event_not_fired_on_error(mock_hass, mock_entry_estacio, mock_api,
 @pytest.mark.asyncio
 async def test_multiple_updates_fire_multiple_events(mock_hass, mock_entry_estacio, mock_api, mock_device_registry):
     """Test that each update fires a new event."""
-    with patch('custom_components.meteocat_community_edition.coordinator.async_get_clientsession'), `\n         patch('custom_components.meteocat_community_edition.coordinator.dr.async_get', return_value=mock_device_registry):
+    with patch('custom_components.meteocat_community_edition.coordinator.async_get_clientsession'), \
+         patch('custom_components.meteocat_community_edition.coordinator.dr.async_get', return_value=mock_device_registry):
         coordinator = MeteocatCoordinator(mock_hass, mock_entry_estacio)
         coordinator.api = mock_api
         
@@ -267,7 +271,8 @@ async def test_multiple_updates_fire_multiple_events(mock_hass, mock_entry_estac
 @pytest.mark.asyncio
 async def test_next_update_changed_event_fired(mock_hass, mock_entry_estacio, mock_api, mock_device_registry):
     """Test that next_update_changed event is fired when next update time changes."""
-    with patch('custom_components.meteocat_community_edition.coordinator.async_get_clientsession'), `\n         patch('custom_components.meteocat_community_edition.coordinator.dr.async_get', return_value=mock_device_registry):
+    with patch('custom_components.meteocat_community_edition.coordinator.async_get_clientsession'), \
+         patch('custom_components.meteocat_community_edition.coordinator.dr.async_get', return_value=mock_device_registry):
         coordinator = MeteocatCoordinator(mock_hass, mock_entry_estacio)
         coordinator.api = mock_api
         
@@ -300,7 +305,8 @@ async def test_next_update_changed_event_fired(mock_hass, mock_entry_estacio, mo
 @pytest.mark.asyncio
 async def test_next_update_changed_event_not_fired_when_same(mock_hass, mock_entry_estacio, mock_api, mock_device_registry):
     """Test that next_update_changed event is NOT fired when next update stays the same."""
-    with patch('custom_components.meteocat_community_edition.coordinator.async_get_clientsession'), `\n         patch('custom_components.meteocat_community_edition.coordinator.dr.async_get', return_value=mock_device_registry):
+    with patch('custom_components.meteocat_community_edition.coordinator.async_get_clientsession'), \
+         patch('custom_components.meteocat_community_edition.coordinator.dr.async_get', return_value=mock_device_registry):
         coordinator = MeteocatCoordinator(mock_hass, mock_entry_estacio)
         coordinator.api = mock_api
         
@@ -330,7 +336,8 @@ async def test_next_update_changed_event_not_fired_when_same(mock_hass, mock_ent
 @pytest.mark.asyncio
 async def test_next_update_changed_event_includes_station_code(mock_hass, mock_entry_estacio, mock_api, mock_device_registry):
     """Test that next_update_changed event includes station code in ESTACIO mode."""
-    with patch('custom_components.meteocat_community_edition.coordinator.async_get_clientsession'), `\n         patch('custom_components.meteocat_community_edition.coordinator.dr.async_get', return_value=mock_device_registry):
+    with patch('custom_components.meteocat_community_edition.coordinator.async_get_clientsession'), \
+         patch('custom_components.meteocat_community_edition.coordinator.dr.async_get', return_value=mock_device_registry):
         coordinator = MeteocatCoordinator(mock_hass, mock_entry_estacio)
         coordinator.api = mock_api
         
@@ -347,7 +354,8 @@ async def test_next_update_changed_event_includes_station_code(mock_hass, mock_e
 @pytest.mark.asyncio
 async def test_next_update_changed_event_includes_municipality_code(mock_hass, mock_entry_municipi, mock_api, mock_device_registry):
     """Test that next_update_changed event includes municipality code in MUNICIPI mode."""
-    with patch('custom_components.meteocat_community_edition.coordinator.async_get_clientsession'), `\n         patch('custom_components.meteocat_community_edition.coordinator.dr.async_get', return_value=mock_device_registry):
+    with patch('custom_components.meteocat_community_edition.coordinator.async_get_clientsession'), \
+         patch('custom_components.meteocat_community_edition.coordinator.dr.async_get', return_value=mock_device_registry):
         coordinator = MeteocatCoordinator(mock_hass, mock_entry_municipi)
         coordinator.api = mock_api
         
@@ -364,7 +372,8 @@ async def test_next_update_changed_event_includes_municipality_code(mock_hass, m
 @pytest.mark.asyncio
 async def test_next_update_changed_event_has_valid_timestamp_format(mock_hass, mock_entry_estacio, mock_api, mock_device_registry):
     """Test that next_update_changed event next_update is in valid ISO 8601 format."""
-    with patch('custom_components.meteocat_community_edition.coordinator.async_get_clientsession'), `\n         patch('custom_components.meteocat_community_edition.coordinator.dr.async_get', return_value=mock_device_registry):
+    with patch('custom_components.meteocat_community_edition.coordinator.async_get_clientsession'), \
+         patch('custom_components.meteocat_community_edition.coordinator.dr.async_get', return_value=mock_device_registry):
         coordinator = MeteocatCoordinator(mock_hass, mock_entry_estacio)
         coordinator.api = mock_api
         
