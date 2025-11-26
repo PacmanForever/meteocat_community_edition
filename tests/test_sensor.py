@@ -500,12 +500,13 @@ def test_diagnostic_sensors_entity_category(mock_coordinator, mock_entry):
     )
     
     # Quota sensor
+    plan_data = {"nom": "Predicció", "requests_left": 950}
     quota_sensor = MeteocatQuotaSensor(
         mock_coordinator,
         mock_entry,
+        plan_data,
         "Granollers",
         "Granollers YM",
-        "Predicció",
         MODE_ESTACIO,
         "YM"
     )
