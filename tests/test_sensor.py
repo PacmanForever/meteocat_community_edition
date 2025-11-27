@@ -22,7 +22,6 @@ from custom_components.meteocat_community_edition.sensor import (
     MeteocatMunicipalityNameSensor,
     MeteocatComarcaNameSensor,
 )
-)
 from custom_components.meteocat_community_edition.const import (
     DOMAIN,
     MODE_ESTACIO,
