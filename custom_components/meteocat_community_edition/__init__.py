@@ -1,4 +1,15 @@
-"""The Meteocat (Community Edition) integration."""
+"""The Meteocat (Community Edition) integration.
+
+This integration provides weather data from the Meteocat API for Catalonia.
+
+Platforms:
+- Weather: Weather entity (MODE_ESTACIO only)
+- Sensor: All data sensors (forecasts, measurements, timestamps, quotas, geographic)
+- Binary Sensor: Health monitoring (update status)
+- Button: Manual data refresh
+
+Last updated: 2025-11-27
+"""
 from __future__ import annotations
 
 import logging
@@ -17,7 +28,7 @@ if TYPE_CHECKING:
 
 _LOGGER = logging.getLogger(__name__)
 
-PLATFORMS: list[Platform] = [Platform.WEATHER, Platform.SENSOR, Platform.BUTTON]
+PLATFORMS: list[Platform] = [Platform.WEATHER, Platform.SENSOR, Platform.BUTTON, Platform.BINARY_SENSOR]
 
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
@@ -54,11 +65,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     mode = entry.data.get(CONF_MODE, MODE_ESTACIO)  # Default to ESTACIO for backwards compatibility
 
     if mode == MODE_ESTACIO:
-        # XEMA mode: load weather entity + sensors + button
+        # XEMA mode: load weather entity + sensors + button + binary_sensor
         platforms = PLATFORMS
     else:
-        # Municipal mode: load only sensors (forecasts) + button
-        platforms = [Platform.SENSOR, Platform.BUTTON]
+        # Municipal mode: load sensors (forecasts) + button + binary_sensor
+        platforms = [Platform.SENSOR, Platform.BUTTON, Platform.BINARY_SENSOR]
     
     # Use async_forward_entry_setups for HA 2022.8+
     # This method batches platform loading for better performance
@@ -96,7 +107,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if mode == MODE_ESTACIO:
         platforms = PLATFORMS
     else:
-        platforms = [Platform.SENSOR, Platform.BUTTON]
+        platforms = [Platform.SENSOR, Platform.BUTTON, Platform.BINARY_SENSOR]
     
     if unload_ok := await hass.config_entries.async_unload_platforms(entry, platforms):
         hass.data[DOMAIN].pop(entry.entry_id)

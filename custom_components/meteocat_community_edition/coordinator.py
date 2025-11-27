@@ -13,11 +13,14 @@ Key Implementation Points:
 5. Scheduler cancellation - MUST cancel previous scheduler when rescheduling to avoid duplicates
 
 Quota Usage (with default 06:00 and 14:00 updates):
-- MODE_ESTACIO: ~16 calls/day = 480 calls/month (520 remaining from 1000 quota)
-- MODE_MUNICIPI: ~8 calls/day = 240 calls/month (760 remaining from 1000 quota)
+- 2 scheduled updates per day per configured instance
+- MODE_ESTACIO: Queries XEMA and Forecast plans per update
+- MODE_MUNICIPI: Queries Forecast plan per update
+- Station data cached in entry.data to save 1 API call per HA restart
+- Municipality/comarca/province names from config (no API calls needed)
 
 Test Coverage: 17 comprehensive tests in tests/test_scheduled_updates.py
-Last Reviewed: 2025-11-26
+Last Reviewed: 2025-11-27
 """
 from __future__ import annotations
 
@@ -105,12 +108,15 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             api_base_url,
         )
         
-        self.station_data: dict[str, Any] = {}
+        # Try to load cached station data from entry.data to avoid extra API call on restart
+        self.station_data: dict[str, Any] = entry.data.get("_station_data", {})
         self.last_successful_update_time: datetime | None = None
+        self.next_scheduled_update: datetime | None = None
         self._previous_next_update: datetime | None = None
         self._scheduled_update_remover = None
         self._retry_remover = None  # For intelligent retry scheduling
         self._is_retry_update = False  # Track if current update is a retry
+        self._is_first_refresh = True  # Track if this is the first refresh during setup
         
         # For XEMA mode, municipality code will be found from station
         # For MUNICIPAL mode, municipality code is already set
@@ -182,6 +188,9 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             next_update = dt_util.as_local(
                 datetime.combine(tomorrow, time.fromisoformat(self.update_time_1))
             )
+        
+        # Store the next scheduled update time for the sensor
+        self.next_scheduled_update = next_update
         
         # Schedule the update at the exact time
         self._scheduled_update_remover = async_track_point_in_utc_time(
@@ -308,6 +317,12 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         - MODE_ESTACIO (subsequent): measurements(1) + forecast(1) + hourly(1) + uv(1) + quotes(1) = 5 calls
         - MODE_MUNICIPI: forecast(1) + hourly(1) + uv(1) + quotes(1) = 4 calls
         
+        Quota Exhaustion Handling:
+        - During first refresh (_is_first_refresh=True): Tolerant to missing data
+          - Allows integration setup to complete even if quotas exhausted
+          - Data will be fetched on next scheduled update when quota available
+        - During subsequent updates: Strict validation, fails if critical data missing
+        
         Test Coverage: test_quotes_fetched_after_other_api_calls in test_scheduled_updates.py
         """
         
@@ -332,6 +347,13 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                             break
                     
                     if self.station_data:
+                        # Save station data to entry.data for persistence across HA restarts
+                        updated_data = {**self.entry.data, "_station_data": self.station_data}
+                        self.hass.config_entries.async_update_entry(
+                            self.entry,
+                            data=updated_data
+                        )
+                        
                         self.municipality_code = await self.api.find_municipality_for_station(
                             self.station_data
                         )
@@ -392,6 +414,8 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 raise UpdateFailed("Temporary error - retry scheduled")
             
             # Check if we have all required data (no None values in critical fields)
+            # During first refresh, be tolerant to missing data to allow setup even if quotas exhausted
+            # Scheduled updates will fetch data when quota is available
             critical_fields = []
             if self.mode == MODE_ESTACIO:
                 critical_fields = ["measurements"]
@@ -402,8 +426,20 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             missing_data = [field for field in critical_fields if data.get(field) is None]
             if missing_data:
                 error_msg = f"Missing critical data: {', '.join(missing_data)}"
-                _LOGGER.error(error_msg)
-                raise UpdateFailed(error_msg)
+                if self._is_first_refresh:
+                    # During first refresh, log warning but allow setup to complete
+                    # Data will be fetched on next scheduled update when quota available
+                    _LOGGER.warning(
+                        "%s - Setup will complete, data will be fetched on next scheduled update",
+                        error_msg
+                    )
+                else:
+                    # On subsequent updates, fail if critical data missing
+                    _LOGGER.error(error_msg)
+                    raise UpdateFailed(error_msg)
+            
+            # Mark first refresh as complete
+            self._is_first_refresh = False
             
             # Calculate next scheduled update time
             now = dt_util.now()

@@ -16,6 +16,12 @@ from custom_components.meteocat_community_edition.sensor import (
     MeteocatLastUpdateSensor,
     MeteocatNextUpdateSensor,
     MeteocatUpdateTimeSensor,
+    MeteocatAltitudeSensor,
+    MeteocatLatitudeSensor,
+    MeteocatLongitudeSensor,
+    MeteocatMunicipalityNameSensor,
+    MeteocatComarcaNameSensor,
+)
 )
 from custom_components.meteocat_community_edition.const import (
     DOMAIN,
@@ -80,6 +86,7 @@ def mock_entry():
         "station_code": "YM",
         "station_name": "Granollers",
     }
+    entry.options = {}
     return entry
 
 
@@ -516,3 +523,506 @@ def test_diagnostic_sensors_entity_category(mock_coordinator, mock_entry):
     assert last_sensor._attr_entity_category == EntityCategory.DIAGNOSTIC
     assert next_sensor._attr_entity_category == EntityCategory.DIAGNOSTIC
     assert quota_sensor._attr_entity_category == EntityCategory.DIAGNOSTIC
+
+
+def test_altitude_sensor(mock_coordinator, mock_entry):
+    """Test altitude sensor."""
+    mock_coordinator.data = {
+        "station": {
+            "codi": "YM",
+            "nom": "Barcelona",
+            "altitud": 95,
+        }
+    }
+    
+    sensor = MeteocatAltitudeSensor(
+        mock_coordinator,
+        mock_entry,
+        "Barcelona",
+        "Barcelona YM",
+        "YM"
+    )
+    
+    assert sensor.native_value == 95
+    assert sensor.native_unit_of_measurement == "m"
+    assert sensor.icon == "mdi:elevation-rise"
+    assert sensor.unique_id == f"{mock_entry.entry_id}_altitude"
+    assert sensor.name == "Altitud"
+
+
+def test_altitude_sensor_no_data(mock_coordinator, mock_entry):
+    """Test altitude sensor with no station data."""
+    mock_coordinator.data = {}
+    
+    sensor = MeteocatAltitudeSensor(
+        mock_coordinator,
+        mock_entry,
+        "Barcelona",
+        "Barcelona YM",
+        "YM"
+    )
+    
+    assert sensor.native_value is None
+
+
+def test_latitude_sensor(mock_coordinator, mock_entry):
+    """Test latitude sensor."""
+    mock_coordinator.data = {
+        "station": {
+            "codi": "YM",
+            "nom": "Barcelona",
+            "coordenades": {
+                "latitud": 41.3851,
+                "longitud": 2.1734,
+            }
+        }
+    }
+    
+    sensor = MeteocatLatitudeSensor(
+        mock_coordinator,
+        mock_entry,
+        "Barcelona",
+        "Barcelona YM",
+        "YM"
+    )
+    
+    assert sensor.native_value == 41.3851
+    assert sensor.native_unit_of_measurement == "°"
+    assert sensor.icon == "mdi:latitude"
+    assert sensor.unique_id == f"{mock_entry.entry_id}_latitude"
+    assert sensor.name == "Latitud"
+
+
+def test_latitude_sensor_no_data(mock_coordinator, mock_entry):
+    """Test latitude sensor with no station data."""
+    mock_coordinator.data = {}
+    
+    sensor = MeteocatLatitudeSensor(
+        mock_coordinator,
+        mock_entry,
+        "Barcelona",
+        "Barcelona YM",
+        "YM"
+    )
+    
+    assert sensor.native_value is None
+
+
+def test_longitude_sensor(mock_coordinator, mock_entry):
+    """Test longitude sensor."""
+    mock_coordinator.data = {
+        "station": {
+            "codi": "YM",
+            "nom": "Barcelona",
+            "coordenades": {
+                "latitud": 41.3851,
+                "longitud": 2.1734,
+            }
+        }
+    }
+    
+    sensor = MeteocatLongitudeSensor(
+        mock_coordinator,
+        mock_entry,
+        "Barcelona",
+        "Barcelona YM",
+        "YM"
+    )
+    
+    assert sensor.native_value == 2.1734
+    assert sensor.native_unit_of_measurement == "°"
+    assert sensor.icon == "mdi:longitude"
+    assert sensor.unique_id == f"{mock_entry.entry_id}_longitude"
+    assert sensor.name == "Longitud"
+
+
+def test_longitude_sensor_no_data(mock_coordinator, mock_entry):
+    """Test longitude sensor with no station data."""
+    mock_coordinator.data = {}
+    
+    sensor = MeteocatLongitudeSensor(
+        mock_coordinator,
+        mock_entry,
+        "Barcelona",
+        "Barcelona YM",
+        "YM"
+    )
+    
+    assert sensor.native_value is None
+
+
+def test_municipality_name_sensor(mock_coordinator, mock_entry):
+    """Test municipality name sensor."""
+    # Configure entry for municipality mode
+    mock_entry.data = {
+        "mode": MODE_MUNICIPI,
+        "municipality_code": "080193",
+        "municipality_name": "Barcelona",
+        "comarca_name": "Barcelonès",
+    }
+    
+    sensor = MeteocatMunicipalityNameSensor(
+        mock_coordinator,
+        mock_entry,
+        "Barcelona",
+        "Barcelona",
+        "080193"
+    )
+    
+    assert sensor.native_value == "Barcelona"
+    assert sensor.icon == "mdi:city"
+    assert sensor.unique_id == f"{mock_entry.entry_id}_municipality_name"
+    assert sensor.name == "Nom del municipi"
+
+
+def test_municipality_name_sensor_no_data(mock_coordinator, mock_entry):
+    """Test municipality name sensor with no data."""
+    # Configure entry for municipality mode but without municipality_name
+    mock_entry.data = {
+        "mode": MODE_MUNICIPI,
+        "municipality_code": "080193",
+    }
+    
+    sensor = MeteocatMunicipalityNameSensor(
+        mock_coordinator,
+        mock_entry,
+        "Barcelona",
+        "Barcelona",
+        "080193"
+    )
+    
+    # Should return empty string when municipality_name is not in config
+    assert sensor.native_value == ""
+
+
+def test_comarca_name_sensor(mock_coordinator, mock_entry):
+    """Test comarca name sensor."""
+    # Configure entry for municipality mode
+    mock_entry.data = {
+        "mode": MODE_MUNICIPI,
+        "municipality_code": "080193",
+        "municipality_name": "Barcelona",
+        "comarca_name": "Barcelonès",
+    }
+    
+    sensor = MeteocatComarcaNameSensor(
+        mock_coordinator,
+        mock_entry,
+        "Barcelona",
+        "Barcelona",
+        "080193"
+    )
+    
+    assert sensor.native_value == "Barcelonès"
+    assert sensor.icon == "mdi:map"
+    assert sensor.unique_id == f"{mock_entry.entry_id}_comarca_name"
+    assert sensor.name == "Nom de la comarca"
+
+
+def test_comarca_name_sensor_no_data(mock_coordinator, mock_entry):
+    """Test comarca name sensor with no data."""
+    # Configure entry for municipality mode but without comarca_name
+    mock_entry.data = {
+        "mode": MODE_MUNICIPI,
+        "municipality_code": "080193",
+    }
+    
+    sensor = MeteocatComarcaNameSensor(
+        mock_coordinator,
+        mock_entry,
+        "Barcelona",
+        "Barcelona",
+        "080193"
+    )
+    
+    # Should return empty string when comarca_name is not in config
+    assert sensor.native_value == ""
+
+
+# Tests for MODE_ESTACIO geographic sensors
+
+def test_station_comarca_name_sensor():
+    """Test station comarca name sensor."""
+    from custom_components.meteocat_community_edition.sensor import MeteocatStationComarcaNameSensor
+    from unittest.mock import MagicMock
+    
+    mock_coordinator = MagicMock()
+    mock_entry = MagicMock()
+    mock_entry.entry_id = "test_entry"
+    mock_entry.data = {
+        "mode": MODE_ESTACIO,
+        "station_code": "YM",
+        "comarca_name": "Vallès Oriental",
+    }
+    mock_entry.options = {}
+    
+    sensor = MeteocatStationComarcaNameSensor(
+        mock_coordinator,
+        mock_entry,
+        "Granollers",
+        "Granollers YM",
+        "YM"
+    )
+    
+    assert sensor.native_value == "Vallès Oriental"
+    assert sensor.icon == "mdi:map"
+
+
+def test_station_municipality_name_sensor():
+    """Test station municipality name sensor."""
+    from custom_components.meteocat_community_edition.sensor import MeteocatStationMunicipalityNameSensor
+    from unittest.mock import MagicMock
+    
+    mock_coordinator = MagicMock()
+    mock_entry = MagicMock()
+    mock_entry.entry_id = "test_entry"
+    mock_entry.data = {
+        "mode": MODE_ESTACIO,
+        "station_code": "YM",
+        "station_municipality_name": "Granollers",
+    }
+    mock_entry.options = {}
+    
+    sensor = MeteocatStationMunicipalityNameSensor(
+        mock_coordinator,
+        mock_entry,
+        "Granollers",
+        "Granollers YM",
+        "YM"
+    )
+    
+    assert sensor.native_value == "Granollers"
+    assert sensor.icon == "mdi:city"
+
+
+def test_station_provincia_name_sensor():
+    """Test station province name sensor."""
+    from custom_components.meteocat_community_edition.sensor import MeteocatStationProvinciaNameSensor
+    from unittest.mock import MagicMock
+    
+    mock_coordinator = MagicMock()
+    mock_entry = MagicMock()
+    mock_entry.entry_id = "test_entry"
+    mock_entry.data = {
+        "mode": MODE_ESTACIO,
+        "station_code": "YM",
+        "station_provincia_name": "Barcelona",
+    }
+    mock_entry.options = {}
+    
+    sensor = MeteocatStationProvinciaNameSensor(
+        mock_coordinator,
+        mock_entry,
+        "Granollers",
+        "Granollers YM",
+        "YM"
+    )
+    
+    assert sensor.native_value == "Barcelona"
+    assert sensor.icon == "mdi:map-marker"
+
+
+# Tests for MODE_MUNICIPI coordinate and province sensors
+
+def test_municipality_latitude_sensor():
+    """Test municipality latitude sensor."""
+    from custom_components.meteocat_community_edition.sensor import MeteocatMunicipalityLatitudeSensor
+    from unittest.mock import MagicMock
+    
+    mock_coordinator = MagicMock()
+    mock_entry = MagicMock()
+    mock_entry.entry_id = "test_entry"
+    mock_entry.data = {
+        "mode": MODE_MUNICIPI,
+        "municipality_code": "080193",
+        "municipality_lat": 41.6,
+    }
+    mock_entry.options = {}
+    
+    sensor = MeteocatMunicipalityLatitudeSensor(
+        mock_coordinator,
+        mock_entry,
+        "Barcelona",
+        "Barcelona",
+        "080193"
+    )
+    
+    assert sensor.native_value == 41.6
+    assert sensor.icon == "mdi:latitude"
+
+
+def test_municipality_longitude_sensor():
+    """Test municipality longitude sensor."""
+    from custom_components.meteocat_community_edition.sensor import MeteocatMunicipalityLongitudeSensor
+    from unittest.mock import MagicMock
+    
+    mock_coordinator = MagicMock()
+    mock_entry = MagicMock()
+    mock_entry.entry_id = "test_entry"
+    mock_entry.data = {
+        "mode": MODE_MUNICIPI,
+        "municipality_code": "080193",
+        "municipality_lon": 2.3,
+    }
+    mock_entry.options = {}
+    
+    sensor = MeteocatMunicipalityLongitudeSensor(
+        mock_coordinator,
+        mock_entry,
+        "Barcelona",
+        "Barcelona",
+        "080193"
+    )
+    
+    assert sensor.native_value == 2.3
+    assert sensor.icon == "mdi:longitude"
+
+
+def test_municipality_provincia_name_sensor():
+    """Test municipality province name sensor."""
+    from custom_components.meteocat_community_edition.sensor import MeteocatProvinciaNameSensor
+    from unittest.mock import MagicMock
+    
+    mock_coordinator = MagicMock()
+    mock_entry = MagicMock()
+    mock_entry.entry_id = "test_entry"
+    mock_entry.data = {
+        "mode": MODE_MUNICIPI,
+        "municipality_code": "080193",
+        "provincia_name": "Barcelona",
+    }
+    mock_entry.options = {}
+    
+    sensor = MeteocatProvinciaNameSensor(
+        mock_coordinator,
+        mock_entry,
+        "Barcelona",
+        "Barcelona",
+        "080193"
+    )
+    
+    assert sensor.native_value == "Barcelona"
+    assert sensor.icon == "mdi:map-marker"
+
+
+def test_coordinate_sensors_read_from_entry_data_cache():
+    """Test that coordinate sensors read from entry.data._station_data when coordinator.data is empty."""
+    from custom_components.meteocat_community_edition.sensor import (
+        MeteocatLatitudeSensor,
+        MeteocatLongitudeSensor,
+        MeteocatAltitudeSensor,
+    )
+    from unittest.mock import MagicMock
+    
+    mock_coordinator = MagicMock()
+    mock_coordinator.data = {}  # Empty data (quota exhausted scenario)
+    
+    mock_entry = MagicMock()
+    mock_entry.entry_id = "test_entry"
+    mock_entry.data = {
+        "mode": MODE_ESTACIO,
+        "station_code": "YM",
+        "_station_data": {
+            "coordenades": {
+                "latitud": 41.6126,
+                "longitud": 2.2615,
+            },
+            "altitud": 95,
+        }
+    }
+    mock_entry.options = {}
+    
+    # Test latitude sensor
+    lat_sensor = MeteocatLatitudeSensor(
+        mock_coordinator,
+        mock_entry,
+        "Granollers",
+        "Granollers YM",
+        "YM"
+    )
+    assert lat_sensor.native_value == 41.6126
+    
+    # Test longitude sensor
+    lon_sensor = MeteocatLongitudeSensor(
+        mock_coordinator,
+        mock_entry,
+        "Granollers",
+        "Granollers YM",
+        "YM"
+    )
+    assert lon_sensor.native_value == 2.2615
+    
+    # Test altitude sensor
+    alt_sensor = MeteocatAltitudeSensor(
+        mock_coordinator,
+        mock_entry,
+        "Granollers",
+        "Granollers YM",
+        "YM"
+    )
+    assert alt_sensor.native_value == 95
+
+
+def test_coordinate_sensors_prefer_coordinator_data_over_cache():
+    """Test that coordinate sensors prefer coordinator.data over entry.data cache when available."""
+    from custom_components.meteocat_community_edition.sensor import (
+        MeteocatLatitudeSensor,
+        MeteocatLongitudeSensor,
+        MeteocatAltitudeSensor,
+    )
+    from unittest.mock import MagicMock
+    
+    mock_coordinator = MagicMock()
+    mock_coordinator.data = {
+        "station": {
+            "codi": "YM",
+            "coordenades": {
+                "latitud": 41.9999,  # Different from cache
+                "longitud": 2.9999,
+            },
+            "altitud": 999,
+        }
+    }
+    
+    mock_entry = MagicMock()
+    mock_entry.entry_id = "test_entry"
+    mock_entry.data = {
+        "mode": MODE_ESTACIO,
+        "station_code": "YM",
+        "_station_data": {
+            "coordenades": {
+                "latitud": 41.6126,  # Old cached value
+                "longitud": 2.2615,
+            },
+            "altitud": 95,
+        }
+    }
+    mock_entry.options = {}
+    
+    # Sensors should use coordinator.data (fresh data) not cache
+    lat_sensor = MeteocatLatitudeSensor(
+        mock_coordinator,
+        mock_entry,
+        "Granollers",
+        "Granollers YM",
+        "YM"
+    )
+    assert lat_sensor.native_value == 41.9999
+    
+    lon_sensor = MeteocatLongitudeSensor(
+        mock_coordinator,
+        mock_entry,
+        "Granollers",
+        "Granollers YM",
+        "YM"
+    )
+    assert lon_sensor.native_value == 2.9999
+    
+    alt_sensor = MeteocatAltitudeSensor(
+        mock_coordinator,
+        mock_entry,
+        "Granollers",
+        "Granollers YM",
+        "YM"
+    )
+    assert alt_sensor.native_value == 999

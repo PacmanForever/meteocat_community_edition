@@ -93,6 +93,13 @@
       "data_updated": "Dades actualitzades",
       "next_update_changed": "Canvi de pròxima actualització"
     }
+  },
+  "entity": {
+    "binary_sensor": {
+      "update_status": {
+        "name": "Problema actualitzant dades"
+      }
+    }
   }
 }
 

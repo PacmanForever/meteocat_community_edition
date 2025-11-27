@@ -181,14 +181,18 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 
                 if self.mode == MODE_ESTACIO:
                     # Fetch stations for selected comarca
+                    _LOGGER.debug("Fetching stations for comarca: %s", self.comarca_code)
                     self._stations = await api.get_stations_by_comarca(self.comarca_code)
                     
                     if not self._stations:
+                        _LOGGER.warning("No stations found for comarca: %s", self.comarca_code)
                         errors["base"] = "no_stations"
                     else:
+                        _LOGGER.debug("Found %d stations for comarca: %s", len(self._stations), self.comarca_code)
                         return await self.async_step_station()
                 else:
                     # Fetch municipalities for selected comarca
+                    _LOGGER.debug("Fetching municipalities for comarca: %s", self.comarca_code)
                     all_municipalities = await api.get_municipalities()
                     self._municipalities = [
                         muni for muni in all_municipalities
@@ -196,13 +200,18 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     ]
                     
                     if not self._municipalities:
+                        _LOGGER.warning("No municipalities found for comarca: %s", self.comarca_code)
                         errors["base"] = "no_municipalities"
                     else:
+                        _LOGGER.debug("Found %d municipalities for comarca: %s", len(self._municipalities), self.comarca_code)
                         return await self.async_step_municipality()
                     
-            except MeteocatAPIError:
+            except MeteocatAPIError as err:
+                _LOGGER.error("API error while fetching data for comarca %s: %s", self.comarca_code, err)
                 errors["base"] = "cannot_connect"
-            except Exception:  # pylint: disable=broad-except
+            except Exception as err:  # pylint: disable=broad-except
+                _LOGGER.exception("Unexpected error while fetching data for comarca %s: %s", self.comarca_code, err)
+                errors["base"] = "unknown"
                 _LOGGER.exception("Unexpected exception")
                 errors["base"] = "unknown"
 
@@ -231,13 +240,28 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             self.station_code = user_input[CONF_STATION_CODE]
             
-            # Find station name
+            # Find station name and extract all relevant data
             _LOGGER.debug("Looking for station with code: %s", self.station_code)
             _LOGGER.debug("Available stations: %s", [s.get("codi") for s in self._stations])
             for station in self._stations:
                 if station.get("codi") == self.station_code:
                     self.station_name = station.get("nom")
                     _LOGGER.debug("Found station name: %s", self.station_name)
+                    # Save complete station data for coordinate sensors
+                    # This prevents API calls when quota is exhausted
+                    self.station_data = station
+                    # Extract municipality if available
+                    # Saved to entry.data to avoid API calls during runtime
+                    municipi = station.get("municipi", {})
+                    if isinstance(municipi, dict):
+                        self.station_municipality_code = municipi.get("codi")
+                        self.station_municipality_name = municipi.get("nom")
+                    # Extract province if available (might be in comarca or municipi)
+                    # Saved to entry.data to avoid API calls during runtime
+                    provincia = station.get("provincia", {})
+                    if isinstance(provincia, dict):
+                        self.station_provincia_code = provincia.get("codi")
+                        self.station_provincia_name = provincia.get("nom")
                     break
             
             if not self.station_name:
@@ -279,10 +303,20 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             self.municipality_code = user_input[CONF_MUNICIPALITY_CODE]
             
-            # Find municipality name
+            # Find municipality and extract all relevant data
             for municipality in self._municipalities:
                 if municipality.get("codi") == self.municipality_code:
                     self.municipality_name = municipality.get("nom")
+                    # Extract coordinates if available
+                    # Saved to entry.data to avoid API calls during runtime
+                    coordenades = municipality.get("coordenades", {})
+                    self.municipality_lat = coordenades.get("latitud")
+                    self.municipality_lon = coordenades.get("longitud")
+                    # Extract province if available
+                    # Saved to entry.data to avoid API calls during runtime
+                    provincia = municipality.get("provincia", {})
+                    self.provincia_code = provincia.get("codi")
+                    self.provincia_name = provincia.get("nom")
                     break
             
             # Check if municipality already configured
@@ -330,37 +364,65 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 self.update_time_2 = time2
                 
                 # Create the config entry based on mode
+                # All metadata saved here to avoid runtime API calls
                 if self.mode == MODE_ESTACIO:
                     _LOGGER.info("Creating entry with title: %s %s", self.station_name, self.station_code)
+                    entry_data = {
+                        CONF_API_KEY: self.api_key,
+                        CONF_MODE: MODE_ESTACIO,
+                        CONF_STATION_CODE: self.station_code,
+                        CONF_STATION_NAME: self.station_name,
+                        CONF_COMARCA_CODE: self.comarca_code,
+                        CONF_COMARCA_NAME: self.comarca_name,
+                        CONF_UPDATE_TIME_1: self.update_time_1,
+                        CONF_UPDATE_TIME_2: self.update_time_2,
+                    }
+                    # Save station data for coordinate sensors (prevents API calls when quota exhausted)
+                    if hasattr(self, 'station_data') and self.station_data:
+                        entry_data["_station_data"] = self.station_data
+                    # Add municipality if available
+                    if hasattr(self, 'station_municipality_code') and self.station_municipality_code:
+                        entry_data["station_municipality_code"] = self.station_municipality_code
+                    if hasattr(self, 'station_municipality_name') and self.station_municipality_name:
+                        entry_data["station_municipality_name"] = self.station_municipality_name
+                    # Add province if available
+                    if hasattr(self, 'station_provincia_code') and self.station_provincia_code:
+                        entry_data["station_provincia_code"] = self.station_provincia_code
+                    if hasattr(self, 'station_provincia_name') and self.station_provincia_name:
+                        entry_data["station_provincia_name"] = self.station_provincia_name
+                    
                     return self.async_create_entry(
                         title=f"{self.station_name} {self.station_code}",
-                        data={
-                            CONF_API_KEY: self.api_key,
-                            CONF_MODE: MODE_ESTACIO,
-                            CONF_STATION_CODE: self.station_code,
-                            CONF_STATION_NAME: self.station_name,
-                            CONF_COMARCA_CODE: self.comarca_code,
-                            CONF_COMARCA_NAME: self.comarca_name,
-                            CONF_UPDATE_TIME_1: self.update_time_1,
-                            CONF_UPDATE_TIME_2: self.update_time_2,
-                        },
+                        data=entry_data,
                         options={
                             CONF_API_BASE_URL: self.api_base_url,
                         },
                     )
                 else:  # MODE_MUNICIPI
+                    entry_data = {
+                        CONF_API_KEY: self.api_key,
+                        CONF_MODE: MODE_MUNICIPI,
+                        CONF_MUNICIPALITY_CODE: self.municipality_code,
+                        CONF_MUNICIPALITY_NAME: self.municipality_name,
+                        CONF_COMARCA_CODE: self.comarca_code,
+                        CONF_COMARCA_NAME: self.comarca_name,
+                        CONF_UPDATE_TIME_1: self.update_time_1,
+                        CONF_UPDATE_TIME_2: self.update_time_2,
+                    }
+                    # Add coordinates if available
+                    if hasattr(self, 'municipality_lat') and self.municipality_lat is not None:
+                        entry_data["municipality_lat"] = self.municipality_lat
+                    if hasattr(self, 'municipality_lon') and self.municipality_lon is not None:
+                        entry_data["municipality_lon"] = self.municipality_lon
+                    # Add province if available
+                    if hasattr(self, 'provincia_code') and self.provincia_code:
+                        entry_data["provincia_code"] = self.provincia_code
+                    if hasattr(self, 'provincia_name') and self.provincia_name:
+                        entry_data["provincia_name"] = self.provincia_name
+                    
                     return self.async_create_entry(
                         title=self.municipality_name,
-                        data={
-                            CONF_API_KEY: self.api_key,
-                            CONF_MODE: MODE_MUNICIPI,
-                            CONF_MUNICIPALITY_CODE: self.municipality_code,
-                            CONF_MUNICIPALITY_NAME: self.municipality_name,
-                            CONF_COMARCA_CODE: self.comarca_code,
-                            CONF_COMARCA_NAME: self.comarca_name,
-                            CONF_UPDATE_TIME_1: self.update_time_1,
-                            CONF_UPDATE_TIME_2: self.update_time_2,
-                        },
+                        data=entry_data,
                         options={
                             CONF_API_BASE_URL: self.api_base_url,
                         },

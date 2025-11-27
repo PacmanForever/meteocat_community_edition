@@ -102,9 +102,16 @@ class MeteocatAPI:
                     
                     response.raise_for_status()
                     
-                    # Read raw bytes and decode as UTF-8
+                    # Read raw bytes and decode as UTF-8 with error handling
                     raw_data = await response.read()
-                    text = raw_data.decode('utf-8')
+                    try:
+                        # Try strict UTF-8 decoding first
+                        text = raw_data.decode('utf-8')
+                    except UnicodeDecodeError:
+                        # Fallback: replace invalid UTF-8 sequences
+                        _LOGGER.warning("Invalid UTF-8 in response from %s, using replacement characters", url)
+                        text = raw_data.decode('utf-8', errors='replace')
+                    
                     import json
                     return json.loads(text)
                     

@@ -87,6 +87,13 @@
       "data_updated": "Data updated",
       "next_update_changed": "Next update changed"
     }
+  },
+  "entity": {
+    "binary_sensor": {
+      "update_status": {
+        "name": "Problem updating data"
+      }
+    }
   }
 }
 

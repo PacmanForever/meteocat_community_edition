@@ -1,4 +1,19 @@
-"""Sensor entities for Meteocat (Community Edition)."""
+"""Sensor entities for Meteocat (Community Edition).
+
+This module provides all sensor entities for both MODE_ESTACIO and MODE_MUNICIPI.
+
+Geographic sensors (Comarca, Municipi, Província):
+- Data source: entry.data (static metadata saved during config_flow)
+- NO API calls during runtime (quota optimization)
+- Conditionally created based on data availability
+
+Timestamp sensors:
+- Última actualització: Last successful update time (from coordinator)
+- Pròxima actualització: Next scheduled update time (from coordinator.next_scheduled_update)
+- Category: diagnostic
+
+Last updated: 2025-11-27
+"""
 from __future__ import annotations
 
 import logging
@@ -17,6 +32,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
     ATTRIBUTION,
+    CONF_COMARCA_NAME,
     CONF_MODE,
     CONF_MUNICIPALITY_CODE,
     CONF_MUNICIPALITY_NAME,
@@ -61,7 +77,26 @@ async def async_setup_entry(
             MeteocatForecastSensor(coordinator, entry, entity_name_with_code, entity_name, "hourly"),
             MeteocatForecastSensor(coordinator, entry, entity_name_with_code, entity_name, "daily"),
             MeteocatUVSensor(coordinator, entry, entity_name_with_code, entity_name),
+            # Add municipality info sensors
+            MeteocatMunicipalityNameSensor(coordinator, entry, entity_name, entity_name_with_code, municipality_code),
+            MeteocatComarcaNameSensor(coordinator, entry, entity_name, entity_name_with_code, municipality_code),
         ])
+        
+        # Add coordinate sensors if data available
+        if entry.data.get("municipality_lat") is not None:
+            entities.append(
+                MeteocatMunicipalityLatitudeSensor(coordinator, entry, entity_name, entity_name_with_code, municipality_code)
+            )
+        if entry.data.get("municipality_lon") is not None:
+            entities.append(
+                MeteocatMunicipalityLongitudeSensor(coordinator, entry, entity_name, entity_name_with_code, municipality_code)
+            )
+        
+        # Add province sensor if data available
+        if entry.data.get("provincia_name"):
+            entities.append(
+                MeteocatProvinciaNameSensor(coordinator, entry, entity_name, entity_name_with_code, municipality_code)
+            )
     
     # Create quota sensors (for both modes)
     if coordinator.data and coordinator.data.get("quotes"):
@@ -91,11 +126,30 @@ async def async_setup_entry(
         MeteocatUpdateTimeSensor(coordinator, entry, entity_name, entity_name_with_code, mode, 2, station_code if mode == MODE_ESTACIO else None),
     ])
     
-    # Add altitude sensor (only for station mode)
+    # Add station location sensors (only for station mode)
     if mode == MODE_ESTACIO:
+        entities.extend([
+            MeteocatAltitudeSensor(coordinator, entry, entity_name, entity_name_with_code, station_code),
+            MeteocatLatitudeSensor(coordinator, entry, entity_name, entity_name_with_code, station_code),
+            MeteocatLongitudeSensor(coordinator, entry, entity_name, entity_name_with_code, station_code),
+        ])
+        
+        # Add comarca name sensor (always available for stations)
         entities.append(
-            MeteocatAltitudeSensor(coordinator, entry, entity_name, entity_name_with_code, station_code)
+            MeteocatStationComarcaNameSensor(coordinator, entry, entity_name, entity_name_with_code, station_code)
         )
+        
+        # Add municipality name sensor if available
+        if entry.data.get("station_municipality_name"):
+            entities.append(
+                MeteocatStationMunicipalityNameSensor(coordinator, entry, entity_name, entity_name_with_code, station_code)
+            )
+        
+        # Add province name sensor if available
+        if entry.data.get("station_provincia_name"):
+            entities.append(
+                MeteocatStationProvinciaNameSensor(coordinator, entry, entity_name, entity_name_with_code, station_code)
+            )
     
     async_add_entities(entities)
 
@@ -400,11 +454,14 @@ class MeteocatLastUpdateSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnt
             base_name = entity_name.lower().replace(" ", "_")
             self.entity_id = f"sensor.{base_name}_last_update"
         
+        # Each entry is a separate device under a shared hub
+        hub_id = f"{DOMAIN}_hub_estacions" if mode == MODE_ESTACIO else f"{DOMAIN}_hub_municipis"
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
             "manufacturer": "Meteocat Edició Comunitària",
             "model": "Estació XEMA" if mode == MODE_ESTACIO else "Predicció Municipi",
+
         }
         
         self._attr_entity_category = EntityCategory.DIAGNOSTIC
@@ -421,7 +478,20 @@ class MeteocatLastUpdateSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnt
 
 
 class MeteocatNextUpdateSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
-    """Sensor showing next scheduled update timestamp."""
+    """Sensor showing next scheduled update timestamp.
+    
+    This diagnostic sensor displays when the next automatic data update will occur.
+    
+    Data source: coordinator.next_scheduled_update
+    - Updated automatically when coordinator schedules the next update
+    - Reflects actual scheduled time (not calculated from last update)
+    - Shows exact time configured in update_time_1 or update_time_2
+    
+    Device class: timestamp
+    Entity category: diagnostic
+    
+    Last updated: 2025-11-27
+    """
 
     _attr_attribution = ATTRIBUTION
     _attr_device_class = SensorDeviceClass.TIMESTAMP
@@ -455,11 +525,14 @@ class MeteocatNextUpdateSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnt
             base_name = entity_name.lower().replace(" ", "_")
             self.entity_id = f"sensor.{base_name}_next_update"
         
+        # Each entry is a separate device under a shared hub
+        hub_id = f"{DOMAIN}_hub_estacions" if mode == MODE_ESTACIO else f"{DOMAIN}_hub_municipis"
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
             "manufacturer": "Meteocat Edició Comunitària",
             "model": "Estació XEMA" if mode == MODE_ESTACIO else "Predicció Municipi",
+
         }
         
         self._attr_entity_category = EntityCategory.DIAGNOSTIC
@@ -467,11 +540,7 @@ class MeteocatNextUpdateSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnt
     @property
     def native_value(self):
         """Return the next update time."""
-        from homeassistant.util import dt as dt_util
-        
-        if self.coordinator.last_successful_update_time and self.coordinator.update_interval:
-            return self.coordinator.last_successful_update_time + self.coordinator.update_interval
-        return None
+        return self.coordinator.next_scheduled_update
 
     @property
     def icon(self) -> str:
@@ -515,11 +584,14 @@ class MeteocatUpdateTimeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnt
             base_name = entity_name.lower().replace(" ", "_")
             self.entity_id = f"sensor.{base_name}_update_time_{time_number}"
         
+        # Each entry is a separate device under a shared hub
+        hub_id = f"{DOMAIN}_hub_estacions" if mode == MODE_ESTACIO else f"{DOMAIN}_hub_municipis"
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
             "manufacturer": "Meteocat Edició Comunitària",
             "model": "Estació XEMA" if mode == MODE_ESTACIO else "Predicció Municipi",
+
         }
         
         self._attr_entity_category = EntityCategory.DIAGNOSTIC
@@ -538,7 +610,11 @@ class MeteocatUpdateTimeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnt
 
 
 class MeteocatAltitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
-    """Sensor showing station altitude."""
+    """Sensor showing station altitude.
+    
+    Data obtained from coordinator.data['station'] which is cached in entry.data.
+    Cached data prevents unnecessary API calls on Home Assistant restart.
+    """
 
     _attr_attribution = ATTRIBUTION
     _attr_device_class = SensorDeviceClass.DISTANCE
@@ -559,6 +635,7 @@ class MeteocatAltitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
         self._entity_name = entity_name
         self._device_name = device_name
         self._station_code = station_code
+        self._entry = entry
         
         self._attr_unique_id = f"{entry.entry_id}_altitude"
         self._attr_name = "Altitud"
@@ -578,6 +655,14 @@ class MeteocatAltitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
     @property
     def native_value(self) -> float | None:
         """Return the station altitude in meters."""
+        # Try to get from cached entry.data first (always available)
+        station_data = self._entry.data.get("_station_data")
+        if station_data and isinstance(station_data, dict):
+            alt = station_data.get("altitud")
+            if alt is not None:
+                return alt
+        
+        # Fallback to coordinator.data if not in cache
         station_data = self.coordinator.data.get("station")
         if not station_data or not isinstance(station_data, dict):
             return None
@@ -585,6 +670,571 @@ class MeteocatAltitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
         return station_data.get("altitud")
 
     @property
+    def available(self) -> bool:
+        """Return True if entity is available."""
+        # Always available since data is cached in entry.data
+        return self.native_value is not None
+
+    @property
     def icon(self) -> str:
         """Return the icon."""
         return "mdi:elevation-rise"
+
+
+class MeteocatLatitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
+    """Sensor showing station latitude.
+    
+    Data obtained from coordinator.data['station'] which is cached in entry.data.
+    Cached data prevents unnecessary API calls on Home Assistant restart.
+    """
+
+    _attr_attribution = ATTRIBUTION
+    _attr_native_unit_of_measurement = "°"
+
+    def __init__(
+        self,
+        coordinator: MeteocatCoordinator,
+        entry: ConfigEntry,
+        entity_name: str,
+        device_name: str,
+        station_code: str,
+    ) -> None:
+        """Initialize the latitude sensor."""
+        super().__init__(coordinator)
+        
+        self._entity_name = entity_name
+        self._device_name = device_name
+        self._station_code = station_code
+        self._entry = entry
+        
+        self._attr_unique_id = f"{entry.entry_id}_latitude"
+        self._attr_name = "Latitud"
+        
+        # Set explicit entity_id
+        base_name = entity_name.replace(f" {station_code}", "").lower().replace(" ", "_")
+        code_lower = station_code.lower()
+        self.entity_id = f"sensor.{base_name}_{code_lower}_latitude"
+        
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, entry.entry_id)},
+            "name": self._device_name,
+            "manufacturer": "Meteocat Edició Comunitària",
+            "model": "Estació XEMA",
+        }
+
+    @property
+    def native_value(self) -> float | None:
+        """Return the station latitude in degrees."""
+        # Try to get from cached entry.data first (always available)
+        station_data = self._entry.data.get("_station_data")
+        if station_data and isinstance(station_data, dict):
+            coordenades = station_data.get("coordenades", {})
+            lat = coordenades.get("latitud")
+            if lat is not None:
+                return lat
+        
+        # Fallback to coordinator.data if not in cache
+        station_data = self.coordinator.data.get("station")
+        if not station_data or not isinstance(station_data, dict):
+            return None
+        
+        coordenades = station_data.get("coordenades", {})
+        return coordenades.get("latitud")
+
+    @property
+    def available(self) -> bool:
+        """Return True if entity is available."""
+        # Always available since data is cached in entry.data
+        return self.native_value is not None
+
+    @property
+    def icon(self) -> str:
+        """Return the icon."""
+        return "mdi:latitude"
+
+
+class MeteocatLongitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
+    """Sensor showing station longitude.
+    
+    Data obtained from coordinator.data['station'] which is cached in entry.data.
+    Cached data prevents unnecessary API calls on Home Assistant restart.
+    """
+
+    _attr_attribution = ATTRIBUTION
+    _attr_native_unit_of_measurement = "°"
+
+    def __init__(
+        self,
+        coordinator: MeteocatCoordinator,
+        entry: ConfigEntry,
+        entity_name: str,
+        device_name: str,
+        station_code: str,
+    ) -> None:
+        """Initialize the longitude sensor."""
+        super().__init__(coordinator)
+        
+        self._entity_name = entity_name
+        self._device_name = device_name
+        self._station_code = station_code
+        self._entry = entry
+        
+        self._attr_unique_id = f"{entry.entry_id}_longitude"
+        self._attr_name = "Longitud"
+        
+        # Set explicit entity_id
+        base_name = entity_name.replace(f" {station_code}", "").lower().replace(" ", "_")
+        code_lower = station_code.lower()
+        self.entity_id = f"sensor.{base_name}_{code_lower}_longitude"
+        
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, entry.entry_id)},
+            "name": self._device_name,
+            "manufacturer": "Meteocat Edició Comunitària",
+            "model": "Estació XEMA",
+        }
+
+    @property
+    def native_value(self) -> float | None:
+        """Return the station longitude in degrees."""
+        # Try to get from cached entry.data first (always available)
+        station_data = self._entry.data.get("_station_data")
+        if station_data and isinstance(station_data, dict):
+            coordenades = station_data.get("coordenades", {})
+            lon = coordenades.get("longitud")
+            if lon is not None:
+                return lon
+        
+        # Fallback to coordinator.data if not in cache
+        station_data = self.coordinator.data.get("station")
+        if not station_data or not isinstance(station_data, dict):
+            return None
+        
+        coordenades = station_data.get("coordenades", {})
+        return coordenades.get("longitud")
+
+    @property
+    def available(self) -> bool:
+        """Return True if entity is available."""
+        # Always available since data is cached in entry.data
+        return self.native_value is not None
+
+    @property
+    def icon(self) -> str:
+        """Return the icon."""
+        return "mdi:longitude"
+
+
+class MeteocatMunicipalityNameSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
+    """Sensor showing municipality name.
+    
+    Data obtained from configuration (entry.data) - no API calls needed.
+    """
+
+    _attr_attribution = ATTRIBUTION
+
+    def __init__(
+        self,
+        coordinator: MeteocatCoordinator,
+        entry: ConfigEntry,
+        entity_name: str,
+        device_name: str,
+        municipality_code: str,
+    ) -> None:
+        """Initialize the municipality name sensor."""
+        super().__init__(coordinator)
+        
+        self._entity_name = entity_name
+        self._device_name = device_name
+        self._municipality_code = municipality_code
+        self._municipality_name = entry.data.get(CONF_MUNICIPALITY_NAME, "")
+        
+        self._attr_unique_id = f"{entry.entry_id}_municipality_name"
+        self._attr_name = "Municipi"
+        
+        # Set explicit entity_id
+        base_name = entity_name.lower().replace(" ", "_")
+        self.entity_id = f"sensor.{base_name}_municipality_name"
+        
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, entry.entry_id)},
+            "name": self._device_name,
+            "manufacturer": "Meteocat Edició Comunitària",
+            "model": "Predicció Municipal",
+        }
+
+    @property
+    def native_value(self) -> str | None:
+        """Return the municipality name."""
+        return self._municipality_name
+
+    @property
+    def icon(self) -> str:
+        """Return the icon."""
+        return "mdi:city"
+
+
+class MeteocatComarcaNameSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
+    """Sensor showing comarca name.
+    
+    Data obtained from configuration (entry.data) - no API calls needed.
+    """
+
+    _attr_attribution = ATTRIBUTION
+
+    def __init__(
+        self,
+        coordinator: MeteocatCoordinator,
+        entry: ConfigEntry,
+        entity_name: str,
+        device_name: str,
+        municipality_code: str,
+    ) -> None:
+        """Initialize the comarca name sensor."""
+        super().__init__(coordinator)
+        
+        self._entity_name = entity_name
+        self._device_name = device_name
+        self._municipality_code = municipality_code
+        self._comarca_name = entry.data.get(CONF_COMARCA_NAME, "")
+        
+        self._attr_unique_id = f"{entry.entry_id}_comarca_name"
+        self._attr_name = "Comarca"
+        
+        # Set explicit entity_id
+        base_name = entity_name.lower().replace(" ", "_")
+        self.entity_id = f"sensor.{base_name}_comarca_name"
+        
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, entry.entry_id)},
+            "name": self._device_name,
+            "manufacturer": "Meteocat Edició Comunitària",
+            "model": "Predicció Municipal",
+        }
+
+    @property
+    def native_value(self) -> str | None:
+        """Return the comarca name."""
+        return self._comarca_name
+
+    @property
+    def icon(self) -> str:
+        """Return the icon."""
+        return "mdi:map"
+
+
+class MeteocatMunicipalityLatitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
+    """Sensor showing municipality latitude.
+    
+    Data obtained from configuration (entry.data) - no API calls needed.
+    Only created if latitude data is available from API during setup.
+    """
+
+    _attr_attribution = ATTRIBUTION
+    _attr_native_unit_of_measurement = "°"
+
+    def __init__(
+        self,
+        coordinator: MeteocatCoordinator,
+        entry: ConfigEntry,
+        entity_name: str,
+        device_name: str,
+        municipality_code: str,
+    ) -> None:
+        """Initialize the municipality latitude sensor."""
+        super().__init__(coordinator)
+        
+        self._entity_name = entity_name
+        self._device_name = device_name
+        self._municipality_code = municipality_code
+        self._latitude = entry.data.get("municipality_lat")
+        
+        self._attr_unique_id = f"{entry.entry_id}_municipality_latitude"
+        self._attr_name = "Latitud del municipi"
+        
+        # Set explicit entity_id
+        base_name = entity_name.lower().replace(" ", "_")
+        self.entity_id = f"sensor.{base_name}_municipality_latitude"
+        
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, entry.entry_id)},
+            "name": self._device_name,
+            "manufacturer": "Meteocat Edició Comunitària",
+            "model": "Predicció Municipal",
+        }
+
+    @property
+    def native_value(self) -> float | None:
+        """Return the municipality latitude."""
+        return self._latitude
+
+    @property
+    def available(self) -> bool:
+        """Return True if entity is available."""
+        # Always available since data is cached in entry.data
+        return self._latitude is not None
+
+    @property
+    def icon(self) -> str:
+        """Return the icon."""
+        return "mdi:latitude"
+
+
+class MeteocatMunicipalityLongitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
+    """Sensor showing municipality longitude.
+    
+    Data obtained from configuration (entry.data) - no API calls needed.
+    Only created if longitude data is available from API during setup.
+    """
+
+    _attr_attribution = ATTRIBUTION
+    _attr_native_unit_of_measurement = "°"
+
+    def __init__(
+        self,
+        coordinator: MeteocatCoordinator,
+        entry: ConfigEntry,
+        entity_name: str,
+        device_name: str,
+        municipality_code: str,
+    ) -> None:
+        """Initialize the municipality longitude sensor."""
+        super().__init__(coordinator)
+        
+        self._entity_name = entity_name
+        self._device_name = device_name
+        self._municipality_code = municipality_code
+        self._longitude = entry.data.get("municipality_lon")
+        
+        self._attr_unique_id = f"{entry.entry_id}_municipality_longitude"
+        self._attr_name = "Longitud del municipi"
+        
+        # Set explicit entity_id
+        base_name = entity_name.lower().replace(" ", "_")
+        self.entity_id = f"sensor.{base_name}_municipality_longitude"
+        
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, entry.entry_id)},
+            "name": self._device_name,
+            "manufacturer": "Meteocat Edició Comunitària",
+            "model": "Predicció Municipal",
+        }
+
+    @property
+    def native_value(self) -> float | None:
+        """Return the municipality longitude."""
+        return self._longitude
+
+    @property
+    def available(self) -> bool:
+        """Return True if entity is available."""
+        # Always available since data is cached in entry.data
+        return self._longitude is not None
+
+    @property
+    def icon(self) -> str:
+        """Return the icon."""
+        return "mdi:longitude"
+
+
+class MeteocatProvinciaNameSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
+    """Sensor showing province name.
+    
+    Data obtained from configuration (entry.data) - no API calls needed.
+    Only created if province data is available from API during setup.
+    """
+
+    _attr_attribution = ATTRIBUTION
+
+    def __init__(
+        self,
+        coordinator: MeteocatCoordinator,
+        entry: ConfigEntry,
+        entity_name: str,
+        device_name: str,
+        municipality_code: str,
+    ) -> None:
+        """Initialize the provincia name sensor."""
+        super().__init__(coordinator)
+        
+        self._entity_name = entity_name
+        self._device_name = device_name
+        self._municipality_code = municipality_code
+        self._provincia_name = entry.data.get("provincia_name", "")
+        
+        self._attr_unique_id = f"{entry.entry_id}_provincia_name"
+        self._attr_name = "Província"
+        
+        # Set explicit entity_id
+        base_name = entity_name.lower().replace(" ", "_")
+        self.entity_id = f"sensor.{base_name}_provincia_name"
+        
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, entry.entry_id)},
+            "name": self._device_name,
+            "manufacturer": "Meteocat Edició Comunitària",
+            "model": "Predicció Municipal",
+        }
+
+    @property
+    def native_value(self) -> str | None:
+        """Return the provincia name."""
+        return self._provincia_name
+
+    @property
+    def icon(self) -> str:
+        """Return the icon."""
+        return "mdi:map-marker-radius"
+
+
+class MeteocatStationComarcaNameSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
+    """Sensor showing comarca name for a station.
+    
+    Data obtained from configuration (entry.data) - no API calls needed.
+    Always available for stations.
+    """
+
+    _attr_attribution = ATTRIBUTION
+
+    def __init__(
+        self,
+        coordinator: MeteocatCoordinator,
+        entry: ConfigEntry,
+        entity_name: str,
+        device_name: str,
+        station_code: str,
+    ) -> None:
+        """Initialize the station comarca name sensor."""
+        super().__init__(coordinator)
+        
+        self._entity_name = entity_name
+        self._device_name = device_name
+        self._station_code = station_code
+        self._comarca_name = entry.data.get(CONF_COMARCA_NAME, "")
+        
+        self._attr_unique_id = f"{entry.entry_id}_station_comarca_name"
+        self._attr_name = "Comarca"
+        
+        # Set explicit entity_id
+        base_name = entity_name.replace(f" {station_code}", "").lower().replace(" ", "_")
+        code_lower = station_code.lower()
+        self.entity_id = f"sensor.{base_name}_{code_lower}_comarca_name"
+        
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, entry.entry_id)},
+            "name": self._device_name,
+            "manufacturer": "Meteocat Edició Comunitària",
+            "model": "Estació XEMA",
+        }
+
+    @property
+    def native_value(self) -> str | None:
+        """Return the comarca name."""
+        return self._comarca_name
+
+    @property
+    def icon(self) -> str:
+        """Return the icon."""
+        return "mdi:map"
+
+
+class MeteocatStationMunicipalityNameSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
+    """Sensor showing municipality name for a station.
+    
+    Data obtained from configuration (entry.data) - no API calls needed.
+    Only created if municipality data is available from API during setup.
+    """
+
+    _attr_attribution = ATTRIBUTION
+
+    def __init__(
+        self,
+        coordinator: MeteocatCoordinator,
+        entry: ConfigEntry,
+        entity_name: str,
+        device_name: str,
+        station_code: str,
+    ) -> None:
+        """Initialize the station municipality name sensor."""
+        super().__init__(coordinator)
+        
+        self._entity_name = entity_name
+        self._device_name = device_name
+        self._station_code = station_code
+        self._municipality_name = entry.data.get("station_municipality_name", "")
+        
+        self._attr_unique_id = f"{entry.entry_id}_station_municipality_name"
+        self._attr_name = "Municipi"
+        
+        # Set explicit entity_id
+        base_name = entity_name.replace(f" {station_code}", "").lower().replace(" ", "_")
+        code_lower = station_code.lower()
+        self.entity_id = f"sensor.{base_name}_{code_lower}_municipality_name"
+        
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, entry.entry_id)},
+            "name": self._device_name,
+            "manufacturer": "Meteocat Edició Comunitària",
+            "model": "Estació XEMA",
+        }
+
+    @property
+    def native_value(self) -> str | None:
+        """Return the municipality name."""
+        return self._municipality_name
+
+    @property
+    def icon(self) -> str:
+        """Return the icon."""
+        return "mdi:city"
+
+
+class MeteocatStationProvinciaNameSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
+    """Sensor showing province name for a station.
+    
+    Data obtained from configuration (entry.data) - no API calls needed.
+    Only created if province data is available from API during setup.
+    """
+
+    _attr_attribution = ATTRIBUTION
+
+    def __init__(
+        self,
+        coordinator: MeteocatCoordinator,
+        entry: ConfigEntry,
+        entity_name: str,
+        device_name: str,
+        station_code: str,
+    ) -> None:
+        """Initialize the station provincia name sensor."""
+        super().__init__(coordinator)
+        
+        self._entity_name = entity_name
+        self._device_name = device_name
+        self._station_code = station_code
+        self._provincia_name = entry.data.get("station_provincia_name", "")
+        
+        self._attr_unique_id = f"{entry.entry_id}_station_provincia_name"
+        self._attr_name = "Província"
+        
+        # Set explicit entity_id
+        base_name = entity_name.replace(f" {station_code}", "").lower().replace(" ", "_")
+        code_lower = station_code.lower()
+        self.entity_id = f"sensor.{base_name}_{code_lower}_provincia_name"
+        
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, entry.entry_id)},
+            "name": self._device_name,
+            "manufacturer": "Meteocat Edició Comunitària",
+            "model": "Estació XEMA",
+        }
+
+    @property
+    def native_value(self) -> str | None:
+        """Return the provincia name."""
+        return self._provincia_name
+
+    @property
+    def icon(self) -> str:
+        """Return the icon."""
+        return "mdi:map-marker-radius"

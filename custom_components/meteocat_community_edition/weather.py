@@ -1,4 +1,12 @@
-"""Weather entity for Meteocat (Community Edition)."""
+"""Weather entity for Meteocat (Community Edition).
+
+This module provides a Weather entity for MODE_ESTACIO that combines:
+- Current measurements from the station
+- Forecast data (hourly and daily)
+
+The weather entity is only created in MODE_ESTACIO.
+MODE_MUNICIPI uses sensor entities for forecast data.
+"""
 from __future__ import annotations
 
 from datetime import datetime
@@ -50,7 +58,14 @@ async def async_setup_entry(
 
 
 class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
-    """Representation of a Meteocat weather entity."""
+    """Representation of a Meteocat weather entity.
+    
+    Combines station measurements with forecast data:
+    - Current conditions: from station measurements (XEMA API)
+    - Forecasts: hourly (72h) and daily (8 days) from Forecast API
+    
+    Only available in MODE_ESTACIO.
+    """
 
     _attr_attribution = ATTRIBUTION
     _attr_native_precipitation_unit = UnitOfPrecipitationDepth.MILLIMETERS
