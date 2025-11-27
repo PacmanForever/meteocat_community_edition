@@ -655,19 +655,19 @@ class MeteocatAltitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
     @property
     def native_value(self) -> float | None:
         """Return the station altitude in meters."""
-        # Try to get from cached entry.data first (always available)
-        station_data = self._entry.data.get("_station_data")
+        # Prefer fresh data from coordinator.data
+        station_data = self.coordinator.data.get("station")
         if station_data and isinstance(station_data, dict):
             alt = station_data.get("altitud")
             if alt is not None:
                 return alt
         
-        # Fallback to coordinator.data if not in cache
-        station_data = self.coordinator.data.get("station")
-        if not station_data or not isinstance(station_data, dict):
-            return None
+        # Fallback to cached entry.data if coordinator.data empty (quota exhausted)
+        station_data = self._entry.data.get("_station_data")
+        if station_data and isinstance(station_data, dict):
+            return station_data.get("altitud")
         
-        return station_data.get("altitud")
+        return None
 
     @property
     def available(self) -> bool:
@@ -725,21 +725,21 @@ class MeteocatLatitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
     @property
     def native_value(self) -> float | None:
         """Return the station latitude in degrees."""
-        # Try to get from cached entry.data first (always available)
-        station_data = self._entry.data.get("_station_data")
+        # Prefer fresh data from coordinator.data
+        station_data = self.coordinator.data.get("station")
         if station_data and isinstance(station_data, dict):
             coordenades = station_data.get("coordenades", {})
             lat = coordenades.get("latitud")
             if lat is not None:
                 return lat
         
-        # Fallback to coordinator.data if not in cache
-        station_data = self.coordinator.data.get("station")
-        if not station_data or not isinstance(station_data, dict):
-            return None
+        # Fallback to cached entry.data if coordinator.data empty (quota exhausted)
+        station_data = self._entry.data.get("_station_data")
+        if station_data and isinstance(station_data, dict):
+            coordenades = station_data.get("coordenades", {})
+            return coordenades.get("latitud")
         
-        coordenades = station_data.get("coordenades", {})
-        return coordenades.get("latitud")
+        return None
 
     @property
     def available(self) -> bool:
@@ -797,21 +797,21 @@ class MeteocatLongitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnti
     @property
     def native_value(self) -> float | None:
         """Return the station longitude in degrees."""
-        # Try to get from cached entry.data first (always available)
-        station_data = self._entry.data.get("_station_data")
+        # Prefer fresh data from coordinator.data
+        station_data = self.coordinator.data.get("station")
         if station_data and isinstance(station_data, dict):
             coordenades = station_data.get("coordenades", {})
             lon = coordenades.get("longitud")
             if lon is not None:
                 return lon
         
-        # Fallback to coordinator.data if not in cache
-        station_data = self.coordinator.data.get("station")
-        if not station_data or not isinstance(station_data, dict):
-            return None
+        # Fallback to cached entry.data if coordinator.data empty (quota exhausted)
+        station_data = self._entry.data.get("_station_data")
+        if station_data and isinstance(station_data, dict):
+            coordenades = station_data.get("coordenades", {})
+            return coordenades.get("longitud")
         
-        coordenades = station_data.get("coordenades", {})
-        return coordenades.get("longitud")
+        return None
 
     @property
     def available(self) -> bool:

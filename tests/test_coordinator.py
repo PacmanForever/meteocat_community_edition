@@ -149,7 +149,11 @@ async def test_coordinator_handles_api_error(mock_hass, mock_api, mock_entry_xem
     coordinator = MeteocatCoordinator(mock_hass, mock_entry_xema)
     coordinator.api = mock_api
     
-    # Should raise UpdateFailed when critical data fails
+    # First refresh tolerates missing data (quota exhausted scenario)
+    data = await coordinator._async_update_data()
+    assert coordinator._is_first_refresh is False
+    
+    # Second update should raise UpdateFailed when critical data fails
     with pytest.raises(Exception):
         await coordinator._async_update_data()
 

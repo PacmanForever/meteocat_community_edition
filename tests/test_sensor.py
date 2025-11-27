@@ -69,6 +69,7 @@ def mock_coordinator():
         }
     }
     coordinator.last_successful_update_time = datetime(2025, 11, 24, 12, 0, 0)
+    coordinator.next_scheduled_update = datetime(2025, 11, 24, 20, 0, 0)  # Next update at 20:00
     coordinator.update_interval = timedelta(hours=8)
     coordinator.update_time_1 = "06:00"
     coordinator.update_time_2 = "14:00"
@@ -241,9 +242,8 @@ def test_next_update_sensor(mock_coordinator, mock_entry):
     )
     
     assert sensor.name == "Pròxima actualització"
-    # Should be last_update + interval
-    expected = datetime(2025, 11, 24, 12, 0, 0) + timedelta(hours=8)
-    assert sensor.native_value == expected
+    # Should use coordinator.next_scheduled_update
+    assert sensor.native_value == datetime(2025, 11, 24, 20, 0, 0)
     assert sensor.entity_id == "sensor.granollers_ym_next_update"
 
 
@@ -671,7 +671,7 @@ def test_municipality_name_sensor(mock_coordinator, mock_entry):
     assert sensor.native_value == "Barcelona"
     assert sensor.icon == "mdi:city"
     assert sensor.unique_id == f"{mock_entry.entry_id}_municipality_name"
-    assert sensor.name == "Nom del municipi"
+    assert sensor.name == "Municipi"
 
 
 def test_municipality_name_sensor_no_data(mock_coordinator, mock_entry):
@@ -715,7 +715,7 @@ def test_comarca_name_sensor(mock_coordinator, mock_entry):
     assert sensor.native_value == "Barcelonès"
     assert sensor.icon == "mdi:map"
     assert sensor.unique_id == f"{mock_entry.entry_id}_comarca_name"
-    assert sensor.name == "Nom de la comarca"
+    assert sensor.name == "Comarca"
 
 
 def test_comarca_name_sensor_no_data(mock_coordinator, mock_entry):
@@ -818,7 +818,7 @@ def test_station_provincia_name_sensor():
     )
     
     assert sensor.native_value == "Barcelona"
-    assert sensor.icon == "mdi:map-marker"
+    assert sensor.icon == "mdi:map-marker-radius"
 
 
 # Tests for MODE_MUNICIPI coordinate and province sensors
@@ -901,7 +901,7 @@ def test_municipality_provincia_name_sensor():
     )
     
     assert sensor.native_value == "Barcelona"
-    assert sensor.icon == "mdi:map-marker"
+    assert sensor.icon == "mdi:map-marker-radius"
 
 
 def test_coordinate_sensors_read_from_entry_data_cache():

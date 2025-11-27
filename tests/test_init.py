@@ -122,14 +122,15 @@ async def test_async_setup_entry_municipi_mode(mock_hass, mock_entry_municipi):
         # Should return True
         assert result is True
         
-        # Should load only sensor and button platforms (no weather)
+        # Should load only sensor, button, and binary_sensor platforms (no weather)
         mock_hass.config_entries.async_forward_entry_setups.assert_called_once()
         call_args = mock_hass.config_entries.async_forward_entry_setups.call_args
         platforms = call_args[0][1]
         assert Platform.WEATHER not in platforms
         assert Platform.SENSOR in platforms
         assert Platform.BUTTON in platforms
-        assert len(platforms) == 2
+        assert Platform.BINARY_SENSOR in platforms
+        assert len(platforms) == 3
 
 
 @pytest.mark.asyncio
@@ -196,13 +197,14 @@ async def test_async_unload_entry_municipi_mode(mock_hass, mock_entry_municipi):
     # Should return True
     assert result is True
     
-    # Should unload only sensor and button platforms
+    # Should unload only sensor, button, and binary_sensor platforms
     call_args = mock_hass.config_entries.async_unload_platforms.call_args
     platforms = call_args[0][1]
     assert Platform.WEATHER not in platforms
     assert Platform.SENSOR in platforms
     assert Platform.BUTTON in platforms
-    assert len(platforms) == 2
+    assert Platform.BINARY_SENSOR in platforms
+    assert len(platforms) == 3
 
 
 @pytest.mark.asyncio
@@ -232,7 +234,8 @@ async def test_platforms_constant():
     assert Platform.WEATHER in PLATFORMS
     assert Platform.SENSOR in PLATFORMS
     assert Platform.BUTTON in PLATFORMS
-    assert len(PLATFORMS) == 3
+    assert Platform.BINARY_SENSOR in PLATFORMS
+    assert len(PLATFORMS) == 4
 
 
 @pytest.mark.asyncio

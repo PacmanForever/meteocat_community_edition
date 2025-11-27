@@ -229,12 +229,17 @@ async def test_event_not_fired_on_error(mock_hass, mock_entry_estacio, mock_api,
         coordinator = MeteocatCoordinator(mock_hass, mock_entry_estacio)
         coordinator.api = mock_api
         
-        # Update should fail with exception
+        # First refresh tolerates missing data
+        await coordinator._async_update_data()
+        assert coordinator._is_first_refresh is False
+        
+        # Second update should fail with exception
         with pytest.raises(Exception):
             await coordinator._async_update_data()
         
         # Event should NOT be fired when update fails
-        mock_hass.bus.fire.assert_not_called()
+        # (only data_updated event from first refresh, no event from failed second update)
+        assert mock_hass.bus.fire.call_count == 1  # Only from first refresh
 
 
 @pytest.mark.asyncio

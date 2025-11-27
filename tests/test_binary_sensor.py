@@ -166,10 +166,10 @@ def test_binary_sensor_no_data(mock_coordinator_success, mock_entry_station):
 
 
 def test_binary_sensor_station_mode_requires_measurements_or_forecast(mock_coordinator_success, mock_entry_station):
-    """Test station mode requires measurements or forecast data."""
-    # Only forecast, no measurements
+    """Test station mode requires measurements data."""
+    # With measurements - no problem
     mock_coordinator_success.data = {
-        "forecast": {"dies": [{"data": "2025-11-27"}]},
+        "measurements": [{"codi": "YM"}],
     }
     
     sensor = MeteocatUpdateStatusBinarySensor(
@@ -183,14 +183,14 @@ def test_binary_sensor_station_mode_requires_measurements_or_forecast(mock_coord
     
     assert sensor.is_on is False  # OFF = no problem
     
-    # Only measurements, no forecast
+    # Without measurements - problem
     mock_coordinator_success.data = {
-        "measurements": [{"codi": "YM"}],
+        "forecast": {"dies": [{"data": "2025-11-27"}]},  # Forecast doesn't help without measurements
     }
     
-    assert sensor.is_on is False  # OFF = no problem
+    assert sensor.is_on is True  # ON = problem (no measurements)
     
-    # Neither measurements nor forecast
+    # Empty data - problem
     mock_coordinator_success.data = {}
     
     assert sensor.is_on is True  # ON = problem (no data)
@@ -259,10 +259,12 @@ def test_binary_sensor_station_mode_checks_all_api_calls_with_municipality(mock_
 
 
 def test_binary_sensor_municipality_mode_requires_forecast(mock_coordinator_success, mock_entry_municipality):
-    """Test municipality mode requires forecast data."""
-    # Has forecast
+    """Test municipality mode requires ALL forecast data (forecast, hourly, uv)."""
+    # Has ALL forecasts - no problem
     mock_coordinator_success.data = {
         "forecast": {"dies": [{"data": "2025-11-27"}]},
+        "forecast_hourly": {"dies": [{"data": "2025-11-27"}]},
+        "uv_index": {"dies": [{"data": "2025-11-27"}]},
     }
     
     sensor = MeteocatUpdateStatusBinarySensor(
@@ -276,14 +278,14 @@ def test_binary_sensor_municipality_mode_requires_forecast(mock_coordinator_succ
     
     assert sensor.is_on is False  # OFF = no problem
     
-    # Has hourly forecast
+    # Only one forecast (missing others) - problem
     mock_coordinator_success.data = {
-        "forecast_hourly": {"dies": [{"data": "2025-11-27"}]},
+        "forecast": {"dies": [{"data": "2025-11-27"}]},
     }
     
-    assert sensor.is_on is False  # OFF = no problem
+    assert sensor.is_on is True  # ON = problem (missing hourly and uv)
     
-    # No forecast
+    # No forecast - problem
     mock_coordinator_success.data = {}
     
     assert sensor.is_on is True  # ON = problem (no data)
@@ -354,9 +356,12 @@ def test_binary_sensor_municipality_mode_checks_all_api_calls(mock_coordinator_s
 
 def test_binary_sensor_quota_exhausted_station_mode(mock_coordinator_success, mock_entry_station):
     """Test binary sensor detects quota exhaustion in station mode."""
-    # Simulate quota exhausted: update success but no measurements/forecast
+    # Simulate quota exhausted: update success with empty measurements
     mock_coordinator_success.last_update_success = True
-    mock_coordinator_success.data = {"quotes": {}}  # Only quota data, no measurements
+    mock_coordinator_success.data = {
+        "measurements": [],  # Empty list = quota exhausted
+        "quotes": {}
+    }
     
     sensor = MeteocatUpdateStatusBinarySensor(
         mock_coordinator_success,
@@ -375,9 +380,14 @@ def test_binary_sensor_quota_exhausted_station_mode(mock_coordinator_success, mo
 
 def test_binary_sensor_quota_exhausted_municipality_mode(mock_coordinator_success, mock_entry_municipality):
     """Test binary sensor detects quota exhaustion in municipality mode."""
-    # Simulate quota exhausted: update success but no forecast
+    # Simulate quota exhausted: update success with empty forecasts
     mock_coordinator_success.last_update_success = True
-    mock_coordinator_success.data = {"quotes": {}}  # Only quota data, no forecast
+    mock_coordinator_success.data = {
+        "forecast": [],  # Empty list = quota exhausted
+        "forecast_hourly": [],
+        "uv_index": [],
+        "quotes": {}
+    }
     
     sensor = MeteocatUpdateStatusBinarySensor(
         mock_coordinator_success,
@@ -492,8 +502,11 @@ def test_binary_sensor_attributes_when_ok(mock_coordinator_success, mock_entry_s
 
 def test_binary_sensor_attributes_when_error(mock_coordinator_success, mock_entry_station):
     """Test binary sensor attributes show specific error message."""
-    # Simulate missing data (quota exhausted)
-    mock_coordinator_success.data = {"quotes": {}}
+    # Simulate empty data (quota exhausted)
+    mock_coordinator_success.data = {
+        "measurements": [],  # Empty list indicates quota exhausted
+        "quotes": {}
+    }
     
     sensor = MeteocatUpdateStatusBinarySensor(
         mock_coordinator_success,
