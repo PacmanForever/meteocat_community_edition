@@ -238,8 +238,9 @@ async def test_event_not_fired_on_error(mock_hass, mock_entry_estacio, mock_api,
             await coordinator._async_update_data()
         
         # Event should NOT be fired when update fails
-        # (only data_updated event from first refresh, no event from failed second update)
-        assert mock_hass.bus.fire.call_count == 1  # Only from first refresh
+        # First refresh fires 2 events: next_update_changed + data_updated
+        # Second refresh (failed) fires no events
+        assert mock_hass.bus.fire.call_count == 2  # Both events from first refresh only
 
 
 @pytest.mark.asyncio

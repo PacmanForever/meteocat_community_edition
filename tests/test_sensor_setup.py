@@ -99,7 +99,7 @@ async def test_station_mode_skips_municipality_when_not_available(mock_hass, moc
     
     entities_added = []
     
-    async def mock_add_entities(entities):
+    def mock_add_entities(entities):
         entities_added.extend(entities)
     
     await async_setup_entry(mock_hass, entry, mock_add_entities)
@@ -136,7 +136,7 @@ async def test_municipality_mode_creates_all_sensors_when_data_available(mock_ha
     
     entities_added = []
     
-    async def mock_add_entities(entities):
+    def mock_add_entities(entities):
         entities_added.extend(entities)
     
     await async_setup_entry(mock_hass, entry, mock_add_entities)
@@ -174,7 +174,7 @@ async def test_municipality_mode_skips_coordinates_when_not_available(mock_hass,
     
     entities_added = []
     
-    async def mock_add_entities(entities):
+    def mock_add_entities(entities):
         entities_added.extend(entities)
     
     await async_setup_entry(mock_hass, entry, mock_add_entities)
@@ -211,7 +211,7 @@ async def test_municipality_mode_creates_lat_without_lon(mock_hass, mock_coordin
     
     entities_added = []
     
-    async def mock_add_entities(entities):
+    def mock_add_entities(entities):
         entities_added.extend(entities)
     
     await async_setup_entry(mock_hass, entry, mock_add_entities)
