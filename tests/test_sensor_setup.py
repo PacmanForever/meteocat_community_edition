@@ -61,7 +61,7 @@ async def test_station_mode_creates_all_geographic_sensors_when_data_available(m
     
     entities_added = []
     
-    async def mock_add_entities(entities):
+    def mock_add_entities(entities):
         entities_added.extend(entities)
     
     await async_setup_entry(mock_hass, entry, mock_add_entities)
