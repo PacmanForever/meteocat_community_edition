@@ -51,9 +51,10 @@ async def test_municipality_step_extracts_province_from_municipality(mock_api):
     flow.comarca_name = "Barcelonès"
     flow.api_key = "test_key"
     
-    # Mock API calls
+    # Mock API calls and async_set_unique_id
     with patch("custom_components.meteocat_community_edition.config_flow.async_get_clientsession"), \
-         patch("custom_components.meteocat_community_edition.config_flow.MeteocatAPI", return_value=mock_api):
+         patch("custom_components.meteocat_community_edition.config_flow.MeteocatAPI", return_value=mock_api), \
+         patch.object(flow, "async_set_unique_id", return_value=None):
         
         # Pre-populate municipalities list as if comarca step just finished
         flow._municipalities = [
@@ -91,9 +92,10 @@ async def test_municipality_step_extracts_province_from_comarca_fallback(mock_ap
         {"codi": "40", "nom": "Vallès Occidental", "provincia": {"codi": "08", "nom": "Barcelona"}}
     ]
     
-    # Mock API calls
+    # Mock API calls and async_set_unique_id
     with patch("custom_components.meteocat_community_edition.config_flow.async_get_clientsession"), \
-         patch("custom_components.meteocat_community_edition.config_flow.MeteocatAPI", return_value=mock_api):
+         patch("custom_components.meteocat_community_edition.config_flow.MeteocatAPI", return_value=mock_api), \
+         patch.object(flow, "async_set_unique_id", return_value=None):
         
         # Pre-populate municipalities list with one missing province
         flow._municipalities = [
@@ -131,9 +133,10 @@ async def test_municipality_step_handles_missing_province_everywhere(mock_api):
         {"codi": "99", "nom": "Unknown"}
     ]
     
-    # Mock API calls
+    # Mock API calls and async_set_unique_id
     with patch("custom_components.meteocat_community_edition.config_flow.async_get_clientsession"), \
-         patch("custom_components.meteocat_community_edition.config_flow.MeteocatAPI", return_value=mock_api):
+         patch("custom_components.meteocat_community_edition.config_flow.MeteocatAPI", return_value=mock_api), \
+         patch.object(flow, "async_set_unique_id", return_value=None):
         
         # Pre-populate municipalities list with no province
         flow._municipalities = [

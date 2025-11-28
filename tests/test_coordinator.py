@@ -10,7 +10,11 @@ import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 
 from custom_components.meteocat_community_edition.coordinator import MeteocatCoordinator
-from custom_components.meteocat_community_edition.const import MODE_ESTACIO, MODE_MUNICIPI
+from custom_components.meteocat_community_edition.const import (
+    MODE_ESTACIO, 
+    MODE_MUNICIPI,
+    CONF_ENABLE_FORECAST_HOURLY,
+)
 
 
 @pytest.fixture
@@ -79,7 +83,7 @@ def mock_entry_municipal():
         "api_key": "test_api_key",
         "mode": MODE_MUNICIPI,
         "municipality_code": "081131",
-        "enable_forecast_hourly": True,  # Enable hourly forecast for test
+        CONF_ENABLE_FORECAST_HOURLY: True,  # Enable hourly forecast for test
     }
     entry.options = {}
     return entry

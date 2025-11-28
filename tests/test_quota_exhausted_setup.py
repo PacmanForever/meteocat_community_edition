@@ -29,6 +29,7 @@ from custom_components.meteocat_community_edition.const import (
     CONF_MUNICIPALITY_CODE,
     CONF_UPDATE_TIME_1,
     CONF_UPDATE_TIME_2,
+    CONF_ENABLE_FORECAST_HOURLY,
     MODE_ESTACIO,
     MODE_MUNICIPI,
 )
@@ -71,7 +72,7 @@ def mock_entry_municipi():
         CONF_MUNICIPALITY_CODE: "080193",
         CONF_UPDATE_TIME_1: "06:00",
         CONF_UPDATE_TIME_2: "14:00",
-        "enable_forecast_hourly": True,  # Enable hourly forecast for test
+        CONF_ENABLE_FORECAST_HOURLY: True,  # Enable hourly forecast for test
     }
     entry.options = {}
     return entry
