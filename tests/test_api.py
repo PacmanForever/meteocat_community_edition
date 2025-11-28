@@ -164,8 +164,3 @@ async def test_get_municipal_forecast(api_client, mock_session):
     assert "dies" in result
     assert len(result["dies"]) == 1
     assert result["dies"][0]["data"] == "2025-11-24"
-
-
-@pytest.mark.asyncio
-
-
