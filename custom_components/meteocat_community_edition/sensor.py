@@ -73,14 +73,22 @@ async def async_setup_entry(
     
     # Add forecast sensors for municipal mode
     if mode == MODE_MUNICIPI:
+        if coordinator.enable_forecast_hourly:
+            entities.append(MeteocatForecastSensor(coordinator, entry, entity_name_with_code, entity_name, "hourly"))
+        if coordinator.enable_forecast_daily:
+            entities.append(MeteocatForecastSensor(coordinator, entry, entity_name_with_code, entity_name, "daily"))
+            
+        # Add municipality info sensors
         entities.extend([
-            MeteocatForecastSensor(coordinator, entry, entity_name_with_code, entity_name, "hourly"),
-            MeteocatForecastSensor(coordinator, entry, entity_name_with_code, entity_name, "daily"),
-            MeteocatUVSensor(coordinator, entry, entity_name_with_code, entity_name),
-            # Add municipality info sensors
             MeteocatMunicipalityNameSensor(coordinator, entry, entity_name, entity_name_with_code, municipality_code),
             MeteocatComarcaNameSensor(coordinator, entry, entity_name, entity_name_with_code, municipality_code),
         ])
+        
+        # Add province name sensor if available
+        if entry.data.get("provincia_name"):
+            entities.append(
+                MeteocatProvinciaNameSensor(coordinator, entry, entity_name, entity_name_with_code, municipality_code)
+            )
         
         # Add coordinate sensors if data available
         if entry.data.get("municipality_lat") is not None:
@@ -90,12 +98,6 @@ async def async_setup_entry(
         if entry.data.get("municipality_lon") is not None:
             entities.append(
                 MeteocatMunicipalityLongitudeSensor(coordinator, entry, entity_name, entity_name_with_code, municipality_code)
-            )
-        
-        # Add province sensor if data available
-        if entry.data.get("provincia_name"):
-            entities.append(
-                MeteocatProvinciaNameSensor(coordinator, entry, entity_name, entity_name_with_code, municipality_code)
             )
     
     # Create quota sensors (for both modes)
@@ -125,6 +127,12 @@ async def async_setup_entry(
         MeteocatUpdateTimeSensor(coordinator, entry, entity_name, entity_name_with_code, mode, 1, station_code if mode == MODE_ESTACIO else None),
         MeteocatUpdateTimeSensor(coordinator, entry, entity_name, entity_name_with_code, mode, 2, station_code if mode == MODE_ESTACIO else None),
     ])
+    
+    # Add 3rd update time sensor if configured
+    if coordinator.update_time_3:
+        entities.append(
+            MeteocatUpdateTimeSensor(coordinator, entry, entity_name, entity_name_with_code, mode, 3, station_code if mode == MODE_ESTACIO else None)
+        )
     
     # Add station location sensors (only for station mode)
     if mode == MODE_ESTACIO:
@@ -358,67 +366,6 @@ class MeteocatForecastSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
         return "mdi:weather-partly-cloudy" if self._forecast_type == "hourly" else "mdi:calendar-week"
 
 
-class MeteocatUVSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
-    """Representation of a Meteocat UV index sensor."""
-
-    _attr_attribution = ATTRIBUTION
-
-    def __init__(
-        self,
-        coordinator: MeteocatCoordinator,
-        entry: ConfigEntry,
-        device_name: str,
-        entity_name: str,
-    ) -> None:
-        """Initialize the UV sensor."""
-        super().__init__(coordinator)
-        
-        self._device_name = device_name
-        self._entity_name = entity_name
-        
-        # Create unique ID and name
-        self._attr_unique_id = f"{entry.entry_id}_uv_index"
-        self._attr_name = f"{self._entity_name} Predicció Índex UV"
-
-        # Set device info
-        self._attr_device_info = {
-            "identifiers": {(DOMAIN, entry.entry_id)},
-            "name": self._device_name,
-            "manufacturer": "Meteocat Edició Comunitària",
-            "model": "Predicció Municipi",
-        }
-
-    @property
-    def native_value(self) -> str | None:
-        """Return the state (number of forecast periods)."""
-        uv_data = self.coordinator.data.get("uv_index")
-        if not uv_data or not isinstance(uv_data, dict):
-            return "0 dies"
-        
-        # Get UV data array
-        uvi_array = uv_data.get("uvi", [])
-        if not uvi_array:
-            return "0 dies"
-        
-        # Count total days with UV forecast
-        total_days = len(uvi_array)
-        return f"{total_days} dies" if total_days > 0 else "0 dies"
-
-    @property
-    def extra_state_attributes(self) -> dict[str, Any]:
-        """Return UV forecast data as attributes."""
-        uv_data = self.coordinator.data.get("uv_index")
-        if not uv_data:
-            return {}
-        
-        return {"uv_forecast": uv_data}
-
-    @property
-    def icon(self) -> str:
-        """Return the icon."""
-        return "mdi:weather-sunny-alert"
-
-
 class MeteocatLastUpdateSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
     """Sensor showing last update timestamp."""
 
@@ -601,7 +548,9 @@ class MeteocatUpdateTimeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnt
         """Return the configured update time."""
         if self._time_number == 1:
             return self.coordinator.update_time_1
-        return self.coordinator.update_time_2
+        elif self._time_number == 2:
+            return self.coordinator.update_time_2
+        return self.coordinator.update_time_3
 
     @property
     def icon(self) -> str:

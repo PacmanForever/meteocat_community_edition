@@ -90,7 +90,6 @@ pytest tests/ --cov=custom_components.meteocat_community_edition --cov-report=ht
 - `test_quota_sensor_device_info`: Verifica que els sensors usen el device_name correcte per agrupar-se
 - `test_forecast_sensor_daily`: Verifica el sensor de temperatura màxima
 - `test_forecast_sensor_hourly`: Verifica el sensor de temperatura horària
-- `test_uv_sensor`: Verifica el sensor d'índex UV
 - `test_last_update_sensor`: Verifica el sensor de darrera actualització
 - `test_next_update_sensor`: Verifica el sensor de pròxima actualització (usa coordinator.next_scheduled_update)
 - `test_timestamp_sensors_device_info`: Verifica que els sensors de timestamp s'agrupen correctament
@@ -159,7 +158,6 @@ pytest tests/ --cov=custom_components.meteocat_community_edition --cov-report=ht
 - `test_get_station_measurements`: Verifica la crida a mesures d'estació
 - `test_get_quotes`: Verifica la crida a quotes/consums
 - `test_get_municipal_forecast`: Verifica la crida a Predicció municipal
-- `test_get_uv_index`: Verifica la crida a índex UV
 
 ### test_coordinator.py
 - `test_coordinator_xema_mode_update`: Verifica l'actualització en mode XEMA

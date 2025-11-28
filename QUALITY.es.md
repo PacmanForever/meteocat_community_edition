@@ -50,7 +50,7 @@ Líneas de código de test: 2,443+
 
 ### Áreas cubiertas
 
-- ✅ **Sensores**: Cuotas, predicciones, UV, timestamps, update times
+- ✅ **Sensores**: Cuotas, predicciones, timestamps, update times
 - ✅ **Entidad Weather**: Todas las propiedades y casos límite
 - ✅ **Device triggers**: Automatizaciones por dispositivo
 - ✅ **Setup/Unload**: Ciclo de vida completo

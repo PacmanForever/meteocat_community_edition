@@ -8,7 +8,7 @@ Aquest directori conté exemples pràctics per utilitzar la integració Meteocat
 Exemples complets d'automatitzacions organitzats en 7 categories:
 
 1. **Notificacions basades en esdeveniments** - Rebre avisos quan s'actualitzen les dades
-2. **Alertes meteorològiques** - Avisos de temperatura, pluja, UV
+2. **Alertes meteorològiques** - Avisos de temperatura, pluja
 3. **Automatitzacions intel·ligents** - Tancar persianes, activar reg, escalfar casa
 4. **Gestió de quotes API** - Monitoritzar i alertar sobre l'ús de l'API
 5. **Actualitzacions manuals** - Actualitzacions intel·ligents segons context
@@ -76,7 +76,6 @@ Exemple: `weather.granollers_ym`, `sensor.granollers_ym_quota_prediccio`
 ### Entity IDs de Mode Municipal
 - Predicció horària: `sensor.{municipi}_prediccio_horaria`
 - Predicció diària: `sensor.{municipi}_prediccio_diaria`
-- Índex UV: `sensor.{municipi}_index_uv`
 - Sensors: `sensor.{municipi}_*`
 - Botó: `button.{municipi}_refresh`
 

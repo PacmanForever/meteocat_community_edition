@@ -11,7 +11,7 @@ Sensor:
   - Logic: ON = problem detected, OFF = ok
   - has_entity_name: True with name=None (uses only translation key)
   - Always available (can report failures even when coordinator is unavailable)
-  - Checks ALL API calls based on mode (measurements, forecast, forecast_hourly, uv_index)
+  - Checks ALL API calls based on mode (measurements, forecast, forecast_hourly)
   - Extra attributes: failed_calls, last_check, error details
 
 Last updated: 2025-11-27
@@ -87,7 +87,7 @@ class MeteocatUpdateStatusBinarySensor(CoordinatorEntity[MeteocatCoordinator], B
     Reports whether there are problems with data updates by checking ALL
     API calls based on the configured mode:
     - MODE_ESTACIO: Checks measurements data
-    - MODE_MUNICIPI: Checks forecast, forecast_hourly, and uv_index data
+    - MODE_MUNICIPI: Checks forecast and forecast_hourly data
     
     The sensor:
     - Uses translation_key "update_status" for entity name ("Problema actualitzant dades")
@@ -106,7 +106,6 @@ class MeteocatUpdateStatusBinarySensor(CoordinatorEntity[MeteocatCoordinator], B
 
     _attr_attribution = ATTRIBUTION
     _attr_device_class = BinarySensorDeviceClass.PROBLEM
-    _attr_has_entity_name = True
 
     def __init__(
         self,
@@ -126,10 +125,20 @@ class MeteocatUpdateStatusBinarySensor(CoordinatorEntity[MeteocatCoordinator], B
         self._station_code = station_code
         self._entry = entry
         
-        self._attr_unique_id = f"{entry.entry_id}_update_status"
-        self._attr_translation_key = "update_status"
+        self._attr_unique_id = f"{entry.entry_id}_update_state"
+        self._attr_translation_key = "update_state"
         self._attr_entity_category = EntityCategory.DIAGNOSTIC
-        self._attr_name = None  # Use translation key for the name
+        self._attr_has_entity_name = False
+        self._attr_name = None
+        
+        # Set explicit entity_id based on mode
+        if mode == MODE_ESTACIO and station_code:
+            base_name = entity_name.replace(f" {station_code}", "").lower().replace(" ", "_")
+            code_lower = station_code.lower()
+            self.entity_id = f"binary_sensor.{base_name}_{code_lower}_update_state"
+        else:
+            base_name = entity_name.lower().replace(" ", "_")
+            self.entity_id = f"binary_sensor.{base_name}_update_state"
         
         # Set device info to group with other entities
         if mode == MODE_ESTACIO:
@@ -173,20 +182,17 @@ class MeteocatUpdateStatusBinarySensor(CoordinatorEntity[MeteocatCoordinator], B
         municipality_code = self.coordinator.data.get("municipality_code")
         
         if municipality_code or self._mode == MODE_MUNICIPI:
-            # Check daily forecast
-            forecast = self.coordinator.data.get("forecast")
-            if forecast is None or (isinstance(forecast, (list, dict)) and len(forecast) == 0):
-                failed_calls.append("forecast")
+            # Check daily forecast (only if enabled)
+            if self.coordinator.enable_forecast_daily:
+                forecast = self.coordinator.data.get("forecast")
+                if forecast is None or (isinstance(forecast, (list, dict)) and len(forecast) == 0):
+                    failed_calls.append("forecast")
             
-            # Check hourly forecast
-            forecast_hourly = self.coordinator.data.get("forecast_hourly")
-            if forecast_hourly is None or (isinstance(forecast_hourly, (list, dict)) and len(forecast_hourly) == 0):
-                failed_calls.append("forecast_hourly")
-            
-            # Check UV index
-            uv_index = self.coordinator.data.get("uv_index")
-            if uv_index is None or (isinstance(uv_index, (list, dict)) and len(uv_index) == 0):
-                failed_calls.append("uv_index")
+            # Check hourly forecast (only if enabled)
+            if self.coordinator.enable_forecast_hourly:
+                forecast_hourly = self.coordinator.data.get("forecast_hourly")
+                if forecast_hourly is None or (isinstance(forecast_hourly, (list, dict)) and len(forecast_hourly) == 0):
+                    failed_calls.append("forecast_hourly")
         
         # If any call failed, there's a problem
         if failed_calls:
@@ -229,23 +235,19 @@ class MeteocatUpdateStatusBinarySensor(CoordinatorEntity[MeteocatCoordinator], B
                 # Check forecasts (both modes if municipality_code exists)
                 municipality_code = self.coordinator.data.get("municipality_code")
                 if municipality_code or self._mode == MODE_MUNICIPI:
-                    forecast = self.coordinator.data.get("forecast")
-                    if forecast is None:
-                        failed_calls.append("forecast (API call failed)")
-                    elif isinstance(forecast, (list, dict)) and len(forecast) == 0:
-                        failed_calls.append("forecast (empty/quota exhausted)")
+                    if self.coordinator.enable_forecast_daily:
+                        forecast = self.coordinator.data.get("forecast")
+                        if forecast is None:
+                            failed_calls.append("forecast (API call failed)")
+                        elif isinstance(forecast, (list, dict)) and len(forecast) == 0:
+                            failed_calls.append("forecast (empty/quota exhausted)")
                     
-                    forecast_hourly = self.coordinator.data.get("forecast_hourly")
-                    if forecast_hourly is None:
-                        failed_calls.append("forecast_hourly (API call failed)")
-                    elif isinstance(forecast_hourly, (list, dict)) and len(forecast_hourly) == 0:
-                        failed_calls.append("forecast_hourly (empty/quota exhausted)")
-                    
-                    uv_index = self.coordinator.data.get("uv_index")
-                    if uv_index is None:
-                        failed_calls.append("uv_index (API call failed)")
-                    elif isinstance(uv_index, (list, dict)) and len(uv_index) == 0:
-                        failed_calls.append("uv_index (empty/quota exhausted)")
+                    if self.coordinator.enable_forecast_hourly:
+                        forecast_hourly = self.coordinator.data.get("forecast_hourly")
+                        if forecast_hourly is None:
+                            failed_calls.append("forecast_hourly (API call failed)")
+                        elif isinstance(forecast_hourly, (list, dict)) and len(forecast_hourly) == 0:
+                            failed_calls.append("forecast_hourly (empty/quota exhausted)")
                 
                 if failed_calls:
                     attrs["error"] = f"Failed: {', '.join(failed_calls)}"

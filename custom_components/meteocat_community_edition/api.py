@@ -16,7 +16,6 @@ from .const import (
     ENDPOINT_FORECAST_MUNICIPAL,
     ENDPOINT_MUNICIPALITIES,
     ENDPOINT_QUOTES,
-    ENDPOINT_UV_INDEX,
     ENDPOINT_XEMA_MEASUREMENTS,
     ENDPOINT_XEMA_STATIONS,
 )
@@ -183,14 +182,6 @@ class MeteocatAPI:
         """Get hourly forecast (72 hours)."""
         _LOGGER.debug("Fetching hourly forecast for %s", municipality_code)
         endpoint = f"{ENDPOINT_FORECAST_HOURLY}/{municipality_code}"
-        return await self._request("GET", endpoint)
-
-    async def get_uv_index(
-        self, municipality_code: str
-    ) -> dict[str, Any]:
-        """Get UV index forecast for municipality."""
-        _LOGGER.debug("Fetching UV index for %s", municipality_code)
-        endpoint = f"{ENDPOINT_UV_INDEX}/{municipality_code}"
         return await self._request("GET", endpoint)
 
     async def get_quotes(self) -> dict[str, Any]:

@@ -17,6 +17,7 @@ from custom_components.meteocat_community_edition.const import (
     CONF_API_KEY,
     CONF_UPDATE_TIME_1,
     CONF_UPDATE_TIME_2,
+    CONF_UPDATE_TIME_3,
     DEFAULT_UPDATE_TIME_1,
     DEFAULT_UPDATE_TIME_2,
 )
@@ -34,7 +35,6 @@ def mock_api():
     ])
     api.get_municipal_forecast = AsyncMock(return_value={"dies": []})
     api.get_hourly_forecast = AsyncMock(return_value={"dies": []})
-    api.get_uv_index = AsyncMock(return_value={"ine": "081131", "uvi": []})
     api.get_quotes = AsyncMock(return_value={"client": {"nom": "Test"}, "plans": []})
     api.find_municipality_for_station = AsyncMock(return_value="081131")
     return api
@@ -80,6 +80,23 @@ def mock_entry_custom_times():
     return entry
 
 
+@pytest.fixture
+def mock_entry_three_times():
+    """Create a mock config entry with 3 custom update times."""
+    entry = MagicMock()
+    entry.data = {
+        CONF_API_KEY: "test_api_key_123456789",
+        CONF_MODE: MODE_ESTACIO,
+        CONF_STATION_CODE: "YM",
+        CONF_UPDATE_TIME_1: "08:30",
+        CONF_UPDATE_TIME_2: "16:45",
+        CONF_UPDATE_TIME_3: "22:15",
+    }
+    entry.options = {}
+    entry.entry_id = "test_entry_three_times"
+    return entry
+
+
 def test_default_update_times_used(mock_hass, mock_entry_default_times, mock_api):
     """Test that default update times are used when not configured."""
     with patch('custom_components.meteocat_community_edition.coordinator.async_get_clientsession'):
@@ -89,6 +106,7 @@ def test_default_update_times_used(mock_hass, mock_entry_default_times, mock_api
         assert coordinator.update_time_2 == DEFAULT_UPDATE_TIME_2
         assert coordinator.update_time_1 == "06:00"
         assert coordinator.update_time_2 == "14:00"
+        assert coordinator.update_time_3 is None
 
 
 def test_custom_update_times_used(mock_hass, mock_entry_custom_times, mock_api):
@@ -98,6 +116,17 @@ def test_custom_update_times_used(mock_hass, mock_entry_custom_times, mock_api):
         
         assert coordinator.update_time_1 == "08:30"
         assert coordinator.update_time_2 == "16:45"
+        assert coordinator.update_time_3 is None
+
+
+def test_three_update_times_used(mock_hass, mock_entry_three_times, mock_api):
+    """Test that 3 custom update times are used when configured."""
+    with patch('custom_components.meteocat_community_edition.coordinator.async_get_clientsession'):
+        coordinator = MeteocatCoordinator(mock_hass, mock_entry_three_times)
+        
+        assert coordinator.update_time_1 == "08:30"
+        assert coordinator.update_time_2 == "16:45"
+        assert coordinator.update_time_3 == "22:15"
 
 
 @pytest.mark.asyncio

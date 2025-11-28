@@ -12,7 +12,6 @@ from unittest.mock import MagicMock, AsyncMock
 from custom_components.meteocat_community_edition.sensor import (
     MeteocatQuotaSensor,
     MeteocatForecastSensor,
-    MeteocatUVSensor,
     MeteocatLastUpdateSensor,
     MeteocatNextUpdateSensor,
     MeteocatUpdateTimeSensor,
@@ -21,6 +20,7 @@ from custom_components.meteocat_community_edition.sensor import (
     MeteocatLongitudeSensor,
     MeteocatMunicipalityNameSensor,
     MeteocatComarcaNameSensor,
+    MeteocatProvinciaNameSensor,
 )
 from custom_components.meteocat_community_edition.const import (
     DOMAIN,
@@ -55,18 +55,6 @@ def mock_coordinator():
                 }
             ]
         },
-        "uv_index": {
-            "ine": "081131",
-            "nom": "Granollers",
-            "uvi": [
-                {
-                    "date": "2025-11-24",
-                    "hours": [
-                        {"hour": 12, "uvi": 5, "uvi_clouds": 4}
-                    ]
-                }
-            ]
-        }
     }
     coordinator.last_successful_update_time = datetime(2025, 11, 24, 12, 0, 0)
     coordinator.next_scheduled_update = datetime(2025, 11, 24, 20, 0, 0)  # Next update at 20:00
@@ -200,20 +188,6 @@ def test_forecast_sensor_hourly(mock_coordinator, mock_entry):
     assert sensor.native_value is not None
 
 
-def test_uv_sensor(mock_coordinator, mock_entry):
-    """Test UV index sensor."""
-    sensor = MeteocatUVSensor(
-        mock_coordinator,
-        mock_entry,
-        "Granollers YM",
-        "Granollers"
-    )
-    
-    assert sensor.name == "Granollers Predicció Índex UV"
-    # Should return number of days with UV forecast
-    assert sensor.native_value == "1 dies"
-
-
 def test_last_update_sensor(mock_coordinator, mock_entry):
     """Test last update timestamp sensor."""
     sensor = MeteocatLastUpdateSensor(
@@ -282,75 +256,6 @@ def test_forecast_sensor_device_info(mock_coordinator, mock_entry):
     )
     
     assert sensor._attr_device_info["name"] == "Granollers YM"
-
-
-def test_uv_sensor_device_info(mock_coordinator, mock_entry):
-    """Test that UV sensor uses device_name in device_info."""
-    sensor = MeteocatUVSensor(
-        mock_coordinator,
-        mock_entry,
-        "Granollers YM",
-        "Granollers"
-    )
-    
-    assert sensor.name == "Granollers Predicció Índex UV"
-    assert sensor._attr_device_info["name"] == "Granollers YM"
-
-
-def test_uv_sensor_no_data(mock_coordinator, mock_entry):
-    """Test UV sensor when no UV data is available."""
-    mock_coordinator.data = {}
-    sensor = MeteocatUVSensor(
-        mock_coordinator,
-        mock_entry,
-        "Granollers YM",
-        "Granollers"
-    )
-    
-    assert sensor.native_value == "0 dies"
-    assert sensor.extra_state_attributes == {}
-
-
-def test_uv_sensor_empty_uvi_array(mock_coordinator, mock_entry):
-    """Test UV sensor when uvi array is empty."""
-    mock_coordinator.data = {
-        "uv_index": {
-            "ine": "081131",
-            "nom": "Granollers",
-            "uvi": []
-        }
-    }
-    sensor = MeteocatUVSensor(
-        mock_coordinator,
-        mock_entry,
-        "Granollers YM",
-        "Granollers"
-    )
-    
-    assert sensor.native_value == "0 dies"
-
-
-def test_uv_sensor_multiple_days(mock_coordinator, mock_entry):
-    """Test UV sensor with multiple days of data."""
-    mock_coordinator.data = {
-        "uv_index": {
-            "ine": "081131",
-            "nom": "Granollers",
-            "uvi": [
-                {"date": "2025-11-24", "hours": [{"hour": 12, "uvi": 5}]},
-                {"date": "2025-11-25", "hours": [{"hour": 12, "uvi": 6}]},
-                {"date": "2025-11-26", "hours": [{"hour": 12, "uvi": 4}]}
-            ]
-        }
-    }
-    sensor = MeteocatUVSensor(
-        mock_coordinator,
-        mock_entry,
-        "Granollers YM",
-        "Granollers"
-    )
-    
-    assert sensor.native_value == "3 dies"
 
 
 def test_update_time_sensor_time_1_xema_mode(mock_coordinator, mock_entry):
@@ -1025,3 +930,31 @@ def test_coordinate_sensors_prefer_coordinator_data_over_cache():
         "YM"
     )
     assert alt_sensor.native_value == 999
+
+
+def test_municipality_provincia_name_sensor_no_data():
+    """Test municipality province name sensor with no data."""
+    from custom_components.meteocat_community_edition.sensor import MeteocatProvinciaNameSensor
+    from unittest.mock import MagicMock
+    
+    mock_coordinator = MagicMock()
+    mock_entry = MagicMock()
+    mock_entry.entry_id = "test_entry"
+    mock_entry.data = {
+        "mode": MODE_MUNICIPI,
+        "municipality_code": "080193",
+        # No provincia_name
+    }
+    mock_entry.options = {}
+    
+    sensor = MeteocatProvinciaNameSensor(
+        mock_coordinator,
+        mock_entry,
+        "Barcelona",
+        "Barcelona",
+        "080193"
+    )
+    
+    # Should return empty string when provincia_name is not in config
+    assert sensor.native_value == ""
+    assert sensor.icon == "mdi:map-marker-radius"

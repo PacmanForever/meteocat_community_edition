@@ -28,7 +28,6 @@ Integración **comunitaria** y **no oficial** para Home Assistant del Servicio M
 
 - 🌡️ **Datos meteorológicos en tiempo real** de las estaciones XEMA
 - 📊 **Predicciones horarias** (72 horas) y **diarias** (8 días)
-- ☀️ **Índice UV** previsto
 - 📈 **Sensores de cuotas API** para controlar el uso
 - 🏢 **Múltiples estaciones** configurables
 - 🏙️ **Modo Municipio** para obtener solo predicciones (sin estación)
@@ -97,7 +96,6 @@ Este modo crea sensores con las predicciones en sus atributos, permitiéndote ut
 Esto creará:
 - **Sensor de predicción horaria** (72h en atributos) - Para utilizar en `weather.template`
 - **Sensor de predicción diaria** (8 días en atributos) - Para utilizar en `weather.template`
-- **Sensor de índice UV**
 - **Sensores de cuotas** API
 - **Sensores de horas de actualización** configuradas
 
@@ -133,6 +131,11 @@ Para cada estación configurada se crean:
 - Ejemplo: `sensor.Barcelona_ym_quota_prediccio`
 - Atributos: límite total, peticiones utilizadas, fecha de reset
 
+#### Sensor de Estado
+- **Última actualización correcta**: Indica si la última actualización de datos ha sido exitosa.
+- Entity ID: `binary_sensor.{estacion}_{codigo}_update_state`
+- Estado: OFF (Correcto) / ON (Problema)
+
 #### Sensores de Timestamps
 - **Última actualización**: Timestamp de la última actualización exitosa
 - **Próxima actualización**: Timestamp de la próxima actualización programada
@@ -167,12 +170,6 @@ Para cada municipio configurado se crean:
 - Estado: Número de días de predicción disponibles (ej: "8 días")
 - Atributos: Datos completos de predicción diaria (8 días)
 
-#### Sensor Predicción Índice UV
-- **Nombre**: {Municipio} Predicción Índice UV
-- **Entity ID**: `sensor.{municipio}_prediccio_index_uv`
-- Estado: Número de días de predicción UV disponibles (ej: "3 días")
-- Atributos: Datos completos de previsión UV (datos horarios para 3 días)
-
 #### Sensores de Cuotas
 - **Peticiones disponibles Predicción**: Consumos restantes del plan Predicción
 - **Peticiones disponibles Referencia**: Consumos restantes del plan Referencia  
@@ -181,6 +178,11 @@ Para cada municipio configurado se crean:
 - Entity IDs: `sensor.{municipio}_quota_{plan}`
 - Ejemplo: `sensor.Barcelona_quota_prediccio`
 - Atributos: límite total, peticiones utilizadas, fecha de reset
+
+#### Sensor de Estado
+- **Última actualización correcta**: Indica si la última actualización de datos ha sido exitosa.
+- Entity ID: `binary_sensor.{municipio}_update_state`
+- Estado: OFF (Correcto) / ON (Problema)
 
 #### Sensores de Timestamps
 - **Última actualización**: Timestamp de la última actualización exitosa
@@ -221,20 +223,20 @@ Los datos se actualizan **SOLO** en estos casos:
 Cada actualización hace las siguientes llamadas a la API:
 
 **Modo Estación (XEMA)**:
-- Primera actualización: 6 llamadas (stations + measurements + forecast + hourly + uv + quotes)
-- Actualizaciones posteriores: 5 llamadas (measurements + forecast + hourly + uv + quotes)
-- **Media diaria**: ~16 llamadas (1 inicial + 2 programadas × 5)
+- Primera actualización: 5 llamadas (stations + measurements + forecast + hourly + quotes)
+- Actualizaciones posteriores: 4 llamadas (measurements + forecast + hourly + quotes)
+- **Media diaria**: ~13 llamadas (1 inicial + 2 programadas × 4)
 
 **Modo Municipal**:
-- Cada actualización: 4 llamadas (forecast + hourly + uv + quotes)
-- **Media diaria**: ~8 llamadas (2 programadas × 4)
+- Cada actualización: 3 llamadas (forecast + hourly + quotes)
+- **Media diaria**: ~6 llamadas (2 programadas × 3)
 
 #### Cálculo mensual (30 días)
 
 | Modo | Llamadas/día | Llamadas/mes | Cuota restante* | Actualizaciones manuales disponibles |
 |------|-------------|--------------|-----------------|-------------------------------------|
-| **Estación** | 16 | 480 | 520 | ~17/día (520÷30) |
-| **Municipal** | 8 | 240 | 760 | ~25/día (760÷30) |
+| **Estación** | 13 | 390 | 610 | ~20/día (610÷30) |
+| **Municipal** | 6 | 180 | 820 | ~27/día (820÷30) |
 
 \* Asumiendo cuota de 1000 llamadas/mes (plan Predicción estándar)
 
@@ -335,7 +337,6 @@ El Modo Municipio crea estos sensores:
 
 - **`sensor.{municipio}_prediccio_horaria`**: Predicción de las próximas 72 horas
 - **`sensor.{municipio}_prediccio_diaria`**: Predicción de los próximos 8 días  
-- **`sensor.{municipio}_prediccio_index_uv`**: Predicción de índice UV (3 días)
 - **`sensor.{municipio}_quota_{plan}`**: Consumos API (Predicción, Referencia, XDDE, XEMA)
 - **`sensor.{municipio}_last_update`**: Última actualización
 - **`sensor.{municipio}_next_update`**: Próxima actualización programada
@@ -391,78 +392,29 @@ Atributos disponibles:
 {{ state_attr('sensor.Barcelona_prediccio_diaria', 'forecast').dies[1].variables.tmax.valor }}
 
 # Ejemplo: temperatura mínima de mañana
+# Ejemplo: temperatura mínima de mañana
 {{ state_attr('sensor.Barcelona_prediccio_diaria', 'forecast').dies[1].variables.tmin.valor }}
 ```
 
-#### Predicción Índice UV (`sensor.{municipio}_prediccio_index_uv`)
-
-El estado del sensor muestra el número de días de predicción UV disponibles (ej: "3 días").
-
-Atributos disponibles:
-```yaml
-# Acceder a todos los datos UV
-{{ state_attr('sensor.Barcelona_prediccio_index_uv', 'uv_forecast') }}
-
-# La estructura contiene:
-# - ine: código INE del municipio
-# - nom: nombre del municipio
-# - uvi: array con predicciones UV por días (normalmente 3 días)
-#   - date: fecha (ej: "2025-11-24")
-#   - hours: array de horas con valores UV
-#     - hour: hora (0-23)
-#     - uvi: índice UV
-#     - uvi_clouds: índice UV con nubes
-
-# Ejemplo: UV a las 12:00 de hoy
-{% set uv_data = state_attr('sensor.Barcelona_prediccio_index_uv', 'uv_forecast') %}
-{% if uv_data and uv_data.uvi %}
-  {{ uv_data.uvi[0].hours | selectattr('hour', 'equalto', 12) | map(attribute='uvi') | first }}
-{% endif %}
-
-# Ejemplo: UV máximo de hoy
-{% set uv_data = state_attr('sensor.Barcelona_prediccio_index_uv', 'uv_forecast') %}
-{% if uv_data and uv_data.uvi %}
-  {{ uv_data.uvi[0].hours | map(attribute='uvi') | max }}
-{% endif %}
+### Ejemplo de entidad Weather personalizada
 ```
 
 ### Ejemplo de entidad Weather personalizada
 
 ⚠️ **Nota importante**: El componente `weather.template` requiere preprocesar los datos ya que la API de Meteocat devuelve estructuras complejas. Es más práctico utilizar **tarjetas personalizadas** o **sensores template** para mostrar las predicciones.
 
-#### Añadir índice UV a una entidad weather local
+#### Añadir predicciones a una entidad weather local
 
-Si tienes una estación meteorológica local y quieres añadirle la predicción de índice UV de Meteocat, puedes crear un sensor template que extraiga el valor UV máximo:
-
-```yaml
-template:
-  - sensor:
-      - name: "UV Index Weather"
-        unique_id: uv_index_weather
-        state: >
-          {% set uv_data = state_attr('sensor.Barcelona_prediccio_index_uv', 'uv_forecast') %}
-          {% if uv_data and uv_data.uvi and uv_data.uvi | length > 0 %}
-            {{ uv_data.uvi[0].hours | map(attribute='uvi') | max | round(0) }}
-          {% else %}
-            0
-          {% endif %}
-        unit_of_measurement: "UV"
-        icon: mdi:weather-sunny-alert
-```
-
-Este sensor extrae el valor UV máximo del primer día y puedes utilizarlo en una entidad `weather.template`:
+Si tienes una estación meteorológica local y quieres añadirle las predicciones de Meteocat, puedes utilizar una entidad `weather.template`:
 
 ```yaml
 weather:
   - platform: template
-    name: "Casa con UV"
+    name: "Casa con Predicción"
     condition_template: "{{ states('weather.mi_estacion_local') }}"
     temperature_template: "{{ state_attr('weather.mi_estacion_local', 'temperature') }}"
     humidity_template: "{{ state_attr('weather.mi_estacion_local', 'humidity') }}"
     # ... otros campos de tu estación local ...
-    
-    # Añadir índice UV de Meteocat
-    uv_index_template: "{{ states('sensor.uv_index_weather') }}"
     
     # Predicciones horarias/diarias de Meteocat
     forecast_hourly_template: "{{ state_attr('sensor.Barcelona_prediccio_horaria', 'forecast') }}"
@@ -502,22 +454,6 @@ cards:
       {% if forecast and forecast.dies %}
         {% for dia in forecast.dies[:5] %}
         **{{ dia.data }}**: {{ dia.variables.tmin.valor }}°C - {{ dia.variables.tmax.valor }}°C
-        {% endfor %}
-      {% endif %}
-
-  - type: markdown
-    content: |
-      ## Predicción Índice UV
-      
-      **Disponibles:** {{ states('sensor.Barcelona_prediccio_index_uv') }}
-      
-      {% set uv = state_attr('sensor.Barcelona_prediccio_index_uv', 'uv_forecast') %}
-      {% if uv and uv.uvi %}
-        **UV Máximo hoy:** {{ uv.uvi[0].hours | map(attribute='uvi') | max }}
-        
-        **Valores por horas:**
-        {% for hour in uv.uvi[0].hours | selectattr('uvi', 'gt', 0) %}
-        {{ hour.hour }}h: UV {{ hour.uvi }}
         {% endfor %}
       {% endif %}
 ```
@@ -579,24 +515,6 @@ automation:
       - service: notify.mobile_app
         data:
           message: "¡Mañana hará más de 30°C!"
-
-  - alias: "Aviso UV alto"
-    trigger:
-      - platform: time
-        at: "09:00:00"
-    condition:
-      - condition: template
-        value_template: >
-          {% set uv_data = state_attr('sensor.Barcelona_prediccio_index_uv', 'uv_forecast') %}
-          {% if uv_data and uv_data.uvi %}
-            {{ uv_data.uvi[0].hours | map(attribute='uvi') | max > 6 }}
-          {% else %}
-            false
-          {% endif %}
-    action:
-      - service: notify.mobile_app
-        data:
-          message: "¡Hoy el índice UV será alto! Protégete del sol."
 ```
 
 ### Explorar los datos
@@ -609,9 +527,6 @@ Utiliza **Developer Tools → Template** de Home Assistant para explorar la estr
 
 # Ver toda la estructura de predicción diaria
 {{ state_attr('sensor.Barcelona_prediccio_diaria', 'forecast') }}
-
-# Ver toda la estructura UV
-{{ state_attr('sensor.Barcelona_prediccio_index_uv', 'uv_forecast') }}
 ```
 
 > **Consejo:** Las estructuras de datos siguen exactamente el formato de la API de Meteocat. Consulta la [documentación oficial de la API](https://apidocs.meteocat.gencat.cat/) para conocer todos los campos disponibles.

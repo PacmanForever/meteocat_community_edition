@@ -256,33 +256,6 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
         
         return None
 
-    @property
-    def uv_index(self) -> float | None:
-        """Return the UV index."""
-        uv_data = self.coordinator.data.get("uv_index")
-        if not uv_data:
-            return None
-        
-        # Get current or next UV index value
-        dies = uv_data.get("dies", [])
-        if not dies:
-            return None
-        
-        now = dt_util.now()
-        for dia in dies:
-            uvi = dia.get("uvi", [])
-            for hora in uvi:
-                if not isinstance(hora, dict):
-                    continue
-                    
-                hora_data = hora.get("data")
-                if hora_data:
-                    hora_dt = dt_util.parse_datetime(hora_data)
-                    if hora_dt and hora_dt >= now:
-                        return hora.get("valor")
-        
-        return None
-
     def _is_night(self) -> bool:
         """Check if sun is below horizon."""
         station = self.coordinator.data.get("station")

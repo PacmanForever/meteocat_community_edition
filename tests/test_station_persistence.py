@@ -83,9 +83,6 @@ def mock_api():
     api.get_hourly_forecast = AsyncMock(return_value={
         "dies": [{"data": "2025-11-26", "variables": {"tmp": [15]}}]
     })
-    api.get_uv_index = AsyncMock(return_value={
-        "ine": "081131", "uvi": [{"date": "2025-11-26", "hours": [{"hour": 12, "uvi": 5}]}]
-    })
     api.get_quotes = AsyncMock(return_value={
         "client": {"nom": "Test"},
         "plans": [{"nom": "Prediccio_100", "requests_left": 950}]

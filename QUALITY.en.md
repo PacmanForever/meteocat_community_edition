@@ -50,7 +50,7 @@ Test code lines: 2,443+
 
 ### Covered areas
 
-- ✅ **Sensors**: Quotas, forecasts, UV, timestamps, update times
+- ✅ **Sensors**: Quotas, forecasts, timestamps, update times
 - ✅ **Weather entity**: All properties and edge cases
 - ✅ **Device triggers**: Device-specific automations
 - ✅ **Setup/Unload**: Complete lifecycle

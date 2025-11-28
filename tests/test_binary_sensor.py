@@ -25,6 +25,8 @@ def mock_coordinator_success():
     coordinator = MagicMock()
     coordinator.last_update_success = True
     coordinator.last_successful_update_time = datetime(2025, 11, 27, 12, 0, 0)
+    coordinator.enable_forecast_daily = True
+    coordinator.enable_forecast_hourly = True
     coordinator.data = {
         "measurements": [{"codi": "YM", "variables": []}],
         "forecast": {"dies": []},
@@ -82,11 +84,12 @@ def test_binary_sensor_initialization_station_mode(mock_coordinator_success, moc
         "YM",
     )
     
-    assert sensor.unique_id == "test_entry_update_status"
+    assert sensor.unique_id == "test_entry_update_state"
     assert sensor.device_class == "problem"
     assert sensor.entity_category == "diagnostic"
-    assert sensor.has_entity_name is True
-    assert sensor.translation_key == "update_status"
+    assert sensor.has_entity_name is False
+    assert sensor.translation_key == "update_state"
+    assert sensor.name == "Última actualització correcte"
 
 
 def test_binary_sensor_initialization_municipality_mode(mock_coordinator_success, mock_entry_municipality):
@@ -100,10 +103,11 @@ def test_binary_sensor_initialization_municipality_mode(mock_coordinator_success
         None,
     )
     
-    assert sensor.unique_id == "test_entry_update_status"
+    assert sensor.unique_id == "test_entry_update_state"
     assert sensor.entity_category == "diagnostic"
-    assert sensor.has_entity_name is True
-    assert sensor.translation_key == "update_status"
+    assert sensor.has_entity_name is False
+    assert sensor.translation_key == "update_state"
+    assert sensor.name == "Última actualització correcte"
 
 
 def test_binary_sensor_success_state(mock_coordinator_success, mock_entry_station):
@@ -204,7 +208,6 @@ def test_binary_sensor_station_mode_checks_all_api_calls_with_municipality(mock_
         "measurements": [{"codi": "YM"}],
         "forecast": {"dies": [{"data": "2025-11-27"}]},
         "forecast_hourly": {"dies": [{"data": "2025-11-27"}]},
-        "uv_index": {"dies": [{"data": "2025-11-27"}]},
     }
     
     sensor = MeteocatUpdateStatusBinarySensor(
@@ -226,7 +229,6 @@ def test_binary_sensor_station_mode_checks_all_api_calls_with_municipality(mock_
         "municipality_code": "080193",
         "forecast": {"dies": [{"data": "2025-11-27"}]},
         "forecast_hourly": {"dies": [{"data": "2025-11-27"}]},
-        "uv_index": {"dies": [{"data": "2025-11-27"}]},
     }
     
     assert sensor.is_on is True
@@ -238,33 +240,19 @@ def test_binary_sensor_station_mode_checks_all_api_calls_with_municipality(mock_
         "municipality_code": "080193",
         "measurements": [{"codi": "YM"}],
         "forecast_hourly": {"dies": [{"data": "2025-11-27"}]},
-        "uv_index": {"dies": [{"data": "2025-11-27"}]},
     }
     
     assert sensor.is_on is True
     attrs = sensor.extra_state_attributes
     assert "forecast" in attrs["error"]
-    
-    # Missing uv_index - problem
-    mock_coordinator_success.data = {
-        "municipality_code": "080193",
-        "measurements": [{"codi": "YM"}],
-        "forecast": {"dies": [{"data": "2025-11-27"}]},
-        "forecast_hourly": {"dies": [{"data": "2025-11-27"}]},
-    }
-    
-    assert sensor.is_on is True
-    attrs = sensor.extra_state_attributes
-    assert "uv_index" in attrs["error"]
 
 
 def test_binary_sensor_municipality_mode_requires_forecast(mock_coordinator_success, mock_entry_municipality):
-    """Test municipality mode requires ALL forecast data (forecast, hourly, uv)."""
+    """Test municipality mode requires ALL forecast data (forecast, hourly)."""
     # Has ALL forecasts - no problem
     mock_coordinator_success.data = {
         "forecast": {"dies": [{"data": "2025-11-27"}]},
         "forecast_hourly": {"dies": [{"data": "2025-11-27"}]},
-        "uv_index": {"dies": [{"data": "2025-11-27"}]},
     }
     
     sensor = MeteocatUpdateStatusBinarySensor(
@@ -283,7 +271,7 @@ def test_binary_sensor_municipality_mode_requires_forecast(mock_coordinator_succ
         "forecast": {"dies": [{"data": "2025-11-27"}]},
     }
     
-    assert sensor.is_on is True  # ON = problem (missing hourly and uv)
+    assert sensor.is_on is True  # ON = problem (missing hourly)
     
     # No forecast - problem
     mock_coordinator_success.data = {}
@@ -292,12 +280,11 @@ def test_binary_sensor_municipality_mode_requires_forecast(mock_coordinator_succ
 
 
 def test_binary_sensor_municipality_mode_checks_all_api_calls(mock_coordinator_success, mock_entry_municipality):
-    """Test municipality mode checks ALL API calls: forecast, forecast_hourly, and uv_index."""
+    """Test municipality mode checks ALL API calls: forecast, forecast_hourly."""
     # All API calls present - no problem
     mock_coordinator_success.data = {
         "forecast": {"dies": [{"data": "2025-11-27"}]},
         "forecast_hourly": {"dies": [{"data": "2025-11-27"}]},
-        "uv_index": {"dies": [{"data": "2025-11-27"}]},
     }
     
     sensor = MeteocatUpdateStatusBinarySensor(
@@ -316,7 +303,6 @@ def test_binary_sensor_municipality_mode_checks_all_api_calls(mock_coordinator_s
     # Missing forecast - problem
     mock_coordinator_success.data = {
         "forecast_hourly": {"dies": [{"data": "2025-11-27"}]},
-        "uv_index": {"dies": [{"data": "2025-11-27"}]},
     }
     
     assert sensor.is_on is True  # ON = problem
@@ -326,22 +312,11 @@ def test_binary_sensor_municipality_mode_checks_all_api_calls(mock_coordinator_s
     # Missing forecast_hourly - problem
     mock_coordinator_success.data = {
         "forecast": {"dies": [{"data": "2025-11-27"}]},
-        "uv_index": {"dies": [{"data": "2025-11-27"}]},
     }
     
     assert sensor.is_on is True  # ON = problem
     attrs = sensor.extra_state_attributes
     assert "forecast_hourly" in attrs["error"]
-    
-    # Missing uv_index - problem
-    mock_coordinator_success.data = {
-        "forecast": {"dies": [{"data": "2025-11-27"}]},
-        "forecast_hourly": {"dies": [{"data": "2025-11-27"}]},
-    }
-    
-    assert sensor.is_on is True  # ON = problem
-    attrs = sensor.extra_state_attributes
-    assert "uv_index" in attrs["error"]
     
     # Multiple missing calls
     mock_coordinator_success.data = {
@@ -351,7 +326,6 @@ def test_binary_sensor_municipality_mode_checks_all_api_calls(mock_coordinator_s
     assert sensor.is_on is True  # ON = problem
     attrs = sensor.extra_state_attributes
     assert "forecast_hourly" in attrs["error"]
-    assert "uv_index" in attrs["error"]
 
 
 def test_binary_sensor_quota_exhausted_station_mode(mock_coordinator_success, mock_entry_station):
@@ -385,7 +359,6 @@ def test_binary_sensor_quota_exhausted_municipality_mode(mock_coordinator_succes
     mock_coordinator_success.data = {
         "forecast": [],  # Empty list = quota exhausted
         "forecast_hourly": [],
-        "uv_index": [],
         "quotes": {}
     }
     
@@ -567,4 +540,76 @@ def test_binary_sensor_translation_key(mock_coordinator_success, mock_entry_stat
     )
     
     assert hasattr(sensor, "_attr_translation_key")
-    assert sensor._attr_translation_key == "update_status"
+    assert sensor._attr_translation_key == "update_state"
+
+
+def test_binary_sensor_ok_disabled_forecast_missing(mock_coordinator_success, mock_entry_municipality):
+    """Test sensor is OFF (OK) when disabled forecast is missing."""
+    # Disable daily forecast
+    mock_coordinator_success.enable_forecast_daily = False
+    mock_coordinator_success.enable_forecast_hourly = True
+    
+    mock_coordinator_success.data = {
+        "forecast": None,  # Missing, but disabled
+        "forecast_hourly": {"dies": [{"data": "2025-11-27"}]},
+    }
+    
+    sensor = MeteocatUpdateStatusBinarySensor(
+        mock_coordinator_success,
+        mock_entry_municipality,
+        "Barcelona",
+        "Barcelona",
+        MODE_MUNICIPI,
+        None,
+    )
+    
+    assert sensor.is_on is False
+    assert sensor.extra_state_attributes["status"] == "ok"
+
+
+def test_binary_sensor_ok_disabled_hourly_missing(mock_coordinator_success, mock_entry_municipality):
+    """Test sensor is OFF (OK) when disabled hourly forecast is missing."""
+    # Disable hourly forecast
+    mock_coordinator_success.enable_forecast_daily = True
+    mock_coordinator_success.enable_forecast_hourly = False
+    
+    mock_coordinator_success.data = {
+        "forecast": {"dies": [{"data": "2025-11-27"}]},
+        "forecast_hourly": None,  # Missing, but disabled
+    }
+    
+    sensor = MeteocatUpdateStatusBinarySensor(
+        mock_coordinator_success,
+        mock_entry_municipality,
+        "Barcelona",
+        "Barcelona",
+        MODE_MUNICIPI,
+        None,
+    )
+    
+    assert sensor.is_on is False
+    assert sensor.extra_state_attributes["status"] == "ok"
+
+
+def test_binary_sensor_ok_both_disabled_missing(mock_coordinator_success, mock_entry_municipality):
+    """Test sensor is OFF (OK) when both forecasts are disabled and missing."""
+    mock_coordinator_success.enable_forecast_daily = False
+    mock_coordinator_success.enable_forecast_hourly = False
+    
+    mock_coordinator_success.data = {
+        "forecast": None,
+        "forecast_hourly": None,
+    }
+    
+    sensor = MeteocatUpdateStatusBinarySensor(
+        mock_coordinator_success,
+        mock_entry_municipality,
+        "Barcelona",
+        "Barcelona",
+        MODE_MUNICIPI,
+        None,
+    )
+    
+    assert sensor.is_on is False
+    assert sensor.extra_state_attributes["status"] == "ok"
+

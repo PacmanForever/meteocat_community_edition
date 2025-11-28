@@ -65,18 +65,6 @@ content: |
   {% endif %}
 title: Predicció Setmanal
 
-# Índex UV amb gauge
-type: gauge
-entity: sensor.granollers_index_uv
-name: Índex UV
-min: 0
-max: 11
-severity:
-  green: 0
-  yellow: 3
-  orange: 6
-  red: 8
-
 # ------------------------------------------------------------------------------
 # 3. TARGETES DE QUOTES API
 # ------------------------------------------------------------------------------
@@ -227,8 +215,6 @@ cards:
         ☔ **Pluja:** {{ avui.variables.ppcp.valor | default(0) }} mm
         
         💧 **Humitat:** {{ avui.variables.hrmin.valor }}% - {{ avui.variables.hrmax.valor }}%
-        
-        ☀️ **UV Màxim:** {{ states('sensor.granollers_index_uv') }}
       {% else %}
         _Carregant dades..._
       {% endif %}
@@ -261,18 +247,6 @@ cards:
         **{{ dia.data }}**: {{ dia.variables.tmin.valor }}°C - {{ dia.variables.tmax.valor }}°C, {{ dia.variables.ppcp.valor | default(0) }}mm
         {% endfor %}
       {% endif %}
-  
-  # UV Index
-  - type: gauge
-    entity: sensor.granollers_index_uv
-    name: Índex UV
-    min: 0
-    max: 11
-    severity:
-      green: 0
-      yellow: 3
-      orange: 6
-      red: 8
   
   # Botó actualització i quotes
   - type: horizontal-stack
@@ -350,10 +324,6 @@ cards:
       - type: entity
         entity: sensor.granollers_ym_last_update
         icon: mdi:clock-check
-      
-      - type: entity
-        entity: sensor.granollers_index_uv
-        icon: mdi:weather-sunny
       
       - type: entity
         entity: button.granollers_ym_refresh

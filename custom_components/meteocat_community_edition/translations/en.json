@@ -40,10 +40,14 @@
       },
       "update_times": {
         "title": "Data update",
-        "description": "Configure the two times of day when automatic data update will occur (24h format: HH:MM)",
+        "description": "Configure data to download and update times.\n\n**Query types**\n{measurements_info}",
         "data": {
-          "update_time_1": "First update (HH:MM)",
-          "update_time_2": "Second update (HH:MM)"
+          "measurements_label": "Measurements (required)",
+          "enable_forecast_daily": "Daily forecast",
+          "enable_forecast_hourly": "Hourly forecast",
+          "update_time_1": "First update (24h format: HH:MM)",
+          "update_time_2": "Second update (24h format: HH:MM)",
+          "update_time_3": "Third update (24h format: HH:MM)"
         }
       },
       "reauth_confirm": {
@@ -59,7 +63,8 @@
       "no_comarca_selected": "You must select a region",
       "no_station_selected": "You must select a station",
       "invalid_time_format": "Invalid time format. Use 24h format: HH:MM (example: 06:00 or 14:30)",
-      "times_must_differ": "The two update times must be different",
+      "times_must_differ": "Update times must be different",
+      "must_select_one_forecast": "You must select at least one forecast type (daily or hourly) in municipality mode",
       "required": "This field is required",
       "invalid_auth": "Invalid API key. Please check that your API key is correct.",
       "unknown": "Unknown error"
@@ -73,11 +78,15 @@
     "step": {
       "init": {
         "title": "Meteocat Options",
-        "description": "Configure advanced options and update times",
+        "description": "Configure advanced options, data to download and update times\n\n**Query types**\n{measurements_info}",
         "data": {
           "api_base_url": "API Base URL (leave default for production)",
-          "update_time_1": "First update (HH:MM)",
-          "update_time_2": "Second update (HH:MM)"
+          "measurements_label": "Measurements (required)",
+          "enable_forecast_daily": "Daily forecast",
+          "enable_forecast_hourly": "Hourly forecast",
+          "update_time_1": "First update (24h format: HH:MM)",
+          "update_time_2": "Second update (24h format: HH:MM)",
+          "update_time_3": "Third update (24h format: HH:MM)"
         }
       }
     }
@@ -90,8 +99,8 @@
   },
   "entity": {
     "binary_sensor": {
-      "update_status": {
-        "name": "Problem updating data"
+      "update_state": {
+        "name": "Last update successful"
       }
     }
   }

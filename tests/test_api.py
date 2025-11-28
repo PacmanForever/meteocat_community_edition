@@ -167,35 +167,5 @@ async def test_get_municipal_forecast(api_client, mock_session):
 
 
 @pytest.mark.asyncio
-async def test_get_uv_index(api_client, mock_session):
-    """Test getting UV index forecast."""
-    import json
-    mock_response = AsyncMock()
-    mock_data = {
-        "ine": "081131",
-        "nom": "Granollers",
-        "comarca": 39,
-        "capital": True,
-        "uvi": [
-            {
-                "date": "2025-11-24",
-                "hours": [
-                    {"hour": 12, "uvi": 5, "uvi_clouds": 4},
-                    {"hour": 13, "uvi": 6, "uvi_clouds": 5}
-                ]
-            }
-        ]
-    }
-    mock_response.read = AsyncMock(return_value=json.dumps(mock_data).encode('utf-8'))
-    mock_response.raise_for_status = MagicMock()
-    mock_response.status = 200
-    
-    mock_session.request.return_value.__aenter__.return_value = mock_response
-    
-    result = await api_client.get_uv_index("081131")
-    
-    assert "uvi" in result
-    assert len(result["uvi"]) == 1
-    assert result["uvi"][0]["date"] == "2025-11-24"
-    assert len(result["uvi"][0]["hours"]) == 2
+
 

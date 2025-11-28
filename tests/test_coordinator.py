@@ -39,13 +39,6 @@ def mock_api():
             {"data": "2025-11-24", "variables": {"tmp": [15, 16, 17]}}
         ]
     })
-    api.get_uv_index = AsyncMock(return_value={
-        "ine": "081131",
-        "nom": "Granollers",
-        "uvi": [
-            {"date": "2025-11-24", "hours": [{"hour": 12, "uvi": 5}]}
-        ]
-    })
     api.get_quotes = AsyncMock(return_value={
         "client": {"nom": "Test Client"},
         "plans": [
@@ -118,7 +111,6 @@ async def test_coordinator_municipal_mode_update(mock_hass, mock_api, mock_entry
     assert data is not None
     assert "forecast" in data
     assert "forecast_hourly" in data
-    assert "uv_index" in data
     assert "quotes" in data
     # Municipal mode doesn't use station data - should be None
     assert data.get("station") is None

@@ -134,21 +134,6 @@
           Es preveuen {{ forecast.dies[0].variables.ppcp.valor }}mm de pluja.
           Porta't el paraigua!
 
-# Avís d'índex UV alt
-- alias: "Meteocat - Avís UV alt"
-  description: "Notifica quan l'índex UV és superior a 6"
-  trigger:
-    - platform: numeric_state
-      entity_id: sensor.granollers_index_uv
-      above: 6
-  action:
-    - service: notify.mobile_app
-      data:
-        title: "☀️ Índex UV alt"
-        message: >
-          L'índex UV és {{ states('sensor.granollers_index_uv') }}.
-          Protegeix-te del sol amb crema solar!
-
 # ------------------------------------------------------------------------------
 # 3. AUTOMATITZACIONS INTEL·LIGENTS DE CASA
 # ------------------------------------------------------------------------------

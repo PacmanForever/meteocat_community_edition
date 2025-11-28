@@ -18,7 +18,6 @@ Dades meteorològiques **en temps real** de les estacions oficials del Meteocat:
 Prediccions meteorològiques sense necessitat d'estació:
 - ⏰ **Prediccions horàries** (72 hores)
 - 📅 **Prediccions diàries** (8 dies)
-- ☀️ **Índex UV** (3 dies)
 - 💡 Ideal si ja tens una estació local
 
 ### 📈 Gestió intel·ligent
@@ -60,7 +59,7 @@ Registra't a [apidocs.meteocat.gencat.cat](https://apidocs.meteocat.gencat.cat/)
 5. Tria **comarca** i **municipi**
 6. Configura **hores d'actualització** (opcional)
 
-✅ **Crea**: Sensors predicció horària + diària + UV + quotes + botó
+✅ **Crea**: Sensors predicció horària + diària + quotes + botó
 
 ---
 
@@ -77,7 +76,6 @@ Registra't a [apidocs.meteocat.gencat.cat](https://apidocs.meteocat.gencat.cat/)
 ### Mode Municipal
 - `sensor.{municipi}_prediccio_horaria` - Predicció 72h
 - `sensor.{municipi}_prediccio_diaria` - Predicció 8 dies
-- `sensor.{municipi}_index_uv` - Índex UV
 - `sensor.{municipi}_quota_*` - Quotes API (4 plans)
 - `sensor.{municipi}_last_update` - Darrera actualització
 - `sensor.{municipi}_next_update` - Pròxima actualització

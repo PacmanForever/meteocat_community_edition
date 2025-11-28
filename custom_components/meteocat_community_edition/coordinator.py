@@ -53,6 +53,9 @@ from .const import (
     CONF_STATION_CODE,
     CONF_UPDATE_TIME_1,
     CONF_UPDATE_TIME_2,
+    CONF_UPDATE_TIME_3,
+    CONF_ENABLE_FORECAST_DAILY,
+    CONF_ENABLE_FORECAST_HOURLY,
     DEFAULT_API_BASE_URL,
     DEFAULT_UPDATE_TIME_1,
     DEFAULT_UPDATE_TIME_2,
@@ -85,6 +88,11 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         # Get update times from config or use defaults
         self.update_time_1 = entry.data.get(CONF_UPDATE_TIME_1, DEFAULT_UPDATE_TIME_1)
         self.update_time_2 = entry.data.get(CONF_UPDATE_TIME_2, DEFAULT_UPDATE_TIME_2)
+        self.update_time_3 = entry.data.get(CONF_UPDATE_TIME_3, "")
+        
+        # Get forecast settings
+        self.enable_forecast_daily = entry.data.get(CONF_ENABLE_FORECAST_DAILY, True)
+        self.enable_forecast_hourly = entry.data.get(CONF_ENABLE_FORECAST_HOURLY, False)
         
         # Get API base URL from options or use default
         api_base_url = entry.options.get(CONF_API_BASE_URL, DEFAULT_API_BASE_URL)
@@ -168,16 +176,21 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         now = dt_util.now()
         today = now.date()
         
+        update_times_list = [self.update_time_1, self.update_time_2]
+        if self.update_time_3:
+            update_times_list.append(self.update_time_3)
+            
         update_datetimes = [
             dt_util.as_local(
                 datetime.combine(today, time.fromisoformat(update_time))
             )
-            for update_time in [self.update_time_1, self.update_time_2]
+            for update_time in update_times_list
+            if update_time and update_time.strip()
         ]
         
         # Find the next update time
         next_update = None
-        for update_dt in update_datetimes:
+        for update_dt in sorted(update_datetimes):
             if update_dt > now:
                 next_update = update_dt
                 break
@@ -185,9 +198,12 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         # If no update today, use first update tomorrow
         if next_update is None:
             tomorrow = today + timedelta(days=1)
-            next_update = dt_util.as_local(
-                datetime.combine(tomorrow, time.fromisoformat(self.update_time_1))
-            )
+            # Sort times to find the earliest one
+            sorted_times = sorted([t for t in update_times_list if t and t.strip()])
+            if sorted_times:
+                next_update = dt_util.as_local(
+                    datetime.combine(tomorrow, time.fromisoformat(sorted_times[0]))
+                )
         
         # Store the next scheduled update time for the sensor
         self.next_scheduled_update = next_update
@@ -306,16 +322,16 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         ⚠️ CRITICAL: API Call Order for Accurate Quota Tracking
         
         The order of API calls is CRITICAL for accurate quota consumption tracking:
-        1. Fetch all data APIs first (stations, measurements, forecasts, UV)
+        1. Fetch all data APIs first (stations, measurements, forecasts)
         2. Fetch quotes API LAST to reflect accurate consumption after all calls
         
         If quotes is fetched first, it won't include the consumption from this update,
         leading to incorrect quota reporting to users.
         
         API Calls per Update:
-        - MODE_ESTACIO (first): get_stations(1) + measurements(1) + forecast(1) + hourly(1) + uv(1) + quotes(1) = 6 calls
-        - MODE_ESTACIO (subsequent): measurements(1) + forecast(1) + hourly(1) + uv(1) + quotes(1) = 5 calls
-        - MODE_MUNICIPI: forecast(1) + hourly(1) + uv(1) + quotes(1) = 4 calls
+        - MODE_ESTACIO (first): get_stations(1) + measurements(1) + forecast(1) + hourly(1) + quotes(1) = 5 calls
+        - MODE_ESTACIO (subsequent): measurements(1) + forecast(1) + hourly(1) + quotes(1) = 4 calls
+        - MODE_MUNICIPI: forecast(1) + hourly(1) + quotes(1) = 3 calls
         
         Quota Exhaustion Handling:
         - During first refresh (_is_first_refresh=True): Tolerant to missing data
@@ -360,13 +376,14 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             
             # Add forecast tasks if we have a municipality code (both modes)
             if self.municipality_code:
-                tasks["forecast"] = self.api.get_municipal_forecast(
-                    self.municipality_code
-                )
-                tasks["forecast_hourly"] = self.api.get_hourly_forecast(
-                    self.municipality_code
-                )
-                tasks["uv_index"] = self.api.get_uv_index(self.municipality_code)
+                if self.enable_forecast_daily:
+                    tasks["forecast"] = self.api.get_municipal_forecast(
+                        self.municipality_code
+                    )
+                if self.enable_forecast_hourly:
+                    tasks["forecast_hourly"] = self.api.get_hourly_forecast(
+                        self.municipality_code
+                    )
             
             results = await asyncio.gather(*tasks.values(), return_exceptions=True)
             
@@ -419,9 +436,9 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             critical_fields = []
             if self.mode == MODE_ESTACIO:
                 critical_fields = ["measurements"]
-            # Forecasts and UV are important for both modes if municipality_code exists
+            # Forecasts are important for both modes if municipality_code exists
             if self.municipality_code:
-                critical_fields.extend(["forecast", "forecast_hourly", "uv_index"])
+                critical_fields.extend(["forecast", "forecast_hourly"])
             
             missing_data = [field for field in critical_fields if data.get(field) is None]
             if missing_data:
@@ -445,16 +462,21 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             now = dt_util.now()
             today = now.date()
             
+            update_times_list = [self.update_time_1, self.update_time_2]
+            if self.update_time_3:
+                update_times_list.append(self.update_time_3)
+            
             update_datetimes = [
                 dt_util.as_local(
                     datetime.combine(today, time.fromisoformat(update_time))
                 )
-                for update_time in [self.update_time_1, self.update_time_2]
+                for update_time in update_times_list
+                if update_time and update_time.strip()
             ]
             
             # Find the next update time
             current_next_update = None
-            for update_dt in update_datetimes:
+            for update_dt in sorted(update_datetimes):
                 if update_dt > now:
                     current_next_update = update_dt
                     break
@@ -462,9 +484,11 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             # If no update today, use first update tomorrow
             if current_next_update is None:
                 tomorrow = today + timedelta(days=1)
-                current_next_update = dt_util.as_local(
-                    datetime.combine(tomorrow, time.fromisoformat(self.update_time_1))
-                )
+                sorted_times = sorted([t for t in update_times_list if t and t.strip()])
+                if sorted_times:
+                    current_next_update = dt_util.as_local(
+                        datetime.combine(tomorrow, time.fromisoformat(sorted_times[0]))
+                    )
             
             # Fire event if next update time changed
             if current_next_update != self._previous_next_update:

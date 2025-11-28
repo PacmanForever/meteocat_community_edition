@@ -26,6 +26,9 @@ from .const import (
     CONF_STATION_NAME,
     CONF_UPDATE_TIME_1,
     CONF_UPDATE_TIME_2,
+    CONF_UPDATE_TIME_3,
+    CONF_ENABLE_FORECAST_DAILY,
+    CONF_ENABLE_FORECAST_HOURLY,
     DEFAULT_API_BASE_URL,
     DEFAULT_UPDATE_TIME_1,
     DEFAULT_UPDATE_TIME_2,
@@ -46,7 +49,7 @@ def is_valid_time_format(time_str: str) -> bool:
     return bool(time_pattern.match(time_str)) if time_str else False
 
 
-def validate_update_times(time1: str, time2: str) -> dict[str, str]:
+def validate_update_times(time1: str, time2: str, time3: str) -> dict[str, str]:
     """Validate update times format and uniqueness."""
     import re
     
@@ -58,14 +61,25 @@ def validate_update_times(time1: str, time2: str) -> dict[str, str]:
     elif not time_pattern.match(time1):
         errors["update_time_1"] = "invalid_time_format"
     
-    if not time2 or not time2.strip():
-        errors["update_time_2"] = "required"
-    elif not time_pattern.match(time2):
-        errors["update_time_2"] = "invalid_time_format"
+    if time2 and time2.strip():
+        if not time_pattern.match(time2):
+            errors["update_time_2"] = "invalid_time_format"
     
-    # Only check if they're equal if both are valid
-    if not errors and time1 == time2:
-        errors["update_time_2"] = "times_must_differ"
+    if time3 and time3.strip():
+        if not time_pattern.match(time3):
+            errors["update_time_3"] = "invalid_time_format"
+    
+    # Check for duplicates if times are valid
+    times = []
+    if not errors.get("update_time_1"):
+        times.append(time1)
+    if time2 and time2.strip() and not errors.get("update_time_2"):
+        times.append(time2)
+    if time3 and time3.strip() and not errors.get("update_time_3"):
+        times.append(time3)
+    
+    if len(times) != len(set(times)):
+        errors["base"] = "times_must_differ"
     
     return errors
 
@@ -88,6 +102,9 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self.api_base_url: str = DEFAULT_API_BASE_URL
         self.update_time_1: str = DEFAULT_UPDATE_TIME_1
         self.update_time_2: str = DEFAULT_UPDATE_TIME_2
+        self.update_time_3: str = ""
+        self.enable_forecast_daily: bool = True
+        self.enable_forecast_hourly: bool = False
         self._comarques: list[dict[str, Any]] = []
         self._stations: list[dict[str, Any]] = []
         self._municipalities: list[dict[str, Any]] = []
@@ -317,6 +334,18 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     provincia = municipality.get("provincia", {})
                     self.provincia_code = provincia.get("codi")
                     self.provincia_name = provincia.get("nom")
+                    
+                    # Fallback: if province not found in municipality, try to get it from comarca
+                    if not self.provincia_name and self._comarques:
+                        _LOGGER.debug("Province not found in municipality, checking comarca %s", self.comarca_code)
+                        for comarca in self._comarques:
+                            if comarca.get("codi") == self.comarca_code:
+                                provincia = comarca.get("provincia", {})
+                                if provincia:
+                                    self.provincia_code = provincia.get("codi")
+                                    self.provincia_name = provincia.get("nom")
+                                    _LOGGER.debug("Found province in comarca: %s", self.provincia_name)
+                                break
                     break
             
             # Check if municipality already configured
@@ -354,14 +383,24 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             time1 = user_input.get(CONF_UPDATE_TIME_1, "").strip()
             time2 = user_input.get(CONF_UPDATE_TIME_2, "").strip()
+            time3 = user_input.get(CONF_UPDATE_TIME_3, "").strip()
+            enable_daily = user_input.get(CONF_ENABLE_FORECAST_DAILY, True)
+            enable_hourly = user_input.get(CONF_ENABLE_FORECAST_HOURLY, False)
             
             # Validate times
-            time_errors = validate_update_times(time1, time2)
+            time_errors = validate_update_times(time1, time2, time3)
             errors.update(time_errors)
+            
+            # Validate forecast selection (only for municipal mode)
+            if self.mode == MODE_MUNICIPI and not enable_daily and not enable_hourly:
+                errors["base"] = "must_select_one_forecast"
             
             if not errors:
                 self.update_time_1 = time1
                 self.update_time_2 = time2
+                self.update_time_3 = time3
+                self.enable_forecast_daily = enable_daily
+                self.enable_forecast_hourly = enable_hourly
                 
                 # Create the config entry based on mode
                 # All metadata saved here to avoid runtime API calls
@@ -376,6 +415,9 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         CONF_COMARCA_NAME: self.comarca_name,
                         CONF_UPDATE_TIME_1: self.update_time_1,
                         CONF_UPDATE_TIME_2: self.update_time_2,
+                        CONF_UPDATE_TIME_3: self.update_time_3,
+                        CONF_ENABLE_FORECAST_DAILY: self.enable_forecast_daily,
+                        CONF_ENABLE_FORECAST_HOURLY: self.enable_forecast_hourly,
                     }
                     # Save station data for coordinate sensors (prevents API calls when quota exhausted)
                     if hasattr(self, 'station_data') and self.station_data:
@@ -408,6 +450,9 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         CONF_COMARCA_NAME: self.comarca_name,
                         CONF_UPDATE_TIME_1: self.update_time_1,
                         CONF_UPDATE_TIME_2: self.update_time_2,
+                        CONF_UPDATE_TIME_3: self.update_time_3,
+                        CONF_ENABLE_FORECAST_DAILY: self.enable_forecast_daily,
+                        CONF_ENABLE_FORECAST_HOURLY: self.enable_forecast_hourly,
                     }
                     # Add coordinates if available
                     if hasattr(self, 'municipality_lat') and self.municipality_lat is not None:
@@ -428,20 +473,40 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         },
                     )
 
+        # Prepare description placeholders
+        description_placeholders = {}
+        if self.mode == MODE_ESTACIO:
+            description_placeholders["measurements_info"] = "Mesures (requerides)"
+        else:
+            description_placeholders["measurements_info"] = ""
+
         return self.async_show_form(
             step_id="update_times",
             data_schema=vol.Schema(
                 {
                     vol.Required(
+                        CONF_ENABLE_FORECAST_DAILY,
+                        default=True
+                    ): bool,
+                    vol.Required(
+                        CONF_ENABLE_FORECAST_HOURLY,
+                        default=False
+                    ): bool,
+                    vol.Required(
                         CONF_UPDATE_TIME_1,
                         default=DEFAULT_UPDATE_TIME_1
                     ): str,
-                    vol.Required(
+                    vol.Optional(
                         CONF_UPDATE_TIME_2,
                         default=DEFAULT_UPDATE_TIME_2
                     ): str,
+                    vol.Optional(
+                        CONF_UPDATE_TIME_3,
+                        default=""
+                    ): str,
                 }
             ),
+            description_placeholders=description_placeholders,
             errors=errors,
         )
 
@@ -471,19 +536,42 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
             # Validate update times if they're being changed
             time1 = user_input.get(CONF_UPDATE_TIME_1, "").strip()
             time2 = user_input.get(CONF_UPDATE_TIME_2, "").strip()
+            time3 = user_input.get(CONF_UPDATE_TIME_3, "").strip()
+            enable_daily = user_input.get(CONF_ENABLE_FORECAST_DAILY, True)
+            enable_hourly = user_input.get(CONF_ENABLE_FORECAST_HOURLY, False)
             
-            time_errors = validate_update_times(time1, time2)
+            time_errors = validate_update_times(time1, time2, time3)
             errors.update(time_errors)
+            
+            # Validate forecast selection (only for municipal mode)
+            mode = self.config_entry.data.get(CONF_MODE)
+            if mode == MODE_MUNICIPI and not enable_daily and not enable_hourly:
+                errors["base"] = "must_select_one_forecast"
             
             if not errors:
                 # Update both options and data
                 # Using kwargs for forward compatibility with future HA versions
                 self.hass.config_entries.async_update_entry(
                     entry=self.config_entry,
-                    data={**self.config_entry.data, CONF_UPDATE_TIME_1: time1, CONF_UPDATE_TIME_2: time2},
+                    data={
+                        **self.config_entry.data, 
+                        CONF_UPDATE_TIME_1: time1, 
+                        CONF_UPDATE_TIME_2: time2,
+                        CONF_UPDATE_TIME_3: time3,
+                        CONF_ENABLE_FORECAST_DAILY: enable_daily,
+                        CONF_ENABLE_FORECAST_HOURLY: enable_hourly,
+                    },
                     options=user_input,
                 )
                 return self.async_create_entry(title="", data=user_input)
+
+        # Prepare description placeholders
+        description_placeholders = {}
+        mode = self.config_entry.data.get(CONF_MODE)
+        if mode == MODE_ESTACIO:
+            description_placeholders["measurements_info"] = "Mesures (requerides)"
+        else:
+            description_placeholders["measurements_info"] = ""
 
         return self.async_show_form(
             step_id="init",
@@ -496,19 +584,38 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                         ),
                     ): str,
                     vol.Required(
+                        CONF_ENABLE_FORECAST_DAILY,
+                        default=self.config_entry.data.get(
+                            CONF_ENABLE_FORECAST_DAILY, True
+                        ),
+                    ): bool,
+                    vol.Required(
+                        CONF_ENABLE_FORECAST_HOURLY,
+                        default=self.config_entry.data.get(
+                            CONF_ENABLE_FORECAST_HOURLY, False
+                        ),
+                    ): bool,
+                    vol.Required(
                         CONF_UPDATE_TIME_1,
                         default=self.config_entry.data.get(
                             CONF_UPDATE_TIME_1, DEFAULT_UPDATE_TIME_1
                         ),
                     ): str,
-                    vol.Required(
+                    vol.Optional(
                         CONF_UPDATE_TIME_2,
                         default=self.config_entry.data.get(
                             CONF_UPDATE_TIME_2, DEFAULT_UPDATE_TIME_2
                         ),
                     ): str,
+                    vol.Optional(
+                        CONF_UPDATE_TIME_3,
+                        default=self.config_entry.data.get(
+                            CONF_UPDATE_TIME_3, ""
+                        ),
+                    ): str,
                 }
             ),
+            description_placeholders=description_placeholders,
             errors=errors,
         )
 

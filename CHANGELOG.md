@@ -5,6 +5,13 @@ Tots els canvis notables d'aquest projecte es documentaran en aquest fitxer.
 El format està basat en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i aquest projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.0.1] - 2025-11-28
+
+### Canviat
+- **Sensor binari d'estat**: Canviat el nom de "Problema actualitzant dades" a "Última actualització correcte" per major claredat.
+- **Nom de l'entitat**: El sensor binari ara no inclou el nom del dispositiu (municipi/estació) en el seu nom visual, mostrant-se netament com a "Última actualització correcte".
+- **Sensor de Província**: Millorada la lògica per no crear el sensor si la dada no està disponible (comú en Mode Municipi), evitant entitats buides.
+
 ## [1.0.0] - 2025-11-25
 
 ### Afegit
@@ -18,7 +25,6 @@ i aquest projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 - **Mode Municipi**: Mode només prediccions sense estació
   - Sensor de predicció horària (72 hores)
   - Sensor de predicció diària (8 dies)
-  - Sensor d'índex UV
   - Ideal per usuaris amb estació local que volen prediccions oficials
 
 #### Gestió de dades
@@ -100,7 +106,7 @@ i aquest projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
 #### Plataformes
 - `weather`: Entitat Weather per Mode Estació
-- `sensor`: Prediccions, índex UV, quotes, timestamps, hores actualització
+- `sensor`: Prediccions, quotes, timestamps, hores actualització
 - `button`: Botó d'actualització manual
 - `event`: Esdeveniments d'actualització de dades
 
@@ -121,7 +127,6 @@ i aquest projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
   - `/prediccio/v1/estacio/{code}` (prediccions estació)
   - `/prediccio/v1/municipi/{code}/horaria` (prediccions horàries)
   - `/prediccio/v1/municipi/{code}/diaria` (prediccions diàries)
-  - `/prediccio/v1/uvi/{code}` (índex UV)
   - `/apidquoteslimits/v1/peticions-disponibles` (límits quota)
 
 #### Dependències

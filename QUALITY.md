@@ -35,13 +35,15 @@ Línies de codi de test: 2,443+
 | Component | Tests | Cobertura |
 |-----------|-------|-----------|
 | **sensor.py** | 18 | >95% |
+| **binary_sensor.py** | 15 | >95% |
 | **weather.py** | 15 | >95% |
 | **device_trigger.py** | 7 | 100% |
 | **__init__.py** | 10 | >95% |
 | **coordinator.py** | 7 | >95% |
+| **coordinator_granular.py** | 4 | 100% |
 | **button.py** | 7 | >95% |
 | **api.py** | 7 | >95% |
-| **update_times.py** | 9 | >95% |
+| **update_times.py** | 10 | >95% |
 | **retry_logic.py** | 8 | >95% |
 | **reauth.py** | 5 | >95% |
 | **events.py** | 5 | >95% |
@@ -50,11 +52,12 @@ Línies de codi de test: 2,443+
 
 ### Àrees cobertes
 
-- ✅ **Sensors**: Quotes, prediccions, UV, timestamps, update times
+- ✅ **Sensors**: Quotes, prediccions, timestamps, update times
+- ✅ **Binary Sensors**: Estat d'actualització, problemes de quota
 - ✅ **Weather entity**: Totes les propietats i edge cases
 - ✅ **Device triggers**: Automations per dispositiu
 - ✅ **Setup/Unload**: Lifecycle complet
-- ✅ **Coordinator**: Actualitzacions en ambdós modes
+- ✅ **Coordinator**: Actualitzacions en ambdós modes, configuració granular
 - ✅ **API client**: Totes les crides amb error handling
 - ✅ **Button**: Actualització manual
 - ✅ **Events**: Data update events
@@ -62,6 +65,7 @@ Línies de codi de test: 2,443+
 - ✅ **Reauth**: Re-autenticació sense restart
 - ✅ **Device grouping**: Agrupació correcta d'entitats
 - ✅ **Entity categories**: Diagnostic sensors correctes
+- ✅ **Update Times**: Suport per a 3 hores d'actualització configurables
 
 ---
 
@@ -224,7 +228,7 @@ Quan suggereixis canvis o nova funcionalitat:
 - Sensors diagnòstic: `EntityCategory.DIAGNOSTIC`
 - Device grouping: Totes les entitats sota un únic dispositiu
 - Events: `meteocat_community_edition_data_updated`
-- Actualitzacions: 2 cops al dia (optimitzat per quotes)
+- Actualitzacions: Fins a 3 cops al dia (configurable)
 
 ---
 

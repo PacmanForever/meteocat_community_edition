@@ -26,9 +26,9 @@ If any of these tests fail, the integration could:
 5. Fail to update at configured times
 
 Quota Impact:
-- MODE_ESTACIO: ~16 calls/day = 480/month (with 06:00, 14:00 schedule)
-- MODE_MUNICIPI: ~8 calls/day = 240/month (with 06:00, 14:00 schedule)
-- With 1000 calls/month quota, this leaves 520-760 for manual updates
+- MODE_ESTACIO: ~13 calls/day = 390/month (with 06:00, 14:00 schedule)
+- MODE_MUNICIPI: ~6 calls/day = 180/month (with 06:00, 14:00 schedule)
+- With 1000 calls/month quota, this leaves 610-820 for manual updates
 
 Last Updated: 2025-11-26
 Test Count: 17 tests
@@ -105,11 +105,6 @@ def mock_api():
     })
     api.get_hourly_forecast = AsyncMock(return_value={
         "dies": [{"data": "2025-11-24", "variables": {}}]
-    })
-    api.get_uv_index = AsyncMock(return_value={
-        "ine": "081131",
-        "nom": "Granollers",
-        "uvi": []
     })
     api.get_quotes = AsyncMock(return_value={
         "client": {"nom": "Test"},
@@ -219,24 +214,22 @@ async def test_api_calls_estacio_mode(mock_hass, mock_entry_estacio, mock_api):
         
         # Verify API calls for ESTACIO mode (first time)
         # Should call: get_stations (once), get_station_measurements, get_municipal_forecast, 
-        # get_hourly_forecast, get_uv_index, get_quotes
+        # get_hourly_forecast, get_quotes
         assert mock_api.get_stations.call_count == 1
         assert mock_api.get_station_measurements.call_count == 1
         assert mock_api.get_municipal_forecast.call_count == 1
         assert mock_api.get_hourly_forecast.call_count == 1
-        assert mock_api.get_uv_index.call_count == 1
         assert mock_api.get_quotes.call_count == 1
         
-        # Total: 6 API calls on first update
+        # Total: 5 API calls on first update
         total_calls = (
             mock_api.get_stations.call_count +
             mock_api.get_station_measurements.call_count +
             mock_api.get_municipal_forecast.call_count +
             mock_api.get_hourly_forecast.call_count +
-            mock_api.get_uv_index.call_count +
             mock_api.get_quotes.call_count
         )
-        assert total_calls == 6
+        assert total_calls == 5
         
         # Second update (get_stations should not be called again)
         await coordinator._async_update_data()
@@ -247,19 +240,17 @@ async def test_api_calls_estacio_mode(mock_hass, mock_entry_estacio, mock_api):
         assert mock_api.get_station_measurements.call_count == 2
         assert mock_api.get_municipal_forecast.call_count == 2
         assert mock_api.get_hourly_forecast.call_count == 2
-        assert mock_api.get_uv_index.call_count == 2
         assert mock_api.get_quotes.call_count == 2
         
-        # Total after 2 updates: 6 (first) + 5 (second) = 11 calls
+        # Total after 2 updates: 5 (first) + 4 (second) = 9 calls
         total_calls_after_second = (
             mock_api.get_stations.call_count +
             mock_api.get_station_measurements.call_count +
             mock_api.get_municipal_forecast.call_count +
             mock_api.get_hourly_forecast.call_count +
-            mock_api.get_uv_index.call_count +
             mock_api.get_quotes.call_count
         )
-        assert total_calls_after_second == 11
+        assert total_calls_after_second == 9
 
 
 @pytest.mark.asyncio
@@ -277,20 +268,18 @@ async def test_api_calls_municipi_mode(mock_hass, mock_entry_municipi, mock_api)
         assert mock_api.get_stations.call_count == 0
         assert mock_api.get_station_measurements.call_count == 0
         
-        # Should call: get_municipal_forecast, get_hourly_forecast, get_uv_index, get_quotes
+        # Should call: get_municipal_forecast, get_hourly_forecast, get_quotes
         assert mock_api.get_municipal_forecast.call_count == 1
         assert mock_api.get_hourly_forecast.call_count == 1
-        assert mock_api.get_uv_index.call_count == 1
         assert mock_api.get_quotes.call_count == 1
         
-        # Total: 4 API calls per update in MUNICIPI mode
+        # Total: 3 API calls per update in MUNICIPI mode
         total_calls = (
             mock_api.get_municipal_forecast.call_count +
             mock_api.get_hourly_forecast.call_count +
-            mock_api.get_uv_index.call_count +
             mock_api.get_quotes.call_count
         )
-        assert total_calls == 4
+        assert total_calls == 3
 
 
 @pytest.mark.asyncio
@@ -298,34 +287,34 @@ async def test_daily_quota_usage_estacio():
     """Test that daily quota usage is reasonable for ESTACIO mode.
     
     Expected usage with default times (06:00, 14:00):
-    - First update (initial setup): 6 calls
-    - Update at 06:00: 5 calls
-    - Update at 14:00: 5 calls
+    - First update (initial setup): 5 calls
+    - Update at 06:00: 4 calls
+    - Update at 14:00: 4 calls
     - Manual updates: variable
     
-    Minimum daily usage: 6 + 5 + 5 = 16 calls (if no manual updates)
+    Minimum daily usage: 5 + 4 + 4 = 13 calls (if no manual updates)
     """
     # This is a documentation test - just verify the calculation
-    first_update_calls = 6  # get_stations + measurements + forecast + hourly + uv + quotes
-    scheduled_update_calls = 5  # measurements + forecast + hourly + uv + quotes (no get_stations)
+    first_update_calls = 5  # get_stations + measurements + forecast + hourly + quotes
+    scheduled_update_calls = 4  # measurements + forecast + hourly + quotes (no get_stations)
     
     daily_scheduled_updates = 2  # 06:00 and 14:00
     
     minimum_daily_calls = first_update_calls + (scheduled_update_calls * daily_scheduled_updates)
     
-    # Should be 6 + (5 * 2) = 16 calls per day minimum
-    assert minimum_daily_calls == 16
+    # Should be 5 + (4 * 2) = 13 calls per day minimum
+    assert minimum_daily_calls == 13
     
     # With 1000 quota per month (typical Predicció plan)
-    # 16 calls/day * 30 days = 480 calls/month
-    # This leaves 520 calls for manual updates (~ 17 manual updates/day)
+    # 13 calls/day * 30 days = 390 calls/month
+    # This leaves 610 calls for manual updates (~ 20 manual updates/day)
     monthly_quota = 1000
     days_per_month = 30
     monthly_scheduled_calls = minimum_daily_calls * days_per_month
     remaining_quota = monthly_quota - monthly_scheduled_calls
     
-    assert monthly_scheduled_calls == 480
-    assert remaining_quota == 520
+    assert monthly_scheduled_calls == 390
+    assert remaining_quota == 610
 
 
 @pytest.mark.asyncio
@@ -333,27 +322,27 @@ async def test_daily_quota_usage_municipi():
     """Test that daily quota usage is reasonable for MUNICIPI mode.
     
     Expected usage with default times (06:00, 14:00):
-    - Each update: 4 calls (forecast + hourly + uv + quotes)
-    - 2 updates per day = 8 calls/day
+    - Each update: 3 calls (forecast + hourly + quotes)
+    - 2 updates per day = 6 calls/day
     """
-    calls_per_update = 4  # forecast + hourly + uv + quotes
+    calls_per_update = 3  # forecast + hourly + quotes
     daily_scheduled_updates = 2  # 06:00 and 14:00
     
     minimum_daily_calls = calls_per_update * daily_scheduled_updates
     
-    # Should be 4 * 2 = 8 calls per day
-    assert minimum_daily_calls == 8
+    # Should be 3 * 2 = 6 calls per day
+    assert minimum_daily_calls == 6
     
     # With 1000 quota per month
-    # 8 calls/day * 30 days = 240 calls/month
-    # This leaves 760 calls for manual updates (~ 25 manual updates/day)
+    # 6 calls/day * 30 days = 180 calls/month
+    # This leaves 820 calls for manual updates (~ 27 manual updates/day)
     monthly_quota = 1000
     days_per_month = 30
     monthly_scheduled_calls = minimum_daily_calls * days_per_month
     remaining_quota = monthly_quota - monthly_scheduled_calls
     
-    assert monthly_scheduled_calls == 240
-    assert remaining_quota == 760
+    assert monthly_scheduled_calls == 180
+    assert remaining_quota == 820
 
 
 @pytest.mark.asyncio
@@ -400,7 +389,6 @@ async def test_quotes_fetched_after_other_api_calls(mock_hass, mock_entry_estaci
         mock_api.get_station_measurements.side_effect = track_call('get_station_measurements')
         mock_api.get_municipal_forecast.side_effect = track_call('get_municipal_forecast')
         mock_api.get_hourly_forecast.side_effect = track_call('get_hourly_forecast')
-        mock_api.get_uv_index.side_effect = track_call('get_uv_index')
         mock_api.get_quotes.side_effect = track_call('get_quotes')
         
         # Perform update
@@ -413,7 +401,7 @@ async def test_quotes_fetched_after_other_api_calls(mock_hass, mock_entry_estaci
         # Verify other calls happened before get_quotes
         quotes_index = call_order.index('get_quotes')
         for call_name in ['get_station_measurements', 'get_municipal_forecast', 
-                          'get_hourly_forecast', 'get_uv_index']:
+                          'get_hourly_forecast']:
             if call_name in call_order:
                 assert call_order.index(call_name) < quotes_index
 
@@ -471,19 +459,18 @@ async def test_multiple_manual_updates_allowed(mock_hass, mock_entry_estacio, mo
         assert mock_api.get_station_measurements.call_count == 3
         
         # Total calls for all 3 updates:
-        # First: 6 calls (stations + measurements + forecast + hourly + uv + quotes)
-        # Second: 5 calls (measurements + forecast + hourly + uv + quotes)
-        # Third: 5 calls (measurements + forecast + hourly + uv + quotes)
-        # Total: 16 calls
+        # First: 5 calls (stations + measurements + forecast + hourly + quotes)
+        # Second: 4 calls (measurements + forecast + hourly + quotes)
+        # Third: 4 calls (measurements + forecast + hourly + quotes)
+        # Total: 13 calls
         total_calls = (
             mock_api.get_stations.call_count +
             mock_api.get_station_measurements.call_count +
             mock_api.get_municipal_forecast.call_count +
             mock_api.get_hourly_forecast.call_count +
-            mock_api.get_uv_index.call_count +
             mock_api.get_quotes.call_count
         )
-        assert total_calls == 16
+        assert total_calls == 13
 
 
 @pytest.mark.asyncio
@@ -656,16 +643,15 @@ async def test_no_duplicate_updates_on_ha_restart(mock_hass, mock_entry_estacio,
             assert mock_track.call_count == 1
         
         # Verify only 1 update happened (the first refresh)
-        # Should be 6 calls total (first update in ESTACIO mode)
+        # Should be 5 calls total (first update in ESTACIO mode)
         total_calls = (
             mock_api.get_stations.call_count +
             mock_api.get_station_measurements.call_count +
             mock_api.get_municipal_forecast.call_count +
             mock_api.get_hourly_forecast.call_count +
-            mock_api.get_uv_index.call_count +
             mock_api.get_quotes.call_count
         )
-        assert total_calls == 6
+        assert total_calls == 5
 
 
 @pytest.mark.asyncio

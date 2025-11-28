@@ -84,7 +84,6 @@ def mock_api_quota_exhausted():
     api.get_station_measurements = AsyncMock(return_value=None)
     api.get_municipal_forecast = AsyncMock(return_value=None)
     api.get_hourly_forecast = AsyncMock(return_value=None)
-    api.get_uv_index = AsyncMock(return_value=None)
     api.get_quotes = AsyncMock(return_value=None)
     api.find_municipality_for_station = AsyncMock(return_value=None)
     return api
@@ -158,7 +157,6 @@ async def test_estacio_first_refresh_tolerates_missing_forecasts(
     api.get_station_measurements = AsyncMock(return_value=[{"codi": "YM", "variables": []}])
     api.get_municipal_forecast = AsyncMock(return_value=None)
     api.get_hourly_forecast = AsyncMock(return_value=None)
-    api.get_uv_index = AsyncMock(return_value=None)
     api.get_quotes = AsyncMock(return_value=None)
     api.find_municipality_for_station = AsyncMock(return_value="081131")
     
@@ -173,7 +171,6 @@ async def test_estacio_first_refresh_tolerates_missing_forecasts(
         assert data.get("measurements") is not None
         assert data.get("forecast") is None
         assert data.get("forecast_hourly") is None
-        assert data.get("uv_index") is None
 
 
 # ============================================================================
@@ -199,7 +196,6 @@ async def test_municipi_first_refresh_tolerates_missing_forecasts(
         assert data is not None
         assert data.get("forecast") is None
         assert data.get("forecast_hourly") is None
-        assert data.get("uv_index") is None
         
         # _is_first_refresh should now be False
         assert coordinator._is_first_refresh is False
@@ -220,7 +216,7 @@ async def test_municipi_subsequent_update_fails_without_forecasts(
         
         # Second update - should fail now
         from homeassistant.helpers.update_coordinator import UpdateFailed
-        with pytest.raises(UpdateFailed, match="Missing critical data: forecast, forecast_hourly, uv_index"):
+        with pytest.raises(UpdateFailed, match="Missing critical data: forecast, forecast_hourly"):
             await coordinator._async_update_data()
 
 
@@ -240,7 +236,6 @@ async def test_is_first_refresh_flag_resets_after_successful_update(
     api.get_station_measurements = AsyncMock(return_value=[{"codi": "YM", "variables": []}])
     api.get_municipal_forecast = AsyncMock(return_value={"dies": []})
     api.get_hourly_forecast = AsyncMock(return_value={"dies": []})
-    api.get_uv_index = AsyncMock(return_value={"dies": []})
     api.get_quotes = AsyncMock(return_value={"plans": []})
     api.find_municipality_for_station = AsyncMock(return_value="081131")
     
