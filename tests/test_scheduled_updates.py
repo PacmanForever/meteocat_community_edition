@@ -124,6 +124,7 @@ def mock_entry_estacio():
         CONF_STATION_CODE: "YM",
         CONF_UPDATE_TIME_1: "06:00",
         CONF_UPDATE_TIME_2: "14:00",
+        "enable_forecast_hourly": True,  # Enable hourly forecast for test
     }
     entry.options = {}
     entry.entry_id = "test_entry_estacio"
@@ -140,6 +141,7 @@ def mock_entry_municipi():
         CONF_MUNICIPALITY_CODE: "081131",
         CONF_UPDATE_TIME_1: "06:00",
         CONF_UPDATE_TIME_2: "14:00",
+        "enable_forecast_hourly": True,  # Enable hourly forecast for test
     }
     entry.options = {}
     entry.entry_id = "test_entry_municipi"

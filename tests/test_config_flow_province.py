@@ -45,6 +45,7 @@ async def test_municipality_step_extracts_province_from_municipality(mock_api):
     """Test that province is extracted from municipality data when available."""
     flow = MeteocatConfigFlow()
     flow.hass = MagicMock()
+    flow.context = {}  # Initialize context manually for test
     flow.mode = MODE_MUNICIPI
     flow.comarca_code = "13"
     flow.comarca_name = "Barcelonès"
@@ -79,6 +80,7 @@ async def test_municipality_step_extracts_province_from_comarca_fallback(mock_ap
     """Test that province is extracted from comarca when missing in municipality."""
     flow = MeteocatConfigFlow()
     flow.hass = MagicMock()
+    flow.context = {}  # Initialize context manually for test
     flow.mode = MODE_MUNICIPI
     flow.comarca_code = "40"
     flow.comarca_name = "Vallès Occidental"
@@ -118,6 +120,7 @@ async def test_municipality_step_handles_missing_province_everywhere(mock_api):
     """Test graceful handling when province is missing in both municipality and comarca."""
     flow = MeteocatConfigFlow()
     flow.hass = MagicMock()
+    flow.context = {}  # Initialize context manually for test
     flow.mode = MODE_MUNICIPI
     flow.comarca_code = "99"
     flow.comarca_name = "Unknown"

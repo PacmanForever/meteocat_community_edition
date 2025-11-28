@@ -79,6 +79,7 @@ def mock_entry_municipal():
         "api_key": "test_api_key",
         "mode": MODE_MUNICIPI,
         "municipality_code": "081131",
+        "enable_forecast_hourly": True,  # Enable hourly forecast for test
     }
     entry.options = {}
     return entry

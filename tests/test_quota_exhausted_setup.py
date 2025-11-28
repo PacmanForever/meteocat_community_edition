@@ -71,6 +71,7 @@ def mock_entry_municipi():
         CONF_MUNICIPALITY_CODE: "080193",
         CONF_UPDATE_TIME_1: "06:00",
         CONF_UPDATE_TIME_2: "14:00",
+        "enable_forecast_hourly": True,  # Enable hourly forecast for test
     }
     entry.options = {}
     return entry
