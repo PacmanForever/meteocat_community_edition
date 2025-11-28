@@ -106,7 +106,7 @@ def test_default_update_times_used(mock_hass, mock_entry_default_times, mock_api
         assert coordinator.update_time_2 == DEFAULT_UPDATE_TIME_2
         assert coordinator.update_time_1 == "06:00"
         assert coordinator.update_time_2 == "14:00"
-        assert coordinator.update_time_3 is None
+        assert coordinator.update_time_3 == ""
 
 
 def test_custom_update_times_used(mock_hass, mock_entry_custom_times, mock_api):
@@ -116,7 +116,7 @@ def test_custom_update_times_used(mock_hass, mock_entry_custom_times, mock_api):
         
         assert coordinator.update_time_1 == "08:30"
         assert coordinator.update_time_2 == "16:45"
-        assert coordinator.update_time_3 is None
+        assert coordinator.update_time_3 == ""
 
 
 def test_three_update_times_used(mock_hass, mock_entry_three_times, mock_api):

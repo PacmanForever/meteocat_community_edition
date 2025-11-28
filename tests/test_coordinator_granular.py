@@ -40,7 +40,16 @@ def mock_entry():
     entry.options = {}
     return entry
 
-async def test_coordinator_calls_both_when_enabled(hass: HomeAssistant, mock_api, mock_entry):
+@pytest.fixture
+def hass():
+    """Mock Home Assistant."""
+    hass = MagicMock()
+    hass.bus = MagicMock()
+    hass.bus.async_fire = MagicMock()
+    return hass
+
+@pytest.mark.asyncio
+async def test_coordinator_calls_both_when_enabled(hass, mock_api, mock_entry):
     """Test coordinator calls both forecast APIs when both are enabled."""
     with patch("custom_components.meteocat_community_edition.coordinator.MeteocatAPI", return_value=mock_api):
         coordinator = MeteocatCoordinator(hass, mock_entry)
@@ -51,7 +60,8 @@ async def test_coordinator_calls_both_when_enabled(hass: HomeAssistant, mock_api
         mock_api.get_municipal_forecast.assert_called_once_with("080193")
         mock_api.get_hourly_forecast.assert_called_once_with("080193")
 
-async def test_coordinator_skips_daily_when_disabled(hass: HomeAssistant, mock_api, mock_entry):
+@pytest.mark.asyncio
+async def test_coordinator_skips_daily_when_disabled(hass, mock_api, mock_entry):
     """Test coordinator skips daily forecast when disabled."""
     mock_entry.data[CONF_ENABLE_FORECAST_DAILY] = False
     
@@ -63,7 +73,8 @@ async def test_coordinator_skips_daily_when_disabled(hass: HomeAssistant, mock_a
         mock_api.get_municipal_forecast.assert_not_called()
         mock_api.get_hourly_forecast.assert_called_once_with("080193")
 
-async def test_coordinator_skips_hourly_when_disabled(hass: HomeAssistant, mock_api, mock_entry):
+@pytest.mark.asyncio
+async def test_coordinator_skips_hourly_when_disabled(hass, mock_api, mock_entry):
     """Test coordinator skips hourly forecast when disabled."""
     mock_entry.data[CONF_ENABLE_FORECAST_HOURLY] = False
     
@@ -75,7 +86,8 @@ async def test_coordinator_skips_hourly_when_disabled(hass: HomeAssistant, mock_
         mock_api.get_municipal_forecast.assert_called_once_with("080193")
         mock_api.get_hourly_forecast.assert_not_called()
 
-async def test_coordinator_skips_both_when_disabled(hass: HomeAssistant, mock_api, mock_entry):
+@pytest.mark.asyncio
+async def test_coordinator_skips_both_when_disabled(hass, mock_api, mock_entry):
     """Test coordinator skips both forecasts when disabled."""
     mock_entry.data[CONF_ENABLE_FORECAST_DAILY] = False
     mock_entry.data[CONF_ENABLE_FORECAST_HOURLY] = False

@@ -438,7 +438,10 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 critical_fields = ["measurements"]
             # Forecasts are important for both modes if municipality_code exists
             if self.municipality_code:
-                critical_fields.extend(["forecast", "forecast_hourly"])
+                if self.enable_forecast_daily:
+                    critical_fields.append("forecast")
+                if self.enable_forecast_hourly:
+                    critical_fields.append("forecast_hourly")
             
             missing_data = [field for field in critical_fields if data.get(field) is None]
             if missing_data:

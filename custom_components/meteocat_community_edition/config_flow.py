@@ -91,6 +91,7 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     def __init__(self) -> None:
         """Initialize the config flow."""
+        super().__init__()
         self.api_key: str | None = None
         self.mode: str | None = None
         self.comarca_code: str | None = None

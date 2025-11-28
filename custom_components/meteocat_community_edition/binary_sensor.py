@@ -129,7 +129,7 @@ class MeteocatUpdateStatusBinarySensor(CoordinatorEntity[MeteocatCoordinator], B
         self._attr_translation_key = "update_state"
         self._attr_entity_category = EntityCategory.DIAGNOSTIC
         self._attr_has_entity_name = False
-        self._attr_name = None
+        self._attr_name = "Última actualització correcte"
         
         # Set explicit entity_id based on mode
         if mode == MODE_ESTACIO and station_code:
