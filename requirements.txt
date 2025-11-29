@@ -7,7 +7,7 @@
 # Install with: pip install -r requirements.txt
 
 # Core dependencies (runtime)
-aiohttp>=3.9.0
+aiohttp>=3.9.0,<4
 
 # Home Assistant (for development and testing)
 homeassistant>=2024.1.0
