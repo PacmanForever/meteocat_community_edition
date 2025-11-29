@@ -1,9 +1,17 @@
 ﻿# Meteocat (Community Edition)
 
-[![GitHub Release][releases-shield]][releases]
-[![License][license-shield]](LICENSE)
 [![hacs][hacsbadge]][hacs]
+[![Version](https://img.shields.io/github/v/tag/PacmanForever/meteocat_community_edition?label=version)](https://github.com/PacmanForever/meteocat_community_edition/tags)
+[![License](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 ![Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)
+
+[![Tests](https://github.com/PacmanForever/meteocat_community_edition/actions/workflows/tests.yml/badge.svg)](https://github.com/PacmanForever/meteocat_community_edition/actions/workflows/tests.yml)
+[![Validate HACS](https://github.com/PacmanForever/meteocat_community_edition/actions/workflows/validate_hacs.yml/badge.svg)](https://github.com/PacmanForever/meteocat_community_edition/actions/workflows/validate_hacs.yml)
+[![Validate Hassfest](https://github.com/PacmanForever/meteocat_community_edition/actions/workflows/validate_hassfest.yml/badge.svg)](https://github.com/PacmanForever/meteocat_community_edition/actions/workflows/validate_hassfest.yml)
+
+![Home Assistant](https://img.shields.io/badge/home%20assistant-2024.1.0%2B-blue)
+
+**Idiomes**: **Català** | [English](README.en.md) | [Español](README.es.md)
 
 Integració **comunitària** i **no oficial** per a Home Assistant del Servei Meteorològic de Catalunya (Meteocat).
 
@@ -114,93 +122,53 @@ Per configurar un endpoint personalitzat o modificar les hores d'actualització:
 
 ## Entitats
 
-### Mode Estació XEMA
+La integració crea diferents entitats segons el mode configurat:
 
-Per cada estació configurada es creen:
+### Mode Estació XEMA (Dades en temps real + Predicció)
 
-#### Weather Entity
-- `weather.{estacio}_{codi}`: Entitat principal amb dades actuals i prediccions
-- Exemple: `weather.Barcelona_ym`
+Aquest mode està pensat per obtenir dades d'una estació meteorològica oficial del Meteocat.
 
-#### Sensors de Quotes
-- **Peticions disponibles Predicció**: Consums restants del pla Predicció
-- **Peticions disponibles Referència**: Consums restants del pla Referència  
-- **Peticions disponibles XDDE**: Consums restants del pla XDDE
-- **Peticions disponibles XEMA**: Consums restants del pla XEMA
-- Entity IDs: `sensor.{estacio}_{codi}_quota_{pla}`
-- Exemple: `sensor.Barcelona_ym_quota_prediccio`
-- Atributs: límit total, peticions utilitzades, data de reset
+**Dispositiu**: `{Nom Estació} {Codi}` (ex: "Barcelona - Raval YM")
 
-#### Sensor d'Estat
-- **Última actualització correcte**: Indica si l'última actualització de dades ha estat exitosa.
-- Entity ID: `binary_sensor.{estacio}_{codi}_update_state`
-- Estat: OFF (Correcte) / ON (Problema)
+| Tipus | Entitat | Descripció |
+|-------|---------|------------|
+| **Weather** | `weather.{estacio}_{codi}` | Entitat principal. Mostra l'estat actual (temperatura, humitat, vent, pressió, pluja) obtingut de l'estació XEMA i la predicció (horària i diària) del municipi on es troba l'estació. |
+| **Sensor** | `sensor.{estacio}_{codi}_quota_{pla}` | Un sensor per a cada pla de quotes (Predicció, Referència, XDDE, XEMA). Mostra les peticions restants. |
+| **Binary Sensor** | `binary_sensor.{estacio}_{codi}_update_state` | Indica l'estat de l'última actualització (`OFF` = Correcte, `ON` = Error). |
+| **Sensor** | `sensor.{estacio}_{codi}_last_update` | Timestamp de l'última actualització exitosa. |
+| **Sensor** | `sensor.{estacio}_{codi}_next_update` | Timestamp de la pròxima actualització programada. |
+| **Sensor** | `sensor.{estacio}_{codi}_update_time_{n}` | Mostra les hores d'actualització configurades (ex: 06:00, 14:00). |
+| **Sensor** | `sensor.{estacio}_{codi}_altitude` | Altitud de l'estació (metres). |
+| **Sensor** | `sensor.{estacio}_{codi}_latitude` | Latitud de l'estació. |
+| **Sensor** | `sensor.{estacio}_{codi}_longitude` | Longitud de l'estació. |
+| **Sensor** | `sensor.{estacio}_{codi}_comarca_name` | Nom de la comarca. |
+| **Sensor** | `sensor.{estacio}_{codi}_municipality_name` | Nom del municipi (si disponible). |
+| **Sensor** | `sensor.{estacio}_{codi}_provincia_name` | Nom de la província (si disponible). |
+| **Button** | `button.{estacio}_{codi}_refresh` | Botó per forçar una actualització manual immediata. |
 
-#### Sensors de Timestamps
-- **Última actualització**: Timestamp de la darrera actualització exitosa
-- **Pròxima actualització**: Timestamp de la pròxima actualització programada
-- Entity IDs: `sensor.{estacio}_{codi}_last_update`, `sensor.{estacio}_{codi}_next_update`
+### Mode Predicció Municipal (Només Predicció)
 
-#### Sensors d'Hores d'Actualització
-- **Hora d'actualització 1**: Mostra la primera hora configurada (read-only)
-- **Hora d'actualització 2**: Mostra la segona hora configurada (read-only)
-- Entity IDs: `sensor.{estacio}_{codi}_update_time_1`, `sensor.{estacio}_{codi}_update_time_2`
-- Format: HH:MM (24h)
+Aquest mode està pensat per a usuaris que ja tenen una estació meteorològica pròpia (Netatmo, Ecowitt, etc.) i només volen les prediccions oficials.
 
-#### Botó d'Actualització
-- **Actualitzar dades**: Força una actualització immediata de totes les dades
-- Entity ID: `button.{estacio}_{codi}_refresh`
-- Exemple: `button.Barcelona_ym_refresh`
+**Dispositiu**: `{Nom Municipi}` (ex: "Barcelona")
 
-> **Nota:** Totes les entitats s'agrupen sota un únic dispositiu amb nom "{Estació} {Codi}" (ex: "Barcelona YM")
+| Tipus | Entitat | Descripció |
+|-------|---------|------------|
+| **Sensor** | `sensor.{municipi}_prediccio_horaria` | L'estat mostra les hores disponibles. Els atributs contenen la predicció completa per a 72h. |
+| **Sensor** | `sensor.{municipi}_prediccio_diaria` | L'estat mostra els dies disponibles. Els atributs contenen la predicció completa per a 8 dies. |
+| **Sensor** | `sensor.{municipi}_quota_{pla}` | Un sensor per a cada pla de quotes (Predicció, Referència, XDDE, XEMA). Mostra les peticions restants. |
+| **Binary Sensor** | `binary_sensor.{municipi}_update_state` | Indica l'estat de l'última actualització (`OFF` = Correcte, `ON` = Error). |
+| **Sensor** | `sensor.{municipi}_last_update` | Timestamp de l'última actualització exitosa. |
+| **Sensor** | `sensor.{municipi}_next_update` | Timestamp de la pròxima actualització programada. |
+| **Sensor** | `sensor.{municipi}_update_time_{n}` | Mostra les hores d'actualització configurades. |
+| **Sensor** | `sensor.{municipi}_municipality_name` | Nom del municipi. |
+| **Sensor** | `sensor.{municipi}_comarca_name` | Nom de la comarca. |
+| **Sensor** | `sensor.{municipi}_provincia_name` | Nom de la província (si disponible). |
+| **Sensor** | `sensor.{municipi}_municipality_latitude` | Latitud del municipi (si disponible). |
+| **Sensor** | `sensor.{municipi}_municipality_longitude` | Longitud del municipi (si disponible). |
+| **Button** | `button.{municipi}_refresh` | Botó per forçar una actualització manual immediata. |
 
-### Mode Predicció Municipal
-
-Per cada municipi configurat es creen:
-
-#### Sensor Predicció Horària
-- **Nom**: {Municipi} Predicció Horària
-- **Entity ID**: `sensor.{municipi}_prediccio_horaria`
-- Estat: Nombre d'hores de predicció disponibles (ex: "72 hores")
-- Atributs: Dades completes de predicció horària (72h)
-
-#### Sensor Predicció Diària
-- **Nom**: {Municipi} Predicció Diària
-- **Entity ID**: `sensor.{municipi}_prediccio_diaria`
-- Estat: Nombre de dies de predicció disponibles (ex: "8 dies")
-- Atributs: Dades completes de predicció diària (8 dies)
-
-#### Sensors de Quotes
-- **Peticions disponibles Predicció**: Consums restants del pla Predicció
-- **Peticions disponibles Referència**: Consums restants del pla Referència  
-- **Peticions disponibles XDDE**: Consums restants del pla XDDE
-- **Peticions disponibles XEMA**: Consums restants del pla XEMA
-- Entity IDs: `sensor.{municipi}_quota_{pla}`
-- Exemple: `sensor.Barcelona_quota_prediccio`
-- Atributs: límit total, peticions utilitzades, data de reset
-
-#### Sensor d'Estat
-- **Última actualització correcte**: Indica si l'última actualització de dades ha estat exitosa.
-- Entity ID: `binary_sensor.{municipi}_update_state`
-- Estat: OFF (Correcte) / ON (Problema)
-
-#### Sensors de Timestamps
-- **Última actualització**: Timestamp de la darrera actualització exitosa
-- **Pròxima actualització**: Timestamp de la pròxima actualització programada
-- Entity IDs: `sensor.{municipi}_last_update`, `sensor.{municipi}_next_update`
-
-#### Sensors d'Hores d'Actualització
-- **Hora d'actualització 1**: Mostra la primera hora configurada (read-only)
-- **Hora d'actualització 2**: Mostra la segona hora configurada (read-only)
-- Entity IDs: `sensor.{municipi}_update_time_1`, `sensor.{municipi}_update_time_2`
-- Format: HH:MM (24h)
-
-#### Botó d'Actualització
-- **Actualitzar dades**: Força una actualització immediata de totes les dades
-- Entity ID: `button.{municipi}_refresh`
-- Exemple: `button.Barcelona_refresh`
-
-> **Nota:** Totes les entitats s'agrupen sota un únic dispositiu amb nom "{Municipi}" (ex: "Barcelona")
+> **Nota:** En el Mode Municipi **NO es crea cap entitat `weather`**. Has de fer servir els sensors de predicció per crear la teva pròpia entitat `weather.template` o mostrar les dades en targetes personalitzades.
 
 ## Actualització de dades
 
@@ -605,9 +573,6 @@ Consulta el fitxer [LICENSE](LICENSE) per la llicència completa.
 
 ---
 
-[releases-shield]: https://img.shields.io/github/release/PacmanForever/meteocat_community_edition.svg
-[releases]: https://github.com/PacmanForever/meteocat_community_edition/releases
-[license-shield]: https://img.shields.io/github/license/PacmanForever/meteocat_community_edition.svg
 [hacs]: https://github.com/hacs/integration
 [hacsbadge]: https://img.shields.io/badge/HACS-Custom-orange.svg
 
