@@ -24,7 +24,7 @@ Integració **comunitària** i **no oficial** per a Home Assistant del Servei Me
 > 🎯 **Objectiu**: Facilitar la integració amb Home Assistant sense necessitat de conèixer el funcionament intern de l'API. No té cap finalitat comercial ni busca obtenir cap benefici econòmic.
 
 > [!IMPORTANT]
-> **Beta:** Aquesta integració es troba en fase *beta*. No es garanteix el correcte funcionament i pot contenir errors; utilitza-la sota la teva pròpia responsabilitat.
+> **Beta:** Aquesta integració es troba en fase *beta*. No es garanteix el correcte funcionament i pot contenir errors, utilitza-la sota la teva pròpia responsabilitat.
 >  
 > **Cal registrar-se a l'API de Meteocat** per obtenir una clau API:
 > - 🆓 **Pla ciutadà** (gratuït)
@@ -577,6 +577,7 @@ Consulta el fitxer [LICENSE](LICENSE) per la llicència completa.
 
 [hacs]: https://github.com/hacs/integration
 [hacsbadge]: https://img.shields.io/badge/HACS-Custom-orange.svg
+
 
 
 
