@@ -16,6 +16,8 @@
 > 🎯 **Purpose**: Simplify Home Assistant integration without needing to understand the internal workings of the API. It has no commercial purpose and seeks no economic benefit.
 
 > [!IMPORTANT]
+> **Beta:** This integration is currently in *beta*. Correct operation is not guaranteed and it may contain bugs, use it at your own risk
+> 
 > **Registration required at the Meteocat API** to obtain an API key:
 > - 🆓 **Citizen plan** (free)
 > - 💼 **Business plan** (paid)
@@ -604,4 +606,5 @@ See the [LICENSE](LICENSE) file for the complete license.
 [license-shield]: https://img.shields.io/github/license/PacmanForever/meteocat_community_edition.svg
 [hacs]: https://github.com/hacs/integration
 [hacsbadge]: https://img.shields.io/badge/HACS-Custom-orange.svg
+
 
