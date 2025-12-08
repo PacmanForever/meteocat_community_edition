@@ -198,11 +198,11 @@ class MeteocatQuotaSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
             # XEMA: include station code in entity_id
             base_name = entity_name.replace(f" {station_code}", "").lower().replace(" ", "_")
             code_lower = station_code.lower()
-            self.entity_id = f"sensor.{base_name}_{code_lower}_quota_{plan_id}"
+            self.entity_id = f"sensor.{base_name}_{code_lower}_quota_disponible_{plan_id}"
         else:
             # Municipal: no code in entity_id
             base_name = entity_name.lower().replace(" ", "_")
-            self.entity_id = f"sensor.{base_name}_quota_{plan_id}"
+            self.entity_id = f"sensor.{base_name}_quota_disponible_{plan_id}"
         
         # Set device info to group with weather entity
         self._attr_device_info = {
@@ -221,21 +221,59 @@ class MeteocatQuotaSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
         Returns:
             tuple: (display_name, entity_id_suffix)
         """
-        plan_lower = plan_name.lower()
-        
-        # Map plan names to simplified versions
-        if "prediccio" in plan_lower or "predicció" in plan_lower:
-            return ("Predicció", "prediccio")
-        elif "referencia" in plan_lower or "referència" in plan_lower:
-            return ("Referència", "referencia")
-        elif "xdde" in plan_lower:
-            return ("XDDE", "xdde")
-        elif "xema" in plan_lower:
-            return ("XEMA", "xema")
-        else:
-            # Fallback: use original name
-            clean_id = plan_name.replace(" ", "_").replace("è", "e").replace("à", "a").lower()
-            return (plan_name, clean_id)
+        import re
+        import unicodedata
+
+        # Strip accents and normalize to a slug-friendly form
+        def _slug(text: str) -> str:
+            # Manual replacements for Catalan/Spanish chars to ensure they are handled
+            # Using unicode escapes to avoid file encoding issues
+            replacements = {
+                "\u00e0": "a", "\u00e1": "a", "\u00e8": "e", "\u00e9": "e", "\u00ed": "i", "\u00ef": "i",
+                "\u00f2": "o", "\u00f3": "o", "\u00fa": "u", "\u00fc": "u", "\u00e7": "c", "\u00f1": "n",
+                "\u00c0": "a", "\u00c1": "a", "\u00c8": "e", "\u00c9": "e", "\u00cd": "i", "\u00cf": "i",
+                "\u00d2": "o", "\u00d3": "o", "\u00da": "u", "\u00dc": "u", "\u00c7": "c", "\u00d1": "n"
+            }
+            for char, repl in replacements.items():
+                text = text.replace(char, repl)
+
+            text_norm = unicodedata.normalize("NFD", text)
+            text_no_accents = "".join(ch for ch in text_norm if unicodedata.category(ch) != "Mn")
+            text_lower = text_no_accents.lower()
+            text_spaces = re.sub(r"\s+", "_", text_lower)
+            text_clean = re.sub(r"[^a-z0-9_]+", "_", text_spaces)
+            slug = re.sub(r"_+", "_", text_clean).strip("_")
+            
+            # Fix common corruptions caused by encoding issues on some systems
+            # e.g. "Predicci_100" -> "prediccio_100"
+            # e.g. "refer_ncia_b_sic" -> "referencia_basic"
+            slug = slug.replace("predicci_", "prediccio_")
+            slug = slug.replace("refer_ncia", "referencia")
+            slug = slug.replace("b_sic", "basic")
+            
+            return slug
+
+        slug = _slug(plan_name)
+
+        def _with_suffix(base: str) -> str:
+            if slug.startswith(base):
+                tail = slug[len(base):].lstrip("_")
+                return f"{base}_{tail}" if tail else base
+            return base
+
+        if "prediccio" in slug:
+            return ("Predicci\u00f3", _with_suffix("prediccio"))
+        if "referencia" in slug:
+            return ("Refer\u00e8ncia", _with_suffix("referencia"))
+        if "quota" in slug:
+            return ("Quota", _with_suffix("quota"))
+        if "xdde" in slug:
+            return ("XDDE", _with_suffix("xdde"))
+        if "xema" in slug:
+            return ("XEMA", _with_suffix("xema"))
+
+        # Fallback: use sanitized slug
+        return (plan_name, slug)
 
     @property
     def native_value(self) -> int | None:

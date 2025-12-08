@@ -133,8 +133,8 @@ For each configured station, these entities are created:
 - **Available Requests Reference**: Remaining requests for Reference plan
 - **Available Requests XDDE**: Remaining requests for XDDE plan
 - **Available Requests XEMA**: Remaining requests for XEMA plan
-- Entity IDs: `sensor.{station}_{code}_quota_{plan}`
-- Example: `sensor.Barcelona_ym_quota_prediccio`
+- Entity IDs: `sensor.{station}_{code}_quota_disponible_{plan}`
+- Example: `sensor.Barcelona_ym_quota_disponible_prediccio`
 - Attributes: total limit, used requests, reset date
 
 #### Status Sensor
@@ -181,8 +181,8 @@ For each configured municipality, these entities are created:
 - **Available Requests Reference**: Remaining requests for Reference plan
 - **Available Requests XDDE**: Remaining requests for XDDE plan
 - **Available Requests XEMA**: Remaining requests for XEMA plan
-- Entity IDs: `sensor.{municipality}_quota_{plan}`
-- Example: `sensor.Barcelona_quota_prediccio`
+- Entity IDs: `sensor.{municipality}_quota_disponible_{plan}`
+- Example: `sensor.Barcelona_quota_disponible_prediccio`
 - Attributes: total limit, used requests, reset date
 
 #### Status Sensor

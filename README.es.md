@@ -135,8 +135,8 @@ Para cada estación configurada se crean:
 - **Peticiones disponibles Referencia**: Consumos restantes del plan Referencia  
 - **Peticiones disponibles XDDE**: Consumos restantes del plan XDDE
 - **Peticiones disponibles XEMA**: Consumos restantes del plan XEMA
-- Entity IDs: `sensor.{estacion}_{codigo}_quota_{plan}`
-- Ejemplo: `sensor.Barcelona_ym_quota_prediccio`
+- Entity IDs: `sensor.{estacion}_{codigo}_quota_disponible_{plan}`
+- Ejemplo: `sensor.Barcelona_ym_quota_disponible_prediccio`
 - Atributos: límite total, peticiones utilizadas, fecha de reset
 
 #### Sensor de Estado
@@ -183,8 +183,8 @@ Para cada municipio configurado se crean:
 - **Peticiones disponibles Referencia**: Consumos restantes del plan Referencia  
 - **Peticiones disponibles XDDE**: Consumos restantes del plan XDDE
 - **Peticiones disponibles XEMA**: Consumos restantes del plan XEMA
-- Entity IDs: `sensor.{municipio}_quota_{plan}`
-- Ejemplo: `sensor.Barcelona_quota_prediccio`
+- Entity IDs: `sensor.{municipio}_quota_disponible_{plan}`
+- Ejemplo: `sensor.Barcelona_quota_disponible_prediccio`
 - Atributos: límite total, peticiones utilizadas, fecha de reset
 
 #### Sensor de Estado

@@ -133,7 +133,7 @@ Aquest mode està pensat per obtenir dades d'una estació meteorològica oficial
 | Tipus | Entitat | Descripció |
 |-------|---------|------------|
 | **Weather** | `weather.{estacio}_{codi}` | Entitat principal. Mostra l'estat actual (temperatura, humitat, vent, pressió, pluja) obtingut de l'estació XEMA i la predicció (horària i diària) del municipi on es troba l'estació. |
-| **Sensor** | `sensor.{estacio}_{codi}_quota_{pla}` | Un sensor per a cada pla de quotes (Predicció, Referència, XDDE, XEMA). Mostra les peticions restants. |
+| **Sensor** | `sensor.{estacio}_{codi}_quota_disponible_{pla}` | Un sensor per a cada pla de quotes (Predicció, Referència, XDDE, XEMA). Mostra les peticions restants. |
 | **Binary Sensor** | `binary_sensor.{estacio}_{codi}_update_state` | Indica l'estat de l'última actualització (`OFF` = Correcte, `ON` = Error). |
 | **Sensor** | `sensor.{estacio}_{codi}_last_update` | Timestamp de l'última actualització exitosa. |
 | **Sensor** | `sensor.{estacio}_{codi}_next_update` | Timestamp de la pròxima actualització programada. |
@@ -156,7 +156,7 @@ Aquest mode està pensat per a usuaris que ja tenen una estació meteorològica 
 |-------|---------|------------|
 | **Sensor** | `sensor.{municipi}_prediccio_horaria` | L'estat mostra les hores disponibles. Els atributs contenen la predicció completa per a 72h. |
 | **Sensor** | `sensor.{municipi}_prediccio_diaria` | L'estat mostra els dies disponibles. Els atributs contenen la predicció completa per a 8 dies. |
-| **Sensor** | `sensor.{municipi}_quota_{pla}` | Un sensor per a cada pla de quotes (Predicció, Referència, XDDE, XEMA). Mostra les peticions restants. |
+| **Sensor** | `sensor.{municipi}_quota_disponible_{pla}` | Un sensor per a cada pla de quotes (Predicció, Referència, XDDE, XEMA). Mostra les peticions restants. |
 | **Binary Sensor** | `binary_sensor.{municipi}_update_state` | Indica l'estat de l'última actualització (`OFF` = Correcte, `ON` = Error). |
 | **Sensor** | `sensor.{municipi}_last_update` | Timestamp de l'última actualització exitosa. |
 | **Sensor** | `sensor.{municipi}_next_update` | Timestamp de la pròxima actualització programada. |

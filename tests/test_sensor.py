@@ -81,10 +81,13 @@ def mock_entry():
 def test_quota_sensor_normalizes_plan_names(mock_coordinator, mock_entry):
     """Test that quota sensor normalizes plan names correctly."""
     test_cases = [
-        ("Prediccio_100", "Predicció", "prediccio"),
-        ("Referencia_200", "Referència", "referencia"),
-        ("XDDE_300", "XDDE", "xdde"),
-        ("XEMA_400", "XEMA", "xema"),
+        ("Predicció 100", "Predicció", "prediccio_100"),
+        ("Referència bàsic", "Referència", "referencia_basic"),
+        ("XDDE 300", "XDDE", "xdde_300"),
+        ("XEMA 400", "XEMA", "xema_400"),
+        # Test corrupted inputs simulating encoding issues
+        ("Predicci_100", "Predicció", "prediccio_100"),
+        ("Refer_ncia B_sic", "Referència", "referencia_basic"),
     ]
     
     for plan_name, expected_display, expected_id in test_cases:
@@ -119,7 +122,7 @@ def test_quota_sensor_entity_id_xema_mode(mock_coordinator, mock_entry):
         "YM"
     )
     
-    assert sensor.entity_id == "sensor.granollers_ym_quota_prediccio"
+    assert sensor.entity_id == "sensor.granollers_ym_quota_disponible_prediccio_100"
 
 
 def test_quota_sensor_entity_id_municipal_mode(mock_coordinator, mock_entry):
@@ -137,7 +140,7 @@ def test_quota_sensor_entity_id_municipal_mode(mock_coordinator, mock_entry):
         None
     )
     
-    assert sensor.entity_id == "sensor.granollers_quota_prediccio"
+    assert sensor.entity_id == "sensor.granollers_quota_disponible_prediccio_100"
 
 
 def test_quota_sensor_device_info(mock_coordinator, mock_entry):
