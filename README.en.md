@@ -1,9 +1,15 @@
 ﻿# Meteocat (Community Edition)
 
+[![hacs][hacsbadge]][hacs]
 [![Version](https://img.shields.io/github/v/tag/PacmanForever/meteocat_community_edition?label=version)](https://github.com/PacmanForever/meteocat_community_edition/tags)
 [![License](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
-[![hacs][hacsbadge]][hacs]
 ![Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)
+
+[![Tests](https://github.com/PacmanForever/meteocat_community_edition/actions/workflows/tests.yml/badge.svg)](https://github.com/PacmanForever/meteocat_community_edition/actions/workflows/tests.yml)
+[![Validate HACS](https://github.com/PacmanForever/meteocat_community_edition/actions/workflows/validate_hacs.yml/badge.svg)](https://github.com/PacmanForever/meteocat_community_edition/actions/workflows/validate_hacs.yml)
+[![Validate Hassfest](https://github.com/PacmanForever/meteocat_community_edition/actions/workflows/validate_hassfest.yml/badge.svg)](https://github.com/PacmanForever/meteocat_community_edition/actions/workflows/validate_hassfest.yml)
+
+![Home Assistant](https://img.shields.io/badge/home%20assistant-2024.1.0%2B-blue)
 
 **Languages**: [Català](README.md) | **English** | [Español](README.es.md)
 
