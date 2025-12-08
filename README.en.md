@@ -130,8 +130,6 @@ For each configured station, these entities are created:
 
 #### Quota Sensors
 - **Available Requests Forecast**: Remaining requests for Forecast plan
-- **Available Requests Reference**: Remaining requests for Reference plan
-- **Available Requests XDDE**: Remaining requests for XDDE plan
 - **Available Requests XEMA**: Remaining requests for XEMA plan
 - Entity IDs: `sensor.{station}_{code}_quota_disponible_{plan}`
 - Example: `sensor.Barcelona_ym_quota_disponible_prediccio`
@@ -178,9 +176,6 @@ For each configured municipality, these entities are created:
 
 #### Quota Sensors
 - **Available Requests Forecast**: Remaining requests for Forecast plan
-- **Available Requests Reference**: Remaining requests for Reference plan
-- **Available Requests XDDE**: Remaining requests for XDDE plan
-- **Available Requests XEMA**: Remaining requests for XEMA plan
 - Entity IDs: `sensor.{municipality}_quota_disponible_{plan}`
 - Example: `sensor.Barcelona_quota_disponible_prediccio`
 - Attributes: total limit, used requests, reset date
@@ -339,7 +334,7 @@ Municipality Mode creates these sensors:
 
 - **`sensor.{municipality}_previsio_horaria`**: Forecast for the next 72 hours
 - **`sensor.{municipality}_previsio_diaria`**: Forecast for the next 8 days
-- **`sensor.{municipality}_quota_{plan}`**: API consumption (Forecast, Reference, XDDE, XEMA)
+- **`sensor.{municipality}_quota_{plan}`**: API consumption (Forecast)
 - **`sensor.{municipality}_last_update`**: Last update timestamp
 - **`sensor.{municipality}_next_update`**: Next scheduled update
 - **`button.{municipality}_refresh`**: Button to manually refresh
@@ -415,11 +410,11 @@ weather:
     # ... other fields from your local station ...
     
     # Hourly/daily forecasts from Meteocat
-    forecast_hourly_template: "{{ state_attr('sensor.Barcelona_previsio_horaria', 'forecast') }}"
-    forecast_daily_template: "{{ state_attr('sensor.Barcelona_previsio_diaria', 'forecast') }}"
+    forecast_hourly_template: "{{ state_attr('sensor.Barcelona_previsio_horaria', 'forecast_ha') }}"
+    forecast_daily_template: "{{ state_attr('sensor.Barcelona_previsio_diaria', 'forecast_ha') }}"
 ```
 
-> **Important**: Meteocat forecasts follow their API structure, which may not be directly compatible with `weather.template`. Check the [`weather.template`](https://www.home-assistant.io/integrations/weather.template/) documentation to adapt the data to the expected format.
+> **Note**: The `forecast_ha` attribute provides data in the standard Home Assistant format, ready to be used in `weather.template`. The `forecast` attribute contains the original data from the Meteocat API.
 
 ### Create custom cards
 
@@ -533,9 +528,9 @@ Use Home Assistant's **Developer Tools → Template** to explore the complete da
 
 ### API Quotas
 
-Meteocat API has request limits depending on the contracted plan. Check the [official Meteocat documentation](https://apidocs.meteocat.gencat.cat/documentacio/consums/) for updated limits for each plan.
+The Meteocat API has request limits depending on your subscribed plan. Check the [official Meteocat documentation](https://apidocs.meteocat.gencat.cat/documentacio/consums/) for updated limits for each plan.
 
-Each integration entry creates **quota sensors** showing available requests for all four plans (Forecast, Reference, XDDE, XEMA), regardless of which plan your API key is subscribed to.
+Each integration entry creates **quota sensors** showing available requests for relevant plans (Forecast and XEMA), filtering out unused ones (Reference, XDDE).
 
 This integration is optimized to minimize usage:
 - Only 2 automatic updates per day (6:00 AM and 2:00 PM)

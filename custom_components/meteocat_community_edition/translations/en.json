@@ -119,6 +119,12 @@
       },
       "solar_radiation": {
         "name": "Solar radiation"
+      },
+      "latitude": {
+        "name": "Latitude"
+      },
+      "longitude": {
+        "name": "Longitude"
       }
     },
     "binary_sensor": {

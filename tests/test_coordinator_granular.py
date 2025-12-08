@@ -40,12 +40,6 @@ def mock_entry():
     entry.options = {}
     return entry
 
-@pytest.fixture(autouse=True)
-def mock_client_session():
-    """Mock aiohttp client session to avoid lingering timers."""
-    with patch("custom_components.meteocat_community_edition.coordinator.async_get_clientsession", return_value=MagicMock()) as mock_session:
-        yield mock_session
-
 @pytest.fixture
 def hass():
     """Mock Home Assistant."""

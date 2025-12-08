@@ -33,6 +33,8 @@ def mock_coordinator():
             "plans": [
                 {"nom": "XEMA", "consums": {"disponibles": 1000}},
                 {"nom": "Predicció", "consums": {"disponibles": 1000}},
+                {"nom": "Referència", "consums": {"disponibles": 1000}},
+                {"nom": "XDDE", "consums": {"disponibles": 1000}},
             ]
         }
     }

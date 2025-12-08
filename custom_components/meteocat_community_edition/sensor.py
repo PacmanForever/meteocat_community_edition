@@ -1,15 +1,15 @@
-"""Sensor entities for Meteocat (Community Edition).
+﻿"""Sensor entities for Meteocat (Community Edition).
 
 This module provides all sensor entities for both MODE_ESTACIO and MODE_MUNICIPI.
 
-Geographic sensors (Comarca, Municipi, Província):
+Geographic sensors (Comarca, Municipi, Prov\u00edncia):
 - Data source: entry.data (static metadata saved during config_flow)
 - NO API calls during runtime (quota optimization)
 - Conditionally created based on data availability
 
 Timestamp sensors:
-- Última actualització: Last successful update time (from coordinator)
-- Pròxima actualització: Next scheduled update time (from coordinator.next_scheduled_update)
+- \u00daltima actualitzaci\u00f3: Last successful update time (from coordinator)
+- Pr\u00f2xima actualitzaci\u00f3: Next scheduled update time (from coordinator.next_scheduled_update)
 - Category: diagnostic
 
 Last updated: 2025-11-27
@@ -40,6 +40,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
     ATTRIBUTION,
+    CONDITION_MAP,
     CONF_COMARCA_NAME,
     CONF_MODE,
     CONF_MUNICIPALITY_CODE,
@@ -104,7 +105,7 @@ SENSOR_TYPES: dict[int, dict[str, Any]] = {
     36: {  # Solar Radiation
         "key": "solar_radiation",
         "device_class": SensorDeviceClass.IRRADIANCE,
-        "unit": "W/m²",
+        "unit": "W/m\u00b2",
         "state_class": SensorStateClass.MEASUREMENT,
         "icon": "mdi:solar-power",
     },
@@ -128,7 +129,7 @@ async def async_setup_entry(
     municipality_code = entry.data.get(CONF_MUNICIPALITY_CODE, "")
     
     if mode == MODE_ESTACIO:
-        station_name = entry.data.get(CONF_STATION_NAME, f"Estació {station_code}")
+        station_name = entry.data.get(CONF_STATION_NAME, f"Estaci\u00f3 {station_code}")
         entity_name = station_name  # Visual name without code (for forecast sensors)
         entity_name_with_code = f"{station_name} {station_code}"  # For device grouping
         
@@ -178,8 +179,30 @@ async def async_setup_entry(
         if isinstance(quotes, dict) and "plans" in quotes:
             for plan in quotes.get("plans", []):
                 if isinstance(plan, dict) and "nom" in plan:
+                    plan_name = plan.get("nom", "").lower()
+                    
+                    # Filter out Referència and XDDE plans (never used)
+                    if "refer" in plan_name or "xdde" in plan_name:
+                        continue
+                        
+                    # Filter out XEMA plan in MUNICIPI mode (never used)
+                    if mode == MODE_MUNICIPI and "xema" in plan_name:
+                        continue
+                        
                     entities.append(
                         MeteocatQuotaSensor(
+                            coordinator,
+                            entry,
+                            plan,
+                            entity_name,
+                            entity_name_with_code,
+                            mode,
+                            station_code if mode == MODE_ESTACIO else None,
+                        )
+                    )
+                    # Add estimation sensors
+                    entities.append(
+                        MeteocatEstimatedDaysRemainingSensor(
                             coordinator,
                             entry,
                             plan,
@@ -278,8 +301,8 @@ class MeteocatQuotaSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
-            "manufacturer": "Meteocat Edició Comunitària",
-            "model": "Estació XEMA" if mode == MODE_ESTACIO else "Predicció Municipi",
+            "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
+            "model": "Estaci\u00f3 XEMA" if mode == MODE_ESTACIO else "Predicci\u00f3 Municipi",
         }
         
         # Quota sensors are diagnostic information
@@ -333,12 +356,8 @@ class MeteocatQuotaSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
 
         if "prediccio" in slug:
             return ("Predicci\u00f3", _with_suffix("prediccio"))
-        if "referencia" in slug:
-            return ("Refer\u00e8ncia", _with_suffix("referencia"))
         if "quota" in slug:
             return ("Quota", _with_suffix("quota"))
-        if "xdde" in slug:
-            return ("XDDE", _with_suffix("xdde"))
         if "xema" in slug:
             return ("XEMA", _with_suffix("xema"))
 
@@ -422,8 +441,8 @@ class MeteocatXemaSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": f"{entity_name} {station_code}",
-            "manufacturer": "Meteocat Edició Comunitària",
-            "model": "Estació XEMA",
+            "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
+            "model": "Estaci\u00f3 XEMA",
         }
 
     @property
@@ -469,17 +488,18 @@ class MeteocatForecastSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
         
         # Create unique ID and name
         self._attr_unique_id = f"{entry.entry_id}_forecast_{forecast_type}"
+        self._attr_has_entity_name = True
         if forecast_type == "hourly":
-            self._attr_name = f"{self._entity_name} Predicció Horària"
+            self._attr_translation_key = "forecast_hourly"
         else:
-            self._attr_name = f"{self._entity_name} Predicció Diària"
+            self._attr_translation_key = "forecast_daily"
         
         # Set device info
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
-            "manufacturer": "Meteocat Edició Comunitària",
-            "model": "Predicció Municipi",
+            "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
+            "model": "Predicci\u00f3 Municipi",
         }
 
     @property
@@ -516,12 +536,134 @@ class MeteocatForecastSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
             forecast_hourly = self.coordinator.data.get("forecast_hourly")
             if not forecast_hourly:
                 return {}
-            return {"forecast": forecast_hourly}
+            return {
+                "forecast": forecast_hourly,
+                "forecast_ha": self._get_forecast_hourly(),
+            }
         else:
             forecast = self.coordinator.data.get("forecast")
             if not forecast:
                 return {}
-            return {"forecast": forecast}
+            return {
+                "forecast": forecast,
+                "forecast_ha": self._get_forecast_daily(),
+            }
+
+    def _get_forecast_hourly(self) -> list[dict[str, Any]]:
+        """Return the hourly forecast in HA format."""
+        forecast_hourly = self.coordinator.data.get("forecast_hourly")
+        if not forecast_hourly:
+            return []
+        
+        forecasts = []
+        
+        dies = forecast_hourly.get("dies", [])
+        for dia in dies:
+            variables = dia.get("variables", {})
+            
+            # Get hourly variables with their values arrays
+            temp_data = variables.get("temp", {})
+            estat_cel_data = variables.get("estatCel", {})
+            precip_data = variables.get("precipitacio", {})
+            
+            temp_valors = temp_data.get("valors", [])
+            estat_valors = estat_cel_data.get("valors", [])
+            precip_valors = precip_data.get("valors", [])
+            
+            # Build dictionaries by timestamp
+            temp_dict = {h.get("data"): h.get("valor") for h in temp_valors}
+            estat_dict = {h.get("data"): h.get("valor") for h in estat_valors}
+            precip_dict = {h.get("data"): h.get("valor") for h in precip_valors}
+            
+            # Get all unique timestamps
+            all_times = set(temp_dict.keys()) | set(estat_dict.keys()) | set(precip_dict.keys())
+            
+            for time_str in sorted(all_times):
+                if time_str:
+                    forecast_item = {
+                        "datetime": time_str,
+                    }
+                    
+                    if time_str in temp_dict:
+                        try:
+                            forecast_item["temperature"] = float(temp_dict[time_str])
+                        except (ValueError, TypeError):
+                            pass
+                    
+                    if time_str in estat_dict:
+                        condition = CONDITION_MAP.get(estat_dict[time_str], "cloudy")
+                        forecast_item["condition"] = condition
+                    
+                    if time_str in precip_dict:
+                        try:
+                            forecast_item["precipitation"] = float(precip_dict[time_str])
+                        except (ValueError, TypeError):
+                            pass
+                    
+                    forecasts.append(forecast_item)
+        
+        return forecasts[:72]  # Limit to 72 hours
+
+    def _get_forecast_daily(self) -> list[dict[str, Any]]:
+        """Return the daily forecast in HA format."""
+        forecast = self.coordinator.data.get("forecast")
+        if not forecast:
+            return []
+        
+        forecasts = []
+        
+        dies = forecast.get("dies", [])[:8]  # Limit to 8 days
+        for dia in dies:
+            data = dia.get("data")
+            if not data:
+                continue
+            
+            variables = dia.get("variables", {})
+            
+            forecast_item = {
+                "datetime": data,
+            }
+            
+            # Temperature min/max (simple objects with valor)
+            tmin = variables.get("tmin", {})
+            if isinstance(tmin, dict):
+                valor = tmin.get("valor")
+                if valor:
+                    try:
+                        forecast_item["templow"] = float(valor)
+                    except (ValueError, TypeError):
+                        pass
+            
+            tmax = variables.get("tmax", {})
+            if isinstance(tmax, dict):
+                valor = tmax.get("valor")
+                if valor:
+                    try:
+                        forecast_item["temperature"] = float(valor)
+                    except (ValueError, TypeError):
+                        pass
+            
+            # Condition (simple object with valor)
+            estat_cel = variables.get("estatCel", {})
+            if isinstance(estat_cel, dict):
+                estat_code = estat_cel.get("valor")
+                if estat_code is not None:
+                    condition = CONDITION_MAP.get(estat_code, "cloudy")
+                    forecast_item["condition"] = condition
+            
+            # Precipitation (simple object with valor, percentage)
+            precip = variables.get("precipitacio", {})
+            if isinstance(precip, dict):
+                valor = precip.get("valor")
+                if valor:
+                    try:
+                        forecast_item["precipitation"] = float(valor)
+                    except (ValueError, TypeError):
+                        pass
+            
+            forecasts.append(forecast_item)
+            
+        return forecasts
 
     @property
     def icon(self) -> str:
@@ -553,7 +695,8 @@ class MeteocatLastUpdateSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnt
         self._station_code = station_code
         
         self._attr_unique_id = f"{entry.entry_id}_last_update"
-        self._attr_name = "Última actualització"
+        self._attr_has_entity_name = True
+        self._attr_translation_key = "last_update"
         
         # Set explicit entity_id based on mode
         if mode == MODE_ESTACIO and station_code:
@@ -569,8 +712,8 @@ class MeteocatLastUpdateSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnt
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
-            "manufacturer": "Meteocat Edició Comunitària",
-            "model": "Estació XEMA" if mode == MODE_ESTACIO else "Predicció Municipi",
+            "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
+            "model": "Estaci\u00f3 XEMA" if mode == MODE_ESTACIO else "Predicci\u00f3 Municipi",
 
         }
         
@@ -624,7 +767,8 @@ class MeteocatNextUpdateSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnt
         self._station_code = station_code
         
         self._attr_unique_id = f"{entry.entry_id}_next_update"
-        self._attr_name = "Pròxima actualització"
+        self._attr_has_entity_name = True
+        self._attr_translation_key = "next_update"
         
         # Set explicit entity_id based on mode
         if mode == MODE_ESTACIO and station_code:
@@ -640,8 +784,8 @@ class MeteocatNextUpdateSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnt
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
-            "manufacturer": "Meteocat Edició Comunitària",
-            "model": "Estació XEMA" if mode == MODE_ESTACIO else "Predicció Municipi",
+            "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
+            "model": "Estaci\u00f3 XEMA" if mode == MODE_ESTACIO else "Predicci\u00f3 Municipi",
 
         }
         
@@ -683,7 +827,9 @@ class MeteocatUpdateTimeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnt
         self._time_number = time_number
         
         self._attr_unique_id = f"{entry.entry_id}_update_time_{time_number}"
-        self._attr_name = f"Hora d'actualització {time_number}"
+        self._attr_has_entity_name = True
+        self._attr_translation_key = "update_time"
+        self._attr_translation_placeholders = {"number": str(time_number)}
         
         # Set explicit entity_id based on mode
         if mode == MODE_ESTACIO and station_code:
@@ -699,8 +845,8 @@ class MeteocatUpdateTimeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnt
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
-            "manufacturer": "Meteocat Edició Comunitària",
-            "model": "Estació XEMA" if mode == MODE_ESTACIO else "Predicció Municipi",
+            "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
+            "model": "Estaci\u00f3 XEMA" if mode == MODE_ESTACIO else "Predicci\u00f3 Municipi",
 
         }
         
@@ -760,8 +906,8 @@ class MeteocatAltitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
-            "manufacturer": "Meteocat Edició Comunitària",
-            "model": "Estació XEMA",
+            "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
+            "model": "Estaci\u00f3 XEMA",
         }
 
     @property
@@ -801,7 +947,7 @@ class MeteocatLatitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
     """
 
     _attr_attribution = ATTRIBUTION
-    _attr_native_unit_of_measurement = "°"
+    _attr_native_unit_of_measurement = "\u00b0"
 
     def __init__(
         self,
@@ -820,7 +966,8 @@ class MeteocatLatitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
         self._entry = entry
         
         self._attr_unique_id = f"{entry.entry_id}_latitude"
-        self._attr_name = "Latitud"
+        self._attr_has_entity_name = True
+        self._attr_translation_key = "latitude"
         
         # Set explicit entity_id
         base_name = entity_name.replace(f" {station_code}", "").lower().replace(" ", "_")
@@ -830,8 +977,8 @@ class MeteocatLatitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
-            "manufacturer": "Meteocat Edició Comunitària",
-            "model": "Estació XEMA",
+            "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
+            "model": "Estaci\u00f3 XEMA",
         }
 
     @property
@@ -873,7 +1020,7 @@ class MeteocatLongitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnti
     """
 
     _attr_attribution = ATTRIBUTION
-    _attr_native_unit_of_measurement = "°"
+    _attr_native_unit_of_measurement = "\u00b0"
 
     def __init__(
         self,
@@ -892,7 +1039,8 @@ class MeteocatLongitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnti
         self._entry = entry
         
         self._attr_unique_id = f"{entry.entry_id}_longitude"
-        self._attr_name = "Longitud"
+        self._attr_has_entity_name = True
+        self._attr_translation_key = "longitude"
         
         # Set explicit entity_id
         base_name = entity_name.replace(f" {station_code}", "").lower().replace(" ", "_")
@@ -902,8 +1050,8 @@ class MeteocatLongitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnti
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
-            "manufacturer": "Meteocat Edició Comunitària",
-            "model": "Estació XEMA",
+            "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
+            "model": "Estaci\u00f3 XEMA",
         }
 
     @property
@@ -971,8 +1119,8 @@ class MeteocatMunicipalityNameSensor(CoordinatorEntity[MeteocatCoordinator], Sen
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
-            "manufacturer": "Meteocat Edició Comunitària",
-            "model": "Predicció Municipal",
+            "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
+            "model": "Predicci\u00f3 Municipi",
         }
 
     @property
@@ -1020,8 +1168,8 @@ class MeteocatComarcaNameSensor(CoordinatorEntity[MeteocatCoordinator], SensorEn
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
-            "manufacturer": "Meteocat Edició Comunitària",
-            "model": "Predicció Municipal",
+            "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
+            "model": "Predicci\u00f3 Municipi",
         }
 
     @property
@@ -1043,7 +1191,7 @@ class MeteocatMunicipalityLatitudeSensor(CoordinatorEntity[MeteocatCoordinator],
     """
 
     _attr_attribution = ATTRIBUTION
-    _attr_native_unit_of_measurement = "°"
+    _attr_native_unit_of_measurement = "\u00b0"
 
     def __init__(
         self,
@@ -1062,7 +1210,8 @@ class MeteocatMunicipalityLatitudeSensor(CoordinatorEntity[MeteocatCoordinator],
         self._latitude = entry.data.get("municipality_lat")
         
         self._attr_unique_id = f"{entry.entry_id}_municipality_latitude"
-        self._attr_name = "Latitud del municipi"
+        self._attr_has_entity_name = True
+        self._attr_translation_key = "latitude"
         
         # Set explicit entity_id
         base_name = entity_name.lower().replace(" ", "_")
@@ -1071,8 +1220,8 @@ class MeteocatMunicipalityLatitudeSensor(CoordinatorEntity[MeteocatCoordinator],
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
-            "manufacturer": "Meteocat Edició Comunitària",
-            "model": "Predicció Municipal",
+            "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
+            "model": "Predicci\u00f3 Municipi",
         }
 
     @property
@@ -1100,7 +1249,7 @@ class MeteocatMunicipalityLongitudeSensor(CoordinatorEntity[MeteocatCoordinator]
     """
 
     _attr_attribution = ATTRIBUTION
-    _attr_native_unit_of_measurement = "°"
+    _attr_native_unit_of_measurement = "\u00b0"
 
     def __init__(
         self,
@@ -1119,7 +1268,8 @@ class MeteocatMunicipalityLongitudeSensor(CoordinatorEntity[MeteocatCoordinator]
         self._longitude = entry.data.get("municipality_lon")
         
         self._attr_unique_id = f"{entry.entry_id}_municipality_longitude"
-        self._attr_name = "Longitud del municipi"
+        self._attr_has_entity_name = True
+        self._attr_translation_key = "longitude"
         
         # Set explicit entity_id
         base_name = entity_name.lower().replace(" ", "_")
@@ -1128,8 +1278,8 @@ class MeteocatMunicipalityLongitudeSensor(CoordinatorEntity[MeteocatCoordinator]
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
-            "manufacturer": "Meteocat Edició Comunitària",
-            "model": "Predicció Municipal",
+            "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
+            "model": "Predicci\u00f3 Municipi",
         }
 
     @property
@@ -1175,7 +1325,7 @@ class MeteocatProvinciaNameSensor(CoordinatorEntity[MeteocatCoordinator], Sensor
         self._provincia_name = entry.data.get("provincia_name", "")
         
         self._attr_unique_id = f"{entry.entry_id}_provincia_name"
-        self._attr_name = "Província"
+        self._attr_name = "Prov\u00edncia"
         
         # Set explicit entity_id
         base_name = entity_name.lower().replace(" ", "_")
@@ -1184,8 +1334,8 @@ class MeteocatProvinciaNameSensor(CoordinatorEntity[MeteocatCoordinator], Sensor
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
-            "manufacturer": "Meteocat Edició Comunitària",
-            "model": "Predicció Municipal",
+            "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
+            "model": "Predicci\u00f3 Municipi",
         }
 
     @property
@@ -1235,8 +1385,8 @@ class MeteocatStationComarcaNameSensor(CoordinatorEntity[MeteocatCoordinator], S
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
-            "manufacturer": "Meteocat Edició Comunitària",
-            "model": "Estació XEMA",
+            "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
+            "model": "Estaci\u00f3 XEMA",
         }
 
     @property
@@ -1286,8 +1436,8 @@ class MeteocatStationMunicipalityNameSensor(CoordinatorEntity[MeteocatCoordinato
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
-            "manufacturer": "Meteocat Edició Comunitària",
-            "model": "Estació XEMA",
+            "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
+            "model": "Estaci\u00f3 XEMA",
         }
 
     @property
@@ -1327,7 +1477,7 @@ class MeteocatStationProvinciaNameSensor(CoordinatorEntity[MeteocatCoordinator],
         self._provincia_name = entry.data.get("station_provincia_name", "")
         
         self._attr_unique_id = f"{entry.entry_id}_station_provincia_name"
-        self._attr_name = "Província"
+        self._attr_name = "Prov\u00edncia"
         
         # Set explicit entity_id
         base_name = entity_name.replace(f" {station_code}", "").lower().replace(" ", "_")
@@ -1337,8 +1487,8 @@ class MeteocatStationProvinciaNameSensor(CoordinatorEntity[MeteocatCoordinator],
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
-            "manufacturer": "Meteocat Edició Comunitària",
-            "model": "Estació XEMA",
+            "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
+            "model": "Estaci\u00f3 XEMA",
         }
 
     @property
@@ -1350,3 +1500,95 @@ class MeteocatStationProvinciaNameSensor(CoordinatorEntity[MeteocatCoordinator],
     def icon(self) -> str:
         """Return the icon."""
         return "mdi:map-marker-radius"
+
+
+
+
+class MeteocatEstimatedDaysRemainingSensor(MeteocatQuotaSensor):
+    """Sensor showing estimated days remaining for a plan."""
+
+    _attr_icon = "mdi:calendar-clock"
+    _attr_native_unit_of_measurement = "dies"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    def __init__(
+        self,
+        coordinator: MeteocatCoordinator,
+        entry: ConfigEntry,
+        plan_data: dict[str, Any],
+        entity_name: str,
+        device_name: str,
+        mode: str,
+        station_code: str | None = None,
+    ) -> None:
+        """Initialize the estimated days remaining sensor."""
+        super().__init__(coordinator, entry, plan_data, entity_name, device_name, mode, station_code)
+        
+        display_name, plan_id = self._normalize_plan_name(self._plan_name)
+        self._attr_unique_id = f"{entry.entry_id}_quota_dies_estimats_{plan_id}"
+        self._attr_name = f"Dies disponibles {display_name}"
+        
+        if mode == MODE_ESTACIO and station_code:
+            base_name = entity_name.replace(f" {station_code}", "").lower().replace(" ", "_")
+            code_lower = station_code.lower()
+            self.entity_id = f"sensor.{base_name}_{code_lower}_quota_dies_estimats_{plan_id}"
+        else:
+            base_name = entity_name.lower().replace(" ", "_")
+            self.entity_id = f"sensor.{base_name}_quota_dies_estimats_{plan_id}"
+
+    def _get_daily_consumption(self) -> int:
+        """Calculate estimated daily consumption."""
+        # Calculate updates per day based on configuration
+        updates_per_day = 0
+        if self.coordinator.update_time_1:
+            updates_per_day += 1
+        if self.coordinator.update_time_2:
+            updates_per_day += 1
+        if self.coordinator.update_time_3:
+            updates_per_day += 1
+            
+        calls_per_update = 0
+        plan_name_lower = self._plan_name.lower()
+        
+        if "xema" in plan_name_lower:
+            if self._mode == MODE_ESTACIO:
+                calls_per_update = 1
+        elif "predicci" in plan_name_lower:
+            if self.coordinator.enable_forecast_daily:
+                calls_per_update += 1
+            if self.coordinator.enable_forecast_hourly:
+                calls_per_update += 1
+        elif "quota" in plan_name_lower:
+            calls_per_update = 1
+            
+        return updates_per_day * calls_per_update
+
+    @property
+    def native_value(self) -> float | None:
+        """Return the estimated days remaining."""
+        available = None
+        if self.coordinator.data and self.coordinator.data.get("quotes"):
+            quotes = self.coordinator.data["quotes"]
+            if isinstance(quotes, dict) and "plans" in quotes:
+                for plan in quotes.get("plans", []):
+                    if plan.get("nom") == self._plan_name:
+                        available = plan.get("consultesRestants")
+                        break
+        
+        if available is None:
+            return None
+            
+        daily_consumption = self._get_daily_consumption()
+        
+        if daily_consumption == 0:
+            return 9999 # Infinite
+            
+        return round(available / daily_consumption, 1)
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return additional state attributes."""
+        attrs = super().extra_state_attributes
+        attrs["consum_diari_estimat"] = self._get_daily_consumption()
+        return attrs
+

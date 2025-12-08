@@ -82,12 +82,10 @@ def test_quota_sensor_normalizes_plan_names(mock_coordinator, mock_entry):
     """Test that quota sensor normalizes plan names correctly."""
     test_cases = [
         ("Predicció 100", "Predicció", "prediccio_100"),
-        ("Referència bàsic", "Referència", "referencia_basic"),
-        ("XDDE 300", "XDDE", "xdde_300"),
+        # Referència and XDDE are now filtered out, so we don't test them here
         ("XEMA 400", "XEMA", "xema_400"),
         # Test corrupted inputs simulating encoding issues
         ("Predicci_100", "Predicció", "prediccio_100"),
-        ("Refer_ncia B_sic", "Referència", "referencia_basic"),
     ]
     
     for plan_name, expected_display, expected_id in test_cases:
@@ -497,7 +495,7 @@ def test_latitude_sensor(mock_coordinator, mock_entry):
     assert sensor.native_unit_of_measurement == "°"
     assert sensor.icon == "mdi:latitude"
     assert sensor.unique_id == f"{mock_entry.entry_id}_latitude"
-    assert sensor.name == "Latitud"
+    assert sensor.translation_key == "latitude"
 
 
 def test_latitude_sensor_no_data(mock_coordinator, mock_entry):
@@ -540,7 +538,7 @@ def test_longitude_sensor(mock_coordinator, mock_entry):
     assert sensor.native_unit_of_measurement == "°"
     assert sensor.icon == "mdi:longitude"
     assert sensor.unique_id == f"{mock_entry.entry_id}_longitude"
-    assert sensor.name == "Longitud"
+    assert sensor.translation_key == "longitude"
 
 
 def test_longitude_sensor_no_data(mock_coordinator, mock_entry):
@@ -756,6 +754,7 @@ def test_municipality_latitude_sensor():
     
     assert sensor.native_value == 41.6
     assert sensor.icon == "mdi:latitude"
+    assert sensor.translation_key == "latitude"
 
 
 def test_municipality_longitude_sensor():
@@ -783,6 +782,7 @@ def test_municipality_longitude_sensor():
     
     assert sensor.native_value == 2.3
     assert sensor.icon == "mdi:longitude"
+    assert sensor.translation_key == "longitude"
 
 
 def test_municipality_provincia_name_sensor():

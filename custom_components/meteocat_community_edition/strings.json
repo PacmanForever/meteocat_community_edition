@@ -119,6 +119,27 @@
       },
       "solar_radiation": {
         "name": "Radiació solar"
+      },
+      "forecast_hourly": {
+        "name": "Predicció Horària"
+      },
+      "forecast_daily": {
+        "name": "Predicció Diària"
+      },
+      "last_update": {
+        "name": "Última actualització"
+      },
+      "next_update": {
+        "name": "Pròxima actualització"
+      },
+      "update_time": {
+        "name": "Hora d'actualització {number}"
+      },
+      "latitude": {
+        "name": "Latitud"
+      },
+      "longitude": {
+        "name": "Longitud"
       }
     },
     "binary_sensor": {

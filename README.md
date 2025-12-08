@@ -133,7 +133,7 @@ Aquest mode està pensat per obtenir dades d'una estació meteorològica oficial
 | Tipus | Entitat | Descripció |
 |-------|---------|------------|
 | **Weather** | `weather.{estacio}_{codi}` | Entitat principal. Mostra l'estat actual (temperatura, humitat, vent, pressió, pluja) obtingut de l'estació XEMA i la predicció (horària i diària) del municipi on es troba l'estació. |
-| **Sensor** | `sensor.{estacio}_{codi}_quota_disponible_{pla}` | Un sensor per a cada pla de quotes (Predicció, Referència, XDDE, XEMA). Mostra les peticions restants. |
+| **Sensor** | `sensor.{estacio}_{codi}_quota_disponible_{pla}` | Un sensor per a cada pla de quotes rellevant (Predicció, XEMA). Mostra les peticions restants. |
 | **Binary Sensor** | `binary_sensor.{estacio}_{codi}_update_state` | Indica l'estat de l'última actualització (`OFF` = Correcte, `ON` = Error). |
 | **Sensor** | `sensor.{estacio}_{codi}_last_update` | Timestamp de l'última actualització exitosa. |
 | **Sensor** | `sensor.{estacio}_{codi}_next_update` | Timestamp de la pròxima actualització programada. |
@@ -156,7 +156,7 @@ Aquest mode està pensat per a usuaris que ja tenen una estació meteorològica 
 |-------|---------|------------|
 | **Sensor** | `sensor.{municipi}_prediccio_horaria` | L'estat mostra les hores disponibles. Els atributs contenen la predicció completa per a 72h. |
 | **Sensor** | `sensor.{municipi}_prediccio_diaria` | L'estat mostra els dies disponibles. Els atributs contenen la predicció completa per a 8 dies. |
-| **Sensor** | `sensor.{municipi}_quota_disponible_{pla}` | Un sensor per a cada pla de quotes (Predicció, Referència, XDDE, XEMA). Mostra les peticions restants. |
+| **Sensor** | `sensor.{municipi}_quota_disponible_{pla}` | Un sensor per a cada pla de quotes rellevant (Predicció). Mostra les peticions restants. |
 | **Binary Sensor** | `binary_sensor.{municipi}_update_state` | Indica l'estat de l'última actualització (`OFF` = Correcte, `ON` = Error). |
 | **Sensor** | `sensor.{municipi}_last_update` | Timestamp de l'última actualització exitosa. |
 | **Sensor** | `sensor.{municipi}_next_update` | Timestamp de la pròxima actualització programada. |
@@ -305,7 +305,7 @@ El Mode Municipi crea aquests sensors:
 
 - **`sensor.{municipi}_prediccio_horaria`**: Predicció de les pròximes 72 hores
 - **`sensor.{municipi}_prediccio_diaria`**: Predicció dels pròxims 8 dies  
-- **`sensor.{municipi}_quota_{pla}`**: Consums API (Predicció, Referència, XDDE, XEMA)
+- **`sensor.{municipi}_quota_{pla}`**: Consums API (Predicció)
 - **`sensor.{municipi}_last_update`**: Darrera actualització
 - **`sensor.{municipi}_next_update`**: Pròxima actualització programada
 - **`button.{municipi}_refresh`**: Botó per actualitzar manualment
@@ -381,11 +381,11 @@ weather:
     # ... altres camps de la teva estació local ...
     
     # Prediccions horàries/diàries de Meteocat
-    forecast_hourly_template: "{{ state_attr('sensor.Barcelona_prediccio_horaria', 'forecast') }}"
-    forecast_daily_template: "{{ state_attr('sensor.Barcelona_prediccio_diaria', 'forecast') }}"
+    forecast_hourly_template: "{{ state_attr('sensor.Barcelona_prediccio_horaria', 'forecast_ha') }}"
+    forecast_daily_template: "{{ state_attr('sensor.Barcelona_prediccio_diaria', 'forecast_ha') }}"
 ```
 
-> **Important**: Les prediccions de Meteocat segueixen l'estructura de la seva API, que pot no ser compatible directament amb `weather.template`. Consulta la documentació de [`weather.template`](https://www.home-assistant.io/integrations/weather.template/) per adaptar les dades al format esperat.
+> **Nota**: L'atribut `forecast_ha` proporciona les dades en el format estàndard de Home Assistant, llest per ser utilitzat en `weather.template`. L'atribut `forecast` conté les dades originals de l'API de Meteocat.
 
 ### Crear targetes personalitzades
 
@@ -501,7 +501,7 @@ Utilitza **Developer Tools → Template** de Home Assistant per explorar l'estru
 
 L'API de Meteocat té límits de peticions que depenen del pla contractat. Consulta la [documentació oficial de Meteocat](https://apidocs.meteocat.gencat.cat/documentacio/consums/) per conèixer els límits actualitzats de cada pla.
 
-Cada entrada de la integració crea **sensors de quotes** que mostren les peticions disponibles dels quatre plans (Predicció, Referència, XDDE, XEMA), independentment del pla contractat a la teva API key.
+Cada entrada de la integració crea **sensors de quotes** que mostren les peticions disponibles dels plans rellevants (Predicció i XEMA), filtrant aquells que no s'utilitzen (Referència, XDDE).
 
 Aquesta integració està optimitzada per minimitzar l'ús:
 - Només 2 actualitzacions automàtiques al dia (6:00 i 14:00)

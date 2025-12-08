@@ -85,6 +85,10 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self.station_code = entry.data.get(CONF_STATION_CODE)
         self.municipality_code = entry.data.get(CONF_MUNICIPALITY_CODE)
         
+        # If municipality code is not set (station mode), try to get it from station_municipality_code
+        if not self.municipality_code and self.mode == MODE_ESTACIO:
+            self.municipality_code = entry.data.get("station_municipality_code")
+        
         # Get update times from config or use defaults
         self.update_time_1 = entry.data.get(CONF_UPDATE_TIME_1, DEFAULT_UPDATE_TIME_1)
         self.update_time_2 = entry.data.get(CONF_UPDATE_TIME_2, DEFAULT_UPDATE_TIME_2)
@@ -354,7 +358,7 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             if self.mode == MODE_ESTACIO and self.station_code:
                 tasks["measurements"] = self.api.get_station_measurements(self.station_code)
                 
-                # Get station info and municipality code on first run
+                # Get station info if not cached
                 if not self.station_data:
                     stations = await self.api.get_stations()
                     for station in stations:
@@ -369,9 +373,18 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                             self.entry,
                             data=updated_data
                         )
-                        
-                        self.municipality_code = await self.api.find_municipality_for_station(
-                            self.station_data
+                
+                # Find municipality code if not set (even if station data was cached)
+                if not self.municipality_code and self.station_data:
+                    self.municipality_code = await self.api.find_municipality_for_station(
+                        self.station_data
+                    )
+                    # Save it to entry data if found to avoid future lookups
+                    if self.municipality_code:
+                        updated_data = {**self.entry.data, "station_municipality_code": self.municipality_code}
+                        self.hass.config_entries.async_update_entry(
+                            self.entry,
+                            data=updated_data
                         )
             
             # Add forecast tasks if we have a municipality code (both modes)

@@ -72,9 +72,6 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
     _attr_native_pressure_unit = UnitOfPressure.HPA
     _attr_native_temperature_unit = UnitOfTemperature.CELSIUS
     _attr_native_wind_speed_unit = UnitOfSpeed.METERS_PER_SECOND
-    _attr_supported_features = (
-        WeatherEntityFeature.FORECAST_DAILY | WeatherEntityFeature.FORECAST_HOURLY
-    )
 
     def __init__(
         self,
@@ -84,7 +81,19 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
         """Initialize the weather entity."""
         super().__init__(coordinator)
         
-        from .const import CONF_STATION_CODE
+        from .const import (
+            CONF_STATION_CODE,
+            CONF_ENABLE_FORECAST_DAILY,
+            CONF_ENABLE_FORECAST_HOURLY,
+        )
+        
+        # Determine supported features based on configuration
+        self._attr_supported_features = 0
+        if entry.data.get(CONF_ENABLE_FORECAST_DAILY, True):
+            self._attr_supported_features |= WeatherEntityFeature.FORECAST_DAILY
+        if entry.data.get(CONF_ENABLE_FORECAST_HOURLY, False):
+            self._attr_supported_features |= WeatherEntityFeature.FORECAST_HOURLY
+        
         station_code = entry.data.get(CONF_STATION_CODE, "")
         station_name = entry.data[CONF_STATION_NAME]
         

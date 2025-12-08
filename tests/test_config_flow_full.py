@@ -26,12 +26,6 @@ from custom_components.meteocat_community_edition.config_flow import (
 )
 from custom_components.meteocat_community_edition.api import MeteocatAPIError
 
-@pytest.fixture(autouse=True)
-def mock_client_session():
-    """Mock aiohttp client session to avoid lingering timers."""
-    with patch("custom_components.meteocat_community_edition.config_flow.async_get_clientsession", return_value=MagicMock()) as mock_session:
-        yield mock_session
-
 def test_is_valid_time_format():
     """Test time format validation."""
     assert is_valid_time_format("06:00")
