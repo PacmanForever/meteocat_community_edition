@@ -15,10 +15,8 @@
 >
 > 🎯 **Purpose**: Simplify Home Assistant integration without needing to understand the internal workings of the API. It has no commercial purpose and seeks no economic benefit.
 
-> **Beta:** This integration is currently in *beta*. Correct operation is not guaranteed and it may contain bugs; use it at your own risk.
-
 > [!IMPORTANT]
-> **Beta:** This integration is currently in *beta*. Correct operation is not guaranteed and it may contain bugs, use it at your own risk
+> **Beta:** This integration is currently in *beta*. Correct operation is not guaranteed and it may contain bugs; use it at your own risk
 > 
 > **Registration required at the Meteocat API** to obtain an API key:
 > - 🆓 **Citizen plan** (free)
