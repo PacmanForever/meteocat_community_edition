@@ -98,6 +98,29 @@
     }
   },
   "entity": {
+    "sensor": {
+      "temperature": {
+        "name": "Temperature"
+      },
+      "humidity": {
+        "name": "Humidity"
+      },
+      "pressure": {
+        "name": "Pressure"
+      },
+      "wind_speed": {
+        "name": "Wind speed"
+      },
+      "wind_direction": {
+        "name": "Wind direction"
+      },
+      "precipitation": {
+        "name": "Precipitation"
+      },
+      "solar_radiation": {
+        "name": "Solar radiation"
+      }
+    },
     "binary_sensor": {
       "update_state": {
         "name": "Last update successful"

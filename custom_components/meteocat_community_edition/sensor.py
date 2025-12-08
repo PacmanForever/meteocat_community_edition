@@ -24,6 +24,14 @@ from homeassistant.components.sensor import (
     SensorEntity,
     SensorStateClass,
 )
+from homeassistant.const import (
+    UnitOfPrecipitationDepth,
+    UnitOfPressure,
+    UnitOfSpeed,
+    UnitOfTemperature,
+    PERCENTAGE,
+    DEGREE,
+)
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -41,10 +49,66 @@ from .const import (
     DOMAIN,
     MODE_MUNICIPI,
     MODE_ESTACIO,
+    XEMA_VARIABLES,
 )
 from .coordinator import MeteocatCoordinator
 
 _LOGGER = logging.getLogger(__name__)
+
+
+# Sensor types configuration
+# Maps variable code to sensor configuration
+SENSOR_TYPES: dict[int, dict[str, Any]] = {
+    32: {  # Temperature
+        "key": "temperature",
+        "device_class": SensorDeviceClass.TEMPERATURE,
+        "unit": UnitOfTemperature.CELSIUS,
+        "state_class": SensorStateClass.MEASUREMENT,
+        "icon": "mdi:thermometer",
+    },
+    33: {  # Humidity
+        "key": "humidity",
+        "device_class": SensorDeviceClass.HUMIDITY,
+        "unit": PERCENTAGE,
+        "state_class": SensorStateClass.MEASUREMENT,
+        "icon": "mdi:water-percent",
+    },
+    34: {  # Pressure
+        "key": "pressure",
+        "device_class": SensorDeviceClass.PRESSURE,
+        "unit": UnitOfPressure.HPA,
+        "state_class": SensorStateClass.MEASUREMENT,
+        "icon": "mdi:gauge",
+    },
+    30: {  # Wind Speed
+        "key": "wind_speed",
+        "device_class": SensorDeviceClass.WIND_SPEED,
+        "unit": UnitOfSpeed.METERS_PER_SECOND,
+        "state_class": SensorStateClass.MEASUREMENT,
+        "icon": "mdi:weather-windy",
+    },
+    31: {  # Wind Direction
+        "key": "wind_direction",
+        "device_class": None,
+        "unit": DEGREE,
+        "state_class": SensorStateClass.MEASUREMENT,
+        "icon": "mdi:compass",
+    },
+    35: {  # Precipitation
+        "key": "precipitation",
+        "device_class": SensorDeviceClass.PRECIPITATION,
+        "unit": UnitOfPrecipitationDepth.MILLIMETERS,
+        "state_class": SensorStateClass.MEASUREMENT,
+        "icon": "mdi:weather-rainy",
+    },
+    36: {  # Solar Radiation
+        "key": "solar_radiation",
+        "device_class": SensorDeviceClass.IRRADIANCE,
+        "unit": "W/m²",
+        "state_class": SensorStateClass.MEASUREMENT,
+        "icon": "mdi:solar-power",
+    },
+}
 
 
 async def async_setup_entry(
@@ -67,6 +131,12 @@ async def async_setup_entry(
         station_name = entry.data.get(CONF_STATION_NAME, f"Estació {station_code}")
         entity_name = station_name  # Visual name without code (for forecast sensors)
         entity_name_with_code = f"{station_name} {station_code}"  # For device grouping
+        
+        # Add XEMA sensors
+        for variable_code in SENSOR_TYPES:
+            entities.append(
+                MeteocatXemaSensor(coordinator, entry, entity_name, variable_code)
+            )
     else:
         entity_name = entry.data.get(CONF_MUNICIPALITY_NAME, f"Municipi {municipality_code}")
         entity_name_with_code = entity_name  # For device grouping
@@ -320,6 +390,61 @@ class MeteocatQuotaSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
                 return "mdi:alert"
         
         return "mdi:counter"
+
+
+class MeteocatXemaSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
+    """Representation of a Meteocat XEMA sensor."""
+
+    def __init__(
+        self,
+        coordinator: MeteocatCoordinator,
+        entry: ConfigEntry,
+        entity_name: str,
+        variable_code: int,
+    ) -> None:
+        """Initialize the sensor."""
+        super().__init__(coordinator)
+        self._variable_code = variable_code
+        self._sensor_config = SENSOR_TYPES[variable_code]
+        
+        station_code = entry.data.get(CONF_STATION_CODE, "")
+        key = self._sensor_config["key"]
+        
+        self._attr_unique_id = f"{entry.entry_id}_{key}"
+        self._attr_has_entity_name = True
+        self._attr_translation_key = key
+        
+        self._attr_device_class = self._sensor_config["device_class"]
+        self._attr_native_unit_of_measurement = self._sensor_config["unit"]
+        self._attr_state_class = self._sensor_config["state_class"]
+        self._attr_icon = self._sensor_config["icon"]
+        
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, entry.entry_id)},
+            "name": f"{entity_name} {station_code}",
+            "manufacturer": "Meteocat Edició Comunitària",
+            "model": "Estació XEMA",
+        }
+
+    @property
+    def native_value(self) -> float | None:
+        """Return the state of the sensor."""
+        measurements = self.coordinator.data.get("measurements")
+        if not measurements or not isinstance(measurements, list):
+            return None
+        
+        # API returns list of stations, get first one
+        station_data = measurements[0]
+        variables = station_data.get("variables", [])
+        
+        # Find measurement for this variable code
+        for variable in variables:
+            if variable.get("codi") == self._variable_code:
+                lectures = variable.get("lectures", [])
+                if lectures:
+                    return lectures[-1].get("valor")
+        
+        return None
 
 
 class MeteocatForecastSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):

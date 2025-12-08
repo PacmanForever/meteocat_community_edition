@@ -104,6 +104,29 @@
     }
   },
   "entity": {
+    "sensor": {
+      "temperature": {
+        "name": "Temperatura"
+      },
+      "humidity": {
+        "name": "Humitat"
+      },
+      "pressure": {
+        "name": "Pressió"
+      },
+      "wind_speed": {
+        "name": "Velocitat del vent"
+      },
+      "wind_direction": {
+        "name": "Direcció del vent"
+      },
+      "precipitation": {
+        "name": "Precipitació"
+      },
+      "solar_radiation": {
+        "name": "Radiació solar"
+      }
+    },
     "binary_sensor": {
       "update_state": {
         "name": "Última actualització correcte"
