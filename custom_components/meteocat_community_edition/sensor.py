@@ -1,4 +1,4 @@
-﻿"""Sensor entities for Meteocat (Community Edition).
+"""Sensor entities for Meteocat (Community Edition).
 
 This module provides all sensor entities for both MODE_ESTACIO and MODE_MUNICIPI.
 
@@ -1591,4 +1591,9 @@ class MeteocatEstimatedDaysRemainingSensor(MeteocatQuotaSensor):
         attrs = super().extra_state_attributes
         attrs["consum_diari_estimat"] = self._get_daily_consumption()
         return attrs
+
+    @property
+    def icon(self) -> str:
+        """Return the icon."""
+        return "mdi:calendar-clock"
 
