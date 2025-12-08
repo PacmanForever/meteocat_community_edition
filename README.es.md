@@ -5,6 +5,8 @@
 [![hacs][hacsbadge]][hacs]
 ![Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)
 
+**Idiomas**: [Català](README.md) | [English](README.en.md) | **Español**
+
 Integración **comunitaria** y **no oficial** para Home Assistant del Servicio Meteorológico de Cataluña (Meteocat).
 
 > 📢 **Integración de la Comunidad**
@@ -23,8 +25,6 @@ Integración **comunitaria** y **no oficial** para Home Assistant del Servicio M
 > - 💼 **Plan empresa** (de pago)
 >
 > Regístrate en: https://apidocs.meteocat.gencat.cat/
-
-**Idiomas**: [Català](README.md) | [English](README.en.md) | **Español**
 
 ## Características
 

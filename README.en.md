@@ -5,6 +5,8 @@
 [![hacs][hacsbadge]][hacs]
 ![Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)
 
+**Languages**: [Català](README.md) | **English** | [Español](README.es.md)
+
 **Community-created** and **unofficial** integration for Home Assistant of the Meteorological Service of Catalonia (Meteocat).
 
 > 📢 **Community Integration**
@@ -23,8 +25,6 @@
 > - 💼 **Business plan** (paid)
 >
 > Register at: https://apidocs.meteocat.gencat.cat/
-
-**Languages**: [Català](README.md) | **English** | [Español](README.es.md)
 
 ## Features
 
