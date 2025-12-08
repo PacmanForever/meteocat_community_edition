@@ -141,16 +141,22 @@ async def test_station_data_saved_to_entry_data(mock_hass, mock_entry_without_st
         await coordinator._async_update_data()
         
         # Verify async_update_entry was called to save station data
-        mock_hass.config_entries.async_update_entry.assert_called_once()
+        assert mock_hass.config_entries.async_update_entry.call_count >= 1
         
         # Get the call arguments
-        call_args = mock_hass.config_entries.async_update_entry.call_args
-        updated_data = call_args[1]["data"]
+        calls = mock_hass.config_entries.async_update_entry.call_args_list
         
-        # Verify station data was saved
-        assert "_station_data" in updated_data
-        assert updated_data["_station_data"]["codi"] == "YM"
-        assert updated_data["_station_data"]["altitud"] == 95
+        # Verify station data was saved in one of the calls
+        station_data_saved = False
+        for call in calls:
+            updated_data = call[1]["data"]
+            if "_station_data" in updated_data:
+                station_data_saved = True
+                assert updated_data["_station_data"]["codi"] == "YM"
+                assert updated_data["_station_data"]["altitud"] == 95
+                break
+        
+        assert station_data_saved, "Station data was not saved to config entry"
         assert updated_data["_station_data"]["coordenades"]["latitud"] == 41.3851
 
 

@@ -29,6 +29,14 @@ from custom_components.meteocat_community_edition.const import (
 )
 
 
+def _mock_platform(sensor):
+    """Mock platform for sensor to allow name property access."""
+    sensor.platform = MagicMock()
+    sensor.platform.platform_name = "meteocat_community_edition"
+    sensor.platform.domain = "sensor"
+    return sensor
+
+
 @pytest.fixture
 def mock_coordinator():
     """Create a mock coordinator."""
@@ -169,8 +177,10 @@ def test_forecast_sensor_daily(mock_coordinator, mock_entry):
         "Granollers",
         "daily"
     )
+    _mock_platform(sensor)
     
-    assert sensor.name == "Granollers Predicció Diària"
+    assert sensor.translation_key == "forecast_daily"
+    assert sensor.has_entity_name is True
     assert sensor.native_value is not None  # El valor depèn de les dades del coordinator
 
 
@@ -183,8 +193,10 @@ def test_forecast_sensor_hourly(mock_coordinator, mock_entry):
         "Granollers",
         "hourly"
     )
+    _mock_platform(sensor)
     
-    assert sensor.name == "Granollers Predicció Horària"
+    assert sensor.translation_key == "forecast_hourly"
+    assert sensor.has_entity_name is True
     # Should return current hour's value
     assert sensor.native_value is not None
 
@@ -199,8 +211,10 @@ def test_last_update_sensor(mock_coordinator, mock_entry):
         MODE_ESTACIO,
         "YM"
     )
+    _mock_platform(sensor)
     
-    assert sensor.name == "Última actualització"
+    assert sensor.translation_key == "last_update"
+    assert sensor.has_entity_name is True
     assert sensor.native_value == datetime(2025, 11, 24, 12, 0, 0)
     assert sensor.entity_id == "sensor.granollers_ym_last_update"
 
@@ -215,8 +229,10 @@ def test_next_update_sensor(mock_coordinator, mock_entry):
         MODE_ESTACIO,
         "YM"
     )
+    _mock_platform(sensor)
     
-    assert sensor.name == "Pròxima actualització"
+    assert sensor.translation_key == "next_update"
+    assert sensor.has_entity_name is True
     # Should use coordinator.next_scheduled_update
     assert sensor.native_value == datetime(2025, 11, 24, 20, 0, 0)
     assert sensor.entity_id == "sensor.granollers_ym_next_update"
@@ -275,7 +291,8 @@ def test_update_time_sensor_time_1_xema_mode(mock_coordinator, mock_entry):
     assert sensor.entity_id == "sensor.granollers_ym_update_time_1"
     
     # Check name
-    assert sensor._attr_name == "Hora d'actualització 1"
+    assert sensor.translation_key == "update_time"
+    assert sensor.translation_placeholders == {"number": "1"}
     
     # Check value comes from coordinator
     assert sensor.native_value == "06:00"
@@ -304,7 +321,8 @@ def test_update_time_sensor_time_2_xema_mode(mock_coordinator, mock_entry):
     assert sensor.entity_id == "sensor.granollers_ym_update_time_2"
     
     # Check name
-    assert sensor._attr_name == "Hora d'actualització 2"
+    assert sensor.translation_key == "update_time"
+    assert sensor.translation_placeholders == {"number": "2"}
     
     # Check value comes from coordinator
     assert sensor.native_value == "14:00"

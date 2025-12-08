@@ -31,9 +31,9 @@ def mock_coordinator():
     coordinator.data = {
         "quotes": {
             "plans": [
-                {"nom": "Predicció", "peticions_disponibles": 1000},
-                {"nom": "XEMA", "peticions_disponibles": 500},
-                {"nom": "Quota", "peticions_disponibles": 200},
+                {"nom": "Predicció", "consultesRestants": 1000},
+                {"nom": "XEMA", "consultesRestants": 500},
+                {"nom": "Quota", "consultesRestants": 200},
             ]
         }
     }
@@ -89,6 +89,13 @@ def test_days_remaining_calculation_prediccio_2_updates(mock_coordinator, mock_e
     # Expected days = 1000 / 4 = 250.0
     
     plan_data = {"nom": "Predicció", "peticions_disponibles": 1000}
+    mock_coordinator.data = {
+        "quotes": {
+            "plans": [
+                {"nom": "Predicció", "consultesRestants": 1000}
+            ]
+        }
+    }
     
     sensor = MeteocatEstimatedDaysRemainingSensor(
         mock_coordinator,
@@ -113,6 +120,13 @@ def test_days_remaining_calculation_prediccio_3_updates(mock_coordinator, mock_e
     # Expected days = 1000 / 6 = 166.66... -> 166.7
     
     plan_data = {"nom": "Predicció", "peticions_disponibles": 1000}
+    mock_coordinator.data = {
+        "quotes": {
+            "plans": [
+                {"nom": "Predicció", "consultesRestants": 1000}
+            ]
+        }
+    }
     
     sensor = MeteocatEstimatedDaysRemainingSensor(
         mock_coordinator,
@@ -138,6 +152,13 @@ def test_days_remaining_calculation_xema_1_update(mock_coordinator, mock_entry):
     # Expected days = 500 / 1 = 500.0
     
     plan_data = {"nom": "XEMA", "peticions_disponibles": 500}
+    mock_coordinator.data = {
+        "quotes": {
+            "plans": [
+                {"nom": "XEMA", "consultesRestants": 500}
+            ]
+        }
+    }
     
     sensor = MeteocatEstimatedDaysRemainingSensor(
         mock_coordinator,
@@ -160,6 +181,13 @@ def test_days_remaining_calculation_quota_generic(mock_coordinator, mock_entry):
     # Expected days = 200 / 2 = 100.0
     
     plan_data = {"nom": "Quota", "peticions_disponibles": 200}
+    mock_coordinator.data = {
+        "quotes": {
+            "plans": [
+                {"nom": "Quota", "consultesRestants": 200}
+            ]
+        }
+    }
     
     sensor = MeteocatEstimatedDaysRemainingSensor(
         mock_coordinator,
@@ -181,6 +209,13 @@ def test_days_remaining_infinite(mock_coordinator, mock_entry):
     mock_coordinator.update_time_3 = None
     
     plan_data = {"nom": "Predicció", "peticions_disponibles": 1000}
+    mock_coordinator.data = {
+        "quotes": {
+            "plans": [
+                {"nom": "Predicció", "consultesRestants": 1000}
+            ]
+        }
+    }
     
     sensor = MeteocatEstimatedDaysRemainingSensor(
         mock_coordinator,

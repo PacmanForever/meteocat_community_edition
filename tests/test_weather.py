@@ -78,6 +78,8 @@ def mock_entry():
         "mode": MODE_ESTACIO,
         "station_code": "YM",
         "station_name": "Granollers",
+        "enable_forecast_daily": True,
+        "enable_forecast_hourly": True,
     }
     return entry
 
@@ -184,6 +186,9 @@ def test_weather_entity_missing_variable(mock_coordinator, mock_entry):
 
 def test_weather_entity_supported_features(mock_coordinator, mock_entry):
     """Test that weather entity supports forecast features."""
+    # Enable hourly forecast in config
+    mock_entry.data["enable_forecast_hourly"] = True
+    
     weather = MeteocatWeather(mock_coordinator, mock_entry)
     
     assert weather.supported_features & WeatherEntityFeature.FORECAST_DAILY
