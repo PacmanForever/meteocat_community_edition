@@ -1,7 +1,7 @@
 # Meteocat (Community Edition)
 
-[![GitHub Release][releases-shield]][releases]
-[![License][license-shield]](LICENSE)
+[![Version](https://img.shields.io/github/v/tag/PacmanForever/meteocat_community_edition?label=version)](https://github.com/PacmanForever/meteocat_community_edition/tags)
+[![License](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 [![hacs][hacsbadge]][hacs]
 ![Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)
 
@@ -14,6 +14,8 @@ Integración **comunitaria** y **no oficial** para Home Assistant del Servicio M
 > ✅ **Uso Legal y Oficial de la API**: Utiliza la [**API oficial del Meteocat**](https://apidocs.meteocat.gencat.cat/) de manera completamente legal y siguiendo sus condiciones de uso.
 >
 > 🎯 **Objetivo**: Facilitar la integración con Home Assistant sin necesidad de conocer el funcionamiento interno de la API. No tiene ninguna finalidad comercial ni busca obtener ningún beneficio económico.
+
+> **Beta:** Esta integración se encuentra en fase *beta*. No se garantiza su correcto funcionamiento y puede contener errores; úsala bajo tu propia responsabilidad.
 
 > [!IMPORTANT]
 > **Es necesario registrarse en la API de Meteocat** para obtener una clave API:
@@ -609,8 +611,5 @@ Consulta el archivo [LICENSE](LICENSE) para la licencia completa.
 
 ---
 
-[releases-shield]: https://img.shields.io/github/release/PacmanForever/meteocat_community_edition.svg
-[releases]: https://github.com/PacmanForever/meteocat_community_edition/releases
-[license-shield]: https://img.shields.io/github/license/PacmanForever/meteocat_community_edition.svg
 [hacs]: https://github.com/hacs/integration
 [hacsbadge]: https://img.shields.io/badge/HACS-Custom-orange.svg
