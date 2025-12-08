@@ -71,7 +71,7 @@ async def test_coordinator_raises_auth_failed_on_403(hass, mock_entry_estacio):
 @pytest.mark.asyncio
 async def test_reauth_flow_validates_new_api_key(hass):
     """Test that reauth flow validates new API key."""
-    from custom_components.meteocat_community_edition.config_flow import MeteocatOptionsFlow
+    from custom_components.meteocat_community_edition.config_flow import MeteocatConfigFlow
     
     # Create mock config entry
     mock_entry = MagicMock()
@@ -80,8 +80,9 @@ async def test_reauth_flow_validates_new_api_key(hass):
         CONF_MODE: MODE_ESTACIO,
     }
     
-    flow = MeteocatOptionsFlow(mock_entry)
+    flow = MeteocatConfigFlow()
     flow.hass = hass
+    flow.entry = mock_entry
     
     # Mock API validation success
     with patch("custom_components.meteocat_community_edition.config_flow.MeteocatAPI") as mock_api_class, \
@@ -106,7 +107,7 @@ async def test_reauth_flow_validates_new_api_key(hass):
 @pytest.mark.asyncio
 async def test_reauth_flow_rejects_invalid_api_key(hass):
     """Test that reauth flow rejects invalid API key."""
-    from custom_components.meteocat_community_edition.config_flow import MeteocatOptionsFlow
+    from custom_components.meteocat_community_edition.config_flow import MeteocatConfigFlow
     from custom_components.meteocat_community_edition.api import MeteocatAPIError
     
     mock_entry = MagicMock()
@@ -115,8 +116,9 @@ async def test_reauth_flow_rejects_invalid_api_key(hass):
         CONF_MODE: MODE_ESTACIO,
     }
     
-    flow = MeteocatOptionsFlow(mock_entry)
+    flow = MeteocatConfigFlow()
     flow.hass = hass
+    flow.entry = mock_entry
     
     # Mock API validation failure
     with patch("custom_components.meteocat_community_edition.config_flow.MeteocatAPI") as mock_api_class:
@@ -133,14 +135,15 @@ async def test_reauth_flow_rejects_invalid_api_key(hass):
 @pytest.mark.asyncio
 async def test_reauth_flow_triggers_reload(hass):
     """Test that successful reauth triggers config entry reload."""
-    from custom_components.meteocat_community_edition.config_flow import MeteocatOptionsFlow
+    from custom_components.meteocat_community_edition.config_flow import MeteocatConfigFlow
     
     mock_entry = MagicMock()
     mock_entry.entry_id = "test_entry"
     mock_entry.data = {CONF_API_KEY: "old_key"}
     
-    flow = MeteocatOptionsFlow(mock_entry)
+    flow = MeteocatConfigFlow()
     flow.hass = hass
+    flow.entry = mock_entry
     
     with patch("custom_components.meteocat_community_edition.config_flow.MeteocatAPI") as mock_api_class, \
          patch.object(hass.config_entries, "async_reload") as mock_reload, \

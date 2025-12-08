@@ -98,6 +98,65 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self.comarca_name: str | None = None
         self.station_code: str | None = None
         self.station_name: str | None = None
+        self.entry: config_entries.ConfigEntry | None = None
+
+    async def async_step_reauth(
+        self, entry_data: dict[str, Any]
+    ) -> FlowResult:
+        """Handle re-authentication when API key is invalid or expired."""
+        self.entry = self.hass.config_entries.async_get_entry(self.context["entry_id"])
+        return await self.async_step_reauth_confirm()
+
+    async def async_step_reauth_confirm(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Handle re-authentication confirmation."""
+        errors: dict[str, str] = {}
+        
+        if user_input is not None:
+            new_api_key = user_input[CONF_API_KEY].strip()
+            
+            # Validate new API key
+            try:
+                session = async_get_clientsession(self.hass)
+                # Use existing base URL or default
+                api_base_url = DEFAULT_API_BASE_URL
+                if self.entry:
+                    api_base_url = self.entry.data.get(CONF_API_BASE_URL, DEFAULT_API_BASE_URL)
+                
+                api = MeteocatAPI(new_api_key, session, api_base_url)
+                
+                # Test the new API key
+                await api.get_comarques()
+                
+                # Update the config entry with new API key
+                if self.entry:
+                    self.hass.config_entries.async_update_entry(
+                        entry=self.entry,
+                        data={**self.entry.data, CONF_API_KEY: new_api_key}
+                    )
+                    
+                    # Reload the config entry to apply new credentials
+                    await self.hass.config_entries.async_reload(self.entry.entry_id)
+                
+                return self.async_abort(reason="reauth_successful")
+                
+            except MeteocatAPIError:
+                errors["base"] = "invalid_auth"
+            except Exception:  # pylint: disable=broad-except
+                _LOGGER.exception("Unexpected exception during reauth")
+                errors["base"] = "unknown"
+        
+        return self.async_show_form(
+            step_id="reauth_confirm",
+            data_schema=vol.Schema({
+                vol.Required(CONF_API_KEY): str,
+            }),
+            description_placeholders={
+                "error_info": "Your API key has expired or is invalid. Please enter a new valid API key."
+            },
+            errors=errors,
+        )
         self.municipality_code: str | None = None
         self.municipality_name: str | None = None
         self.api_base_url: str = DEFAULT_API_BASE_URL
@@ -525,7 +584,6 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
 
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
         """Initialize options flow."""
-        self.config_entry = config_entry
         super().__init__()
 
     async def async_step_init(
@@ -575,13 +633,16 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
         else:
             description_placeholders["measurements_info"] = ""
 
+        # Ensure options is not None
+        options = self.config_entry.options or {}
+
         return self.async_show_form(
             step_id="init",
             data_schema=vol.Schema(
                 {
                     vol.Optional(
                         CONF_API_BASE_URL,
-                        default=self.config_entry.options.get(
+                        default=options.get(
                             CONF_API_BASE_URL, DEFAULT_API_BASE_URL
                         ),
                     ): str,
@@ -618,58 +679,5 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                 }
             ),
             description_placeholders=description_placeholders,
-            errors=errors,
-        )
-
-    async def async_step_reauth(
-        self, entry_data: dict[str, Any]
-    ) -> FlowResult:
-        """Handle re-authentication when API key is invalid or expired."""
-        return await self.async_step_reauth_confirm()
-
-    async def async_step_reauth_confirm(
-        self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
-        """Handle re-authentication confirmation."""
-        errors: dict[str, str] = {}
-        
-        if user_input is not None:
-            new_api_key = user_input[CONF_API_KEY].strip()
-            
-            # Validate new API key
-            try:
-                session = async_get_clientsession(self.hass)
-                api_base_url = self.config_entry.data.get(CONF_API_BASE_URL, DEFAULT_API_BASE_URL)
-                api = MeteocatAPI(new_api_key, session, api_base_url)
-                
-                # Test the new API key
-                await api.get_comarques()
-                
-                # Update the config entry with new API key
-                # Using kwargs for forward compatibility
-                self.hass.config_entries.async_update_entry(
-                    entry=self.config_entry,
-                    data={**self.config_entry.data, CONF_API_KEY: new_api_key}
-                )
-                
-                # Reload the config entry to apply new credentials
-                await self.hass.config_entries.async_reload(self.config_entry.entry_id)
-                
-                return self.async_abort(reason="reauth_successful")
-                
-            except MeteocatAPIError:
-                errors["base"] = "invalid_auth"
-            except Exception:  # pylint: disable=broad-except
-                _LOGGER.exception("Unexpected exception during reauth")
-                errors["base"] = "unknown"
-        
-        return self.async_show_form(
-            step_id="reauth_confirm",
-            data_schema=vol.Schema({
-                vol.Required(CONF_API_KEY): str,
-            }),
-            description_placeholders={
-                "error_info": "Your API key has expired or is invalid. Please enter a new valid API key."
-            },
             errors=errors,
         )
