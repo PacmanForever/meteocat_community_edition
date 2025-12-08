@@ -99,6 +99,8 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self.station_code: str | None = None
         self.station_name: str | None = None
         self.entry: config_entries.ConfigEntry | None = None
+        self._comarques: list[dict[str, Any]] = []
+        self.api_base_url: str = DEFAULT_API_BASE_URL
 
     async def async_step_reauth(
         self, entry_data: dict[str, Any]
@@ -584,7 +586,13 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
 
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
         """Initialize options flow."""
+        self._config_entry = config_entry
         super().__init__()
+
+    @property
+    def config_entry(self):
+        """Return the config entry."""
+        return self._config_entry
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
