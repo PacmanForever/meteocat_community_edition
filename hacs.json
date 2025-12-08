@@ -1,7 +1,5 @@
 {
   "name": "Meteocat (Community Edition)",
-  "description": "Integració comunitària i no oficial per a Home Assistant del Servei Meteorològic de Catalunya (Meteocat).",
-  "homepage": "https://github.com/PacmanForever/meteocat_community_edition",
   "content_in_root": false,
   "country": ["ES"],
   "render_readme": true,
