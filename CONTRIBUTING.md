@@ -45,6 +45,7 @@ Per això, quan afegeixis noves funcionalitats:
 1. **Escriu tests** que cobreixin tots els casos (happy path + edge cases)
 2. **Verifica la cobertura** amb `pytest --cov`
 3. **Assegura't que tots els tests passen**
+4. **No esborris tests**: Si fas tests que poden executar-se en el servidor GitHub i donen cobertura, no els esborris. S'han de mantenir per evitar feina repetida.
 
 Executa els tests abans de fer un PR:
 
