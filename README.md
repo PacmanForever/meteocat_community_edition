@@ -32,8 +32,6 @@ Integració **comunitària** i **no oficial** per a Home Assistant del Servei Me
 >
 > Registra't a: https://apidocs.meteocat.gencat.cat/
 
-**Idiomes**: **Català** | [English](README.en.md) | [Español](README.es.md)
-
 ## Característiques
 
 - 🌡️ **Dades meteorològiques en temps real** de les estacions XEMA
