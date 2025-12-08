@@ -332,8 +332,8 @@ If you configured **Municipality Mode**, you can use the sensor data to create y
 
 Municipality Mode creates these sensors:
 
-- **`sensor.{municipality}_previsio_horaria`**: Forecast for the next 72 hours
-- **`sensor.{municipality}_previsio_diaria`**: Forecast for the next 8 days
+- **`sensor.{municipality}_hourly_forecast`**: Forecast for the next 72 hours
+- **`sensor.{municipality}_daily_forecast`**: Forecast for the next 8 days
 - **`sensor.{municipality}_quota_{plan}`**: API consumption (Forecast)
 - **`sensor.{municipality}_last_update`**: Last update timestamp
 - **`sensor.{municipality}_next_update`**: Next scheduled update
@@ -343,14 +343,14 @@ Municipality Mode creates these sensors:
 
 Sensors store complete forecasts in their **attributes**:
 
-#### Hourly Forecast (`sensor.{municipality}_previsio_horaria`)
+#### Hourly Forecast (`sensor.{municipality}_hourly_forecast`)
 
 The sensor state shows the number of available hours (e.g., "72 hours").
 
 Available attributes:
 ```yaml
 # Access all hourly forecast data
-{{ state_attr('sensor.Barcelona_previsio_horaria', 'forecast') }}
+{{ state_attr('sensor.barcelona_hourly_forecast', 'forecast') }}
 
 # Structure contains:
 # - dies: array of days with forecasts
@@ -364,17 +364,17 @@ Available attributes:
 #     - etc.
 
 # Example: access today's temperatures
-{{ state_attr('sensor.Barcelona_previsio_horaria', 'forecast').dies[0].variables.temp.valors }}
+{{ state_attr('sensor.barcelona_hourly_forecast', 'forecast').dies[0].variables.temp.valors }}
 ```
 
-#### Daily Forecast (`sensor.{municipality}_previsio_diaria`)
+#### Daily Forecast (`sensor.{municipality}_daily_forecast`)
 
 The sensor state shows the number of available days (e.g., "8 days").
 
 Available attributes:
 ```yaml
 # Access all daily forecast data
-{{ state_attr('sensor.Barcelona_previsio_diaria', 'forecast') }}
+{{ state_attr('sensor.barcelona_daily_forecast', 'forecast') }}
 
 # Structure contains:
 # - dies: array of days with forecasts
@@ -386,10 +386,10 @@ Available attributes:
 #     - etc.
 
 # Example: tomorrow's maximum temperature
-{{ state_attr('sensor.Barcelona_previsio_diaria', 'forecast').dies[1].variables.tmax.valor }}
+{{ state_attr('sensor.barcelona_daily_forecast', 'forecast').dies[1].variables.tmax.valor }}
 
 # Example: tomorrow's minimum temperature
-{{ state_attr('sensor.Barcelona_previsio_diaria', 'forecast').dies[1].variables.tmin.valor }}
+{{ state_attr('sensor.barcelona_daily_forecast', 'forecast').dies[1].variables.tmin.valor }}
 ```
 
 ### Custom Weather entity example
@@ -410,8 +410,8 @@ weather:
     # ... other fields from your local station ...
     
     # Hourly/daily forecasts from Meteocat
-    forecast_hourly_template: "{{ state_attr('sensor.Barcelona_previsio_horaria', 'forecast_ha') }}"
-    forecast_daily_template: "{{ state_attr('sensor.Barcelona_previsio_diaria', 'forecast_ha') }}"
+    forecast_hourly_template: "{{ state_attr('sensor.barcelona_hourly_forecast', 'forecast_ha') }}"
+    forecast_daily_template: "{{ state_attr('sensor.barcelona_daily_forecast', 'forecast_ha') }}"
 ```
 
 > **Note**: The `forecast_ha` attribute provides data in the standard Home Assistant format, ready to be used in `weather.template`. The `forecast` attribute contains the original data from the Meteocat API.
@@ -425,11 +425,11 @@ type: vertical-stack
 cards:
   - type: markdown
     content: |
-      ## Hourly Forecast - {{ state_attr('sensor.Barcelona_previsio_horaria', 'forecast').nom }}
+      ## Hourly Forecast - {{ state_attr('sensor.barcelona_hourly_forecast', 'forecast').nom }}
       
-      **Available:** {{ states('sensor.Barcelona_previsio_horaria') }}
+      **Available:** {{ states('sensor.barcelona_hourly_forecast') }}
       
-      {% set forecast = state_attr('sensor.Barcelona_previsio_horaria', 'forecast') %}
+      {% set forecast = state_attr('sensor.barcelona_hourly_forecast', 'forecast') %}
       {% if forecast and forecast.dies %}
         {% for dia in forecast.dies[:2] %}
         ### {{ dia.data }}
@@ -441,9 +441,9 @@ cards:
     content: |
       ## Daily Forecast - Next days
       
-      **Available:** {{ states('sensor.Barcelona_previsio_diaria') }}
+      **Available:** {{ states('sensor.barcelona_daily_forecast') }}
       
-      {% set forecast = state_attr('sensor.Barcelona_previsio_diaria', 'forecast') %}
+      {% set forecast = state_attr('sensor.barcelona_daily_forecast', 'forecast') %}
       {% if forecast and forecast.dies %}
         {% for dia in forecast.dies[:5] %}
         **{{ dia.data }}**: {{ dia.variables.tmin.valor }}°C - {{ dia.variables.tmax.valor }}°C

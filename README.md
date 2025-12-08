@@ -96,7 +96,7 @@ Aquest mode crea sensors amb les prediccions en els seus atributs, permetent-te 
 2. Fes clic a **Afegir integració**
 3. Cerca **Meteocat (Community Edition)**
 4. Introdueix la teva **clau API**
-5. Selecciona **"Predicció municipal""
+5. Selecciona **"Predicció municipal"**
 6. Selecciona la **comarca**
 7. Selecciona el **municipi**
 8. Configura les **hores d'actualització** (per defecte 06:00 i 14:00)
@@ -321,7 +321,7 @@ L'estat del sensor mostra el nombre d'hores disponibles (ex: "72 hores").
 Atributs disponibles:
 ```yaml
 # Accedir a totes les dades de predicció horària
-{{ state_attr('sensor.Barcelona_prediccio_horaria', 'forecast') }}
+{{ state_attr('sensor.barcelona_prediccio_horaria', 'forecast') }}
 
 # L'estructura conté:
 # - dies: array de dies amb prediccions
@@ -335,7 +335,7 @@ Atributs disponibles:
 #     - etc.
 
 # Exemple: accedir a les temperatures d'avui
-{{ state_attr('sensor.Barcelona_prediccio_horaria', 'forecast').dies[0].variables.temp.valors }}
+{{ state_attr('sensor.barcelona_prediccio_horaria', 'forecast').dies[0].variables.temp.valors }}
 ```
 
 #### Predicció Diària (`sensor.{municipi}_prediccio_diaria`)
@@ -345,7 +345,7 @@ L'estat del sensor mostra el nombre de dies disponibles (ex: "8 dies").
 Atributs disponibles:
 ```yaml
 # Accedir a totes les dades de predicció diària
-{{ state_attr('sensor.Barcelona_prediccio_diaria', 'forecast') }}
+{{ state_attr('sensor.barcelona_prediccio_diaria', 'forecast') }}
 
 # L'estructura conté:
 # - dies: array de dies amb prediccions
@@ -357,10 +357,10 @@ Atributs disponibles:
 #     - etc.
 
 # Exemple: temperatura màxima de demà
-{{ state_attr('sensor.Barcelona_prediccio_diaria', 'forecast').dies[1].variables.tmax.valor }}
+{{ state_attr('sensor.barcelona_prediccio_diaria', 'forecast').dies[1].variables.tmax.valor }}
 
 # Exemple: temperatura mínima de demà
-{{ state_attr('sensor.Barcelona_prediccio_diaria', 'forecast').dies[1].variables.tmin.valor }}
+{{ state_attr('sensor.barcelona_prediccio_diaria', 'forecast').dies[1].variables.tmin.valor }}
 ```
 
 ### Exemple d'entitat Weather personalitzada
@@ -381,8 +381,8 @@ weather:
     # ... altres camps de la teva estació local ...
     
     # Prediccions horàries/diàries de Meteocat
-    forecast_hourly_template: "{{ state_attr('sensor.Barcelona_prediccio_horaria', 'forecast_ha') }}"
-    forecast_daily_template: "{{ state_attr('sensor.Barcelona_prediccio_diaria', 'forecast_ha') }}"
+    forecast_hourly_template: "{{ state_attr('sensor.barcelona_prediccio_horaria', 'forecast_ha') }}"
+    forecast_daily_template: "{{ state_attr('sensor.barcelona_prediccio_diaria', 'forecast_ha') }}"
 ```
 
 > **Nota**: L'atribut `forecast_ha` proporciona les dades en el format estàndard de Home Assistant, llest per ser utilitzat en `weather.template`. L'atribut `forecast` conté les dades originals de l'API de Meteocat.
@@ -396,25 +396,25 @@ type: vertical-stack
 cards:
   - type: markdown
     content: |
-      ## Predicció Horària - {{ state_attr('sensor.Barcelona_prediccio_horaria', 'forecast').nom }}
+      ## Predicció Horària - {{ state_attr('sensor.barcelona_prediccio_horaria', 'forecast').nom }}
       
-      **Disponibles:** {{ states('sensor.Barcelona_prediccio_horaria') }}
+      **Available:** {{ states('sensor.barcelona_prediccio_horaria') }}
       
-      {% set forecast = state_attr('sensor.Barcelona_prediccio_horaria', 'forecast') %}
+      {% set forecast = state_attr('sensor.barcelona_prediccio_horaria', 'forecast') %}
       {% if forecast and forecast.dies %}
         {% for dia in forecast.dies[:2] %}
         ### {{ dia.data }}
-        Temperatura: {{ dia.variables.temp.valors[:6] | join(', ') }}°C
+        Temperature: {{ dia.variables.temp.valors[:6] | join(', ') }}°C
         {% endfor %}
       {% endif %}
 
   - type: markdown
     content: |
-      ## Predicció Diària - Pròxims dies
+      ## Predicció Diària - Next days
       
-      **Disponibles:** {{ states('sensor.Barcelona_prediccio_diaria') }}
+      **Available:** {{ states('sensor.barcelona_prediccio_diaria') }}
       
-      {% set forecast = state_attr('sensor.Barcelona_prediccio_diaria', 'forecast') %}
+      {% set forecast = state_attr('sensor.barcelona_prediccio_diaria', 'forecast') %}
       {% if forecast and forecast.dies %}
         {% for dia in forecast.dies[:5] %}
         **{{ dia.data }}**: {{ dia.variables.tmin.valor }}°C - {{ dia.variables.tmax.valor }}°C

@@ -338,8 +338,8 @@ Si has configurado el **Modo Municipio**, puedes utilizar los datos de los senso
 
 El Modo Municipio crea estos sensores:
 
-- **`sensor.{municipio}_prediccio_horaria`**: Predicción de las próximas 72 horas
-- **`sensor.{municipio}_prediccio_diaria`**: Predicción de los próximos 8 días  
+- **`sensor.{municipio}_prediccion_horaria`**: Predicción de las próximas 72 horas
+- **`sensor.{municipio}_prediccion_diaria`**: Predicción de los próximos 8 días  
 - **`sensor.{municipio}_quota_{plan}`**: Consumos API (Predicción)
 - **`sensor.{municipio}_last_update`**: Última actualización
 - **`sensor.{municipio}_next_update`**: Próxima actualización programada
@@ -349,14 +349,14 @@ El Modo Municipio crea estos sensores:
 
 Los sensores almacenan las predicciones completas en sus **atributos**:
 
-#### Predicción Horaria (`sensor.{municipio}_prediccio_horaria`)
+#### Predicción Horaria (`sensor.{municipio}_prediccion_horaria`)
 
 El estado del sensor muestra el número de horas disponibles (ej: "72 horas").
 
 Atributos disponibles:
 ```yaml
 # Acceder a todos los datos de predicción horaria
-{{ state_attr('sensor.Barcelona_prediccio_horaria', 'forecast') }}
+{{ state_attr('sensor.barcelona_prediccion_horaria', 'forecast') }}
 
 # La estructura contiene:
 # - dies: array de días con predicciones
@@ -370,17 +370,17 @@ Atributos disponibles:
 #     - etc.
 
 # Ejemplo: acceder a las temperaturas de hoy
-{{ state_attr('sensor.Barcelona_prediccio_horaria', 'forecast').dies[0].variables.temp.valors }}
+{{ state_attr('sensor.barcelona_prediccion_horaria', 'forecast').dies[0].variables.temp.valors }}
 ```
 
-#### Predicción Diaria (`sensor.{municipio}_prediccio_diaria`)
+#### Predicción Diaria (`sensor.{municipio}_prediccion_diaria`)
 
 El estado del sensor muestra el número de días disponibles (ej: "8 días").
 
 Atributos disponibles:
 ```yaml
 # Acceder a todos los datos de predicción diaria
-{{ state_attr('sensor.Barcelona_prediccio_diaria', 'forecast') }}
+{{ state_attr('sensor.barcelona_prediccion_diaria', 'forecast') }}
 
 # La estructura contiene:
 # - dies: array de días con predicciones
@@ -392,11 +392,10 @@ Atributos disponibles:
 #     - etc.
 
 # Ejemplo: temperatura máxima de mañana
-{{ state_attr('sensor.Barcelona_prediccio_diaria', 'forecast').dies[1].variables.tmax.valor }}
+{{ state_attr('sensor.barcelona_prediccion_diaria', 'forecast').dies[1].variables.tmax.valor }}
 
 # Ejemplo: temperatura mínima de mañana
-# Ejemplo: temperatura mínima de mañana
-{{ state_attr('sensor.Barcelona_prediccio_diaria', 'forecast').dies[1].variables.tmin.valor }}
+{{ state_attr('sensor.barcelona_prediccion_diaria', 'forecast').dies[1].variables.tmin.valor }}
 ```
 
 ### Ejemplo de entidad Weather personalizada
@@ -420,8 +419,8 @@ weather:
     # ... otros campos de tu estación local ...
     
     # Predicciones horarias/diarias de Meteocat
-    forecast_hourly_template: "{{ state_attr('sensor.Barcelona_prediccio_horaria', 'forecast_ha') }}"
-    forecast_daily_template: "{{ state_attr('sensor.Barcelona_prediccio_diaria', 'forecast_ha') }}"
+    forecast_hourly_template: "{{ state_attr('sensor.barcelona_prediccion_horaria', 'forecast_ha') }}"
+    forecast_daily_template: "{{ state_attr('sensor.barcelona_prediccion_diaria', 'forecast_ha') }}"
 ```
 
 > **Nota**: El atributo `forecast_ha` proporciona los datos en el formato estándar de Home Assistant, listo para ser utilizado en `weather.template`. El atributo `forecast` contiene los datos originales de la API de Meteocat.
@@ -435,11 +434,11 @@ type: vertical-stack
 cards:
   - type: markdown
     content: |
-      ## Predicción Horaria - {{ state_attr('sensor.Barcelona_prediccio_horaria', 'forecast').nom }}
+      ## Predicción Horaria - {{ state_attr('sensor.barcelona_prediccion_horaria', 'forecast').nom }}
       
-      **Disponibles:** {{ states('sensor.Barcelona_prediccio_horaria') }}
+      **Disponibles:** {{ states('sensor.barcelona_prediccion_horaria') }}
       
-      {% set forecast = state_attr('sensor.Barcelona_prediccio_horaria', 'forecast') %}
+      {% set forecast = state_attr('sensor.barcelona_prediccion_horaria', 'forecast') %}
       {% if forecast and forecast.dies %}
         {% for dia in forecast.dies[:2] %}
         ### {{ dia.data }}

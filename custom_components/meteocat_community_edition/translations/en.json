@@ -120,6 +120,12 @@
       "solar_radiation": {
         "name": "Solar radiation"
       },
+      "forecast_hourly": {
+        "name": "Hourly forecast"
+      },
+      "forecast_daily": {
+        "name": "Daily forecast"
+      },
       "latitude": {
         "name": "Latitude"
       },
