@@ -21,7 +21,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_validation as cv
 
 from .const import CONF_MODE, DOMAIN, MODE_ESTACIO
-from .coordinator import MeteocatCoordinator
+from .coordinator import MeteocatCoordinator, MeteocatForecastCoordinator, MeteocatLegacyCoordinator
 
 if TYPE_CHECKING:
     from .api import MeteocatAPI
@@ -48,7 +48,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     
     Test Coverage: test_no_duplicate_updates_on_ha_restart in test_scheduled_updates.py
     """
-    coordinator = MeteocatCoordinator(hass, entry)
+    mode = entry.data.get(CONF_MODE, MODE_ESTACIO)  # Default to ESTACIO for backwards compatibility
+
+    if mode == MODE_ESTACIO:
+        # XEMA mode: Use Legacy Coordinator (handles both station and forecast)
+        coordinator = MeteocatLegacyCoordinator(hass, entry)
+    else:
+        # Municipal mode: Use Forecast Coordinator (handles only forecast)
+        coordinator = MeteocatForecastCoordinator(hass, entry)
     
     # ⚠️ CRITICAL: First refresh - this is the ONLY manual update call
     # All future updates will be scheduled automatically
@@ -61,9 +68,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = coordinator
     
-    # Determine which platforms to load based on mode
-    mode = entry.data.get(CONF_MODE, MODE_ESTACIO)  # Default to ESTACIO for backwards compatibility
-
     if mode == MODE_ESTACIO:
         # XEMA mode: load weather entity + sensors + button + binary_sensor
         platforms = PLATFORMS

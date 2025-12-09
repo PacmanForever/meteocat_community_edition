@@ -224,6 +224,9 @@ async def test_event_not_fired_on_error(mock_hass, mock_entry_estacio, mock_api,
         coordinator = MeteocatCoordinator(mock_hass, mock_entry_estacio)
         coordinator.api = mock_api
         
+        # Schedule next update so it is available for the event
+        coordinator._schedule_next_update()
+        
         # First refresh tolerates missing data
         await coordinator._async_update_data()
         assert coordinator._is_first_refresh is False
@@ -275,6 +278,9 @@ async def test_next_update_changed_event_fired(mock_hass, mock_entry_estacio, mo
         coordinator = MeteocatCoordinator(mock_hass, mock_entry_estacio)
         coordinator.api = mock_api
         
+        # Schedule next update so it is available for the event
+        coordinator._schedule_next_update()
+        
         # First update - should fire both data_updated and next_update_changed
         await coordinator._async_update_data()
         
@@ -308,6 +314,9 @@ async def test_next_update_changed_event_not_fired_when_same(mock_hass, mock_ent
          patch('custom_components.meteocat_community_edition.coordinator.dr.async_get', return_value=mock_device_registry):
         coordinator = MeteocatCoordinator(mock_hass, mock_entry_estacio)
         coordinator.api = mock_api
+        
+        # Schedule next update so it is available for the event
+        coordinator._schedule_next_update()
         
         # First update
         await coordinator._async_update_data()
@@ -362,6 +371,9 @@ async def test_next_update_changed_event_includes_municipality_code(mock_hass, m
         coordinator = MeteocatCoordinator(mock_hass, mock_entry_municipi)
         coordinator.api = mock_api
         
+        # Schedule next update so it is available for the event
+        coordinator._schedule_next_update()
+        
         await coordinator._async_update_data()
         
         # Get next_update_changed event (first call)
@@ -379,6 +391,9 @@ async def test_next_update_changed_event_has_valid_timestamp_format(mock_hass, m
          patch('custom_components.meteocat_community_edition.coordinator.dr.async_get', return_value=mock_device_registry):
         coordinator = MeteocatCoordinator(mock_hass, mock_entry_estacio)
         coordinator.api = mock_api
+        
+        # Schedule next update so it is available for the event
+        coordinator._schedule_next_update()
         
         await coordinator._async_update_data()
         

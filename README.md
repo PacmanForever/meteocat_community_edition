@@ -174,37 +174,33 @@ Aquest mode està pensat per a usuaris que ja tenen una estació meteorològica 
 
 ### 📊 Sistema d'actualitzacions programades
 
-La integració està **optimitzada per estalviar quota de l'API** i assegurar que arribes a final de mes sense problemes.
+La integració està **optimitzada per estalviar quota de l'API** i assegurar que arribes a final de mes sense problemes, però mantenint les dades de l'estació actualitzades.
 
 #### Comportament del sistema
 
-Les dades s'actualitzen **NOMÉS** en aquests casos:
+Les dades s'actualitzen de la següent manera:
 
-1. **A l'inici**: Quan s'engega Home Assistant o s'activa la integració (1 vegada)
-2. **A les hores programades**: Per defecte a les **06:00** i **14:00** (2 vegades/dia)
-3. **Manualment**: Quan prems el botó "Actualitzar dades"
-
-⚠️ **IMPORTANT**: La integració **NO fa polling automàtic**. Això vol dir que NO s'actualitza cada X minuts/hores de forma contínua, sinó que només ho fa als moments exactes configurats.
+1. **Dades de l'estació (XEMA)**: S'actualitzen **cada hora** (al minut 0).
+2. **Prediccions i Quotes**: S'actualitzen **NOMÉS** a les hores programades (per defecte a les **06:00** i **14:00**).
+3. **Manualment**: Quan prems el botó "Actualitzar dades" (s'actualitza tot).
 
 #### Consum de quota per actualització
 
-Cada actualització fa les següents crides a l'API:
-
 **Mode Estació (XEMA)**:
-- Primera actualització: 5 crides (stations + measurements + forecast + hourly + quotes)
-- Actualitzacions posteriors: 4 crides (measurements + forecast + hourly + quotes)
-- **Mitjana diària**: ~13 crides (1 inicial + 2 programades × 4)
+- **Cada hora**: 1 crida (measurements)
+- **A les hores de predicció**: 3 crides addicionals (forecast + hourly + quotes)
+- **Mitjana diària**: ~30 crides (24 hores × 1 + 2 prediccions × 3)
 
 **Mode Municipal**:
-- Cada actualització: 3 crides (forecast + hourly + quotes)
+- **A les hores de predicció**: 3 crides (forecast + hourly + quotes)
 - **Mitjana diària**: ~6 crides (2 programades × 3)
 
 #### Càlcul mensual (30 dies)
 
 | Mode | Crides/dia | Crides/mes | Quota restant* | Actualitzacions manuals disponibles |
 |------|-----------|-----------|----------------|-------------------------------------|
-| **Estació** | 13 | 390 | 610 | ~20/dia (610÷30) |
-| **Municipal** | 6 | 180 | 820 | ~27/dia (820÷30) |
+| **Estació** | ~30 | ~900 | ~100 | ~3/dia (100÷30) |
+| **Municipal** | ~6 | ~180 | ~820 | ~27/dia (820÷30) |
 
 \* Assumint quota de 1000 crides/mes (pla Predicció estàndard)
 

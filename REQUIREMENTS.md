@@ -88,15 +88,18 @@
 ## 4. Gestió de quota API
 
 ### 4.1. Sistema d'actualitzacions programades
-- **Fins a 3 actualitzacions diàries** configurables (per defecte: 06:00 i 14:00)
-- **NO polling automàtic**: update_interval=None per evitar consum excessiu
-- **Quotes separades** per cada pla API
+- **Dades d'estació (XEMA)**: Actualització horària (cada hora al minut 0).
+- **Prediccions i Quotes**: Actualització programada (per defecte 06:00 i 14:00).
+- **NO polling automàtic constant**: update_interval=None, gestió pròpia de la planificació.
 
 ### 4.2. Consum estimat de quota
-- **Fins a 3 actualitzacions diàries** per instància configurada
-- Cada actualització consulta les quotes dels plans API utilitzats
-- **MODE_ESTACIO**: Consulta plans XEMA i Predicció (si habilitada) per actualització
-- **MODE_MUNICIPI**: Consulta pla Predicció (si habilitada) per actualització
+- **MODE_ESTACIO**:
+  - 24 crides/dia per mesures (1 per hora).
+  - 3 crides addicionals per cada actualització programada (forecast + hourly + quotes).
+- **MODE_MUNICIPI**:
+  - 3 crides per cada actualització programada (forecast + hourly + quotes).
+  - No hi ha consum horari.
+- **Quotes separades** per cada pla API.
 
 ### 4.3. Sistema de retry intel·ligent
 - Reintents automàtics en errors temporals (timeout, rate limit)

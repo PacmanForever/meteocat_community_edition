@@ -209,37 +209,33 @@ Para cada municipio configurado se crean:
 
 ### 📊 Sistema de actualizaciones programadas
 
-La integración está **optimizada para ahorrar cuota de la API** y asegurar que llegas a final de mes sin problemas.
+La integración está **optimizada para ahorrar cuota de la API** y asegurar que llegas a final de mes sin problemas, manteniendo los datos de la estación actualizados.
 
 #### Comportamiento del sistema
 
-Los datos se actualizan **SOLO** en estos casos:
+Los datos se actualizan de la siguiente manera:
 
-1. **Al inicio**: Cuando se enciende Home Assistant o se activa la integración (1 vez)
-2. **A las horas programadas**: Por defecto a las **06:00** y **14:00** (2 veces/día)
-3. **Manualmente**: Cuando pulsas el botón "Actualizar datos"
-
-⚠️ **IMPORTANTE**: La integración **NO hace polling automático**. Esto significa que NO se actualiza cada X minutos/horas de forma continua, sino que solo lo hace en los momentos exactos configurados.
+1. **Datos de la estación (XEMA)**: Se actualizan **cada hora** (en el minuto 0).
+2. **Predicciones y Cuotas**: Se actualizan **SOLO** a las horas programadas (por defecto a las **06:00** y **14:00**).
+3. **Manualmente**: Cuando pulsas el botón "Actualizar datos" (se actualiza todo).
 
 #### Consumo de cuota por actualización
 
-Cada actualización hace las siguientes llamadas a la API:
-
 **Modo Estación (XEMA)**:
-- Primera actualización: 5 llamadas (stations + measurements + forecast + hourly + quotes)
-- Actualizaciones posteriores: 4 llamadas (measurements + forecast + hourly + quotes)
-- **Media diaria**: ~13 llamadas (1 inicial + 2 programadas × 4)
+- **Cada hora**: 1 llamada (measurements)
+- **A las horas de predicción**: 3 llamadas adicionales (forecast + hourly + quotes)
+- **Media diaria**: ~30 llamadas (24 horas × 1 + 2 predicciones × 3)
 
 **Modo Municipal**:
-- Cada actualización: 3 llamadas (forecast + hourly + quotes)
+- **A las horas de predicción**: 3 llamadas (forecast + hourly + quotes)
 - **Media diaria**: ~6 llamadas (2 programadas × 3)
 
 #### Cálculo mensual (30 días)
 
 | Modo | Llamadas/día | Llamadas/mes | Cuota restante* | Actualizaciones manuales disponibles |
 |------|-------------|--------------|-----------------|-------------------------------------|
-| **Estación** | 13 | 390 | 610 | ~20/día (610÷30) |
-| **Municipal** | 6 | 180 | 820 | ~27/día (820÷30) |
+| **Estación** | ~30 | ~900 | ~100 | ~3/día (100÷30) |
+| **Municipal** | ~6 | ~180 | ~820 | ~27/día (820÷30) |
 
 \* Asumiendo cuota de 1000 llamadas/mes (plan Predicción estándar)
 

@@ -207,53 +207,60 @@ async def test_cleanup_cancels_scheduled_update(mock_hass, mock_entry_estacio, m
 
 @pytest.mark.asyncio
 async def test_api_calls_estacio_mode(mock_hass, mock_entry_estacio, mock_api):
-    """Test API calls in ESTACIO mode to verify quota usage."""
+    """Test API calls in ESTACIO mode to verify quota usage.
+    
+    Verifies:
+    1. First update calls ALL APIs.
+    2. Hourly update (not forecast time) calls ONLY measurements.
+    3. Forecast update time calls ALL APIs.
+    """
     with patch('custom_components.meteocat_community_edition.coordinator.async_get_clientsession'):
         coordinator = MeteocatCoordinator(mock_hass, mock_entry_estacio)
         coordinator.api = mock_api
         
-        # Perform first update
-        await coordinator._async_update_data()
+        from homeassistant.util import dt as dt_util
+        
+        # 1. Perform first update (initial setup)
+        # Should fetch everything regardless of time
+        data = await coordinator._async_update_data()
+        coordinator.data = data
         
         # Verify API calls for ESTACIO mode (first time)
-        # Should call: get_stations (once), get_station_measurements, get_municipal_forecast, 
-        # get_hourly_forecast, get_quotes
         assert mock_api.get_stations.call_count == 1
         assert mock_api.get_station_measurements.call_count == 1
         assert mock_api.get_municipal_forecast.call_count == 1
         assert mock_api.get_hourly_forecast.call_count == 1
         assert mock_api.get_quotes.call_count == 1
         
-        # Total: 5 API calls on first update
-        total_calls = (
-            mock_api.get_stations.call_count +
-            mock_api.get_station_measurements.call_count +
-            mock_api.get_municipal_forecast.call_count +
-            mock_api.get_hourly_forecast.call_count +
-            mock_api.get_quotes.call_count
-        )
-        assert total_calls == 5
+        # 2. Perform second update at 10:00 (NOT a forecast update time)
+        mock_time = datetime(2025, 11, 26, 10, 0, 0)
+        with patch('custom_components.meteocat_community_edition.coordinator.dt_util.now', return_value=dt_util.as_local(mock_time)):
+            data = await coordinator._async_update_data()
+            coordinator.data = data
         
-        # Second update (get_stations should not be called again)
-        await coordinator._async_update_data()
-        
-        # get_stations should still be 1 (not called again)
+        # get_stations should still be 1
         assert mock_api.get_stations.call_count == 1
-        # Other calls should be 2 each
+        # Measurements should increment (called every hour)
         assert mock_api.get_station_measurements.call_count == 2
+        # Forecasts should NOT increment
+        assert mock_api.get_municipal_forecast.call_count == 1
+        assert mock_api.get_hourly_forecast.call_count == 1
+        # Quotes should NOT increment (tied to forecast)
+        assert mock_api.get_quotes.call_count == 1
+        
+        # 3. Perform third update at 14:00 (IS a forecast update time)
+        mock_time = datetime(2025, 11, 26, 14, 0, 0)
+        with patch('custom_components.meteocat_community_edition.coordinator.dt_util.now', return_value=dt_util.as_local(mock_time)):
+            data = await coordinator._async_update_data()
+            coordinator.data = data
+            
+        # Measurements should increment
+        assert mock_api.get_station_measurements.call_count == 3
+        # Forecasts SHOULD increment now
         assert mock_api.get_municipal_forecast.call_count == 2
         assert mock_api.get_hourly_forecast.call_count == 2
+        # Quotes SHOULD increment now
         assert mock_api.get_quotes.call_count == 2
-        
-        # Total after 2 updates: 5 (first) + 4 (second) = 9 calls
-        total_calls_after_second = (
-            mock_api.get_stations.call_count +
-            mock_api.get_station_measurements.call_count +
-            mock_api.get_municipal_forecast.call_count +
-            mock_api.get_hourly_forecast.call_count +
-            mock_api.get_quotes.call_count
-        )
-        assert total_calls_after_second == 9
 
 
 @pytest.mark.asyncio
@@ -289,35 +296,33 @@ async def test_api_calls_municipi_mode(mock_hass, mock_entry_municipi, mock_api)
 async def test_daily_quota_usage_estacio():
     """Test that daily quota usage is reasonable for ESTACIO mode.
     
-    Expected usage with default times (06:00, 14:00):
-    - First update (initial setup): 5 calls
-    - Update at 06:00: 4 calls
-    - Update at 14:00: 4 calls
-    - Manual updates: variable
+    Expected usage with hourly updates:
+    - Measurements: 24 calls/day
+    - Forecasts: 2 updates/day * 2 calls (daily + hourly) = 4 calls/day
+    - Quotes: 2 updates/day * 1 call = 2 calls/day
     
-    Minimum daily usage: 5 + 4 + 4 = 13 calls (if no manual updates)
+    Total daily usage: 24 + 4 + 2 = 30 calls/day
     """
     # This is a documentation test - just verify the calculation
-    first_update_calls = 5  # get_stations + measurements + forecast + hourly + quotes
-    scheduled_update_calls = 4  # measurements + forecast + hourly + quotes (no get_stations)
+    measurements_calls = 24
+    forecast_calls = 2 * 2  # 2 updates * 2 types
+    quotes_calls = 2  # 2 updates
     
-    daily_scheduled_updates = 2  # 06:00 and 14:00
+    daily_calls = measurements_calls + forecast_calls + quotes_calls
     
-    minimum_daily_calls = first_update_calls + (scheduled_update_calls * daily_scheduled_updates)
-    
-    # Should be 5 + (4 * 2) = 13 calls per day minimum
-    assert minimum_daily_calls == 13
+    # Should be 30 calls per day
+    assert daily_calls == 30
     
     # With 1000 quota per month (typical Predicció plan)
-    # 13 calls/day * 30 days = 390 calls/month
-    # This leaves 610 calls for manual updates (~ 20 manual updates/day)
+    # 30 calls/day * 30 days = 900 calls/month
+    # This leaves 100 calls for manual updates (~ 3 manual updates/day)
     monthly_quota = 1000
     days_per_month = 30
-    monthly_scheduled_calls = minimum_daily_calls * days_per_month
+    monthly_scheduled_calls = daily_calls * days_per_month
     remaining_quota = monthly_quota - monthly_scheduled_calls
     
-    assert monthly_scheduled_calls == 390
-    assert remaining_quota == 610
+    assert monthly_scheduled_calls == 900
+    assert remaining_quota == 100
 
 
 @pytest.mark.asyncio
@@ -503,18 +508,16 @@ async def test_update_failure_does_not_break_scheduling(mock_hass, mock_entry_es
 
 @pytest.mark.asyncio
 async def test_schedule_next_update_after_midnight(mock_hass, mock_entry_estacio, mock_api):
-    """Test scheduling when current time is after both update times (should schedule tomorrow).
+    """Test scheduling when current time is after both update times.
     
-    Example: Current time is 23:00, update times are 06:00 and 14:00
-    Next update should be tomorrow at 06:00.
+    With hourly updates, it should schedule for the next hour.
     """
     with patch('custom_components.meteocat_community_edition.coordinator.async_get_clientsession'):
         coordinator = MeteocatCoordinator(mock_hass, mock_entry_estacio)
         coordinator.api = mock_api
         
-        # Mock current time as 23:00 (after both update times)
+        # Mock current time as 23:00
         from homeassistant.util import dt as dt_util
-        from unittest.mock import PropertyMock
         
         with patch('custom_components.meteocat_community_edition.coordinator.dt_util.now') as mock_now, \
              patch('custom_components.meteocat_community_edition.coordinator.async_track_point_in_utc_time') as mock_track:
@@ -531,9 +534,9 @@ async def test_schedule_next_update_after_midnight(mock_hass, mock_entry_estacio
             # Get the scheduled time (3rd argument to async_track_point_in_utc_time)
             scheduled_time = mock_track.call_args[0][2]
             
-            # Should be tomorrow at 06:00
+            # Should be tomorrow at 00:00 (next hour)
             expected_time = dt_util.as_utc(
-                dt_util.as_local(datetime(2025, 11, 27, 6, 0, 0))
+                dt_util.as_local(datetime(2025, 11, 27, 0, 0, 0))
             )
             
             # Compare just the date and time (ignore microseconds)
@@ -546,8 +549,7 @@ async def test_schedule_next_update_after_midnight(mock_hass, mock_entry_estacio
 async def test_schedule_next_update_between_times(mock_hass, mock_entry_estacio, mock_api):
     """Test scheduling when current time is between update times.
     
-    Example: Current time is 10:00, update times are 06:00 and 14:00
-    Next update should be today at 14:00.
+    With hourly updates, it should schedule for the next hour.
     """
     with patch('custom_components.meteocat_community_edition.coordinator.async_get_clientsession'):
         coordinator = MeteocatCoordinator(mock_hass, mock_entry_estacio)
@@ -558,7 +560,7 @@ async def test_schedule_next_update_between_times(mock_hass, mock_entry_estacio,
         with patch('custom_components.meteocat_community_edition.coordinator.dt_util.now') as mock_now, \
              patch('custom_components.meteocat_community_edition.coordinator.async_track_point_in_utc_time') as mock_track:
             
-            # Set current time to 10:00 (after 06:00, before 14:00)
+            # Set current time to 10:00
             mock_time = datetime(2025, 11, 26, 10, 0, 0)
             mock_now.return_value = dt_util.as_local(mock_time)
             
@@ -570,9 +572,9 @@ async def test_schedule_next_update_between_times(mock_hass, mock_entry_estacio,
             # Get the scheduled time
             scheduled_time = mock_track.call_args[0][2]
             
-            # Should be today at 14:00
+            # Should be today at 11:00 (next hour)
             expected_time = dt_util.as_utc(
-                dt_util.as_local(datetime(2025, 11, 26, 14, 0, 0))
+                dt_util.as_local(datetime(2025, 11, 26, 11, 0, 0))
             )
             
             # Compare date and time
@@ -585,8 +587,7 @@ async def test_schedule_next_update_between_times(mock_hass, mock_entry_estacio,
 async def test_schedule_next_update_before_first_time(mock_hass, mock_entry_estacio, mock_api):
     """Test scheduling when current time is before first update time.
     
-    Example: Current time is 05:00, update times are 06:00 and 14:00
-    Next update should be today at 06:00.
+    With hourly updates, it should schedule for the next hour.
     """
     with patch('custom_components.meteocat_community_edition.coordinator.async_get_clientsession'):
         coordinator = MeteocatCoordinator(mock_hass, mock_entry_estacio)
@@ -597,7 +598,7 @@ async def test_schedule_next_update_before_first_time(mock_hass, mock_entry_esta
         with patch('custom_components.meteocat_community_edition.coordinator.dt_util.now') as mock_now, \
              patch('custom_components.meteocat_community_edition.coordinator.async_track_point_in_utc_time') as mock_track:
             
-            # Set current time to 05:00 (before both update times)
+            # Set current time to 05:00
             mock_time = datetime(2025, 11, 26, 5, 0, 0)
             mock_now.return_value = dt_util.as_local(mock_time)
             
@@ -609,7 +610,7 @@ async def test_schedule_next_update_before_first_time(mock_hass, mock_entry_esta
             # Get the scheduled time
             scheduled_time = mock_track.call_args[0][2]
             
-            # Should be today at 06:00
+            # Should be today at 06:00 (next hour)
             expected_time = dt_util.as_utc(
                 dt_util.as_local(datetime(2025, 11, 26, 6, 0, 0))
             )
@@ -659,10 +660,10 @@ async def test_no_duplicate_updates_on_ha_restart(mock_hass, mock_entry_estacio,
 
 @pytest.mark.asyncio
 async def test_custom_update_times(mock_hass, mock_api):
-    """Test coordinator with custom update times (not default 06:00/14:00).
+    """Test coordinator with custom update times.
     
-    Users can configure different times like 08:00/20:00 or 05:30/17:45.
-    This verifies the system works with any valid time.
+    Verifies that even with custom times, the scheduler runs hourly,
+    but _should_fetch_forecast respects the custom times.
     """
     # Create entry with custom times
     entry = MagicMock()
@@ -689,7 +690,7 @@ async def test_custom_update_times(mock_hass, mock_api):
         with patch('custom_components.meteocat_community_edition.coordinator.dt_util.now') as mock_now, \
              patch('custom_components.meteocat_community_edition.coordinator.async_track_point_in_utc_time') as mock_track:
             
-            # Set current time to 10:00 (after 08:30, before 20:15)
+            # Set current time to 10:00
             mock_time = datetime(2025, 11, 26, 10, 0, 0)
             mock_now.return_value = dt_util.as_local(mock_time)
             
@@ -698,15 +699,77 @@ async def test_custom_update_times(mock_hass, mock_api):
             # Get the scheduled time
             scheduled_time = mock_track.call_args[0][2]
             
-            # Should be today at 20:15
+            # Should be today at 11:00 (next hour)
             expected_time = dt_util.as_utc(
-                dt_util.as_local(datetime(2025, 11, 26, 20, 15, 0))
+                dt_util.as_local(datetime(2025, 11, 26, 11, 0, 0))
             )
             
             # Compare date and time
             assert scheduled_time.date() == expected_time.date()
             assert scheduled_time.hour == expected_time.hour
             assert scheduled_time.minute == expected_time.minute
+
+
+@pytest.mark.asyncio
+async def test_should_fetch_forecast_logic(mock_hass, mock_entry_estacio, mock_api):
+    """Test the conditional forecast fetching logic."""
+    with patch('custom_components.meteocat_community_edition.coordinator.async_get_clientsession'):
+        coordinator = MeteocatCoordinator(mock_hass, mock_entry_estacio)
+        coordinator.api = mock_api
+        
+        from homeassistant.util import dt as dt_util
+        
+        # Case 1: First refresh (data is None)
+        coordinator.data = None
+        coordinator._is_first_refresh = True
+        assert coordinator._should_fetch_forecast() is True
+        
+        # Case 2: Data exists (including forecast), but time is NOT an update time
+        coordinator.data = {"forecast": "exists"}
+        coordinator._is_first_refresh = False
+        
+        # Set time to 10:00 (not 06:00 or 14:00)
+        mock_time = datetime(2025, 11, 26, 10, 0, 0)
+        with patch('custom_components.meteocat_community_edition.coordinator.dt_util.now', return_value=dt_util.as_local(mock_time)):
+            assert coordinator._should_fetch_forecast() is False
+            
+        # Case 3: Data exists, and time IS an update time (06:00)
+        mock_time = datetime(2025, 11, 26, 6, 0, 0)
+        with patch('custom_components.meteocat_community_edition.coordinator.dt_util.now', return_value=dt_util.as_local(mock_time)):
+            assert coordinator._should_fetch_forecast() is True
+            
+        # Case 4: Data exists, and time IS an update time (14:00)
+        mock_time = datetime(2025, 11, 26, 14, 0, 0)
+        with patch('custom_components.meteocat_community_edition.coordinator.dt_util.now', return_value=dt_util.as_local(mock_time)):
+            assert coordinator._should_fetch_forecast() is True
+            
+        # Case 5: Custom update times
+        coordinator.update_time_1 = "08:30"
+        
+        # 08:30 match
+        mock_time = datetime(2025, 11, 26, 8, 30, 0)
+        with patch('custom_components.meteocat_community_edition.coordinator.dt_util.now', return_value=dt_util.as_local(mock_time)):
+            assert coordinator._should_fetch_forecast() is True
+            
+        # 08:00 no match (minute mismatch) - Wait, logic only checks hour!
+        # My implementation: if now.hour == update_time.hour: return True
+        # So 08:00 WILL match 08:30 if I only check hour.
+        
+        # Let's check the implementation again.
+        # if now.hour == update_time.hour: return True
+        # Yes, it only checks hour.
+        # So 08:00 should return True if update time is 08:30.
+        
+        # I should update the test expectation or the implementation.
+        # The requirement was "update measurements every hour".
+        # Forecast update times are usually "06:00", "14:00".
+        # If user sets "08:30", they probably expect update at 08:00 or 09:00?
+        # Since we run hourly at top of hour, we can only match the hour.
+        # So matching hour is correct behavior for this implementation.
+        
+        mock_time = datetime(2025, 11, 26, 8, 0, 0)
+        with patch('custom_components.meteocat_community_edition.coordinator.dt_util.now', return_value=dt_util.as_local(mock_time)):
+            assert coordinator._should_fetch_forecast() is True
 
 
 @pytest.mark.asyncio

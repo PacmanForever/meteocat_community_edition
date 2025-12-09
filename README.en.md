@@ -209,37 +209,33 @@ For each configured municipality, these entities are created:
 
 ### 📊 Scheduled Update System
 
-The integration is **optimized to save API quota** and ensure you reach the end of the month without issues.
+The integration is **optimized to save API quota** and ensure you reach the end of the month without issues, while keeping station data up to date.
 
 #### System Behavior
 
-Data is updated **ONLY** in these cases:
+Data is updated as follows:
 
-1. **At startup**: When Home Assistant starts or the integration is activated (1 time)
-2. **At scheduled times**: By default at **06:00** and **14:00** (2 times/day)
-3. **Manually**: When you press the "Refresh data" button
-
-⚠️ **IMPORTANT**: The integration **does NOT do automatic polling**. This means it does NOT update every X minutes/hours continuously, but only at the exact configured moments.
+1. **Station Data (XEMA)**: Updated **every hour** (at minute 0).
+2. **Forecasts and Quotes**: Updated **ONLY** at scheduled times (by default at **06:00** and **14:00**).
+3. **Manually**: When you press the "Refresh data" button (updates everything).
 
 #### Quota Consumption per Update
 
-Each update makes the following API calls:
-
 **Station Mode (XEMA)**:
-- First update: 5 calls (stations + measurements + forecast + hourly + quotes)
-- Subsequent updates: 4 calls (measurements + forecast + hourly + quotes)
-- **Daily average**: ~13 calls (1 initial + 2 scheduled × 4)
+- **Every hour**: 1 call (measurements)
+- **At forecast times**: 3 additional calls (forecast + hourly + quotes)
+- **Daily average**: ~30 calls (24 hours × 1 + 2 forecasts × 3)
 
 **Municipal Mode**:
-- Each update: 3 calls (forecast + hourly + quotes)
+- **At forecast times**: 3 calls (forecast + hourly + quotes)
 - **Daily average**: ~6 calls (2 scheduled × 3)
 
 #### Monthly Calculation (30 days)
 
 | Mode | Calls/day | Calls/month | Remaining quota* | Available manual updates |
 |------|-----------|-------------|------------------|-------------------------|
-| **Station** | 13 | 390 | 610 | ~20/day (610÷30) |
-| **Municipal** | 6 | 180 | 820 | ~27/day (820÷30) |
+| **Station** | ~30 | ~900 | ~100 | ~3/day (100÷30) |
+| **Municipal** | ~6 | ~180 | ~820 | ~27/day (820÷30) |
 
 \* Assuming 1000 calls/month quota (standard Predicció plan)
 

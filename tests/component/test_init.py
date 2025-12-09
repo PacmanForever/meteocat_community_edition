@@ -74,7 +74,7 @@ def mock_entry_municipi():
 @pytest.mark.asyncio
 async def test_async_setup_entry_estacio_mode(mock_hass, mock_entry_estacio):
     """Test setup entry for MODE_ESTACIO loads all platforms."""
-    with patch('custom_components.meteocat_community_edition.MeteocatCoordinator') as mock_coordinator_class:
+    with patch('custom_components.meteocat_community_edition.MeteocatLegacyCoordinator') as mock_coordinator_class:
         mock_coordinator = MagicMock()
         mock_coordinator.async_config_entry_first_refresh = AsyncMock()
         mock_coordinator_class.return_value = mock_coordinator
@@ -112,7 +112,7 @@ async def test_async_setup_entry_estacio_mode(mock_hass, mock_entry_estacio):
 @pytest.mark.asyncio
 async def test_async_setup_entry_municipi_mode(mock_hass, mock_entry_municipi):
     """Test setup entry for MODE_MUNICIPI loads only sensor and button platforms."""
-    with patch('custom_components.meteocat_community_edition.MeteocatCoordinator') as mock_coordinator_class:
+    with patch('custom_components.meteocat_community_edition.MeteocatForecastCoordinator') as mock_coordinator_class:
         mock_coordinator = MagicMock()
         mock_coordinator.async_config_entry_first_refresh = AsyncMock()
         mock_coordinator_class.return_value = mock_coordinator
@@ -136,7 +136,7 @@ async def test_async_setup_entry_municipi_mode(mock_hass, mock_entry_municipi):
 @pytest.mark.asyncio
 async def test_async_setup_entry_stores_coordinator(mock_hass, mock_entry_estacio):
     """Test that setup entry stores coordinator in hass.data."""
-    with patch('custom_components.meteocat_community_edition.MeteocatCoordinator') as mock_coordinator_class:
+    with patch('custom_components.meteocat_community_edition.MeteocatLegacyCoordinator') as mock_coordinator_class:
         mock_coordinator = MagicMock()
         mock_coordinator.async_config_entry_first_refresh = AsyncMock()
         mock_coordinator_class.return_value = mock_coordinator
@@ -252,7 +252,7 @@ async def test_async_setup_entry_default_mode(mock_hass):
     entry.add_update_listener = MagicMock(return_value=MagicMock())
     entry.async_on_unload = MagicMock()
     
-    with patch('custom_components.meteocat_community_edition.MeteocatCoordinator') as mock_coordinator_class:
+    with patch('custom_components.meteocat_community_edition.MeteocatLegacyCoordinator') as mock_coordinator_class:
         mock_coordinator = MagicMock()
         mock_coordinator.async_config_entry_first_refresh = AsyncMock()
         mock_coordinator_class.return_value = mock_coordinator
@@ -269,19 +269,21 @@ async def test_async_setup_entry_default_mode(mock_hass):
 @pytest.mark.asyncio
 async def test_async_setup_entry_multiple_entries(mock_hass, mock_entry_estacio, mock_entry_municipi):
     """Test setup multiple entries stores both coordinators."""
-    with patch('custom_components.meteocat_community_edition.MeteocatCoordinator') as mock_coordinator_class:
+    with patch('custom_components.meteocat_community_edition.MeteocatLegacyCoordinator') as mock_legacy_class, \
+         patch('custom_components.meteocat_community_edition.MeteocatForecastCoordinator') as mock_forecast_class:
+        
         mock_coordinator_1 = MagicMock()
         mock_coordinator_1.async_config_entry_first_refresh = AsyncMock()
+        mock_legacy_class.return_value = mock_coordinator_1
         
         mock_coordinator_2 = MagicMock()
         mock_coordinator_2.async_config_entry_first_refresh = AsyncMock()
+        mock_forecast_class.return_value = mock_coordinator_2
         
         # Setup first entry
-        mock_coordinator_class.return_value = mock_coordinator_1
         await async_setup_entry(mock_hass, mock_entry_estacio)
         
         # Setup second entry
-        mock_coordinator_class.return_value = mock_coordinator_2
         await async_setup_entry(mock_hass, mock_entry_municipi)
         
         # Both coordinators should be stored
