@@ -5,6 +5,23 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.0.7] - 2025-12-09
+
+### Afegit
+- Sensors separats per al seguiment d'actualitzacions de mesures i prediccions en mode estació
+  - 3 sensors per a mesures (horàries): última actualització, pròxima actualització, hora configurada
+  - 3 sensors per a predicció (programades): última actualització predicció, pròxima actualització predicció
+- Millor visibilitat sobre quan s'actualitzen les dades de l'estació vs les prediccions
+
+## [1.0.6] - 2025-12-09
+
+### Afegit
+- Actualitzacions horàries de les mesures de l'estació (a l'inici de cada hora)
+- Les prediccions es mantenen amb les hores programades (per defecte 06:00 i 14:00)
+
+### Canviat
+- En mode estació, les mesures s'actualitzen cada hora mentre que les prediccions segueixen l'horari configurat
+
 ## [1.0.5] - 2025-12-09
 
 ### Canviat

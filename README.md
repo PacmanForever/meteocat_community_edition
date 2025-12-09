@@ -135,9 +135,11 @@ Aquest mode està pensat per obtenir dades d'una estació meteorològica oficial
 | **Weather** | `weather.{estacio}_{codi}` | Entitat principal. Mostra l'estat actual (temperatura, humitat, vent, pressió, pluja) obtingut de l'estació XEMA i la predicció (horària i diària) del municipi on es troba l'estació. |
 | **Sensor** | `sensor.{estacio}_{codi}_quota_disponible_{pla}` | Un sensor per a cada pla de quotes rellevant (Predicció, XEMA). Mostra les peticions restants. |
 | **Binary Sensor** | `binary_sensor.{estacio}_{codi}_update_state` | Indica l'estat de l'última actualització (`OFF` = Correcte, `ON` = Error). |
-| **Sensor** | `sensor.{estacio}_{codi}_last_update` | Timestamp de l'última actualització exitosa. |
-| **Sensor** | `sensor.{estacio}_{codi}_next_update` | Timestamp de la pròxima actualització programada. |
-| **Sensor** | `sensor.{estacio}_{codi}_update_time_{n}` | Mostra les hores d'actualització configurades (ex: 06:00, 14:00). |
+| **Sensor** | `sensor.{estacio}_{codi}_last_update` | Timestamp de l'última actualització de mesures (horària). |
+| **Sensor** | `sensor.{estacio}_{codi}_next_update` | Timestamp de la pròxima actualització de mesures (horària). |
+| **Sensor** | `sensor.{estacio}_{codi}_last_forecast_update` | Timestamp de l'última actualització de predicció. |
+| **Sensor** | `sensor.{estacio}_{codi}_next_forecast_update` | Timestamp de la pròxima actualització de predicció programada. |
+| **Sensor** | `sensor.{estacio}_{codi}_update_time_{n}` | Mostra les hores d'actualització de predicció configurades (ex: 06:00, 14:00). |
 | **Sensor** | `sensor.{estacio}_{codi}_altitude` | Altitud de l'estació (metres). |
 | **Sensor** | `sensor.{estacio}_{codi}_latitude` | Latitud de l'estació. |
 | **Sensor** | `sensor.{estacio}_{codi}_longitude` | Longitud de l'estació. |

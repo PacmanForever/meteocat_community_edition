@@ -32,17 +32,28 @@
   - XDDE
   - XEMA
 
-### 2.4. Sensors de timestamps
-- **Última actualització**: Timestamp de la darrera actualització exitosa
+### 2.4. Sensors de timestamps (Mesures - Horàries)
+- **Última actualització**: Timestamp de la darrera actualització de mesures exitosa
   - Font de dades: `coordinator.last_successful_update_time`
-- **Pròxima actualització**: Timestamp de la pròxima actualització programada
+- **Pròxima actualització**: Timestamp de la pròxima actualització de mesures programada
   - Font de dades: `coordinator.next_scheduled_update`
   - S'actualitza automàticament quan es programa la pròxima actualització
-- **Hora actualització 1**: Hora configurada per la primera actualització
-- **Hora actualització 2**: Hora configurada per la segona actualització
 - Tots els sensors de timestamps són de categoria Diagnostic
 
-### 2.5. Sensor d'estat
+### 2.5. Sensors de timestamps (Predicció - Programades)
+- **Última actualització predicció**: Timestamp de la darrera actualització de predicció exitosa
+  - Font de dades: `coordinator.last_forecast_update`
+- **Pròxima actualització predicció**: Timestamp de la pròxima actualització de predicció programada
+  - Font de dades: `coordinator.next_forecast_update`
+  - S'actualitza automàticament quan es programa la pròxima actualització
+- Tots els sensors de timestamps de predicció són de categoria Diagnostic
+
+### 2.6. Sensors d'hores d'actualització
+- **Hora actualització 1**: Hora configurada per la primera actualització de predicció
+- **Hora actualització 2**: Hora configurada per la segona actualització de predicció
+- Tots els sensors són de categoria Diagnostic
+
+### 2.7. Sensor d'estat
 - **Última actualització correcte**: Binary sensor de diagnòstic que indica l'estat de l'actualització de dades
   - Categoría: Diagnostic
   - Device class: Problem

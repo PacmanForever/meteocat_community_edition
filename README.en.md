@@ -142,10 +142,15 @@ For each configured station, these entities are created:
 - Entity ID: `binary_sensor.{station}_{code}_update_state`
 - State: OFF (OK) / ON (Problem)
 
-#### Timestamp Sensors
-- **Last update**: Timestamp of the last successful update
-- **Next update**: Timestamp of the next scheduled update
+#### Timestamp Sensors (Measurements - Hourly)
+- **Last update**: Timestamp of the last successful measurement update
+- **Next update**: Timestamp of the next scheduled measurement update
 - Entity IDs: `sensor.{station}_{code}_last_update`, `sensor.{station}_{code}_next_update`
+
+#### Timestamp Sensors (Forecast - Scheduled)
+- **Last forecast update**: Timestamp of the last successful forecast update
+- **Next forecast update**: Timestamp of the next scheduled forecast update
+- Entity IDs: `sensor.{station}_{code}_last_forecast_update`, `sensor.{station}_{code}_next_forecast_update`
 
 #### Update Time Sensors
 - **Update time 1**: Shows the first configured time (read-only)

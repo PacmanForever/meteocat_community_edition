@@ -142,10 +142,15 @@ Para cada estación configurada se crean:
 - Entity ID: `binary_sensor.{estacion}_{codigo}_update_state`
 - Estado: OFF (Correcto) / ON (Problema)
 
-#### Sensores de Timestamps
-- **Última actualización**: Timestamp de la última actualización exitosa
-- **Próxima actualización**: Timestamp de la próxima actualización programada
+#### Sensores de Timestamps (Mediciones - Horarias)
+- **Última actualización**: Timestamp de la última actualización de mediciones exitosa
+- **Próxima actualización**: Timestamp de la próxima actualización de mediciones programada
 - Entity IDs: `sensor.{estacion}_{codigo}_last_update`, `sensor.{estacion}_{codigo}_next_update`
+
+#### Sensores de Timestamps (Predicción - Programadas)
+- **Última actualización predicción**: Timestamp de la última actualización de predicción exitosa
+- **Próxima actualización predicción**: Timestamp de la próxima actualización de predicción programada
+- Entity IDs: `sensor.{estacion}_{codigo}_last_forecast_update`, `sensor.{estacion}_{codigo}_next_forecast_update`
 
 #### Sensores de Horas de Actualización
 - **Hora de actualización 1**: Muestra la primera hora configurada (solo lectura)
