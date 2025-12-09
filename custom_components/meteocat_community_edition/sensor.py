@@ -709,10 +709,10 @@ class MeteocatLastUpdateSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnt
         if mode == MODE_ESTACIO and station_code:
             base_name = entity_name.replace(f" {station_code}", "").lower().replace(" ", "_")
             code_lower = station_code.lower()
-            self.entity_id = f"sensor.{base_name}_{code_lower}_last_update"
+            self.entity_id = f"sensor.{base_name}_{code_lower}_last_measurements_update"
         else:
             base_name = entity_name.lower().replace(" ", "_")
-            self.entity_id = f"sensor.{base_name}_last_update"
+            self.entity_id = f"sensor.{base_name}_last_measurements_update"
         
         # Each entry is a separate device under a shared hub
         hub_id = f"{DOMAIN}_hub_estacions" if mode == MODE_ESTACIO else f"{DOMAIN}_hub_municipis"
@@ -879,10 +879,10 @@ class MeteocatNextUpdateSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnt
         if mode == MODE_ESTACIO and station_code:
             base_name = entity_name.replace(f" {station_code}", "").lower().replace(" ", "_")
             code_lower = station_code.lower()
-            self.entity_id = f"sensor.{base_name}_{code_lower}_next_update"
+            self.entity_id = f"sensor.{base_name}_{code_lower}_next_measurements_update"
         else:
             base_name = entity_name.lower().replace(" ", "_")
-            self.entity_id = f"sensor.{base_name}_next_update"
+            self.entity_id = f"sensor.{base_name}_next_measurements_update"
         
         # Each entry is a separate device under a shared hub
         hub_id = f"{DOMAIN}_hub_estacions" if mode == MODE_ESTACIO else f"{DOMAIN}_hub_municipis"

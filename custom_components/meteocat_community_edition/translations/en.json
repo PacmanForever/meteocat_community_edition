@@ -149,6 +149,14 @@
       "update_state": {
         "name": "Last update successful"
       }
+    },
+    "button": {
+      "refresh_measurements": {
+        "name": "Update Measurements"
+      },
+      "refresh_forecast": {
+        "name": "Update Forecast"
+      }
     }
   }
 }

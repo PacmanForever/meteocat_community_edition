@@ -468,6 +468,16 @@ class MeteocatLegacyCoordinator(MeteocatBaseCoordinator):
         
         self.next_forecast_update = next_forecast
 
+    async def async_refresh_measurements(self) -> None:
+        """Force refresh of measurements only."""
+        self._force_measurements = True
+        await self.async_request_refresh()
+
+    async def async_refresh_forecast(self) -> None:
+        """Force refresh of forecast only."""
+        self._force_forecast = True
+        await self.async_request_refresh()
+
     def _should_fetch_forecast(self) -> bool:
         """Check if forecast should be fetched based on current time."""
         # Always fetch on first refresh or if missing data
@@ -500,10 +510,31 @@ class MeteocatLegacyCoordinator(MeteocatBaseCoordinator):
         """Fetch all data (Station + Forecast)."""
         self.last_successful_update_time = dt_util.utcnow()
         
+        # Check forced update flags
+        force_measurements = getattr(self, "_force_measurements", False)
+        force_forecast = getattr(self, "_force_forecast", False)
+        
+        # Reset flags
+        self._force_measurements = False
+        self._force_forecast = False
+        
         try:
             tasks = {}
             
-            if self.mode == MODE_ESTACIO and self.station_code:
+            # Determine what to fetch
+            fetch_measurements = False
+            fetch_forecast = False
+            
+            if force_measurements or force_forecast:
+                # Manual update via specific button
+                fetch_measurements = force_measurements
+                fetch_forecast = force_forecast
+            else:
+                # Scheduled or generic update
+                fetch_measurements = True
+                fetch_forecast = self._should_fetch_forecast()
+            
+            if self.mode == MODE_ESTACIO and self.station_code and fetch_measurements:
                 tasks["measurements"] = self.api.get_station_measurements(self.station_code)
                 
                 entry_updates = {}
@@ -530,9 +561,6 @@ class MeteocatLegacyCoordinator(MeteocatBaseCoordinator):
                             self.entry,
                             data=new_data
                         )
-            
-            # Conditionally fetch forecast
-            fetch_forecast = self._should_fetch_forecast()
             
             if self.municipality_code and fetch_forecast:
                 if self.enable_forecast_daily:
@@ -572,7 +600,10 @@ class MeteocatLegacyCoordinator(MeteocatBaseCoordinator):
             
             if not self._is_retry_update:
                 # Only fetch quotes when fetching forecast to save quota
-                if fetch_forecast:
+                # OR if quotes are missing (e.g. failed previously)
+                should_fetch_quotes = fetch_forecast or not data.get("quotes")
+                
+                if should_fetch_quotes:
                     try:
                         data["quotes"] = await self.api.get_quotes()
                     except Exception as err:
@@ -591,7 +622,7 @@ class MeteocatLegacyCoordinator(MeteocatBaseCoordinator):
                 raise UpdateFailed("Temporary error - retry scheduled")
             
             critical_fields = []
-            if self.mode == MODE_ESTACIO:
+            if self.mode == MODE_ESTACIO and fetch_measurements:
                 critical_fields.append("measurements")
             if self.municipality_code:
                 # Only check forecast if we tried to fetch it or if it's missing

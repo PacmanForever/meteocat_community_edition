@@ -33,13 +33,27 @@ async def async_setup_entry(
         entity_name = entry.data.get(CONF_MUNICIPALITY_NAME, f"Municipality {municipality_code}")
         device_name = entity_name
     
-    async_add_entities([
-        MeteocatRefreshButton(coordinator, entry, entity_name, device_name, mode)
-    ])
+    buttons = []
+    
+    if mode == MODE_ESTACIO:
+        # Station mode: Two buttons (Measurements and Forecast)
+        buttons.append(
+            MeteocatRefreshMeasurementsButton(coordinator, entry, entity_name, device_name, mode)
+        )
+        buttons.append(
+            MeteocatRefreshForecastButton(coordinator, entry, entity_name, device_name, mode)
+        )
+    else:
+        # Municipality mode: One button (Forecast)
+        buttons.append(
+            MeteocatRefreshForecastButton(coordinator, entry, entity_name, device_name, mode)
+        )
+    
+    async_add_entities(buttons)
 
 
-class MeteocatRefreshButton(CoordinatorEntity[MeteocatCoordinator], ButtonEntity):
-    """Button to manually refresh Meteocat data."""
+class MeteocatRefreshMeasurementsButton(CoordinatorEntity[MeteocatCoordinator], ButtonEntity):
+    """Button to manually refresh Meteocat measurements."""
 
     _attr_attribution = ATTRIBUTION
 
@@ -53,8 +67,9 @@ class MeteocatRefreshButton(CoordinatorEntity[MeteocatCoordinator], ButtonEntity
     ) -> None:
         """Initialize the button."""
         super().__init__(coordinator)
-        self._attr_name = "Actualitzar dades"
-        self._attr_unique_id = f"{entry.entry_id}_refresh"
+        self._attr_translation_key = "refresh_measurements"
+        self._attr_unique_id = f"{entry.entry_id}_refresh_measurements"
+        self._attr_has_entity_name = True
         self._entity_name = entity_name
         self._device_name = device_name
         self._mode = mode
@@ -65,9 +80,62 @@ class MeteocatRefreshButton(CoordinatorEntity[MeteocatCoordinator], ButtonEntity
         if mode == MODE_ESTACIO:
             station_code = entry.data.get("station_code", "").lower()
             code_lower = station_code.replace(" ", "_")
-            self.entity_id = f"button.{base_name}_{code_lower}_refresh"
+            self.entity_id = f"button.{base_name}_{code_lower}_refresh_measurements"
+        else:  # Should not happen for measurements button, but safe fallback
+            self.entity_id = f"button.{base_name}_refresh_measurements"
+        
+        # Set device info to group with sensors and weather entity
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, entry.entry_id)},
+            "name": device_name,
+            "manufacturer": "Meteocat Edició Comunitària",
+            "model": "Estació XEMA",
+        }
+
+    @property
+    def icon(self) -> str:
+        """Return the icon."""
+        return "mdi:thermometer-refresh"
+
+    async def async_press(self) -> None:
+        """Handle the button press."""
+        if hasattr(self.coordinator, "async_refresh_measurements"):
+            await self.coordinator.async_refresh_measurements()
+        else:
+            await self.coordinator.async_request_refresh()
+
+
+class MeteocatRefreshForecastButton(CoordinatorEntity[MeteocatCoordinator], ButtonEntity):
+    """Button to manually refresh Meteocat forecast."""
+
+    _attr_attribution = ATTRIBUTION
+
+    def __init__(
+        self,
+        coordinator: MeteocatCoordinator,
+        entry: ConfigEntry,
+        entity_name: str,
+        device_name: str,
+        mode: str,
+    ) -> None:
+        """Initialize the button."""
+        super().__init__(coordinator)
+        self._attr_translation_key = "refresh_forecast"
+        self._attr_unique_id = f"{entry.entry_id}_refresh_forecast"
+        self._attr_has_entity_name = True
+        self._entity_name = entity_name
+        self._device_name = device_name
+        self._mode = mode
+        self._entry = entry
+        
+        # Generate entity_id based on mode
+        base_name = entity_name.lower().replace(" ", "_")
+        if mode == MODE_ESTACIO:
+            station_code = entry.data.get("station_code", "").lower()
+            code_lower = station_code.replace(" ", "_")
+            self.entity_id = f"button.{base_name}_{code_lower}_refresh_forecast"
         else:  # MODE_MUNICIPI
-            self.entity_id = f"button.{base_name}_refresh"
+            self.entity_id = f"button.{base_name}_refresh_forecast"
         
         # Set device info to group with sensors and weather entity
         self._attr_device_info = {
@@ -80,8 +148,11 @@ class MeteocatRefreshButton(CoordinatorEntity[MeteocatCoordinator], ButtonEntity
     @property
     def icon(self) -> str:
         """Return the icon."""
-        return "mdi:refresh"
+        return "mdi:calendar-refresh"
 
     async def async_press(self) -> None:
         """Handle the button press."""
-        await self.coordinator.async_request_refresh()
+        if hasattr(self.coordinator, "async_refresh_forecast"):
+            await self.coordinator.async_refresh_forecast()
+        else:
+            await self.coordinator.async_request_refresh()

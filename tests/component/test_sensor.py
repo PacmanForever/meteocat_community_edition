@@ -201,9 +201,9 @@ def test_forecast_sensor_hourly(mock_coordinator, mock_entry):
     assert sensor.native_value is not None
 
 
-def test_last_update_sensor(mock_coordinator, mock_entry):
-    """Test last update timestamp sensor."""
-    sensor = MeteocatLastUpdateSensor(
+def test_next_update_sensor(mock_coordinator, mock_entry):
+    """Test next update timestamp sensor."""
+    sensor = MeteocatNextUpdateSensor(
         mock_coordinator,
         mock_entry,
         "Granollers",
@@ -213,10 +213,10 @@ def test_last_update_sensor(mock_coordinator, mock_entry):
     )
     _mock_platform(sensor)
     
-    assert sensor.translation_key == "last_update"
+    assert sensor.translation_key == "next_update"
     assert sensor.has_entity_name is True
-    assert sensor.native_value == datetime(2025, 11, 24, 12, 0, 0)
-    assert sensor.entity_id == "sensor.granollers_ym_last_update"
+    assert sensor.native_value == datetime(2025, 11, 24, 13, 0, 0)
+    assert sensor.entity_id == "sensor.granollers_ym_next_measurements_update"
 
 
 def test_next_update_sensor(mock_coordinator, mock_entry):
@@ -235,7 +235,7 @@ def test_next_update_sensor(mock_coordinator, mock_entry):
     assert sensor.has_entity_name is True
     # Should use coordinator.next_scheduled_update
     assert sensor.native_value == datetime(2025, 11, 24, 20, 0, 0)
-    assert sensor.entity_id == "sensor.granollers_ym_next_update"
+    assert sensor.entity_id == "sensor.granollers_ym_next_measurements_update"
 
 
 def test_timestamp_sensors_device_info(mock_coordinator, mock_entry):

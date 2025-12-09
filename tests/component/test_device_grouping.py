@@ -14,7 +14,10 @@ from custom_components.meteocat_community_edition.sensor import (
     MeteocatLastUpdateSensor,
     MeteocatNextUpdateSensor,
 )
-from custom_components.meteocat_community_edition.button import MeteocatRefreshButton
+from custom_components.meteocat_community_edition.button import (
+    MeteocatRefreshMeasurementsButton,
+    MeteocatRefreshForecastButton,
+)
 from custom_components.meteocat_community_edition.const import DOMAIN, MODE_ESTACIO
 
 
@@ -72,7 +75,15 @@ def test_all_entities_share_same_device_identifier(mock_coordinator, mock_entry)
         "YM"
     )
     
-    button = MeteocatRefreshButton(
+    button_measurements = MeteocatRefreshMeasurementsButton(
+        mock_coordinator,
+        mock_entry,
+        "Granollers",
+        "Granollers YM",
+        MODE_ESTACIO
+    )
+
+    button_forecast = MeteocatRefreshForecastButton(
         mock_coordinator,
         mock_entry,
         "Granollers",
@@ -84,12 +95,14 @@ def test_all_entities_share_same_device_identifier(mock_coordinator, mock_entry)
     quota_identifier = list(quota_sensor._attr_device_info["identifiers"])[0]
     last_identifier = list(last_update_sensor._attr_device_info["identifiers"])[0]
     next_identifier = list(next_update_sensor._attr_device_info["identifiers"])[0]
-    button_identifier = list(button._attr_device_info["identifiers"])[0]
+    button_measurements_identifier = list(button_measurements._attr_device_info["identifiers"])[0]
+    button_forecast_identifier = list(button_forecast._attr_device_info["identifiers"])[0]
     
     # All should be identical
     assert quota_identifier == last_identifier
     assert quota_identifier == next_identifier
-    assert quota_identifier == button_identifier
+    assert quota_identifier == button_measurements_identifier
+    assert quota_identifier == button_forecast_identifier
     assert quota_identifier == (DOMAIN, "test_entry_id")
 
 
@@ -124,7 +137,15 @@ def test_all_entities_share_same_device_name(mock_coordinator, mock_entry):
         "YM"
     )
     
-    button = MeteocatRefreshButton(
+    button_measurements = MeteocatRefreshMeasurementsButton(
+        mock_coordinator,
+        mock_entry,
+        "Granollers",
+        "Granollers YM",
+        MODE_ESTACIO
+    )
+
+    button_forecast = MeteocatRefreshForecastButton(
         mock_coordinator,
         mock_entry,
         "Granollers",
@@ -136,7 +157,8 @@ def test_all_entities_share_same_device_name(mock_coordinator, mock_entry):
     assert quota_sensor._attr_device_info["name"] == "Granollers YM"
     assert last_update_sensor._attr_device_info["name"] == "Granollers YM"
     assert next_update_sensor._attr_device_info["name"] == "Granollers YM"
-    assert button._attr_device_info["name"] == "Granollers YM"
+    assert button_measurements._attr_device_info["name"] == "Granollers YM"
+    assert button_forecast._attr_device_info["name"] == "Granollers YM"
 
 
 def test_entity_ids_include_station_code(mock_coordinator, mock_entry):
@@ -169,7 +191,15 @@ def test_entity_ids_include_station_code(mock_coordinator, mock_entry):
         "YM"
     )
     
-    button = MeteocatRefreshButton(
+    button_measurements = MeteocatRefreshMeasurementsButton(
+        mock_coordinator,
+        mock_entry,
+        "Granollers",
+        "Granollers YM",
+        MODE_ESTACIO
+    )
+
+    button_forecast = MeteocatRefreshForecastButton(
         mock_coordinator,
         mock_entry,
         "Granollers",
@@ -181,4 +211,5 @@ def test_entity_ids_include_station_code(mock_coordinator, mock_entry):
     assert "ym" in quota_sensor.entity_id
     assert "ym" in last_update_sensor.entity_id
     assert "ym" in next_update_sensor.entity_id
-    assert "ym" in button.entity_id
+    assert "ym" in button_measurements.entity_id
+    assert "ym" in button_forecast.entity_id

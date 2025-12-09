@@ -40,8 +40,9 @@ async def test_async_setup_entry_station_mode(mock_hass, mock_coordinator, mock_
     
     async_add_entities.assert_called_once()
     args = async_add_entities.call_args[0][0]
-    assert len(args) == 1
-    assert args[0].unique_id == "test_entry_refresh"
+    assert len(args) == 2
+    assert args[0].unique_id == "test_entry_refresh_measurements"
+    assert args[1].unique_id == "test_entry_refresh_forecast"
 
 @pytest.mark.asyncio
 async def test_async_setup_entry_municipal_mode(mock_hass, mock_coordinator):
@@ -62,4 +63,4 @@ async def test_async_setup_entry_municipal_mode(mock_hass, mock_coordinator):
     async_add_entities.assert_called_once()
     args = async_add_entities.call_args[0][0]
     assert len(args) == 1
-    assert args[0].unique_id == "test_entry_muni_refresh"
+    assert args[0].unique_id == "test_entry_muni_refresh_forecast"

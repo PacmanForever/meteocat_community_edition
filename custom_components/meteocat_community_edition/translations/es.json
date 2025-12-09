@@ -149,6 +149,14 @@
       "update_state": {
         "name": "Última actualización correcta"
       }
+    },
+    "button": {
+      "refresh_measurements": {
+        "name": "Actualizar Mediciones"
+      },
+      "refresh_forecast": {
+        "name": "Actualizar Predicción"
+      }
     }
   }
 }
