@@ -133,10 +133,16 @@
         "name": "Predicció Diària"
       },
       "last_update": {
-        "name": "Última actualització"
+        "name": "Última actualització mesures"
       },
       "next_update": {
-        "name": "Pròxima actualització"
+        "name": "Pròxima actualització mesures"
+      },
+      "next_forecast_update": {
+        "name": "Pròxima actualització predicció"
+      },
+      "last_forecast_update": {
+        "name": "Última actualització predicció"
       },
       "update_time": {
         "name": "Hora d'actualització {number}"

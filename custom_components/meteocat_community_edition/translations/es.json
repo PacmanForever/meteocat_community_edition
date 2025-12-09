@@ -126,6 +126,18 @@
       "forecast_daily": {
         "name": "Predicción diaria"
       },
+      "last_update": {
+        "name": "Última actualización mediciones"
+      },
+      "next_update": {
+        "name": "Próxima actualización mediciones"
+      },
+      "next_forecast_update": {
+        "name": "Próxima actualización predicción"
+      },
+      "last_forecast_update": {
+        "name": "Última actualización predicción"
+      },
       "latitude": {
         "name": "Latitud"
       },

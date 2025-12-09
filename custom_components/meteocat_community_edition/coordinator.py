@@ -403,6 +403,10 @@ class MeteocatLegacyCoordinator(MeteocatBaseCoordinator):
         super().__init__(hass, entry, f"{DOMAIN}_{entry.data.get(CONF_STATION_CODE)}")
         
         self.station_data: dict[str, Any] = entry.data.get("_station_data", {})
+        
+        # Track forecast updates separately
+        self.last_forecast_update: datetime | None = None
+        self.next_forecast_update: datetime | None = None
 
     @callback
     def _schedule_next_update(self) -> None:
@@ -417,6 +421,9 @@ class MeteocatLegacyCoordinator(MeteocatBaseCoordinator):
         
         self.next_scheduled_update = next_update
         
+        # Calculate next forecast update
+        self._calculate_next_forecast_update(now)
+        
         self._scheduled_update_remover = async_track_point_in_utc_time(
             self.hass,
             self._async_scheduled_update,
@@ -428,6 +435,38 @@ class MeteocatLegacyCoordinator(MeteocatBaseCoordinator):
             next_update,
             next_update - now,
         )
+
+    def _calculate_next_forecast_update(self, now: datetime) -> None:
+        """Calculate the next scheduled forecast update."""
+        today = now.date()
+        
+        update_times_list = [self.update_time_1, self.update_time_2]
+        if self.update_time_3:
+            update_times_list.append(self.update_time_3)
+            
+        update_datetimes = [
+            dt_util.as_local(
+                datetime.combine(today, time.fromisoformat(update_time))
+            )
+            for update_time in update_times_list
+            if update_time and update_time.strip()
+        ]
+        
+        next_forecast = None
+        for update_dt in sorted(update_datetimes):
+            if update_dt > now:
+                next_forecast = update_dt
+                break
+        
+        if next_forecast is None:
+            tomorrow = today + timedelta(days=1)
+            sorted_times = sorted([t for t in update_times_list if t and t.strip()])
+            if sorted_times:
+                next_forecast = dt_util.as_local(
+                    datetime.combine(tomorrow, time.fromisoformat(sorted_times[0]))
+                )
+        
+        self.next_forecast_update = next_forecast
 
     def _should_fetch_forecast(self) -> bool:
         """Check if forecast should be fetched based on current time."""
@@ -504,6 +543,9 @@ class MeteocatLegacyCoordinator(MeteocatBaseCoordinator):
                     tasks["forecast_hourly"] = self.api.get_hourly_forecast(
                         self.municipality_code
                     )
+                
+                # Update last forecast update time if we are attempting to fetch
+                self.last_forecast_update = dt_util.utcnow()
             
             results = await asyncio.gather(*tasks.values(), return_exceptions=True)
             

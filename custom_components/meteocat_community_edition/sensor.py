@@ -221,6 +221,13 @@ async def async_setup_entry(
         MeteocatUpdateTimeSensor(coordinator, entry, entity_name, entity_name_with_code, mode, 2, station_code if mode == MODE_ESTACIO else None),
     ])
     
+    # Add forecast update sensors (only for station mode)
+    if mode == MODE_ESTACIO:
+        entities.extend([
+            MeteocatNextForecastUpdateSensor(coordinator, entry, entity_name, entity_name_with_code, station_code),
+            MeteocatLastForecastUpdateSensor(coordinator, entry, entity_name, entity_name_with_code, station_code),
+        ])
+    
     # Add 3rd update time sensor if configured
     if coordinator.update_time_3:
         entities.append(
@@ -728,6 +735,104 @@ class MeteocatLastUpdateSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnt
     def icon(self) -> str:
         """Return the icon."""
         return "mdi:update"
+
+
+class MeteocatNextForecastUpdateSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
+    """Sensor showing next scheduled forecast update timestamp (Station Mode)."""
+
+    _attr_attribution = ATTRIBUTION
+    _attr_device_class = SensorDeviceClass.TIMESTAMP
+
+    def __init__(
+        self,
+        coordinator: MeteocatCoordinator,
+        entry: ConfigEntry,
+        entity_name: str,
+        device_name: str,
+        station_code: str,
+    ) -> None:
+        """Initialize the next forecast update sensor."""
+        super().__init__(coordinator)
+        
+        self._entity_name = entity_name
+        self._device_name = device_name
+        self._station_code = station_code
+        
+        self._attr_unique_id = f"{entry.entry_id}_next_forecast_update"
+        self._attr_has_entity_name = True
+        self._attr_translation_key = "next_forecast_update"
+        
+        base_name = entity_name.replace(f" {station_code}", "").lower().replace(" ", "_")
+        code_lower = station_code.lower()
+        self.entity_id = f"sensor.{base_name}_{code_lower}_next_forecast_update"
+        
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, entry.entry_id)},
+            "name": self._device_name,
+            "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
+            "model": "Estaci\u00f3 XEMA",
+        }
+        
+        self._attr_entity_category = EntityCategory.DIAGNOSTIC
+
+    @property
+    def native_value(self):
+        """Return the next forecast update time."""
+        return getattr(self.coordinator, "next_forecast_update", None)
+
+    @property
+    def icon(self) -> str:
+        """Return the icon."""
+        return "mdi:calendar-clock"
+
+
+class MeteocatLastForecastUpdateSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
+    """Sensor showing last forecast update timestamp (Station Mode)."""
+
+    _attr_attribution = ATTRIBUTION
+    _attr_device_class = SensorDeviceClass.TIMESTAMP
+
+    def __init__(
+        self,
+        coordinator: MeteocatCoordinator,
+        entry: ConfigEntry,
+        entity_name: str,
+        device_name: str,
+        station_code: str,
+    ) -> None:
+        """Initialize the last forecast update sensor."""
+        super().__init__(coordinator)
+        
+        self._entity_name = entity_name
+        self._device_name = device_name
+        self._station_code = station_code
+        
+        self._attr_unique_id = f"{entry.entry_id}_last_forecast_update"
+        self._attr_has_entity_name = True
+        self._attr_translation_key = "last_forecast_update"
+        
+        base_name = entity_name.replace(f" {station_code}", "").lower().replace(" ", "_")
+        code_lower = station_code.lower()
+        self.entity_id = f"sensor.{base_name}_{code_lower}_last_forecast_update"
+        
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, entry.entry_id)},
+            "name": self._device_name,
+            "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
+            "model": "Estaci\u00f3 XEMA",
+        }
+        
+        self._attr_entity_category = EntityCategory.DIAGNOSTIC
+
+    @property
+    def native_value(self):
+        """Return the last forecast update time."""
+        return getattr(self.coordinator, "last_forecast_update", None)
+
+    @property
+    def icon(self) -> str:
+        """Return the icon."""
+        return "mdi:calendar-check"
 
 
 class MeteocatNextUpdateSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):

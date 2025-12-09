@@ -46,6 +46,7 @@ EVENT_ATTR_MUNICIPALITY_CODE: Final = "municipality_code"
 EVENT_ATTR_TIMESTAMP: Final = "timestamp"
 EVENT_ATTR_NEXT_UPDATE: Final = "next_update"
 EVENT_ATTR_PREVIOUS_UPDATE: Final = "previous_update"
+EVENT_ATTR_NEXT_FORECAST_UPDATE: Final = "next_forecast_update"
 
 # Weather condition mapping (Estat Cel -> Home Assistant condition)
 CONDITION_MAP: Final = {
