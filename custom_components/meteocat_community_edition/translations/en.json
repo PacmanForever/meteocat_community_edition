@@ -11,8 +11,8 @@
         }
       },
       "mode": {
-        "title": "Entry type",
-        "description": "Select the entry type",
+        "title": "Operation mode",
+        "description": "Select the operation mode",
         "data": {
           "mode": "Mode"
         }
@@ -25,15 +25,15 @@
         }
       },
       "station": {
-        "title": "Select a station",
-        "description": "Choose the weather station you want to add",
+        "title": "Select an external station",
+        "description": "Choose the XEMA weather station you want to add",
         "data": {
           "station_code": "Station"
         }
       },
       "municipality": {
-        "title": "Select a municipality",
-        "description": "Choose the municipality to get forecasts",
+        "title": "Select local location",
+        "description": "Choose the municipality for forecast and local station location",
         "data": {
           "municipality_code": "Municipality"
         }
@@ -48,6 +48,25 @@
           "update_time_1": "First update (24h format: HH:MM)",
           "update_time_2": "Second update (24h format: HH:MM)",
           "update_time_3": "Third update (24h format: HH:MM)"
+        }
+      },
+      "local_sensors": {
+        "title": "Local Sensors",
+        "description": "Select Home Assistant sensors for current data.\n\nNot all weather cards display all data.",
+        "data": {
+          "sensor_temperature": "Temperature",
+          "sensor_humidity": "Humidity",
+          "sensor_pressure": "Pressure",
+          "sensor_wind_speed": "Wind Speed",
+          "sensor_wind_bearing": "Wind Direction",
+          "sensor_wind_gust": "Wind Gust",
+          "sensor_visibility": "Visibility",
+          "sensor_uv_index": "UV Index",
+          "sensor_ozone": "Ozone",
+          "sensor_cloud_coverage": "Cloud Coverage",
+          "sensor_dew_point": "Dew Point",
+          "sensor_apparent_temperature": "Apparent Temperature",
+          "sensor_rain": "Rain Sensor (for condition)"
         }
       },
       "reauth_confirm": {

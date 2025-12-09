@@ -24,13 +24,28 @@ CONF_UPDATE_TIME_3: Final = "update_time_3"
 CONF_ENABLE_FORECAST_DAILY: Final = "enable_forecast_daily"
 CONF_ENABLE_FORECAST_HOURLY: Final = "enable_forecast_hourly"
 
+# Local Sensors Configuration
+CONF_SENSOR_TEMPERATURE: Final = "sensor_temperature"
+CONF_SENSOR_HUMIDITY: Final = "sensor_humidity"
+CONF_SENSOR_PRESSURE: Final = "sensor_pressure"
+CONF_SENSOR_WIND_SPEED: Final = "sensor_wind_speed"
+CONF_SENSOR_WIND_BEARING: Final = "sensor_wind_bearing"
+CONF_SENSOR_WIND_GUST: Final = "sensor_wind_gust"
+CONF_SENSOR_VISIBILITY: Final = "sensor_visibility"
+CONF_SENSOR_UV_INDEX: Final = "sensor_uv_index"
+CONF_SENSOR_OZONE: Final = "sensor_ozone"
+CONF_SENSOR_CLOUD_COVERAGE: Final = "sensor_cloud_coverage"
+CONF_SENSOR_DEW_POINT: Final = "sensor_dew_point"
+CONF_SENSOR_APPARENT_TEMPERATURE: Final = "sensor_apparent_temperature"
+CONF_SENSOR_RAIN: Final = "sensor_rain"
+
 # Configuration modes
-MODE_ESTACIO: Final = "estacio"
-MODE_MUNICIPI: Final = "municipi"
+MODE_EXTERNAL: Final = "external"
+MODE_LOCAL: Final = "local"
 
 # Mode labels (used in config flow)
-MODE_ESTACIO_LABEL: Final = "Crear entitat temps vinculada a una estació"
-MODE_MUNICIPI_LABEL: Final = "Crear sensors vinculats a la predicció d'un municipi"
+MODE_EXTERNAL_LABEL: Final = "Estació Externa (Dades oficials XEMA)"
+MODE_LOCAL_LABEL: Final = "Estació Local (Predicció + Sensors propis)"
 
 # Update times (defaults)
 DEFAULT_UPDATE_TIME_1: Final = "06:00"

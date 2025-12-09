@@ -7,7 +7,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import ATTRIBUTION, CONF_MODE, DOMAIN, MODE_MUNICIPI, MODE_ESTACIO
+from .const import ATTRIBUTION, CONF_MODE, DOMAIN, MODE_LOCAL, MODE_EXTERNAL
 from .coordinator import MeteocatCoordinator
 
 
@@ -21,21 +21,21 @@ async def async_setup_entry(
     
     from .const import CONF_MUNICIPALITY_NAME, CONF_STATION_NAME
     
-    mode = entry.data.get(CONF_MODE, MODE_ESTACIO)
+    mode = entry.data.get(CONF_MODE, MODE_EXTERNAL)
 
-    if mode == MODE_ESTACIO:
+    if mode == MODE_EXTERNAL:
         station_code = entry.data.get("station_code")
         station_name = entry.data.get(CONF_STATION_NAME, f"Station {station_code}")
         entity_name = station_name
         device_name = f"{station_name} {station_code}"
-    else:  # MODE_MUNICIPI
+    else:  # MODE_LOCAL
         municipality_code = entry.data.get("municipality_code")
         entity_name = entry.data.get(CONF_MUNICIPALITY_NAME, f"Municipality {municipality_code}")
         device_name = entity_name
     
     buttons = []
     
-    if mode == MODE_ESTACIO:
+    if mode == MODE_EXTERNAL:
         # Station mode: Two buttons (Measurements and Forecast)
         buttons.append(
             MeteocatRefreshMeasurementsButton(coordinator, entry, entity_name, device_name, mode)
@@ -77,7 +77,7 @@ class MeteocatRefreshMeasurementsButton(CoordinatorEntity[MeteocatCoordinator], 
         
         # Generate entity_id based on mode
         base_name = entity_name.lower().replace(" ", "_")
-        if mode == MODE_ESTACIO:
+        if mode == MODE_EXTERNAL:
             station_code = entry.data.get("station_code", "").lower()
             code_lower = station_code.replace(" ", "_")
             self.entity_id = f"button.{base_name}_{code_lower}_refresh_measurements"
@@ -89,7 +89,7 @@ class MeteocatRefreshMeasurementsButton(CoordinatorEntity[MeteocatCoordinator], 
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": device_name,
             "manufacturer": "Meteocat Edició Comunitària",
-            "model": "Estació XEMA",
+            "model": "Estació Externa",
         }
 
     @property
@@ -130,11 +130,11 @@ class MeteocatRefreshForecastButton(CoordinatorEntity[MeteocatCoordinator], Butt
         
         # Generate entity_id based on mode
         base_name = entity_name.lower().replace(" ", "_")
-        if mode == MODE_ESTACIO:
+        if mode == MODE_EXTERNAL:
             station_code = entry.data.get("station_code", "").lower()
             code_lower = station_code.replace(" ", "_")
             self.entity_id = f"button.{base_name}_{code_lower}_refresh_forecast"
-        else:  # MODE_MUNICIPI
+        else:  # MODE_LOCAL
             self.entity_id = f"button.{base_name}_refresh_forecast"
         
         # Set device info to group with sensors and weather entity
@@ -142,7 +142,7 @@ class MeteocatRefreshForecastButton(CoordinatorEntity[MeteocatCoordinator], Butt
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": device_name,
             "manufacturer": "Meteocat Edició Comunitària",
-            "model": "Estació XEMA" if mode == MODE_ESTACIO else "Predicció Municipi",
+            "model": "Estació Externa" if mode == MODE_EXTERNAL else "Estació Local",
         }
 
     @property

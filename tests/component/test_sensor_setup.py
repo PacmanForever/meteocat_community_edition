@@ -10,8 +10,8 @@ import pytest
 
 from custom_components.meteocat_community_edition.const import (
     DOMAIN,
-    MODE_ESTACIO,
-    MODE_MUNICIPI,
+    MODE_EXTERNAL,
+    MODE_LOCAL,
 )
 from custom_components.meteocat_community_edition.sensor import async_setup_entry
 
@@ -42,12 +42,12 @@ def mock_coordinator():
 
 
 @pytest.mark.asyncio
-async def test_station_mode_creates_all_geographic_sensors_when_data_available(mock_hass, mock_coordinator):
-    """Test that MODE_ESTACIO creates all geographic sensors when data is available."""
+async def test_external_mode_creates_all_geographic_sensors_when_data_available(mock_hass, mock_coordinator):
+    """Test that MODE_EXTERNAL creates all geographic sensors when data is available."""
     entry = MagicMock()
     entry.entry_id = "test_entry"
     entry.data = {
-        "mode": MODE_ESTACIO,
+        "mode": MODE_EXTERNAL,
         "station_code": "YM",
         "station_name": "Granollers",
         "comarca_code": "35",
@@ -83,12 +83,12 @@ async def test_station_mode_creates_all_geographic_sensors_when_data_available(m
 
 
 @pytest.mark.asyncio
-async def test_station_mode_skips_municipality_when_not_available(mock_hass, mock_coordinator):
-    """Test that MODE_ESTACIO doesn't create municipality sensor when data not available."""
+async def test_external_mode_skips_municipality_when_not_available(mock_hass, mock_coordinator):
+    """Test that MODE_EXTERNAL doesn't create municipality sensor when data not available."""
     entry = MagicMock()
     entry.entry_id = "test_entry"
     entry.data = {
-        "mode": MODE_ESTACIO,
+        "mode": MODE_EXTERNAL,
         "station_code": "YM",
         "station_name": "Granollers",
         "comarca_code": "35",
@@ -117,12 +117,12 @@ async def test_station_mode_skips_municipality_when_not_available(mock_hass, moc
 
 
 @pytest.mark.asyncio
-async def test_municipality_mode_creates_all_sensors_when_data_available(mock_hass, mock_coordinator):
-    """Test that MODE_MUNICIPI creates all sensors when data is available."""
+async def test_local_mode_creates_all_sensors_when_data_available(mock_hass, mock_coordinator):
+    """Test that MODE_LOCAL creates all sensors when data is available."""
     entry = MagicMock()
     entry.entry_id = "test_entry"
     entry.data = {
-        "mode": MODE_MUNICIPI,
+        "mode": MODE_LOCAL,
         "municipality_code": "080193",
         "municipality_name": "Barcelona",
         "comarca_code": "13",
@@ -158,12 +158,12 @@ async def test_municipality_mode_creates_all_sensors_when_data_available(mock_ha
 
 
 @pytest.mark.asyncio
-async def test_municipality_mode_skips_coordinates_when_not_available(mock_hass, mock_coordinator):
-    """Test that MODE_MUNICIPI doesn't create coordinate sensors when data not available."""
+async def test_local_mode_skips_coordinates_when_not_available(mock_hass, mock_coordinator):
+    """Test that MODE_LOCAL doesn't create coordinate sensors when data not available."""
     entry = MagicMock()
     entry.entry_id = "test_entry"
     entry.data = {
-        "mode": MODE_MUNICIPI,
+        "mode": MODE_LOCAL,
         "municipality_code": "080193",
         "municipality_name": "Barcelona",
         "comarca_code": "13",
@@ -194,12 +194,12 @@ async def test_municipality_mode_skips_coordinates_when_not_available(mock_hass,
 
 
 @pytest.mark.asyncio
-async def test_municipality_mode_creates_lat_without_lon(mock_hass, mock_coordinator):
+async def test_local_mode_creates_lat_without_lon(mock_hass, mock_coordinator):
     """Test that latitude sensor is created even if longitude is missing."""
     entry = MagicMock()
     entry.entry_id = "test_entry"
     entry.data = {
-        "mode": MODE_MUNICIPI,
+        "mode": MODE_LOCAL,
         "municipality_code": "080193",
         "municipality_name": "Barcelona",
         "comarca_code": "13",

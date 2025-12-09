@@ -1,11 +1,11 @@
 """Weather entity for Meteocat (Community Edition).
 
-This module provides a Weather entity for MODE_ESTACIO that combines:
+This module provides a Weather entity for MODE_EXTERNAL that combines:
 - Current measurements from the station
 - Forecast data (hourly and daily)
 
-The weather entity is only created in MODE_ESTACIO.
-MODE_MUNICIPI uses sensor entities for forecast data.
+The weather entity is only created in MODE_EXTERNAL.
+MODE_LOCAL uses sensor entities for forecast data.
 """
 from __future__ import annotations
 
@@ -29,7 +29,26 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import dt as dt_util
 
-from .const import ATTRIBUTION, CONDITION_MAP, CONF_STATION_NAME, DOMAIN
+from .const import (
+    ATTRIBUTION, 
+    CONDITION_MAP, 
+    CONF_STATION_NAME, 
+    CONF_MUNICIPALITY_NAME,
+    DOMAIN,
+    CONF_SENSOR_TEMPERATURE,
+    CONF_SENSOR_HUMIDITY,
+    CONF_SENSOR_PRESSURE,
+    CONF_SENSOR_WIND_SPEED,
+    CONF_SENSOR_WIND_BEARING,
+    CONF_SENSOR_WIND_GUST,
+    CONF_SENSOR_VISIBILITY,
+    CONF_SENSOR_UV_INDEX,
+    CONF_SENSOR_OZONE,
+    CONF_SENSOR_CLOUD_COVERAGE,
+    CONF_SENSOR_DEW_POINT,
+    CONF_SENSOR_APPARENT_TEMPERATURE,
+    CONF_SENSOR_RAIN,
+)
 from .coordinator import MeteocatCoordinator
 
 _LOGGER = logging.getLogger(__name__)
@@ -41,20 +60,20 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up Meteocat weather entity."""
-    from .const import CONF_MODE, MODE_ESTACIO
+    from .const import CONF_MODE, MODE_EXTERNAL
     
     # Only create weather entity in XEMA mode
-    mode = entry.data.get(CONF_MODE, MODE_ESTACIO)
+    mode = entry.data.get(CONF_MODE, MODE_EXTERNAL)
     _LOGGER.info("Weather platform setup - mode: %s", mode)
-    
-    if mode != MODE_ESTACIO:
-        _LOGGER.debug("Skipping weather entity creation - mode is %s", mode)
-        return
     
     coordinator: MeteocatCoordinator = hass.data[DOMAIN][entry.entry_id]
     
-    _LOGGER.info("Creating weather entity for station: %s", entry.data.get(CONF_STATION_NAME))
-    async_add_entities([MeteocatWeather(coordinator, entry)])
+    if mode == MODE_EXTERNAL:
+        _LOGGER.info("Creating weather entity for station: %s", entry.data.get(CONF_STATION_NAME))
+        async_add_entities([MeteocatWeather(coordinator, entry)])
+    else: # MODE_LOCAL
+        _LOGGER.info("Creating local weather entity for municipality: %s", entry.data.get(CONF_MUNICIPALITY_NAME))
+        async_add_entities([MeteocatLocalWeather(coordinator, entry)])
 
 
 class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
@@ -64,7 +83,7 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
     - Current conditions: from station measurements (XEMA API)
     - Forecasts: hourly (72h) and daily (8 days) from Forecast API
     
-    Only available in MODE_ESTACIO.
+    Only available in MODE_EXTERNAL.
     """
 
     _attr_attribution = ATTRIBUTION
@@ -109,7 +128,7 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": f"{station_name} {station_code}",
             "manufacturer": "Meteocat Edició Comunitària",
-            "model": "Estació XEMA",
+            "model": "Estació Externa",
         }
 
     @property
@@ -222,8 +241,8 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
             variables = station_data.get("variables", [])
             
             for var in variables:
-                # Check for sky state variable (code 32)
-                if var.get("codi") == 32:
+                # Check for sky state variable (code 35)
+                if var.get("codi") == 35:
                     lectures = var.get("lectures", [])
                     if lectures:
                         last_reading = lectures[-1]
@@ -237,7 +256,7 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
                             
                             return condition
         
-        # For MODE_MUNICIPI: use forecast
+        # For MODE_LOCAL: use forecast
         forecast = self.coordinator.data.get("forecast")
         if not forecast:
             return None
@@ -337,7 +356,7 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
                     
                     if time_str in temp_dict:
                         try:
-                            forecast_item["temperature"] = float(temp_dict[time_str])
+                            forecast_item["native_temperature"] = float(temp_dict[time_str])
                         except (ValueError, TypeError):
                             pass
                     
@@ -347,7 +366,7 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
                     
                     if time_str in precip_dict:
                         try:
-                            forecast_item["precipitation"] = float(precip_dict[time_str])
+                            forecast_item["native_precipitation"] = float(precip_dict[time_str])
                         except (ValueError, TypeError):
                             pass
                     
@@ -381,7 +400,7 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
                 valor = tmin.get("valor")
                 if valor:
                     try:
-                        forecast_item["templow"] = float(valor)
+                        forecast_item["native_templow"] = float(valor)
                     except (ValueError, TypeError):
                         pass
             
@@ -390,7 +409,7 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
                 valor = tmax.get("valor")
                 if valor:
                     try:
-                        forecast_item["temperature"] = float(valor)
+                        forecast_item["native_temperature"] = float(valor)
                     except (ValueError, TypeError):
                         pass
             
@@ -417,3 +436,169 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
         
         return forecasts
 
+
+class MeteocatLocalWeather(MeteocatWeather):
+    """Representation of a Meteocat weather entity for Local Mode.
+    
+    Combines local sensor measurements with forecast data:
+    - Current conditions: from configured Home Assistant sensors
+    - Forecasts: hourly (72h) and daily (8 days) from Forecast API
+    """
+    
+    def __init__(
+        self,
+        coordinator: MeteocatCoordinator,
+        entry: ConfigEntry,
+    ) -> None:
+        """Initialize the weather entity."""
+        # Call SingleCoordinatorWeatherEntity.__init__ directly
+        SingleCoordinatorWeatherEntity.__init__(self, coordinator)
+        
+        from .const import (
+            CONF_ENABLE_FORECAST_DAILY,
+            CONF_ENABLE_FORECAST_HOURLY,
+        )
+        
+        # Determine supported features based on configuration
+        self._attr_supported_features = 0
+        if entry.data.get(CONF_ENABLE_FORECAST_DAILY, True):
+            self._attr_supported_features |= WeatherEntityFeature.FORECAST_DAILY
+        if entry.data.get(CONF_ENABLE_FORECAST_HOURLY, False):
+            self._attr_supported_features |= WeatherEntityFeature.FORECAST_HOURLY
+            
+        self._entry = entry
+        
+        self._attr_name = entry.data[CONF_MUNICIPALITY_NAME]
+        self._attr_unique_id = f"{entry.entry_id}_weather_local"
+        self.entity_id = f"weather.{self._attr_name.lower().replace(' ', '_')}_local"
+        
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, entry.entry_id)},
+            "name": self._attr_name,
+            "manufacturer": "Meteocat Edició Comunitària",
+            "model": "Estació Local",
+        }
+        
+        # Store sensor entity IDs
+        self._sensors = {
+            "temp": entry.data.get(CONF_SENSOR_TEMPERATURE),
+            "humidity": entry.data.get(CONF_SENSOR_HUMIDITY),
+            "pressure": entry.data.get(CONF_SENSOR_PRESSURE),
+            "wind_speed": entry.data.get(CONF_SENSOR_WIND_SPEED),
+            "wind_bearing": entry.data.get(CONF_SENSOR_WIND_BEARING),
+            "wind_gust": entry.data.get(CONF_SENSOR_WIND_GUST),
+            "visibility": entry.data.get(CONF_SENSOR_VISIBILITY),
+            "uv_index": entry.data.get(CONF_SENSOR_UV_INDEX),
+            "ozone": entry.data.get(CONF_SENSOR_OZONE),
+            "cloud_coverage": entry.data.get(CONF_SENSOR_CLOUD_COVERAGE),
+            "dew_point": entry.data.get(CONF_SENSOR_DEW_POINT),
+            "apparent_temp": entry.data.get(CONF_SENSOR_APPARENT_TEMPERATURE),
+        }
+
+    def _get_sensor_value(self, sensor_type: str) -> float | None:
+        """Get value from a configured sensor."""
+        entity_id = self._sensors.get(sensor_type)
+        if not entity_id:
+            return None
+            
+        state = self.hass.states.get(entity_id)
+        if not state or state.state in ("unknown", "unavailable"):
+            return None
+            
+        try:
+            return float(state.state)
+        except ValueError:
+            return None
+
+    @property
+    def native_temperature(self) -> float | None:
+        """Return the current temperature."""
+        return self._get_sensor_value("temp")
+
+    @property
+    def humidity(self) -> float | None:
+        """Return the current humidity."""
+        return self._get_sensor_value("humidity")
+
+    @property
+    def native_pressure(self) -> float | None:
+        """Return the current pressure."""
+        return self._get_sensor_value("pressure")
+
+    @property
+    def native_wind_speed(self) -> float | None:
+        """Return the current wind speed."""
+        return self._get_sensor_value("wind_speed")
+
+    @property
+    def wind_bearing(self) -> float | None:
+        """Return the current wind bearing."""
+        return self._get_sensor_value("wind_bearing")
+        
+    @property
+    def native_wind_gust_speed(self) -> float | None:
+        """Return the current wind gust speed."""
+        return self._get_sensor_value("wind_gust")
+
+    @property
+    def native_visibility(self) -> float | None:
+        """Return the current visibility."""
+        return self._get_sensor_value("visibility")
+        
+    @property
+    def uv_index(self) -> float | None:
+        """Return the current UV index."""
+        return self._get_sensor_value("uv_index")
+        
+    @property
+    def ozone(self) -> float | None:
+        """Return the current ozone level."""
+        return self._get_sensor_value("ozone")
+        
+    @property
+    def cloud_coverage(self) -> float | None:
+        """Return the current cloud coverage."""
+        return self._get_sensor_value("cloud_coverage")
+        
+    @property
+    def native_dew_point(self) -> float | None:
+        """Return the current dew point."""
+        return self._get_sensor_value("dew_point")
+        
+    @property
+    def native_apparent_temperature(self) -> float | None:
+        """Return the current apparent temperature."""
+        return self._get_sensor_value("apparent_temp")
+
+    def _is_night(self) -> bool:
+        """Check if sun is below horizon."""
+        # Use municipality coordinates if available
+        latitude = self._entry.data.get("municipality_lat")
+        longitude = self._entry.data.get("municipality_lon")
+        
+        if not latitude or not longitude:
+            # Fallback to HA default location
+            latitude = self.hass.config.latitude
+            longitude = self.hass.config.longitude
+        
+        # Use Home Assistant's sun helper
+        from homeassistant.helpers.sun import get_astral_event_date
+        from homeassistant.const import SUN_EVENT_SUNSET, SUN_EVENT_SUNRISE
+        
+        now = dt_util.now()
+        today = now.date()
+        
+        try:
+            sunset = get_astral_event_date(
+                self.hass, SUN_EVENT_SUNSET, today, latitude, longitude
+            )
+            sunrise = get_astral_event_date(
+                self.hass, SUN_EVENT_SUNRISE, today, latitude, longitude
+            )
+            
+            if sunset and sunrise:
+                return now < sunrise or now > sunset
+        except Exception as err:
+            _LOGGER.warning("Error calculating sun position: %s", err)
+        
+        return False

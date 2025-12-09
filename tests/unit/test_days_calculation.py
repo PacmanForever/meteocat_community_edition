@@ -2,8 +2,8 @@
 from unittest.mock import MagicMock
 
 # Mock constants
-MODE_ESTACIO = "estacio"
-MODE_MUNICIPI = "municipi"
+MODE_EXTERNAL = "external"
+MODE_LOCAL = "local"
 
 class MockCoordinator:
     def __init__(self):
@@ -40,7 +40,7 @@ class MockSensor:
         print(f"Updates per day: {updates_per_day}")
         
         if "xema" in plan_name_lower:
-            if self._mode == MODE_ESTACIO:
+            if self._mode == MODE_EXTERNAL:
                 calls_per_update = 1
                 print("Matched XEMA logic")
         elif "predicci" in plan_name_lower:
@@ -64,21 +64,21 @@ class MockSensor:
 coordinator = MockCoordinator()
 
 print("--- Test 1: Station Mode, XEMA Plan ---")
-s1 = MockSensor(coordinator, "XEMA", MODE_ESTACIO)
+s1 = MockSensor(coordinator, "XEMA", MODE_EXTERNAL)
 print(f"Result: {s1.native_value}")
 
 print("\n--- Test 2: Municipality Mode, XEMA Plan ---")
-s2 = MockSensor(coordinator, "XEMA", MODE_MUNICIPI)
+s2 = MockSensor(coordinator, "XEMA", MODE_LOCAL)
 print(f"Result: {s2.native_value}")
 
 print("\n--- Test 3: Municipality Mode, Predicció Plan ---")
-s3 = MockSensor(coordinator, "Predicció", MODE_MUNICIPI)
+s3 = MockSensor(coordinator, "Predicció", MODE_LOCAL)
 print(f"Result: {s3.native_value}")
 
 print("\n--- Test 4: Station Mode, Predicció Plan ---")
-s4 = MockSensor(coordinator, "Predicció", MODE_ESTACIO)
+s4 = MockSensor(coordinator, "Predicció", MODE_EXTERNAL)
 print(f"Result: {s4.native_value}")
 
 print("\n--- Test 5: Station Mode, Referència Plan ---")
-s5 = MockSensor(coordinator, "Referència", MODE_ESTACIO)
+s5 = MockSensor(coordinator, "Referència", MODE_EXTERNAL)
 print(f"Result: {s5.native_value}")

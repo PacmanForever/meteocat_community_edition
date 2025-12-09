@@ -4,8 +4,8 @@ This test suite validates that the integration can complete setup even when
 API quotas are exhausted, allowing data to be fetched on next scheduled update.
 
 Test Coverage:
-- MODE_ESTACIO setup with exhausted quotas
-- MODE_MUNICIPI setup with exhausted quotas
+- MODE_EXTERNAL setup with exhausted quotas
+- MODE_LOCAL setup with exhausted quotas
 - First refresh tolerates missing data
 - Subsequent updates fail if data missing
 - _is_first_refresh flag management
@@ -30,8 +30,8 @@ from custom_components.meteocat_community_edition.const import (
     CONF_UPDATE_TIME_1,
     CONF_UPDATE_TIME_2,
     CONF_ENABLE_FORECAST_HOURLY,
-    MODE_ESTACIO,
-    MODE_MUNICIPI,
+    MODE_EXTERNAL,
+    MODE_LOCAL,
 )
 
 
@@ -52,7 +52,7 @@ def mock_entry_estacio():
     entry.entry_id = "test_estacio_entry"
     entry.data = {
         CONF_API_KEY: "test_api_key",
-        CONF_MODE: MODE_ESTACIO,
+        CONF_MODE: MODE_EXTERNAL,
         CONF_STATION_CODE: "YM",
         CONF_UPDATE_TIME_1: "06:00",
         CONF_UPDATE_TIME_2: "14:00",
@@ -68,7 +68,7 @@ def mock_entry_municipi():
     entry.entry_id = "test_municipi_entry"
     entry.data = {
         CONF_API_KEY: "test_api_key",
-        CONF_MODE: MODE_MUNICIPI,
+        CONF_MODE: MODE_LOCAL,
         CONF_MUNICIPALITY_CODE: "080193",
         CONF_UPDATE_TIME_1: "06:00",
         CONF_UPDATE_TIME_2: "14:00",

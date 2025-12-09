@@ -11,8 +11,8 @@
         }
       },
       "mode": {
-        "title": "Tipus d'entrada",
-        "description": "Selecciona el tipus d'entrada",
+        "title": "Mode de funcionament",
+        "description": "Selecciona el mode de funcionament",
         "data": {
           "mode": "Mode"
         }
@@ -25,15 +25,15 @@
         }
       },
       "station": {
-        "title": "Selecciona una estació",
-        "description": "Tria l'estació meteorològica que vols afegir",
+        "title": "Selecciona una estació externa",
+        "description": "Tria l'estació meteorològica XEMA que vols afegir",
         "data": {
           "station_code": "Estació"
         }
       },
       "municipality": {
-        "title": "Selecciona un municipi",
-        "description": "Tria el municipi per obtenir prediccions",
+        "title": "Selecciona la ubicació local",
+        "description": "Tria el municipi per a la predicció i ubicació de l'estació local",
         "data": {
           "municipality_code": "Municipi"
         }
@@ -48,6 +48,25 @@
           "update_time_1": "Primera actualització (Format 24h: HH:MM)",
           "update_time_2": "Segona actualització (Format 24h: HH:MM)",
           "update_time_3": "Tercera actualització (Format 24h: HH:MM)"
+        }
+      },
+      "local_sensors": {
+        "title": "Sensors Locals",
+        "description": "Selecciona els sensors de Home Assistant per a les dades actuals.\n\nNo totes les targes meteorològiques mostren totes les dades.",
+        "data": {
+          "sensor_temperature": "Temperatura",
+          "sensor_humidity": "Humitat",
+          "sensor_pressure": "Pressió",
+          "sensor_wind_speed": "Velocitat del vent",
+          "sensor_wind_bearing": "Direcció del vent",
+          "sensor_wind_gust": "Ràfega de vent",
+          "sensor_visibility": "Visibilitat",
+          "sensor_uv_index": "Índex UV",
+          "sensor_ozone": "Ozó",
+          "sensor_cloud_coverage": "Cobertura de núvols",
+          "sensor_dew_point": "Punt de rosada",
+          "sensor_apparent_temperature": "Temperatura aparent",
+          "sensor_rain": "Sensor de pluja (per a la condició)"
         }
       },
       "reauth_confirm": {

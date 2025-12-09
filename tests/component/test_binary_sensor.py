@@ -14,8 +14,8 @@ from custom_components.meteocat_community_edition.binary_sensor import (
 )
 from custom_components.meteocat_community_edition.const import (
     DOMAIN,
-    MODE_ESTACIO,
-    MODE_MUNICIPI,
+    MODE_EXTERNAL,
+    MODE_LOCAL,
 )
 
 
@@ -46,12 +46,12 @@ def mock_coordinator_failure():
 
 
 @pytest.fixture
-def mock_entry_station():
+def mock_entry_external():
     """Create a mock config entry for station mode."""
     entry = MagicMock()
     entry.entry_id = "test_entry"
     entry.data = {
-        "mode": MODE_ESTACIO,
+        "mode": MODE_EXTERNAL,
         "station_code": "YM",
         "station_name": "Granollers",
     }
@@ -60,12 +60,12 @@ def mock_entry_station():
 
 
 @pytest.fixture
-def mock_entry_municipality():
+def mock_entry_locality():
     """Create a mock config entry for municipality mode."""
     entry = MagicMock()
     entry.entry_id = "test_entry"
     entry.data = {
-        "mode": MODE_MUNICIPI,
+        "mode": MODE_LOCAL,
         "municipality_code": "080193",
         "municipality_name": "Barcelona",
     }
@@ -73,14 +73,14 @@ def mock_entry_municipality():
     return entry
 
 
-def test_binary_sensor_initialization_station_mode(mock_coordinator_success, mock_entry_station):
+def test_binary_sensor_initialization_external_mode(mock_coordinator_success, mock_entry_external):
     """Test binary sensor initialization in station mode."""
     sensor = MeteocatUpdateStatusBinarySensor(
         mock_coordinator_success,
-        mock_entry_station,
+        mock_entry_external,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO,
+        MODE_EXTERNAL,
         "YM",
     )
     
@@ -92,14 +92,14 @@ def test_binary_sensor_initialization_station_mode(mock_coordinator_success, moc
     assert sensor.name == "Última actualització correcte"
 
 
-def test_binary_sensor_initialization_municipality_mode(mock_coordinator_success, mock_entry_municipality):
+def test_binary_sensor_initialization_local_mode(mock_coordinator_success, mock_entry_locality):
     """Test binary sensor initialization in municipality mode."""
     sensor = MeteocatUpdateStatusBinarySensor(
         mock_coordinator_success,
-        mock_entry_municipality,
+        mock_entry_locality,
         "Barcelona",
         "Barcelona",
-        MODE_MUNICIPI,
+        MODE_LOCAL,
         None,
     )
     
@@ -110,14 +110,14 @@ def test_binary_sensor_initialization_municipality_mode(mock_coordinator_success
     assert sensor.name == "Última actualització correcte"
 
 
-def test_binary_sensor_success_state(mock_coordinator_success, mock_entry_station):
+def test_binary_sensor_success_state(mock_coordinator_success, mock_entry_external):
     """Test binary sensor shows OFF when update is successful (no problem)."""
     sensor = MeteocatUpdateStatusBinarySensor(
         mock_coordinator_success,
-        mock_entry_station,
+        mock_entry_external,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO,
+        MODE_EXTERNAL,
         "YM",
     )
     
@@ -129,14 +129,14 @@ def test_binary_sensor_success_state(mock_coordinator_success, mock_entry_statio
     assert "last_success" in attrs
 
 
-def test_binary_sensor_failure_state(mock_coordinator_failure, mock_entry_station):
+def test_binary_sensor_failure_state(mock_coordinator_failure, mock_entry_external):
     """Test binary sensor shows ON when update fails (problem detected)."""
     sensor = MeteocatUpdateStatusBinarySensor(
         mock_coordinator_failure,
-        mock_entry_station,
+        mock_entry_external,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO,
+        MODE_EXTERNAL,
         "YM",
     )
     
@@ -150,16 +150,16 @@ def test_binary_sensor_failure_state(mock_coordinator_failure, mock_entry_statio
     assert "No data available" in attrs["error"]
 
 
-def test_binary_sensor_no_data(mock_coordinator_success, mock_entry_station):
+def test_binary_sensor_no_data(mock_coordinator_success, mock_entry_external):
     """Test binary sensor shows ON when coordinator has no data (problem)."""
     mock_coordinator_success.data = {}
     
     sensor = MeteocatUpdateStatusBinarySensor(
         mock_coordinator_success,
-        mock_entry_station,
+        mock_entry_external,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO,
+        MODE_EXTERNAL,
         "YM",
     )
     
@@ -169,7 +169,7 @@ def test_binary_sensor_no_data(mock_coordinator_success, mock_entry_station):
     assert "No data available" in attrs["error"]
 
 
-def test_binary_sensor_station_mode_requires_measurements_or_forecast(mock_coordinator_success, mock_entry_station):
+def test_binary_sensor_external_mode_requires_measurements_or_forecast(mock_coordinator_success, mock_entry_external):
     """Test station mode requires measurements data."""
     # With measurements - no problem
     mock_coordinator_success.data = {
@@ -178,10 +178,10 @@ def test_binary_sensor_station_mode_requires_measurements_or_forecast(mock_coord
     
     sensor = MeteocatUpdateStatusBinarySensor(
         mock_coordinator_success,
-        mock_entry_station,
+        mock_entry_external,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO,
+        MODE_EXTERNAL,
         "YM",
     )
     
@@ -200,7 +200,7 @@ def test_binary_sensor_station_mode_requires_measurements_or_forecast(mock_coord
     assert sensor.is_on is True  # ON = problem (no data)
 
 
-def test_binary_sensor_station_mode_checks_all_api_calls_with_municipality(mock_coordinator_success, mock_entry_station):
+def test_binary_sensor_external_mode_checks_all_api_calls_with_municipality(mock_coordinator_success, mock_entry_external):
     """Test station mode checks ALL API calls when municipality_code is present."""
     # Station with municipality: must check measurements + all forecast calls
     mock_coordinator_success.data = {
@@ -212,10 +212,10 @@ def test_binary_sensor_station_mode_checks_all_api_calls_with_municipality(mock_
     
     sensor = MeteocatUpdateStatusBinarySensor(
         mock_coordinator_success,
-        mock_entry_station,
+        mock_entry_external,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO,
+        MODE_EXTERNAL,
         "YM",
     )
     
@@ -247,7 +247,7 @@ def test_binary_sensor_station_mode_checks_all_api_calls_with_municipality(mock_
     assert "forecast" in attrs["error"]
 
 
-def test_binary_sensor_municipality_mode_requires_forecast(mock_coordinator_success, mock_entry_municipality):
+def test_binary_sensor_local_mode_requires_forecast(mock_coordinator_success, mock_entry_locality):
     """Test municipality mode requires ALL forecast data (forecast, hourly)."""
     # Has ALL forecasts - no problem
     mock_coordinator_success.data = {
@@ -257,10 +257,10 @@ def test_binary_sensor_municipality_mode_requires_forecast(mock_coordinator_succ
     
     sensor = MeteocatUpdateStatusBinarySensor(
         mock_coordinator_success,
-        mock_entry_municipality,
+        mock_entry_locality,
         "Barcelona",
         "Barcelona",
-        MODE_MUNICIPI,
+        MODE_LOCAL,
         None,
     )
     
@@ -279,7 +279,7 @@ def test_binary_sensor_municipality_mode_requires_forecast(mock_coordinator_succ
     assert sensor.is_on is True  # ON = problem (no data)
 
 
-def test_binary_sensor_municipality_mode_checks_all_api_calls(mock_coordinator_success, mock_entry_municipality):
+def test_binary_sensor_local_mode_checks_all_api_calls(mock_coordinator_success, mock_entry_locality):
     """Test municipality mode checks ALL API calls: forecast, forecast_hourly."""
     # All API calls present - no problem
     mock_coordinator_success.data = {
@@ -289,10 +289,10 @@ def test_binary_sensor_municipality_mode_checks_all_api_calls(mock_coordinator_s
     
     sensor = MeteocatUpdateStatusBinarySensor(
         mock_coordinator_success,
-        mock_entry_municipality,
+        mock_entry_locality,
         "Barcelona",
         "Barcelona",
-        MODE_MUNICIPI,
+        MODE_LOCAL,
         None,
     )
     
@@ -328,7 +328,7 @@ def test_binary_sensor_municipality_mode_checks_all_api_calls(mock_coordinator_s
     assert "forecast_hourly" in attrs["error"]
 
 
-def test_binary_sensor_quota_exhausted_station_mode(mock_coordinator_success, mock_entry_station):
+def test_binary_sensor_quota_exhausted_external_mode(mock_coordinator_success, mock_entry_external):
     """Test binary sensor detects quota exhaustion in station mode."""
     # Simulate quota exhausted: update success with empty measurements
     mock_coordinator_success.last_update_success = True
@@ -339,10 +339,10 @@ def test_binary_sensor_quota_exhausted_station_mode(mock_coordinator_success, mo
     
     sensor = MeteocatUpdateStatusBinarySensor(
         mock_coordinator_success,
-        mock_entry_station,
+        mock_entry_external,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO,
+        MODE_EXTERNAL,
         "YM",
     )
     
@@ -352,7 +352,7 @@ def test_binary_sensor_quota_exhausted_station_mode(mock_coordinator_success, mo
     assert "quota exhausted" in attrs["error"].lower()
 
 
-def test_binary_sensor_quota_exhausted_municipality_mode(mock_coordinator_success, mock_entry_municipality):
+def test_binary_sensor_quota_exhausted_local_mode(mock_coordinator_success, mock_entry_locality):
     """Test binary sensor detects quota exhaustion in municipality mode."""
     # Simulate quota exhausted: update success with empty forecasts
     mock_coordinator_success.last_update_success = True
@@ -364,10 +364,10 @@ def test_binary_sensor_quota_exhausted_municipality_mode(mock_coordinator_succes
     
     sensor = MeteocatUpdateStatusBinarySensor(
         mock_coordinator_success,
-        mock_entry_municipality,
+        mock_entry_locality,
         "Barcelona",
         "Barcelona",
-        MODE_MUNICIPI,
+        MODE_LOCAL,
         None,
     )
     
@@ -377,14 +377,14 @@ def test_binary_sensor_quota_exhausted_municipality_mode(mock_coordinator_succes
     assert "quota exhausted" in attrs["error"].lower()
 
 
-def test_binary_sensor_always_available(mock_coordinator_failure, mock_entry_station):
+def test_binary_sensor_always_available(mock_coordinator_failure, mock_entry_external):
     """Test binary sensor is always available, even when updates fail."""
     sensor = MeteocatUpdateStatusBinarySensor(
         mock_coordinator_failure,
-        mock_entry_station,
+        mock_entry_external,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO,
+        MODE_EXTERNAL,
         "YM",
     )
     
@@ -392,31 +392,31 @@ def test_binary_sensor_always_available(mock_coordinator_failure, mock_entry_sta
     assert sensor.available is True
 
 
-def test_binary_sensor_device_info_station_mode(mock_coordinator_success, mock_entry_station):
+def test_binary_sensor_device_info_external_mode(mock_coordinator_success, mock_entry_external):
     """Test binary sensor device info in station mode."""
     sensor = MeteocatUpdateStatusBinarySensor(
         mock_coordinator_success,
-        mock_entry_station,
+        mock_entry_external,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO,
+        MODE_EXTERNAL,
         "YM",
     )
     
     device_info = sensor.device_info
     assert device_info["name"] == "Granollers YM"
-    assert device_info["model"] == "Estació XEMA"
+    assert device_info["model"] == "Estació Externa"
     assert (DOMAIN, "test_entry") in device_info["identifiers"]
 
 
-def test_binary_sensor_device_info_municipality_mode(mock_coordinator_success, mock_entry_municipality):
+def test_binary_sensor_device_info_local_mode(mock_coordinator_success, mock_entry_locality):
     """Test binary sensor device info in municipality mode."""
     sensor = MeteocatUpdateStatusBinarySensor(
         mock_coordinator_success,
-        mock_entry_municipality,
+        mock_entry_locality,
         "Barcelona",
         "Barcelona",
-        MODE_MUNICIPI,
+        MODE_LOCAL,
         None,
     )
     
@@ -425,14 +425,14 @@ def test_binary_sensor_device_info_municipality_mode(mock_coordinator_success, m
     assert device_info["model"] == "Predicció Municipal"
 
 
-def test_binary_sensor_icon_when_ok(mock_coordinator_success, mock_entry_station):
+def test_binary_sensor_icon_when_ok(mock_coordinator_success, mock_entry_external):
     """Test binary sensor shows check-circle icon when no problem."""
     sensor = MeteocatUpdateStatusBinarySensor(
         mock_coordinator_success,
-        mock_entry_station,
+        mock_entry_external,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO,
+        MODE_EXTERNAL,
         "YM",
     )
     
@@ -440,14 +440,14 @@ def test_binary_sensor_icon_when_ok(mock_coordinator_success, mock_entry_station
     assert sensor.icon == "mdi:check-circle"
 
 
-def test_binary_sensor_icon_when_problem(mock_coordinator_failure, mock_entry_station):
+def test_binary_sensor_icon_when_problem(mock_coordinator_failure, mock_entry_external):
     """Test binary sensor shows alert-circle icon when problem detected."""
     sensor = MeteocatUpdateStatusBinarySensor(
         mock_coordinator_failure,
-        mock_entry_station,
+        mock_entry_external,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO,
+        MODE_EXTERNAL,
         "YM",
     )
     
@@ -455,14 +455,14 @@ def test_binary_sensor_icon_when_problem(mock_coordinator_failure, mock_entry_st
     assert sensor.icon == "mdi:alert-circle"
 
 
-def test_binary_sensor_attributes_when_ok(mock_coordinator_success, mock_entry_station):
+def test_binary_sensor_attributes_when_ok(mock_coordinator_success, mock_entry_external):
     """Test binary sensor attributes when everything is ok."""
     sensor = MeteocatUpdateStatusBinarySensor(
         mock_coordinator_success,
-        mock_entry_station,
+        mock_entry_external,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO,
+        MODE_EXTERNAL,
         "YM",
     )
     
@@ -473,7 +473,7 @@ def test_binary_sensor_attributes_when_ok(mock_coordinator_success, mock_entry_s
     assert attrs["last_success"] == "2025-11-27T12:00:00"
 
 
-def test_binary_sensor_attributes_when_error(mock_coordinator_success, mock_entry_station):
+def test_binary_sensor_attributes_when_error(mock_coordinator_success, mock_entry_external):
     """Test binary sensor attributes show specific error message."""
     # Simulate empty data (quota exhausted)
     mock_coordinator_success.data = {
@@ -483,10 +483,10 @@ def test_binary_sensor_attributes_when_error(mock_coordinator_success, mock_entr
     
     sensor = MeteocatUpdateStatusBinarySensor(
         mock_coordinator_success,
-        mock_entry_station,
+        mock_entry_external,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO,
+        MODE_EXTERNAL,
         "YM",
     )
     
@@ -496,46 +496,46 @@ def test_binary_sensor_attributes_when_error(mock_coordinator_success, mock_entr
     assert "quota exhausted" in attrs["error"].lower()
 
 
-def test_binary_sensor_device_class_is_problem(mock_coordinator_success, mock_entry_station):
+def test_binary_sensor_device_class_is_problem(mock_coordinator_success, mock_entry_external):
     """Test binary sensor has device_class PROBLEM."""
     from homeassistant.components.binary_sensor import BinarySensorDeviceClass
     
     sensor = MeteocatUpdateStatusBinarySensor(
         mock_coordinator_success,
-        mock_entry_station,
+        mock_entry_external,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO,
+        MODE_EXTERNAL,
         "YM",
     )
     
     assert sensor.device_class == BinarySensorDeviceClass.PROBLEM
 
 
-def test_binary_sensor_entity_category_is_diagnostic(mock_coordinator_success, mock_entry_station):
+def test_binary_sensor_entity_category_is_diagnostic(mock_coordinator_success, mock_entry_external):
     """Test binary sensor has entity_category DIAGNOSTIC."""
     from homeassistant.helpers.entity import EntityCategory
     
     sensor = MeteocatUpdateStatusBinarySensor(
         mock_coordinator_success,
-        mock_entry_station,
+        mock_entry_external,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO,
+        MODE_EXTERNAL,
         "YM",
     )
     
     assert sensor.entity_category == EntityCategory.DIAGNOSTIC
 
 
-def test_binary_sensor_translation_key(mock_coordinator_success, mock_entry_station):
+def test_binary_sensor_translation_key(mock_coordinator_success, mock_entry_external):
     """Test binary sensor has correct translation_key."""
     sensor = MeteocatUpdateStatusBinarySensor(
         mock_coordinator_success,
-        mock_entry_station,
+        mock_entry_external,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO,
+        MODE_EXTERNAL,
         "YM",
     )
     
@@ -543,7 +543,7 @@ def test_binary_sensor_translation_key(mock_coordinator_success, mock_entry_stat
     assert sensor._attr_translation_key == "update_state"
 
 
-def test_binary_sensor_ok_disabled_forecast_missing(mock_coordinator_success, mock_entry_municipality):
+def test_binary_sensor_ok_disabled_forecast_missing(mock_coordinator_success, mock_entry_locality):
     """Test sensor is OFF (OK) when disabled forecast is missing."""
     # Disable daily forecast
     mock_coordinator_success.enable_forecast_daily = False
@@ -556,10 +556,10 @@ def test_binary_sensor_ok_disabled_forecast_missing(mock_coordinator_success, mo
     
     sensor = MeteocatUpdateStatusBinarySensor(
         mock_coordinator_success,
-        mock_entry_municipality,
+        mock_entry_locality,
         "Barcelona",
         "Barcelona",
-        MODE_MUNICIPI,
+        MODE_LOCAL,
         None,
     )
     
@@ -567,7 +567,7 @@ def test_binary_sensor_ok_disabled_forecast_missing(mock_coordinator_success, mo
     assert sensor.extra_state_attributes["status"] == "ok"
 
 
-def test_binary_sensor_ok_disabled_hourly_missing(mock_coordinator_success, mock_entry_municipality):
+def test_binary_sensor_ok_disabled_hourly_missing(mock_coordinator_success, mock_entry_locality):
     """Test sensor is OFF (OK) when disabled hourly forecast is missing."""
     # Disable hourly forecast
     mock_coordinator_success.enable_forecast_daily = True
@@ -580,10 +580,10 @@ def test_binary_sensor_ok_disabled_hourly_missing(mock_coordinator_success, mock
     
     sensor = MeteocatUpdateStatusBinarySensor(
         mock_coordinator_success,
-        mock_entry_municipality,
+        mock_entry_locality,
         "Barcelona",
         "Barcelona",
-        MODE_MUNICIPI,
+        MODE_LOCAL,
         None,
     )
     
@@ -591,7 +591,7 @@ def test_binary_sensor_ok_disabled_hourly_missing(mock_coordinator_success, mock
     assert sensor.extra_state_attributes["status"] == "ok"
 
 
-def test_binary_sensor_ok_both_disabled_missing(mock_coordinator_success, mock_entry_municipality):
+def test_binary_sensor_ok_both_disabled_missing(mock_coordinator_success, mock_entry_locality):
     """Test sensor is OFF (OK) when both forecasts are disabled and missing."""
     mock_coordinator_success.enable_forecast_daily = False
     mock_coordinator_success.enable_forecast_hourly = False
@@ -603,10 +603,10 @@ def test_binary_sensor_ok_both_disabled_missing(mock_coordinator_success, mock_e
     
     sensor = MeteocatUpdateStatusBinarySensor(
         mock_coordinator_success,
-        mock_entry_municipality,
+        mock_entry_locality,
         "Barcelona",
         "Barcelona",
-        MODE_MUNICIPI,
+        MODE_LOCAL,
         None,
     )
     

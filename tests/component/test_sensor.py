@@ -24,8 +24,8 @@ from custom_components.meteocat_community_edition.sensor import (
 )
 from custom_components.meteocat_community_edition.const import (
     DOMAIN,
-    MODE_ESTACIO,
-    MODE_MUNICIPI,
+    MODE_EXTERNAL,
+    MODE_LOCAL,
 )
 
 
@@ -78,7 +78,7 @@ def mock_entry():
     entry = MagicMock()
     entry.entry_id = "test_entry_id"
     entry.data = {
-        "mode": MODE_ESTACIO,
+        "mode": MODE_EXTERNAL,
         "station_code": "YM",
         "station_name": "Granollers",
     }
@@ -105,7 +105,7 @@ def test_quota_sensor_normalizes_plan_names(mock_coordinator, mock_entry):
             plan_data,
             "Granollers",
             "Granollers YM",
-            MODE_ESTACIO,
+            MODE_EXTERNAL,
             "YM"
         )
         
@@ -124,17 +124,17 @@ def test_quota_sensor_entity_id_xema_mode(mock_coordinator, mock_entry):
         plan_data,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO,
+        MODE_EXTERNAL,
         "YM"
     )
     
     assert sensor.entity_id == "sensor.granollers_ym_quota_disponible_prediccio_100"
 
 
-def test_quota_sensor_entity_id_municipal_mode(mock_coordinator, mock_entry):
+def test_quota_sensor_entity_id_local_mode(mock_coordinator, mock_entry):
     """Test quota sensor entity_id in Municipal mode."""
     plan_data = {"nom": "Prediccio_100", "requests_left": 950}
-    mock_entry.data["mode"] = MODE_MUNICIPI
+    mock_entry.data["mode"] = MODE_LOCAL
     
     sensor = MeteocatQuotaSensor(
         mock_coordinator,
@@ -142,7 +142,7 @@ def test_quota_sensor_entity_id_municipal_mode(mock_coordinator, mock_entry):
         plan_data,
         "Granollers",
         "Granollers",
-        MODE_MUNICIPI,
+        MODE_LOCAL,
         None
     )
     
@@ -159,7 +159,7 @@ def test_quota_sensor_device_info(mock_coordinator, mock_entry):
         plan_data,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO,
+        MODE_EXTERNAL,
         "YM"
     )
     
@@ -208,7 +208,7 @@ def test_next_update_sensor(mock_coordinator, mock_entry):
         mock_entry,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO,
+        MODE_EXTERNAL,
         "YM"
     )
     _mock_platform(sensor)
@@ -226,7 +226,7 @@ def test_next_update_sensor(mock_coordinator, mock_entry):
         mock_entry,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO,
+        MODE_EXTERNAL,
         "YM"
     )
     _mock_platform(sensor)
@@ -245,7 +245,7 @@ def test_timestamp_sensors_device_info(mock_coordinator, mock_entry):
         mock_entry,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO,
+        MODE_EXTERNAL,
         "YM"
     )
     
@@ -254,7 +254,7 @@ def test_timestamp_sensors_device_info(mock_coordinator, mock_entry):
         mock_entry,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO,
+        MODE_EXTERNAL,
         "YM"
     )
     
@@ -282,7 +282,7 @@ def test_update_time_sensor_time_1_xema_mode(mock_coordinator, mock_entry):
         mock_entry,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO,
+        MODE_EXTERNAL,
         1,
         "YM"
     )
@@ -312,7 +312,7 @@ def test_update_time_sensor_time_2_xema_mode(mock_coordinator, mock_entry):
         mock_entry,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO,
+        MODE_EXTERNAL,
         2,
         "YM"
     )
@@ -328,12 +328,12 @@ def test_update_time_sensor_time_2_xema_mode(mock_coordinator, mock_entry):
     assert sensor.native_value == "14:00"
 
 
-def test_update_time_sensor_municipal_mode(mock_coordinator):
+def test_update_time_sensor_local_mode(mock_coordinator):
     """Test update time sensors in Municipal mode."""
     entry = MagicMock()
     entry.entry_id = "test_entry_municipal"
     entry.data = {
-        "mode": MODE_MUNICIPI,
+        "mode": MODE_LOCAL,
         "municipality_code": "081131",
         "municipality_name": "Granollers",
     }
@@ -343,7 +343,7 @@ def test_update_time_sensor_municipal_mode(mock_coordinator):
         entry,
         "Granollers",
         "Granollers",
-        MODE_MUNICIPI,
+        MODE_LOCAL,
         1,
         None
     )
@@ -353,7 +353,7 @@ def test_update_time_sensor_municipal_mode(mock_coordinator):
         entry,
         "Granollers",
         "Granollers",
-        MODE_MUNICIPI,
+        MODE_LOCAL,
         2,
         None
     )
@@ -374,7 +374,7 @@ def test_update_time_sensor_unique_id(mock_coordinator, mock_entry):
         mock_entry,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO,
+        MODE_EXTERNAL,
         1,
         "YM"
     )
@@ -384,7 +384,7 @@ def test_update_time_sensor_unique_id(mock_coordinator, mock_entry):
         mock_entry,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO,
+        MODE_EXTERNAL,
         2,
         "YM"
     )
@@ -405,7 +405,7 @@ def test_diagnostic_sensors_entity_category(mock_coordinator, mock_entry):
         mock_entry,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO,
+        MODE_EXTERNAL,
         1,
         "YM"
     )
@@ -416,7 +416,7 @@ def test_diagnostic_sensors_entity_category(mock_coordinator, mock_entry):
         mock_entry,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO,
+        MODE_EXTERNAL,
         "YM"
     )
     
@@ -425,7 +425,7 @@ def test_diagnostic_sensors_entity_category(mock_coordinator, mock_entry):
         mock_entry,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO,
+        MODE_EXTERNAL,
         "YM"
     )
     
@@ -437,7 +437,7 @@ def test_diagnostic_sensors_entity_category(mock_coordinator, mock_entry):
         plan_data,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO,
+        MODE_EXTERNAL,
         "YM"
     )
     
@@ -578,7 +578,7 @@ def test_municipality_name_sensor(mock_coordinator, mock_entry):
     """Test municipality name sensor."""
     # Configure entry for municipality mode
     mock_entry.data = {
-        "mode": MODE_MUNICIPI,
+        "mode": MODE_LOCAL,
         "municipality_code": "080193",
         "municipality_name": "Barcelona",
         "comarca_name": "Barcelonès",
@@ -602,7 +602,7 @@ def test_municipality_name_sensor_no_data(mock_coordinator, mock_entry):
     """Test municipality name sensor with no data."""
     # Configure entry for municipality mode but without municipality_name
     mock_entry.data = {
-        "mode": MODE_MUNICIPI,
+        "mode": MODE_LOCAL,
         "municipality_code": "080193",
     }
     
@@ -622,7 +622,7 @@ def test_comarca_name_sensor(mock_coordinator, mock_entry):
     """Test comarca name sensor."""
     # Configure entry for municipality mode
     mock_entry.data = {
-        "mode": MODE_MUNICIPI,
+        "mode": MODE_LOCAL,
         "municipality_code": "080193",
         "municipality_name": "Barcelona",
         "comarca_name": "Barcelonès",
@@ -646,7 +646,7 @@ def test_comarca_name_sensor_no_data(mock_coordinator, mock_entry):
     """Test comarca name sensor with no data."""
     # Configure entry for municipality mode but without comarca_name
     mock_entry.data = {
-        "mode": MODE_MUNICIPI,
+        "mode": MODE_LOCAL,
         "municipality_code": "080193",
     }
     
@@ -662,7 +662,7 @@ def test_comarca_name_sensor_no_data(mock_coordinator, mock_entry):
     assert sensor.native_value == ""
 
 
-# Tests for MODE_ESTACIO geographic sensors
+# Tests for MODE_EXTERNAL geographic sensors
 
 def test_station_comarca_name_sensor():
     """Test station comarca name sensor."""
@@ -673,7 +673,7 @@ def test_station_comarca_name_sensor():
     mock_entry = MagicMock()
     mock_entry.entry_id = "test_entry"
     mock_entry.data = {
-        "mode": MODE_ESTACIO,
+        "mode": MODE_EXTERNAL,
         "station_code": "YM",
         "comarca_name": "Vallès Oriental",
     }
@@ -700,7 +700,7 @@ def test_station_municipality_name_sensor():
     mock_entry = MagicMock()
     mock_entry.entry_id = "test_entry"
     mock_entry.data = {
-        "mode": MODE_ESTACIO,
+        "mode": MODE_EXTERNAL,
         "station_code": "YM",
         "station_municipality_name": "Granollers",
     }
@@ -727,7 +727,7 @@ def test_station_provincia_name_sensor():
     mock_entry = MagicMock()
     mock_entry.entry_id = "test_entry"
     mock_entry.data = {
-        "mode": MODE_ESTACIO,
+        "mode": MODE_EXTERNAL,
         "station_code": "YM",
         "station_provincia_name": "Barcelona",
     }
@@ -745,7 +745,7 @@ def test_station_provincia_name_sensor():
     assert sensor.icon == "mdi:map-marker-radius"
 
 
-# Tests for MODE_MUNICIPI coordinate and province sensors
+# Tests for MODE_LOCAL coordinate and province sensors
 
 def test_municipality_latitude_sensor():
     """Test municipality latitude sensor."""
@@ -756,7 +756,7 @@ def test_municipality_latitude_sensor():
     mock_entry = MagicMock()
     mock_entry.entry_id = "test_entry"
     mock_entry.data = {
-        "mode": MODE_MUNICIPI,
+        "mode": MODE_LOCAL,
         "municipality_code": "080193",
         "municipality_lat": 41.6,
     }
@@ -784,7 +784,7 @@ def test_municipality_longitude_sensor():
     mock_entry = MagicMock()
     mock_entry.entry_id = "test_entry"
     mock_entry.data = {
-        "mode": MODE_MUNICIPI,
+        "mode": MODE_LOCAL,
         "municipality_code": "080193",
         "municipality_lon": 2.3,
     }
@@ -812,7 +812,7 @@ def test_municipality_provincia_name_sensor():
     mock_entry = MagicMock()
     mock_entry.entry_id = "test_entry"
     mock_entry.data = {
-        "mode": MODE_MUNICIPI,
+        "mode": MODE_LOCAL,
         "municipality_code": "080193",
         "provincia_name": "Barcelona",
     }
@@ -845,7 +845,7 @@ def test_coordinate_sensors_read_from_entry_data_cache():
     mock_entry = MagicMock()
     mock_entry.entry_id = "test_entry"
     mock_entry.data = {
-        "mode": MODE_ESTACIO,
+        "mode": MODE_EXTERNAL,
         "station_code": "YM",
         "_station_data": {
             "coordenades": {
@@ -912,7 +912,7 @@ def test_coordinate_sensors_prefer_coordinator_data_over_cache():
     mock_entry = MagicMock()
     mock_entry.entry_id = "test_entry"
     mock_entry.data = {
-        "mode": MODE_ESTACIO,
+        "mode": MODE_EXTERNAL,
         "station_code": "YM",
         "_station_data": {
             "coordenades": {
@@ -962,7 +962,7 @@ def test_municipality_provincia_name_sensor_no_data():
     mock_entry = MagicMock()
     mock_entry.entry_id = "test_entry"
     mock_entry.data = {
-        "mode": MODE_MUNICIPI,
+        "mode": MODE_LOCAL,
         "municipality_code": "080193",
         # No provincia_name
     }

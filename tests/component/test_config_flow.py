@@ -14,16 +14,16 @@ from custom_components.meteocat_community_edition.const import (
     CONF_MODE,
     CONF_STATION_CODE,
     CONF_MUNICIPALITY_CODE,
-    MODE_ESTACIO,
-    MODE_MUNICIPI,
+    MODE_EXTERNAL,
+    MODE_LOCAL,
 )
 
 
 def test_constants_defined():
     """Test that required constants are defined."""
     assert DOMAIN == "meteocat_community_edition"
-    assert MODE_ESTACIO == "estacio"
-    assert MODE_MUNICIPI == "municipi"
+    assert MODE_EXTERNAL == "external"
+    assert MODE_LOCAL == "local"
     assert CONF_API_KEY == "api_key"
     assert CONF_MODE == "mode"
     assert CONF_STATION_CODE == "station_code"

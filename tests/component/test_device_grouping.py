@@ -18,7 +18,7 @@ from custom_components.meteocat_community_edition.button import (
     MeteocatRefreshMeasurementsButton,
     MeteocatRefreshForecastButton,
 )
-from custom_components.meteocat_community_edition.const import DOMAIN, MODE_ESTACIO
+from custom_components.meteocat_community_edition.const import DOMAIN, MODE_EXTERNAL
 
 
 @pytest.fixture
@@ -37,7 +37,7 @@ def mock_entry():
     entry = MagicMock()
     entry.entry_id = "test_entry_id"
     entry.data = {
-        "mode": MODE_ESTACIO,
+        "mode": MODE_EXTERNAL,
         "station_code": "YM",
         "station_name": "Granollers",
     }
@@ -53,7 +53,7 @@ def test_all_entities_share_same_device_identifier(mock_coordinator, mock_entry)
         {"nom": "Prediccio_100", "requests_left": 950},
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO,
+        MODE_EXTERNAL,
         "YM"
     )
     
@@ -62,7 +62,7 @@ def test_all_entities_share_same_device_identifier(mock_coordinator, mock_entry)
         mock_entry,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO,
+        MODE_EXTERNAL,
         "YM"
     )
     
@@ -71,7 +71,7 @@ def test_all_entities_share_same_device_identifier(mock_coordinator, mock_entry)
         mock_entry,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO,
+        MODE_EXTERNAL,
         "YM"
     )
     
@@ -80,7 +80,7 @@ def test_all_entities_share_same_device_identifier(mock_coordinator, mock_entry)
         mock_entry,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO
+        MODE_EXTERNAL
     )
 
     button_forecast = MeteocatRefreshForecastButton(
@@ -88,7 +88,7 @@ def test_all_entities_share_same_device_identifier(mock_coordinator, mock_entry)
         mock_entry,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO
+        MODE_EXTERNAL
     )
     
     # Extract device identifiers
@@ -115,7 +115,7 @@ def test_all_entities_share_same_device_name(mock_coordinator, mock_entry):
         {"nom": "Prediccio_100", "requests_left": 950},
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO,
+        MODE_EXTERNAL,
         "YM"
     )
     
@@ -124,7 +124,7 @@ def test_all_entities_share_same_device_name(mock_coordinator, mock_entry):
         mock_entry,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO,
+        MODE_EXTERNAL,
         "YM"
     )
     
@@ -133,7 +133,7 @@ def test_all_entities_share_same_device_name(mock_coordinator, mock_entry):
         mock_entry,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO,
+        MODE_EXTERNAL,
         "YM"
     )
     
@@ -142,7 +142,7 @@ def test_all_entities_share_same_device_name(mock_coordinator, mock_entry):
         mock_entry,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO
+        MODE_EXTERNAL
     )
 
     button_forecast = MeteocatRefreshForecastButton(
@@ -150,7 +150,7 @@ def test_all_entities_share_same_device_name(mock_coordinator, mock_entry):
         mock_entry,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO
+        MODE_EXTERNAL
     )
     
     # All should use "Granollers YM" as device name
@@ -169,7 +169,7 @@ def test_entity_ids_include_station_code(mock_coordinator, mock_entry):
         {"nom": "Prediccio_100", "requests_left": 950},
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO,
+        MODE_EXTERNAL,
         "YM"
     )
     
@@ -178,7 +178,7 @@ def test_entity_ids_include_station_code(mock_coordinator, mock_entry):
         mock_entry,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO,
+        MODE_EXTERNAL,
         "YM"
     )
     
@@ -187,7 +187,7 @@ def test_entity_ids_include_station_code(mock_coordinator, mock_entry):
         mock_entry,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO,
+        MODE_EXTERNAL,
         "YM"
     )
     
@@ -196,7 +196,7 @@ def test_entity_ids_include_station_code(mock_coordinator, mock_entry):
         mock_entry,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO
+        MODE_EXTERNAL
     )
 
     button_forecast = MeteocatRefreshForecastButton(
@@ -204,7 +204,7 @@ def test_entity_ids_include_station_code(mock_coordinator, mock_entry):
         mock_entry,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO
+        MODE_EXTERNAL
     )
     
     # All entity IDs should include station code

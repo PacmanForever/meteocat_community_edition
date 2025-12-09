@@ -26,8 +26,8 @@ If any of these tests fail, the integration could:
 5. Fail to update at configured times
 
 Quota Impact:
-- MODE_ESTACIO: ~13 calls/day = 390/month (with 06:00, 14:00 schedule)
-- MODE_MUNICIPI: ~6 calls/day = 180/month (with 06:00, 14:00 schedule)
+- MODE_EXTERNAL: ~13 calls/day = 390/month (with 06:00, 14:00 schedule)
+- MODE_LOCAL: ~6 calls/day = 180/month (with 06:00, 14:00 schedule)
 - With 1000 calls/month quota, this leaves 610-820 for manual updates
 
 Last Updated: 2025-11-26
@@ -69,8 +69,8 @@ from custom_components.meteocat_community_edition.const import (
     CONF_UPDATE_TIME_1,
     CONF_UPDATE_TIME_2,
     CONF_ENABLE_FORECAST_HOURLY,
-    MODE_ESTACIO,
-    MODE_MUNICIPI,
+    MODE_EXTERNAL,
+    MODE_LOCAL,
     DEFAULT_UPDATE_TIME_1,
     DEFAULT_UPDATE_TIME_2,
 )
@@ -117,11 +117,11 @@ def mock_api():
 
 @pytest.fixture
 def mock_entry_estacio():
-    """Create a mock config entry for MODE_ESTACIO."""
+    """Create a mock config entry for MODE_EXTERNAL."""
     entry = MagicMock()
     entry.data = {
         CONF_API_KEY: "test_api_key_123456789",
-        CONF_MODE: MODE_ESTACIO,
+        CONF_MODE: MODE_EXTERNAL,
         CONF_STATION_CODE: "YM",
         CONF_UPDATE_TIME_1: "06:00",
         CONF_UPDATE_TIME_2: "14:00",
@@ -134,11 +134,11 @@ def mock_entry_estacio():
 
 @pytest.fixture
 def mock_entry_municipi():
-    """Create a mock config entry for MODE_MUNICIPI."""
+    """Create a mock config entry for MODE_LOCAL."""
     entry = MagicMock()
     entry.data = {
         CONF_API_KEY: "test_api_key_123456789",
-        CONF_MODE: MODE_MUNICIPI,
+        CONF_MODE: MODE_LOCAL,
         CONF_MUNICIPALITY_CODE: "081131",
         CONF_UPDATE_TIME_1: "06:00",
         CONF_UPDATE_TIME_2: "14:00",
@@ -206,7 +206,7 @@ async def test_cleanup_cancels_scheduled_update(mock_hass, mock_entry_estacio, m
 
 
 @pytest.mark.asyncio
-async def test_api_calls_estacio_mode(mock_hass, mock_entry_estacio, mock_api):
+async def test_api_calls_external_mode(mock_hass, mock_entry_estacio, mock_api):
     """Test API calls in ESTACIO mode to verify quota usage.
     
     Verifies:
@@ -264,7 +264,7 @@ async def test_api_calls_estacio_mode(mock_hass, mock_entry_estacio, mock_api):
 
 
 @pytest.mark.asyncio
-async def test_api_calls_municipi_mode(mock_hass, mock_entry_municipi, mock_api):
+async def test_api_calls_local_mode(mock_hass, mock_entry_municipi, mock_api):
     """Test API calls in MUNICIPI mode to verify quota usage."""
     with patch('custom_components.meteocat_community_edition.coordinator.async_get_clientsession'):
         coordinator = MeteocatCoordinator(mock_hass, mock_entry_municipi)
@@ -669,7 +669,7 @@ async def test_custom_update_times(mock_hass, mock_api):
     entry = MagicMock()
     entry.data = {
         CONF_API_KEY: "test_api_key_123456789",
-        CONF_MODE: MODE_ESTACIO,
+        CONF_MODE: MODE_EXTERNAL,
         CONF_STATION_CODE: "YM",
         CONF_UPDATE_TIME_1: "08:30",
         CONF_UPDATE_TIME_2: "20:15",

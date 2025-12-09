@@ -29,14 +29,27 @@ from .const import (
     CONF_UPDATE_TIME_3,
     CONF_ENABLE_FORECAST_DAILY,
     CONF_ENABLE_FORECAST_HOURLY,
+    CONF_SENSOR_TEMPERATURE,
+    CONF_SENSOR_HUMIDITY,
+    CONF_SENSOR_PRESSURE,
+    CONF_SENSOR_WIND_SPEED,
+    CONF_SENSOR_WIND_BEARING,
+    CONF_SENSOR_WIND_GUST,
+    CONF_SENSOR_VISIBILITY,
+    CONF_SENSOR_UV_INDEX,
+    CONF_SENSOR_OZONE,
+    CONF_SENSOR_CLOUD_COVERAGE,
+    CONF_SENSOR_DEW_POINT,
+    CONF_SENSOR_APPARENT_TEMPERATURE,
+    CONF_SENSOR_RAIN,
     DEFAULT_API_BASE_URL,
     DEFAULT_UPDATE_TIME_1,
     DEFAULT_UPDATE_TIME_2,
     DOMAIN,
-    MODE_MUNICIPI,
-    MODE_MUNICIPI_LABEL,
-    MODE_ESTACIO,
-    MODE_ESTACIO_LABEL,
+    MODE_LOCAL,
+    MODE_LOCAL_LABEL,
+    MODE_EXTERNAL,
+    MODE_EXTERNAL_LABEL,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -230,9 +243,9 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             step_id="mode",
             data_schema=vol.Schema(
                 {
-                    vol.Required(CONF_MODE, default=MODE_ESTACIO): vol.In({
-                        MODE_ESTACIO: MODE_ESTACIO_LABEL,
-                        MODE_MUNICIPI: MODE_MUNICIPI_LABEL,
+                    vol.Required(CONF_MODE, default=MODE_EXTERNAL): vol.In({
+                        MODE_EXTERNAL: MODE_EXTERNAL_LABEL,
+                        MODE_LOCAL: MODE_LOCAL_LABEL,
                     }),
                 }
             ),
@@ -258,7 +271,7 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 session = async_get_clientsession(self.hass)
                 api = MeteocatAPI(self.api_key, session, self.api_base_url)
                 
-                if self.mode == MODE_ESTACIO:
+                if self.mode == MODE_EXTERNAL:
                     # Fetch stations for selected comarca
                     _LOGGER.debug("Fetching stations for comarca: %s", self.comarca_code)
                     self._stations = await api.get_stations_by_comarca(self.comarca_code)
@@ -454,7 +467,7 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors.update(time_errors)
             
             # Validate forecast selection (only for municipal mode)
-            if self.mode == MODE_MUNICIPI and not enable_daily and not enable_hourly:
+            if self.mode == MODE_LOCAL and not enable_daily and not enable_hourly:
                 errors["base"] = "must_select_one_forecast"
             
             if not errors:
@@ -466,11 +479,11 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 
                 # Create the config entry based on mode
                 # All metadata saved here to avoid runtime API calls
-                if self.mode == MODE_ESTACIO:
+                if self.mode == MODE_EXTERNAL:
                     _LOGGER.info("Creating entry with title: %s %s", self.station_name, self.station_code)
                     entry_data = {
                         CONF_API_KEY: self.api_key,
-                        CONF_MODE: MODE_ESTACIO,
+                        CONF_MODE: MODE_EXTERNAL,
                         CONF_STATION_CODE: self.station_code,
                         CONF_STATION_NAME: self.station_name,
                         CONF_COMARCA_CODE: self.comarca_code,
@@ -502,42 +515,126 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                             CONF_API_BASE_URL: self.api_base_url,
                         },
                     )
-                else:  # MODE_MUNICIPI
-                    entry_data = {
-                        CONF_API_KEY: self.api_key,
-                        CONF_MODE: MODE_MUNICIPI,
-                        CONF_MUNICIPALITY_CODE: self.municipality_code,
-                        CONF_MUNICIPALITY_NAME: self.municipality_name,
-                        CONF_COMARCA_CODE: self.comarca_code,
-                        CONF_COMARCA_NAME: self.comarca_name,
-                        CONF_UPDATE_TIME_1: self.update_time_1,
-                        CONF_UPDATE_TIME_2: self.update_time_2,
-                        CONF_UPDATE_TIME_3: self.update_time_3,
-                        CONF_ENABLE_FORECAST_DAILY: self.enable_forecast_daily,
-                        CONF_ENABLE_FORECAST_HOURLY: self.enable_forecast_hourly,
-                    }
-                    # Add coordinates if available
-                    if hasattr(self, 'municipality_lat') and self.municipality_lat is not None:
-                        entry_data["municipality_lat"] = self.municipality_lat
-                    if hasattr(self, 'municipality_lon') and self.municipality_lon is not None:
-                        entry_data["municipality_lon"] = self.municipality_lon
-                    # Add province if available
-                    if hasattr(self, 'provincia_code') and self.provincia_code:
-                        entry_data["provincia_code"] = self.provincia_code
-                    if hasattr(self, 'provincia_name') and self.provincia_name:
-                        entry_data["provincia_name"] = self.provincia_name
-                    
-                    return self.async_create_entry(
-                        title=self.municipality_name,
-                        data=entry_data,
-                        options={
-                            CONF_API_BASE_URL: self.api_base_url,
-                        },
-                    )
+                else:  # MODE_LOCAL
+                    return await self.async_step_local_sensors()
+
+        return self.async_show_form(
+            step_id="update_times",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(CONF_UPDATE_TIME_1, default="08:00"): str,
+                    vol.Optional(CONF_UPDATE_TIME_2): str,
+                    vol.Optional(CONF_UPDATE_TIME_3): str,
+                    vol.Required(CONF_ENABLE_FORECAST_DAILY, default=True): bool,
+                    vol.Required(CONF_ENABLE_FORECAST_HOURLY, default=False): bool,
+                }
+            ),
+            errors=errors,
+        )
+
+    async def async_step_local_sensors(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Handle the local sensors configuration step."""
+        if user_input is not None:
+            entry_data = {
+                CONF_API_KEY: self.api_key,
+                CONF_MODE: MODE_LOCAL,
+                CONF_MUNICIPALITY_CODE: self.municipality_code,
+                CONF_MUNICIPALITY_NAME: self.municipality_name,
+                CONF_COMARCA_CODE: self.comarca_code,
+                CONF_COMARCA_NAME: self.comarca_name,
+                CONF_UPDATE_TIME_1: self.update_time_1,
+                CONF_UPDATE_TIME_2: self.update_time_2,
+                CONF_UPDATE_TIME_3: self.update_time_3,
+                CONF_ENABLE_FORECAST_DAILY: self.enable_forecast_daily,
+                CONF_ENABLE_FORECAST_HOURLY: self.enable_forecast_hourly,
+                # Local sensors
+                CONF_SENSOR_TEMPERATURE: user_input.get(CONF_SENSOR_TEMPERATURE),
+                CONF_SENSOR_HUMIDITY: user_input.get(CONF_SENSOR_HUMIDITY),
+                CONF_SENSOR_PRESSURE: user_input.get(CONF_SENSOR_PRESSURE),
+                CONF_SENSOR_WIND_SPEED: user_input.get(CONF_SENSOR_WIND_SPEED),
+                CONF_SENSOR_WIND_BEARING: user_input.get(CONF_SENSOR_WIND_BEARING),
+                CONF_SENSOR_WIND_GUST: user_input.get(CONF_SENSOR_WIND_GUST),
+                CONF_SENSOR_VISIBILITY: user_input.get(CONF_SENSOR_VISIBILITY),
+                CONF_SENSOR_UV_INDEX: user_input.get(CONF_SENSOR_UV_INDEX),
+                CONF_SENSOR_OZONE: user_input.get(CONF_SENSOR_OZONE),
+                CONF_SENSOR_CLOUD_COVERAGE: user_input.get(CONF_SENSOR_CLOUD_COVERAGE),
+                CONF_SENSOR_DEW_POINT: user_input.get(CONF_SENSOR_DEW_POINT),
+                CONF_SENSOR_APPARENT_TEMPERATURE: user_input.get(CONF_SENSOR_APPARENT_TEMPERATURE),
+                CONF_SENSOR_RAIN: user_input.get(CONF_SENSOR_RAIN),
+            }
+            # Add coordinates if available
+            if hasattr(self, 'municipality_lat') and self.municipality_lat is not None:
+                entry_data["municipality_lat"] = self.municipality_lat
+            if hasattr(self, 'municipality_lon') and self.municipality_lon is not None:
+                entry_data["municipality_lon"] = self.municipality_lon
+            # Add province if available
+            if hasattr(self, 'provincia_code') and self.provincia_code:
+                entry_data["provincia_code"] = self.provincia_code
+            if hasattr(self, 'provincia_name') and self.provincia_name:
+                entry_data["provincia_name"] = self.provincia_name
+            
+            return self.async_create_entry(
+                title=self.municipality_name,
+                data=entry_data,
+                options={
+                    CONF_API_BASE_URL: self.api_base_url,
+                },
+            )
+
+        from homeassistant.helpers import selector
+        
+        return self.async_show_form(
+            step_id="local_sensors",
+            data_schema=vol.Schema(
+                {
+                    vol.Optional(CONF_SENSOR_TEMPERATURE): selector.EntitySelector(
+                        selector.EntitySelectorConfig(domain="sensor", device_class="temperature")
+                    ),
+                    vol.Optional(CONF_SENSOR_HUMIDITY): selector.EntitySelector(
+                        selector.EntitySelectorConfig(domain="sensor", device_class="humidity")
+                    ),
+                    vol.Optional(CONF_SENSOR_PRESSURE): selector.EntitySelector(
+                        selector.EntitySelectorConfig(domain="sensor", device_class="pressure")
+                    ),
+                    vol.Optional(CONF_SENSOR_WIND_SPEED): selector.EntitySelector(
+                        selector.EntitySelectorConfig(domain="sensor", device_class="wind_speed")
+                    ),
+                    vol.Optional(CONF_SENSOR_WIND_BEARING): selector.EntitySelector(
+                        selector.EntitySelectorConfig(domain="sensor")
+                    ),
+                    vol.Optional(CONF_SENSOR_WIND_GUST): selector.EntitySelector(
+                        selector.EntitySelectorConfig(domain="sensor", device_class="wind_speed")
+                    ),
+                    vol.Optional(CONF_SENSOR_RAIN): selector.EntitySelector(
+                        selector.EntitySelectorConfig(domain="sensor")
+                    ),
+                    vol.Optional(CONF_SENSOR_VISIBILITY): selector.EntitySelector(
+                        selector.EntitySelectorConfig(domain="sensor")
+                    ),
+                    vol.Optional(CONF_SENSOR_UV_INDEX): selector.EntitySelector(
+                        selector.EntitySelectorConfig(domain="sensor")
+                    ),
+                    vol.Optional(CONF_SENSOR_OZONE): selector.EntitySelector(
+                        selector.EntitySelectorConfig(domain="sensor")
+                    ),
+                    vol.Optional(CONF_SENSOR_CLOUD_COVERAGE): selector.EntitySelector(
+                        selector.EntitySelectorConfig(domain="sensor")
+                    ),
+                    vol.Optional(CONF_SENSOR_DEW_POINT): selector.EntitySelector(
+                        selector.EntitySelectorConfig(domain="sensor", device_class="temperature")
+                    ),
+                    vol.Optional(CONF_SENSOR_APPARENT_TEMPERATURE): selector.EntitySelector(
+                        selector.EntitySelectorConfig(domain="sensor", device_class="temperature")
+                    ),
+                }
+            ),
+        )
 
         # Prepare description placeholders
         description_placeholders = {}
-        if self.mode == MODE_ESTACIO:
+        if self.mode == MODE_EXTERNAL:
             description_placeholders["measurements_info"] = "Mesures (requerides)"
         else:
             description_placeholders["measurements_info"] = "Predicció"
@@ -612,7 +709,7 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
             
             # Validate forecast selection (only for municipal mode)
             mode = self.config_entry.data.get(CONF_MODE)
-            if mode == MODE_MUNICIPI and not enable_daily and not enable_hourly:
+            if mode == MODE_LOCAL and not enable_daily and not enable_hourly:
                 errors["base"] = "must_select_one_forecast"
             
             if not errors:
@@ -635,7 +732,7 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
         # Prepare description placeholders
         description_placeholders = {}
         mode = self.config_entry.data.get(CONF_MODE)
-        if mode == MODE_ESTACIO:
+        if mode == MODE_EXTERNAL:
             description_placeholders["measurements_info"] = "Mesures (requerides)"
         else:
             description_placeholders["measurements_info"] = "Predicció"

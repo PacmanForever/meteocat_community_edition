@@ -13,7 +13,7 @@ from custom_components.meteocat_community_edition.const import (
     CONF_API_KEY,
     CONF_MODE,
     CONF_STATION_CODE,
-    MODE_ESTACIO,
+    MODE_EXTERNAL,
 )
 
 
@@ -32,7 +32,7 @@ def mock_entry():
     entry.entry_id = "test_entry_id"
     entry.data = {
         CONF_API_KEY: "test_key",
-        CONF_MODE: MODE_ESTACIO,
+        CONF_MODE: MODE_EXTERNAL,
         CONF_STATION_CODE: "YM",
         "update_time_1": "06:00",
         "update_time_2": "14:00",

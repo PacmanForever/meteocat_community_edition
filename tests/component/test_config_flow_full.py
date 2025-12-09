@@ -15,9 +15,9 @@ from custom_components.meteocat_community_edition.config_flow import (
     CONF_MODE,
     CONF_COMARCA_CODE,
     CONF_STATION_CODE,
-    MODE_ESTACIO,
+    MODE_EXTERNAL,
     CONF_MUNICIPALITY_CODE,
-    MODE_MUNICIPI,
+    MODE_LOCAL,
     CONF_UPDATE_TIME_1,
     CONF_UPDATE_TIME_2,
     CONF_UPDATE_TIME_3,
@@ -88,11 +88,11 @@ async def test_flow_mode_step():
     with patch("custom_components.meteocat_community_edition.config_flow.MeteocatAPI") as mock_api:
         mock_api.return_value.get_comarques = AsyncMock(return_value=[{"codi": "1", "nom": "Alt Camp"}])
         
-        result = await flow.async_step_mode({CONF_MODE: MODE_ESTACIO})
+        result = await flow.async_step_mode({CONF_MODE: MODE_EXTERNAL})
         
         assert result["type"] == "form"
         assert result["step_id"] == "comarca"
-        assert flow.mode == MODE_ESTACIO
+        assert flow.mode == MODE_EXTERNAL
 
 @pytest.mark.asyncio
 async def test_flow_comarca_step_estacio():
@@ -100,7 +100,7 @@ async def test_flow_comarca_step_estacio():
     flow = MeteocatConfigFlow()
     flow.hass = MagicMock()
     flow.api_key = "valid_key"
-    flow.mode = MODE_ESTACIO
+    flow.mode = MODE_EXTERNAL
     flow._comarques = [{"codi": "1", "nom": "Alt Camp"}]
     
     with patch("custom_components.meteocat_community_edition.config_flow.MeteocatAPI") as mock_api:
@@ -119,7 +119,7 @@ async def test_flow_station_step():
     flow = MeteocatConfigFlow()
     flow.hass = MagicMock()
     flow.api_key = "valid_key"
-    flow.mode = MODE_ESTACIO
+    flow.mode = MODE_EXTERNAL
     flow.comarca_code = "1"
     flow._stations = [{"codi": "YM", "nom": "Granollers"}]
     flow.context = {}
@@ -141,7 +141,7 @@ async def test_flow_municipality_step():
     flow = MeteocatConfigFlow()
     flow.hass = MagicMock()
     flow.api_key = "valid_key"
-    flow.mode = MODE_MUNICIPI
+    flow.mode = MODE_LOCAL
     flow.comarca_code = "1"
     flow._municipalities = [{"codi": "08001", "nom": "Abrera"}]
     flow.context = {}
@@ -163,7 +163,7 @@ async def test_flow_update_times_step_estacio():
     flow = MeteocatConfigFlow()
     flow.hass = MagicMock()
     flow.api_key = "valid_key"
-    flow.mode = MODE_ESTACIO
+    flow.mode = MODE_EXTERNAL
     flow.station_code = "YM"
     flow.station_name = "Granollers"
     flow.comarca_code = "1"
@@ -190,12 +190,12 @@ async def test_flow_update_times_step_estacio():
     assert call_args["data"][CONF_UPDATE_TIME_2] == "20:00"
 
 @pytest.mark.asyncio
-async def test_flow_update_times_step_municipi():
-    """Test update times step in municipality mode."""
+async def test_flow_update_times_step_local():
+    """Test update times step in local mode."""
     flow = MeteocatConfigFlow()
     flow.hass = MagicMock()
     flow.api_key = "valid_key"
-    flow.mode = MODE_MUNICIPI
+    flow.mode = MODE_LOCAL
     flow.municipality_code = "08001"
     flow.municipality_name = "Abrera"
     flow.comarca_code = "1"
@@ -203,18 +203,50 @@ async def test_flow_update_times_step_municipi():
     flow.context = {}
     flow.api_base_url = "https://api.meteocat.cat/release/v1"
     
-    flow.async_create_entry = MagicMock(return_value={"type": "create_entry"})
-    
     user_input = {
         CONF_UPDATE_TIME_1: "08:00",
         CONF_ENABLE_FORECAST_DAILY: True,
         CONF_ENABLE_FORECAST_HOURLY: True,
     }
     
+    # Should transition to local_sensors step
     result = await flow.async_step_update_times(user_input)
+    
+    assert result["type"] == "form"
+    assert result["step_id"] == "local_sensors"
+
+@pytest.mark.asyncio
+async def test_flow_local_sensors_step():
+    """Test local sensors step."""
+    flow = MeteocatConfigFlow()
+    flow.hass = MagicMock()
+    flow.api_key = "valid_key"
+    flow.mode = MODE_LOCAL
+    flow.municipality_code = "08001"
+    flow.municipality_name = "Abrera"
+    flow.comarca_code = "1"
+    flow.comarca_name = "Baix Llobregat"
+    flow.update_time_1 = "08:00"
+    flow.update_time_2 = ""
+    flow.update_time_3 = ""
+    flow.enable_forecast_daily = True
+    flow.enable_forecast_hourly = True
+    flow.context = {}
+    flow.api_base_url = "https://api.meteocat.cat/release/v1"
+    
+    flow.async_create_entry = MagicMock(return_value={"type": "create_entry"})
+    
+    # Import constants for sensors
+    from custom_components.meteocat_community_edition.const import CONF_SENSOR_TEMPERATURE
+    
+    user_input = {
+        CONF_SENSOR_TEMPERATURE: "sensor.temp",
+    }
+    
+    result = await flow.async_step_local_sensors(user_input)
     
     assert result["type"] == "create_entry"
     flow.async_create_entry.assert_called_once()
     call_args = flow.async_create_entry.call_args[1]
     assert call_args["title"] == "Abrera"
-    assert call_args["data"][CONF_ENABLE_FORECAST_HOURLY] is True
+    assert call_args["data"][CONF_SENSOR_TEMPERATURE] == "sensor.temp"

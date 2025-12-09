@@ -12,7 +12,7 @@ from unittest.mock import MagicMock, AsyncMock
 from homeassistant.components.weather import WeatherEntityFeature
 
 from custom_components.meteocat_community_edition.weather import MeteocatWeather
-from custom_components.meteocat_community_edition.const import DOMAIN, MODE_ESTACIO
+from custom_components.meteocat_community_edition.const import DOMAIN, MODE_EXTERNAL
 
 
 @pytest.fixture
@@ -75,7 +75,7 @@ def mock_entry():
     entry = MagicMock()
     entry.entry_id = "test_entry_weather"
     entry.data = {
-        "mode": MODE_ESTACIO,
+        "mode": MODE_EXTERNAL,
         "station_code": "YM",
         "station_name": "Granollers",
         "enable_forecast_daily": True,

@@ -8,7 +8,7 @@ from custom_components.meteocat_community_edition.const import (
     CONF_MODE,
     CONF_STATION_CODE,
     CONF_MUNICIPALITY_CODE,
-    MODE_ESTACIO,
+    MODE_EXTERNAL,
 )
 from homeassistant.util import dt as dt_util
 
@@ -23,7 +23,7 @@ def mock_entry():
     entry = MagicMock()
     entry.data = {
         CONF_API_KEY: "test_key",
-        CONF_MODE: MODE_ESTACIO,
+        CONF_MODE: MODE_EXTERNAL,
         CONF_STATION_CODE: "YM",
         "update_time_1": "06:00",
         "update_time_2": "14:00",

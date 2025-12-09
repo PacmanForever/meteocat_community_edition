@@ -2,13 +2,13 @@
 import pytest
 from unittest.mock import MagicMock
 from custom_components.meteocat_community_edition.config_flow import MeteocatOptionsFlow
-from custom_components.meteocat_community_edition.const import CONF_MODE, MODE_ESTACIO
+from custom_components.meteocat_community_edition.const import CONF_MODE, MODE_EXTERNAL
 
 @pytest.mark.asyncio
 async def test_options_flow_init_regression():
     """Test that MeteocatOptionsFlow can be instantiated and initialized without error."""
     mock_entry = MagicMock()
-    mock_entry.data = {CONF_MODE: MODE_ESTACIO}
+    mock_entry.data = {CONF_MODE: MODE_EXTERNAL}
     mock_entry.options = {}
     
     # This should not raise AttributeError: property 'config_entry' of 'MeteocatOptionsFlow' object has no setter

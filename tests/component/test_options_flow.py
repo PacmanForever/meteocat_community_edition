@@ -9,7 +9,7 @@ from custom_components.meteocat_community_edition.const import (
     DOMAIN,
     CONF_API_KEY,
     CONF_MODE,
-    MODE_ESTACIO,
+    MODE_EXTERNAL,
     CONF_STATION_CODE,
     CONF_MUNICIPALITY_CODE,
     CONF_UPDATE_TIME_1,
@@ -25,7 +25,7 @@ async def test_options_flow_init(hass: HomeAssistant):
         domain=DOMAIN,
         data={
             CONF_API_KEY: "test_key",
-            CONF_MODE: MODE_ESTACIO,
+            CONF_MODE: MODE_EXTERNAL,
             CONF_STATION_CODE: "YM",
             CONF_MUNICIPALITY_CODE: "081131",
             CONF_UPDATE_TIME_1: "06:00",
@@ -46,7 +46,7 @@ async def test_options_flow_save(hass: HomeAssistant):
         domain=DOMAIN,
         data={
             CONF_API_KEY: "test_key",
-            CONF_MODE: MODE_ESTACIO,
+            CONF_MODE: MODE_EXTERNAL,
             CONF_STATION_CODE: "YM",
             CONF_MUNICIPALITY_CODE: "081131",
             CONF_UPDATE_TIME_1: "06:00",

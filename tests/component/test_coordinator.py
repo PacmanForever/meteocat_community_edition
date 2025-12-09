@@ -11,8 +11,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 from custom_components.meteocat_community_edition.coordinator import MeteocatCoordinator
 from custom_components.meteocat_community_edition.const import (
-    MODE_ESTACIO, 
-    MODE_MUNICIPI,
+    MODE_EXTERNAL, 
+    MODE_LOCAL,
     CONF_ENABLE_FORECAST_HOURLY,
 )
 
@@ -68,7 +68,7 @@ def mock_entry_xema():
     entry = MagicMock()
     entry.data = {
         "api_key": "test_api_key",
-        "mode": MODE_ESTACIO,
+        "mode": MODE_EXTERNAL,
         "station_code": "YM",
     }
     entry.options = {}
@@ -76,12 +76,12 @@ def mock_entry_xema():
 
 
 @pytest.fixture
-def mock_entry_municipal():
+def mock_entry_local():
     """Create a mock config entry for Municipal mode."""
     entry = MagicMock()
     entry.data = {
         "api_key": "test_api_key",
-        "mode": MODE_MUNICIPI,
+        "mode": MODE_LOCAL,
         "municipality_code": "081131",
         CONF_ENABLE_FORECAST_HOURLY: True,  # Enable hourly forecast for test
     }
@@ -106,9 +106,9 @@ async def test_coordinator_xema_mode_update(mock_hass, mock_api, mock_entry_xema
 
 
 @pytest.mark.asyncio
-async def test_coordinator_municipal_mode_update(mock_hass, mock_api, mock_entry_municipal):
+async def test_coordinator_local_mode_update(mock_hass, mock_api, mock_entry_local):
     """Test coordinator update in Municipal mode."""
-    coordinator = MeteocatCoordinator(mock_hass, mock_entry_municipal)
+    coordinator = MeteocatCoordinator(mock_hass, mock_entry_local)
     coordinator.api = mock_api
     
     data = await coordinator._async_update_data()

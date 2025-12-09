@@ -11,8 +11,8 @@ from unittest.mock import AsyncMock, MagicMock, patch, call
 
 from custom_components.meteocat_community_edition.coordinator import MeteocatCoordinator
 from custom_components.meteocat_community_edition.const import (
-    MODE_ESTACIO,
-    MODE_MUNICIPI,
+    MODE_EXTERNAL,
+    MODE_LOCAL,
     EVENT_DATA_UPDATED,
     EVENT_NEXT_UPDATE_CHANGED,
     EVENT_ATTR_MODE,
@@ -78,11 +78,11 @@ def mock_device_registry():
 
 @pytest.fixture
 def mock_entry_estacio():
-    """Create a mock config entry for MODE_ESTACIO."""
+    """Create a mock config entry for MODE_EXTERNAL."""
     entry = MagicMock()
     entry.data = {
         CONF_API_KEY: "test_api_key_123456789",
-        CONF_MODE: MODE_ESTACIO,
+        CONF_MODE: MODE_EXTERNAL,
         CONF_STATION_CODE: "YM",
         CONF_MUNICIPALITY_CODE: None,
     }
@@ -93,11 +93,11 @@ def mock_entry_estacio():
 
 @pytest.fixture
 def mock_entry_municipi():
-    """Create a mock config entry for MODE_MUNICIPI."""
+    """Create a mock config entry for MODE_LOCAL."""
     entry = MagicMock()
     entry.data = {
         CONF_API_KEY: "test_api_key_123456789",
-        CONF_MODE: MODE_MUNICIPI,
+        CONF_MODE: MODE_LOCAL,
         CONF_STATION_CODE: None,
         CONF_MUNICIPALITY_CODE: "081131",
     }
@@ -107,8 +107,8 @@ def mock_entry_municipi():
 
 
 @pytest.mark.asyncio
-async def test_event_fired_estacio_mode(mock_hass, mock_entry_estacio, mock_api, mock_device_registry):
-    """Test that event is fired after update in MODE_ESTACIO."""
+async def test_event_fired_external_mode(mock_hass, mock_entry_estacio, mock_api, mock_device_registry):
+    """Test that event is fired after update in MODE_EXTERNAL."""
     with patch('custom_components.meteocat_community_edition.coordinator.async_get_clientsession'), \
          patch('custom_components.meteocat_community_edition.coordinator.dr.async_get', return_value=mock_device_registry):
         coordinator = MeteocatCoordinator(mock_hass, mock_entry_estacio)
@@ -132,7 +132,7 @@ async def test_event_fired_estacio_mode(mock_hass, mock_entry_estacio, mock_api,
         
         # Verify event data structure
         assert EVENT_ATTR_MODE in event_data
-        assert event_data[EVENT_ATTR_MODE] == MODE_ESTACIO
+        assert event_data[EVENT_ATTR_MODE] == MODE_EXTERNAL
         
         assert EVENT_ATTR_STATION_CODE in event_data
         assert event_data[EVENT_ATTR_STATION_CODE] == "YM"
@@ -150,8 +150,8 @@ async def test_event_fired_estacio_mode(mock_hass, mock_entry_estacio, mock_api,
 
 
 @pytest.mark.asyncio
-async def test_event_fired_municipi_mode(mock_hass, mock_entry_municipi, mock_api, mock_device_registry):
-    """Test that event is fired after update in MODE_MUNICIPI."""
+async def test_event_fired_local_mode(mock_hass, mock_entry_municipi, mock_api, mock_device_registry):
+    """Test that event is fired after update in MODE_LOCAL."""
     with patch('custom_components.meteocat_community_edition.coordinator.async_get_clientsession'), \
          patch('custom_components.meteocat_community_edition.coordinator.dr.async_get', return_value=mock_device_registry):
         coordinator = MeteocatCoordinator(mock_hass, mock_entry_municipi)
@@ -175,7 +175,7 @@ async def test_event_fired_municipi_mode(mock_hass, mock_entry_municipi, mock_ap
         
         # Verify event data structure
         assert EVENT_ATTR_MODE in event_data
-        assert event_data[EVENT_ATTR_MODE] == MODE_MUNICIPI
+        assert event_data[EVENT_ATTR_MODE] == MODE_LOCAL
         
         # In municipal mode, station_code should not be in event data
         # (only municipality_code is relevant)
@@ -296,7 +296,7 @@ async def test_next_update_changed_event_fired(mock_hass, mock_entry_estacio, mo
         
         next_update_data = next_update_call[0][1]
         assert EVENT_ATTR_MODE in next_update_data
-        assert next_update_data[EVENT_ATTR_MODE] == MODE_ESTACIO
+        assert next_update_data[EVENT_ATTR_MODE] == MODE_EXTERNAL
         assert EVENT_ATTR_NEXT_UPDATE in next_update_data
         assert EVENT_ATTR_PREVIOUS_UPDATE in next_update_data
         assert next_update_data[EVENT_ATTR_PREVIOUS_UPDATE] is None  # First time

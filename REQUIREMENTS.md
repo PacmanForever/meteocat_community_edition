@@ -2,18 +2,18 @@
 
 ## 1. Modes d'operació
 
-### 1.1. MODE_ESTACIO (Mode Estació)
+### 1.1. MODE_EXTERNAL (Mode Estació Externa)
 - Configuració basada en estacions meteorològiques XEMA
 - Selecció per comarca i estació
 - Accés a dades de mesures i prediccions en temps real de l'estació
 - **Entitat Weather**: Crea una entitat weather amb les dades de l'estació i prediccions
 
-### 1.2. MODE_MUNICIPI (Mode Predicció Municipal)
+### 1.2. MODE_LOCAL (Mode Estació Local)
 - Configuració basada en municipis
 - Selecció per comarca i municipi
 - Accés a prediccions horàries i diàries
 
-## 2. Sensors - MODE_ESTACIO
+## 2. Sensors - MODE_EXTERNAL
 
 ### 2.1. Sensors de localització
 - **Latitud de l'estació**: Coordenada geogràfica (graus)
@@ -65,7 +65,7 @@
     - Missatges d'error específics en atributs
   - Sempre disponible (reporta errors fins i tot quan el coordinator falla)
 
-## 3. Sensors - MODE_MUNICIPI
+## 3. Sensors - MODE_LOCAL
 
 ### 3.1. Sensors de predicció
 - **Predicció horària**: 72 hores de predicció amb dades completes als atributs (si habilitada)
@@ -79,10 +79,10 @@
 - **Província**: Província del municipi (si disponible a l'API)
 
 ### 3.3. Sensors de quota API
-- Igual que MODE_ESTACIO
+- Igual que MODE_EXTERNAL
 
 ### 3.4. Sensors de timestamps
-- Igual que MODE_ESTACIO
+- Igual que MODE_EXTERNAL
 
 ### 3.5. Sensor d'estat
 - **Última actualització correcte**: Binary sensor de diagnòstic que indica l'estat de l'actualització de dades
@@ -104,10 +104,10 @@
 - **NO polling automàtic constant**: update_interval=None, gestió pròpia de la planificació.
 
 ### 4.2. Consum estimat de quota
-- **MODE_ESTACIO**:
+- **MODE_EXTERNAL**:
   - 24 crides/dia per mesures (1 per hora).
   - 3 crides addicionals per cada actualització programada (forecast + hourly + quotes).
-- **MODE_MUNICIPI**:
+- **MODE_LOCAL**:
   - 3 crides per cada actualització programada (forecast + hourly + quotes).
   - No hi ha consum horari.
 - **Quotes separades** per cada pla API.
@@ -125,8 +125,8 @@
 - **Dades de configuració**: Noms de municipi, comarca, província desats durant config_flow
   - NO requereixen crides API durant execució
 - **Coordenades**: Desades durant configuració inicial
-  - MODE_ESTACIO: coordenades de l'estació
-  - MODE_MUNICIPI: coordenades del municipi (si disponibles)
+  - MODE_EXTERNAL: coordenades de l'estació
+  - MODE_LOCAL: coordenades del municipi (si disponibles)
 - **Programació d'actualitzacions**: Propietat `next_scheduled_update` al coordinator
   - Permet al sensor mostrar la pròxima actualització sense càlculs addicionals
   - S'actualitza automàticament quan es programa cada actualització
@@ -141,8 +141,8 @@
 Disparat quan s'actualitzen les dades correctament.
 
 **Atributs**:
-- `mode`: MODE_ESTACIO o MODE_MUNICIPI
-- `station_code`: Codi estació (si MODE_ESTACIO)
+- `mode`: MODE_EXTERNAL o MODE_LOCAL
+- `station_code`: Codi estació (si MODE_EXTERNAL)
 - `municipality_code`: Codi municipi
 - `timestamp`: Moment de l'actualització
 - `previous_update`: Timestamp actualització anterior
@@ -164,14 +164,14 @@ Disparat quan canvia la pròxima actualització programada.
 
 ### 7.1. Flux de configuració (config_flow)
 1. **API Key**: Clau d'accés a Meteocat API
-2. **Tipus d'entrada**: Selecció MODE_ESTACIO o MODE_MUNICIPI
+2. **Tipus d'entrada**: Selecció MODE_EXTERNAL o MODE_LOCAL
 3. **Comarca**: Selecció de comarca
 4. **Estació/Municipi**: Selecció segons mode
 5. **Configuració de dades**: Selecció de predicció diària i/o horària
 6. **Hores actualització**: Configuració de fins a 3 hores diàries (format HH:MM)
 
 ### 7.2. Dades desades a entry.data
-**MODE_ESTACIO**:
+**MODE_EXTERNAL**:
 - api_key, mode, station_code, station_name
 - comarca_code, comarca_name
 - update_time_1, update_time_2, update_time_3
@@ -180,7 +180,7 @@ Disparat quan canvia la pròxima actualització programada.
 - station_provincia_code, station_provincia_name (si disponible)
 - _station_data (cache de coordenades i altitud)
 
-**MODE_MUNICIPI**:
+**MODE_LOCAL**:
 - api_key, mode, municipality_code, municipality_name
 - comarca_code, comarca_name
 - update_time_1, update_time_2, update_time_3
@@ -225,10 +225,10 @@ Disparat quan canvia la pròxima actualització programada.
 - Sensor setup (creació condicional de sensors)
 - Binary sensors (estat actualització, diagnostic, detecció ALL API calls)
 - Binary sensor: Comprovació de TOTES les crides API segons mode i configuració
-  - MODE_ESTACIO: measurements (obligatori), forecast/forecast_hourly (si hi ha municipality_code i habilitat)
-  - MODE_MUNICIPI: forecast, forecast_hourly (si habilitats)
+  - MODE_EXTERNAL: measurements (obligatori), forecast/forecast_hourly (si hi ha municipality_code i habilitat)
+  - MODE_LOCAL: forecast, forecast_hourly (si habilitats)
 - Coordinate sensors: Lectura de entry.data._station_data quan coordinator.data buit (quota exhausted)
-- Weather entity (MODE_ESTACIO - totes les propietats)
+- Weather entity (MODE_EXTERNAL - totes les propietats)
 - Events personalitzats (data_updated, next_update_changed)
 - Device triggers (data_updated)
 - Re-autenticació (flow sense reinici)

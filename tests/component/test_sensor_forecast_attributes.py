@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from custom_components.meteocat_community_edition.sensor import MeteocatForecastSensor
-from custom_components.meteocat_community_edition.const import MODE_MUNICIPI
+from custom_components.meteocat_community_edition.const import MODE_LOCAL
 
 @pytest.fixture
 def mock_coordinator():
@@ -43,7 +43,7 @@ def mock_entry():
     """Mock config entry."""
     entry = MagicMock()
     entry.entry_id = "test_entry"
-    entry.data = {"mode": MODE_MUNICIPI}
+    entry.data = {"mode": MODE_LOCAL}
     return entry
 
 def test_forecast_sensor_daily_attributes(mock_coordinator, mock_entry):

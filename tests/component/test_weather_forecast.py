@@ -9,7 +9,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..',
 
 import pytest
 from custom_components.meteocat_community_edition.weather import MeteocatWeather
-from custom_components.meteocat_community_edition.const import MODE_ESTACIO, CONF_STATION_NAME, CONF_STATION_CODE
+from custom_components.meteocat_community_edition.const import MODE_EXTERNAL, CONF_STATION_NAME, CONF_STATION_CODE
 
 @pytest.fixture
 def mock_coordinator():
@@ -55,9 +55,9 @@ async def test_async_forecast_hourly(mock_coordinator, mock_entry):
     # Sort by datetime to ensure order
     forecast.sort(key=lambda x: x["datetime"])
     
-    assert forecast[0]["temperature"] == 10
+    assert forecast[0]["native_temperature"] == 10
     assert forecast[0]["condition"] == "sunny"
-    assert forecast[1]["temperature"] == 11
+    assert forecast[1]["native_temperature"] == 11
     assert forecast[1]["condition"] == "partlycloudy"
 
 @pytest.mark.asyncio
@@ -84,8 +84,8 @@ async def test_async_forecast_daily(mock_coordinator, mock_entry):
     
     assert forecast is not None
     assert len(forecast) == 1
-    assert forecast[0]["temperature"] == 15
-    assert forecast[0]["templow"] == 5
+    assert forecast[0]["native_temperature"] == 15
+    assert forecast[0]["native_templow"] == 5
     assert forecast[0]["condition"] == "sunny"
 
 def test_condition_from_measurements(mock_coordinator, mock_entry):
@@ -94,7 +94,7 @@ def test_condition_from_measurements(mock_coordinator, mock_entry):
         "measurements": [
             {
                 "variables": [
-                    {"codi": 32, "lectures": [{"valor": 1}]} # Sunny
+                    {"codi": 35, "lectures": [{"valor": 1}]} # Sunny
                 ]
             }
         ]

@@ -12,7 +12,7 @@ from custom_components.meteocat_community_edition.const import (
     CONF_API_KEY,
     CONF_STATION_CODE,
     CONF_MODE,
-    MODE_ESTACIO,
+    MODE_EXTERNAL,
 )
 from custom_components.meteocat_community_edition.coordinator import MeteocatLegacyCoordinator
 
@@ -46,7 +46,7 @@ async def test_coordinator_recovery_from_failure(hass: HomeAssistant, mock_api):
     entry.data = {
         CONF_API_KEY: "test_key",
         CONF_STATION_CODE: "X4",
-        CONF_MODE: MODE_ESTACIO,
+        CONF_MODE: MODE_EXTERNAL,
     }
     entry.options = {}
     entry.entry_id = "test_entry"

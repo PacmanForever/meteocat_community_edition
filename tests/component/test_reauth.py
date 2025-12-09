@@ -11,7 +11,7 @@ from custom_components.meteocat_community_edition.const import (
     CONF_MODE,
     CONF_STATION_CODE,
     DOMAIN,
-    MODE_ESTACIO,
+    MODE_EXTERNAL,
 )
 
 
@@ -22,7 +22,7 @@ def mock_entry_estacio():
     entry.entry_id = "test_entry_id"
     entry.data = {
         CONF_API_KEY: "test_api_key",
-        CONF_MODE: MODE_ESTACIO,
+        CONF_MODE: MODE_EXTERNAL,
         CONF_STATION_CODE: "YM",
     }
     entry.options = {}
@@ -77,7 +77,7 @@ async def test_reauth_flow_validates_new_api_key(hass):
     mock_entry = MagicMock()
     mock_entry.data = {
         CONF_API_KEY: "old_key",
-        CONF_MODE: MODE_ESTACIO,
+        CONF_MODE: MODE_EXTERNAL,
     }
     
     flow = MeteocatConfigFlow()
@@ -113,7 +113,7 @@ async def test_reauth_flow_rejects_invalid_api_key(hass):
     mock_entry = MagicMock()
     mock_entry.data = {
         CONF_API_KEY: "old_key",
-        CONF_MODE: MODE_ESTACIO,
+        CONF_MODE: MODE_EXTERNAL,
     }
     
     flow = MeteocatConfigFlow()

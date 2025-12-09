@@ -12,7 +12,7 @@ from custom_components.meteocat_community_edition.button import (
     MeteocatRefreshMeasurementsButton,
     MeteocatRefreshForecastButton
 )
-from custom_components.meteocat_community_edition.const import DOMAIN, MODE_ESTACIO, MODE_MUNICIPI
+from custom_components.meteocat_community_edition.const import DOMAIN, MODE_EXTERNAL, MODE_LOCAL
 
 
 @pytest.fixture
@@ -31,7 +31,7 @@ def mock_entry_xema():
     entry = MagicMock()
     entry.entry_id = "test_entry_xema"
     entry.data = {
-        "mode": MODE_ESTACIO,
+        "mode": MODE_EXTERNAL,
         "station_code": "YM",
         "station_name": "Granollers",
     }
@@ -39,12 +39,12 @@ def mock_entry_xema():
 
 
 @pytest.fixture
-def mock_entry_municipal():
+def mock_entry_local():
     """Create a mock config entry for Municipal mode."""
     entry = MagicMock()
     entry.entry_id = "test_entry_municipal"
     entry.data = {
-        "mode": MODE_MUNICIPI,
+        "mode": MODE_LOCAL,
         "municipality_code": "081131",
         "municipality_name": "Granollers",
     }
@@ -58,7 +58,7 @@ def test_button_entity_id_xema_mode(mock_coordinator, mock_entry_xema):
         mock_entry_xema,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO
+        MODE_EXTERNAL
     )
     
     assert button_meas.entity_id == "button.granollers_ym_refresh_measurements"
@@ -68,20 +68,20 @@ def test_button_entity_id_xema_mode(mock_coordinator, mock_entry_xema):
         mock_entry_xema,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO
+        MODE_EXTERNAL
     )
     
     assert button_forecast.entity_id == "button.granollers_ym_refresh_forecast"
 
 
-def test_button_entity_id_municipal_mode(mock_coordinator, mock_entry_municipal):
+def test_button_entity_id_local_mode(mock_coordinator, mock_entry_local):
     """Test button entity_id in Municipal mode without station code."""
     button = MeteocatRefreshForecastButton(
         mock_coordinator,
-        mock_entry_municipal,
+        mock_entry_local,
         "Granollers",
         "Granollers",
-        MODE_MUNICIPI
+        MODE_LOCAL
     )
     
     assert button.entity_id == "button.granollers_refresh_forecast"
@@ -94,7 +94,7 @@ def test_button_device_info_xema(mock_coordinator, mock_entry_xema):
         mock_entry_xema,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO
+        MODE_EXTERNAL
     )
     
     device_info = button._attr_device_info
@@ -102,14 +102,14 @@ def test_button_device_info_xema(mock_coordinator, mock_entry_xema):
     assert (DOMAIN, "test_entry_xema") in device_info["identifiers"]
 
 
-def test_button_device_info_municipal(mock_coordinator, mock_entry_municipal):
+def test_button_device_info_municipal(mock_coordinator, mock_entry_local):
     """Test button device_info in Municipal mode."""
     button = MeteocatRefreshForecastButton(
         mock_coordinator,
-        mock_entry_municipal,
+        mock_entry_local,
         "Granollers",
         "Granollers",
-        MODE_MUNICIPI
+        MODE_LOCAL
     )
     
     device_info = button._attr_device_info
@@ -124,7 +124,7 @@ def test_button_name(mock_coordinator, mock_entry_xema):
         mock_entry_xema,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO
+        MODE_EXTERNAL
     )
     
     assert button.translation_key == "refresh_measurements"
@@ -138,7 +138,7 @@ def test_button_icon(mock_coordinator, mock_entry_xema):
         mock_entry_xema,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO
+        MODE_EXTERNAL
     )
     
     assert button.icon == "mdi:thermometer-refresh"
@@ -151,7 +151,7 @@ async def test_button_press_triggers_refresh(mock_coordinator, mock_entry_xema):
         mock_entry_xema,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO
+        MODE_EXTERNAL
     )
     
     await button.async_press()
@@ -167,7 +167,7 @@ async def test_button_press_triggers_refresh(mock_coordinator, mock_entry_xema):
         mock_entry_xema,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO
+        MODE_EXTERNAL
     )
     
     await button.async_press()

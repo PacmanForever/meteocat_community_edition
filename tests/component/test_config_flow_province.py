@@ -13,7 +13,7 @@ from custom_components.meteocat_community_edition.const import (
     CONF_MODE,
     CONF_MUNICIPALITY_CODE,
     CONF_COMARCA_CODE,
-    MODE_MUNICIPI,
+    MODE_LOCAL,
 )
 
 @pytest.fixture
@@ -46,7 +46,7 @@ async def test_municipality_step_extracts_province_from_municipality(mock_api):
     flow = MeteocatConfigFlow()
     flow.hass = MagicMock()
     flow.context = {}  # Initialize context manually for test
-    flow.mode = MODE_MUNICIPI
+    flow.mode = MODE_LOCAL
     flow.comarca_code = "13"
     flow.comarca_name = "Barcelonès"
     flow.api_key = "test_key"
@@ -82,7 +82,7 @@ async def test_municipality_step_extracts_province_from_comarca_fallback(mock_ap
     flow = MeteocatConfigFlow()
     flow.hass = MagicMock()
     flow.context = {}  # Initialize context manually for test
-    flow.mode = MODE_MUNICIPI
+    flow.mode = MODE_LOCAL
     flow.comarca_code = "40"
     flow.comarca_name = "Vallès Occidental"
     flow.api_key = "test_key"
@@ -123,7 +123,7 @@ async def test_municipality_step_handles_missing_province_everywhere(mock_api):
     flow = MeteocatConfigFlow()
     flow.hass = MagicMock()
     flow.context = {}  # Initialize context manually for test
-    flow.mode = MODE_MUNICIPI
+    flow.mode = MODE_LOCAL
     flow.comarca_code = "99"
     flow.comarca_name = "Unknown"
     flow.api_key = "test_key"

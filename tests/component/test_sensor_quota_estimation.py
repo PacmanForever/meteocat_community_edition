@@ -12,8 +12,8 @@ from custom_components.meteocat_community_edition.sensor import (
     MeteocatEstimatedDaysRemainingSensor,
 )
 from custom_components.meteocat_community_edition.const import (
-    MODE_ESTACIO,
-    MODE_MUNICIPI,
+    MODE_EXTERNAL,
+    MODE_LOCAL,
 )
 
 # Disable socket blocking for this file if pytest-socket is installed
@@ -54,7 +54,7 @@ def mock_entry():
     entry = MagicMock()
     entry.entry_id = "test_entry_id"
     entry.data = {
-        "mode": MODE_ESTACIO,
+        "mode": MODE_EXTERNAL,
         "station_code": "YM",
         "station_name": "Granollers",
     }
@@ -71,7 +71,7 @@ def test_days_remaining_sensor_init(mock_coordinator, mock_entry):
         plan_data,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO,
+        MODE_EXTERNAL,
         "YM"
     )
     
@@ -103,7 +103,7 @@ def test_days_remaining_calculation_prediccio_2_updates(mock_coordinator, mock_e
         plan_data,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO,
+        MODE_EXTERNAL,
         "YM"
     )
     
@@ -134,7 +134,7 @@ def test_days_remaining_calculation_prediccio_3_updates(mock_coordinator, mock_e
         plan_data,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO,
+        MODE_EXTERNAL,
         "YM"
     )
     
@@ -166,7 +166,7 @@ def test_days_remaining_calculation_xema_1_update(mock_coordinator, mock_entry):
         plan_data,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO,
+        MODE_EXTERNAL,
         "YM"
     )
     
@@ -195,7 +195,7 @@ def test_days_remaining_calculation_quota_generic(mock_coordinator, mock_entry):
         plan_data,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO,
+        MODE_EXTERNAL,
         "YM"
     )
     
@@ -223,7 +223,7 @@ def test_days_remaining_infinite(mock_coordinator, mock_entry):
         plan_data,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO,
+        MODE_EXTERNAL,
         "YM"
     )
     
@@ -241,7 +241,7 @@ def test_days_remaining_no_data(mock_coordinator, mock_entry):
         plan_data,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO,
+        MODE_EXTERNAL,
         "YM"
     )
     
@@ -258,7 +258,7 @@ def test_days_remaining_plan_not_found(mock_coordinator, mock_entry):
         plan_data,
         "Granollers",
         "Granollers YM",
-        MODE_ESTACIO,
+        MODE_EXTERNAL,
         "YM"
     )
     

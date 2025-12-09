@@ -1,8 +1,8 @@
 """Tests for quota optimization and call counting."""
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
-from custom_components.meteocat_community_edition.coordinator import MeteocatCoordinator, MODE_ESTACIO
-from custom_components.meteocat_community_edition.const import CONF_API_KEY, CONF_MODE, CONF_STATION_CODE, MODE_MUNICIPI, CONF_MUNICIPALITY_CODE
+from custom_components.meteocat_community_edition.coordinator import MeteocatCoordinator, MODE_EXTERNAL
+from custom_components.meteocat_community_edition.const import CONF_API_KEY, CONF_MODE, CONF_STATION_CODE, MODE_LOCAL, CONF_MUNICIPALITY_CODE
 
 @pytest.fixture
 def mock_hass():
@@ -24,7 +24,7 @@ def mock_entry():
     entry.entry_id = "test_entry"
     entry.data = {
         CONF_API_KEY: "test_key",
-        CONF_MODE: MODE_ESTACIO,
+        CONF_MODE: MODE_EXTERNAL,
         CONF_STATION_CODE: "YM",
         # Initially empty cache
     }
@@ -140,14 +140,14 @@ async def test_atomic_config_entry_update(mock_hass, mock_entry, mock_api):
         assert "station_municipality_code" in updated_data
 
 @pytest.mark.asyncio
-async def test_municipal_mode_stability(mock_hass, mock_api):
+async def test_local_mode_stability(mock_hass, mock_api):
     """Test that Municipal mode is stable and does not trigger extra calls."""
     # Create entry for Municipal mode
     entry = MagicMock()
     entry.entry_id = "test_entry_muni"
     entry.data = {
         CONF_API_KEY: "test_key",
-        CONF_MODE: MODE_MUNICIPI,
+        CONF_MODE: MODE_LOCAL,
         CONF_MUNICIPALITY_CODE: "081131", # Granollers
     }
     entry.options = {}

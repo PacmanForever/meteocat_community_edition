@@ -11,8 +11,8 @@
         }
       },
       "mode": {
-        "title": "Tipo de entrada",
-        "description": "Selecciona el tipo de entrada",
+        "title": "Modo de funcionamiento",
+        "description": "Selecciona el modo de funcionamiento",
         "data": {
           "mode": "Modo"
         }
@@ -25,15 +25,15 @@
         }
       },
       "station": {
-        "title": "Selecciona una estación",
-        "description": "Elige la estación meteorológica que deseas añadir",
+        "title": "Selecciona una estación externa",
+        "description": "Elige la estación meteorológica XEMA que deseas añadir",
         "data": {
           "station_code": "Estación"
         }
       },
       "municipality": {
-        "title": "Selecciona un municipio",
-        "description": "Elige el municipio para obtener predicciones",
+        "title": "Selecciona la ubicación local",
+        "description": "Elige el municipio para la predicción y ubicación de la estación local",
         "data": {
           "municipality_code": "Municipio"
         }
@@ -48,6 +48,25 @@
           "update_time_1": "Primera actualización (Formato 24h: HH:MM)",
           "update_time_2": "Segunda actualización (Formato 24h: HH:MM)",
           "update_time_3": "Tercera actualización (Formato 24h: HH:MM)"
+        }
+      },
+      "local_sensors": {
+        "title": "Sensores Locales",
+        "description": "Selecciona los sensores de Home Assistant para los datos actuales.\n\nNo todas las tarjetas meteorológicas muestran todos los datos.",
+        "data": {
+          "sensor_temperature": "Temperatura",
+          "sensor_humidity": "Humedad",
+          "sensor_pressure": "Presión",
+          "sensor_wind_speed": "Velocidad del viento",
+          "sensor_wind_bearing": "Dirección del viento",
+          "sensor_wind_gust": "Ráfaga de viento",
+          "sensor_visibility": "Visibilidad",
+          "sensor_uv_index": "Índice UV",
+          "sensor_ozone": "Ozono",
+          "sensor_cloud_coverage": "Cobertura de nubes",
+          "sensor_dew_point": "Punto de rocío",
+          "sensor_apparent_temperature": "Temperatura aparente",
+          "sensor_rain": "Sensor de lluvia (para la condición)"
         }
       },
       "reauth_confirm": {

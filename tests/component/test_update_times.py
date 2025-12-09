@@ -11,7 +11,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 from custom_components.meteocat_community_edition.coordinator import MeteocatCoordinator
 from custom_components.meteocat_community_edition.const import (
-    MODE_ESTACIO,
+    MODE_EXTERNAL,
     CONF_MODE,
     CONF_STATION_CODE,
     CONF_API_KEY,
@@ -55,7 +55,7 @@ def mock_entry_default_times():
     entry = MagicMock()
     entry.data = {
         CONF_API_KEY: "test_api_key_123456789",
-        CONF_MODE: MODE_ESTACIO,
+        CONF_MODE: MODE_EXTERNAL,
         CONF_STATION_CODE: "YM",
         # No update times specified - should use defaults
     }
@@ -70,7 +70,7 @@ def mock_entry_custom_times():
     entry = MagicMock()
     entry.data = {
         CONF_API_KEY: "test_api_key_123456789",
-        CONF_MODE: MODE_ESTACIO,
+        CONF_MODE: MODE_EXTERNAL,
         CONF_STATION_CODE: "YM",
         CONF_UPDATE_TIME_1: "08:30",
         CONF_UPDATE_TIME_2: "16:45",
@@ -86,7 +86,7 @@ def mock_entry_three_times():
     entry = MagicMock()
     entry.data = {
         CONF_API_KEY: "test_api_key_123456789",
-        CONF_MODE: MODE_ESTACIO,
+        CONF_MODE: MODE_EXTERNAL,
         CONF_STATION_CODE: "YM",
         CONF_UPDATE_TIME_1: "08:30",
         CONF_UPDATE_TIME_2: "16:45",
@@ -230,7 +230,7 @@ def test_update_times_uniqueness_validation():
     entry = MagicMock()
     entry.data = {
         CONF_API_KEY: "test",
-        CONF_MODE: MODE_ESTACIO,
+        CONF_MODE: MODE_EXTERNAL,
         CONF_STATION_CODE: "YM",
         CONF_UPDATE_TIME_1: "08:30",
         CONF_UPDATE_TIME_2: "16:45",

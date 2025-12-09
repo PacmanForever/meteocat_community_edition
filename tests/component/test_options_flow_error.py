@@ -10,7 +10,7 @@ from custom_components.meteocat_community_edition.const import (
     DOMAIN,
     CONF_API_KEY,
     CONF_MODE,
-    MODE_ESTACIO,
+    MODE_EXTERNAL,
     CONF_STATION_CODE,
     CONF_MUNICIPALITY_CODE,
 )
@@ -22,7 +22,7 @@ async def test_options_flow_init_missing_data(hass: HomeAssistant):
         domain=DOMAIN,
         data={
             CONF_API_KEY: "test_key",
-            CONF_MODE: MODE_ESTACIO,
+            CONF_MODE: MODE_EXTERNAL,
             CONF_STATION_CODE: "YM",
             # Missing update times
         },

@@ -18,8 +18,8 @@ from custom_components.meteocat_community_edition import (
 )
 from custom_components.meteocat_community_edition.const import (
     DOMAIN,
-    MODE_ESTACIO,
-    MODE_MUNICIPI,
+    MODE_EXTERNAL,
+    MODE_LOCAL,
     CONF_MODE,
     CONF_API_KEY,
     CONF_STATION_CODE,
@@ -41,12 +41,12 @@ def mock_hass():
 
 @pytest.fixture
 def mock_entry_estacio():
-    """Create a mock config entry for MODE_ESTACIO."""
+    """Create a mock config entry for MODE_EXTERNAL."""
     entry = MagicMock()
     entry.entry_id = "test_entry_estacio"
     entry.data = {
         CONF_API_KEY: "test_api_key",
-        CONF_MODE: MODE_ESTACIO,
+        CONF_MODE: MODE_EXTERNAL,
         CONF_STATION_CODE: "YM",
     }
     entry.options = {}
@@ -57,12 +57,12 @@ def mock_entry_estacio():
 
 @pytest.fixture
 def mock_entry_municipi():
-    """Create a mock config entry for MODE_MUNICIPI."""
+    """Create a mock config entry for MODE_LOCAL."""
     entry = MagicMock()
     entry.entry_id = "test_entry_municipi"
     entry.data = {
         CONF_API_KEY: "test_api_key",
-        CONF_MODE: MODE_MUNICIPI,
+        CONF_MODE: MODE_LOCAL,
         CONF_MUNICIPALITY_CODE: "081131",
     }
     entry.options = {}
@@ -72,8 +72,8 @@ def mock_entry_municipi():
 
 
 @pytest.mark.asyncio
-async def test_async_setup_entry_estacio_mode(mock_hass, mock_entry_estacio):
-    """Test setup entry for MODE_ESTACIO loads all platforms."""
+async def test_async_setup_entry_external_mode(mock_hass, mock_entry_estacio):
+    """Test setup entry for MODE_EXTERNAL loads all platforms."""
     with patch('custom_components.meteocat_community_edition.MeteocatLegacyCoordinator') as mock_coordinator_class:
         mock_coordinator = MagicMock()
         mock_coordinator.async_config_entry_first_refresh = AsyncMock()
@@ -110,8 +110,8 @@ async def test_async_setup_entry_estacio_mode(mock_hass, mock_entry_estacio):
 
 
 @pytest.mark.asyncio
-async def test_async_setup_entry_municipi_mode(mock_hass, mock_entry_municipi):
-    """Test setup entry for MODE_MUNICIPI loads only sensor and button platforms."""
+async def test_async_setup_entry_local_mode(mock_hass, mock_entry_municipi):
+    """Test setup entry for MODE_LOCAL loads only sensor and button platforms."""
     with patch('custom_components.meteocat_community_edition.MeteocatForecastCoordinator') as mock_coordinator_class:
         mock_coordinator = MagicMock()
         mock_coordinator.async_config_entry_first_refresh = AsyncMock()
@@ -159,8 +159,8 @@ async def test_async_update_options(mock_hass, mock_entry_estacio):
 
 
 @pytest.mark.asyncio
-async def test_async_unload_entry_estacio_mode(mock_hass, mock_entry_estacio):
-    """Test unload entry for MODE_ESTACIO unloads all platforms."""
+async def test_async_unload_entry_external_mode(mock_hass, mock_entry_estacio):
+    """Test unload entry for MODE_EXTERNAL unloads all platforms."""
     # Setup: add coordinator to hass.data
     mock_coordinator = MagicMock()
     mock_coordinator.async_shutdown = AsyncMock()
@@ -185,8 +185,8 @@ async def test_async_unload_entry_estacio_mode(mock_hass, mock_entry_estacio):
 
 
 @pytest.mark.asyncio
-async def test_async_unload_entry_municipi_mode(mock_hass, mock_entry_municipi):
-    """Test unload entry for MODE_MUNICIPI unloads all platforms."""
+async def test_async_unload_entry_local_mode(mock_hass, mock_entry_municipi):
+    """Test unload entry for MODE_LOCAL unloads all platforms."""
     # Setup: add coordinator to hass.data
     mock_coordinator = MagicMock()
     mock_coordinator.async_shutdown = AsyncMock()
@@ -240,7 +240,7 @@ async def test_platforms_constant():
 
 @pytest.mark.asyncio
 async def test_async_setup_entry_default_mode(mock_hass):
-    """Test setup entry defaults to MODE_ESTACIO if mode not specified."""
+    """Test setup entry defaults to MODE_EXTERNAL if mode not specified."""
     # Entry without CONF_MODE
     entry = MagicMock()
     entry.entry_id = "test_entry_no_mode"

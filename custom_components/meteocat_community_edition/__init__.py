@@ -3,7 +3,7 @@
 This integration provides weather data from the Meteocat API for Catalonia.
 
 Platforms:
-- Weather: Weather entity (MODE_ESTACIO only)
+- Weather: Weather entity (MODE_EXTERNAL only)
 - Sensor: All data sensors (forecasts, measurements, timestamps, quotas, geographic)
 - Binary Sensor: Health monitoring (update status)
 - Button: Manual data refresh
@@ -20,7 +20,7 @@ from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_validation as cv
 
-from .const import CONF_MODE, DOMAIN, MODE_ESTACIO
+from .const import CONF_MODE, DOMAIN, MODE_EXTERNAL
 from .coordinator import MeteocatCoordinator, MeteocatForecastCoordinator, MeteocatLegacyCoordinator
 
 if TYPE_CHECKING:
@@ -48,9 +48,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     
     Test Coverage: test_no_duplicate_updates_on_ha_restart in test_scheduled_updates.py
     """
-    mode = entry.data.get(CONF_MODE, MODE_ESTACIO)  # Default to ESTACIO for backwards compatibility
+    mode = entry.data.get(CONF_MODE, MODE_EXTERNAL)  # Default to ESTACIO for backwards compatibility
 
-    if mode == MODE_ESTACIO:
+    if mode == MODE_EXTERNAL:
         # XEMA mode: Use Legacy Coordinator (handles both station and forecast)
         coordinator = MeteocatLegacyCoordinator(hass, entry)
     else:
@@ -68,7 +68,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = coordinator
     
-    if mode == MODE_ESTACIO:
+    if mode == MODE_EXTERNAL:
         # XEMA mode: load weather entity + sensors + button + binary_sensor
         platforms = PLATFORMS
     else:
@@ -107,8 +107,8 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         await coordinator.async_shutdown()
     
     # Determine platforms based on mode
-    mode = entry.data.get(CONF_MODE, MODE_ESTACIO)
-    if mode == MODE_ESTACIO:
+    mode = entry.data.get(CONF_MODE, MODE_EXTERNAL)
+    if mode == MODE_EXTERNAL:
         platforms = PLATFORMS
     else:
         platforms = [Platform.SENSOR, Platform.BUTTON, Platform.BINARY_SENSOR]

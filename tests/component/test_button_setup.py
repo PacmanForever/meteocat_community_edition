@@ -4,7 +4,7 @@ import pytest
 
 from homeassistant.const import Platform
 from custom_components.meteocat_community_edition.button import async_setup_entry
-from custom_components.meteocat_community_edition.const import DOMAIN, MODE_ESTACIO, MODE_MUNICIPI
+from custom_components.meteocat_community_edition.const import DOMAIN, MODE_EXTERNAL, MODE_LOCAL
 
 @pytest.fixture
 def mock_hass():
@@ -24,14 +24,14 @@ def mock_entry():
     entry = MagicMock()
     entry.entry_id = "test_entry"
     entry.data = {
-        "mode": MODE_ESTACIO,
+        "mode": MODE_EXTERNAL,
         "station_code": "YM",
         "station_name": "Granollers",
     }
     return entry
 
 @pytest.mark.asyncio
-async def test_async_setup_entry_station_mode(mock_hass, mock_coordinator, mock_entry):
+async def test_async_setup_entry_external_mode(mock_hass, mock_coordinator, mock_entry):
     """Test setup in station mode."""
     mock_hass.data[DOMAIN][mock_entry.entry_id] = mock_coordinator
     async_add_entities = MagicMock()
@@ -45,12 +45,12 @@ async def test_async_setup_entry_station_mode(mock_hass, mock_coordinator, mock_
     assert args[1].unique_id == "test_entry_refresh_forecast"
 
 @pytest.mark.asyncio
-async def test_async_setup_entry_municipal_mode(mock_hass, mock_coordinator):
+async def test_async_setup_entry_local_mode(mock_hass, mock_coordinator):
     """Test setup in municipal mode."""
     entry = MagicMock()
     entry.entry_id = "test_entry_muni"
     entry.data = {
-        "mode": MODE_MUNICIPI,
+        "mode": MODE_LOCAL,
         "municipality_code": "081131",
         "municipality_name": "Granollers",
     }

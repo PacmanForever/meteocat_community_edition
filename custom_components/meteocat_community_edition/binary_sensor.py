@@ -39,8 +39,8 @@ from .const import (
     CONF_STATION_NAME,
     CONF_MUNICIPALITY_NAME,
     DOMAIN,
-    MODE_ESTACIO,
-    MODE_MUNICIPI,
+    MODE_EXTERNAL,
+    MODE_LOCAL,
 )
 from .coordinator import MeteocatCoordinator
 
@@ -56,10 +56,10 @@ async def async_setup_entry(
     coordinator: MeteocatCoordinator = hass.data[DOMAIN][entry.entry_id]
     
     # Get entity name based on mode
-    mode = entry.data.get(CONF_MODE, MODE_ESTACIO)
+    mode = entry.data.get(CONF_MODE, MODE_EXTERNAL)
     station_code = entry.data.get(CONF_STATION_CODE, "")
     
-    if mode == MODE_ESTACIO:
+    if mode == MODE_EXTERNAL:
         station_name = entry.data.get(CONF_STATION_NAME, f"Estació {station_code}")
         entity_name = station_name
         entity_name_with_code = f"{station_name} {station_code}"
@@ -76,7 +76,7 @@ async def async_setup_entry(
             entity_name,
             entity_name_with_code,
             mode,
-            station_code if mode == MODE_ESTACIO else None,
+            station_code if mode == MODE_EXTERNAL else None,
         )
     ])
 
@@ -86,8 +86,8 @@ class MeteocatUpdateStatusBinarySensor(CoordinatorEntity[MeteocatCoordinator], B
     
     Reports whether there are problems with data updates by checking ALL
     API calls based on the configured mode:
-    - MODE_ESTACIO: Checks measurements data
-    - MODE_MUNICIPI: Checks forecast and forecast_hourly data
+    - MODE_EXTERNAL: Checks measurements data
+    - MODE_LOCAL: Checks forecast and forecast_hourly data
     
     The sensor:
     - Uses translation_key "update_status" for entity name ("Problema actualitzant dades")
@@ -132,7 +132,7 @@ class MeteocatUpdateStatusBinarySensor(CoordinatorEntity[MeteocatCoordinator], B
         self._attr_name = "Última actualització correcte"
         
         # Set explicit entity_id based on mode
-        if mode == MODE_ESTACIO and station_code:
+        if mode == MODE_EXTERNAL and station_code:
             base_name = entity_name.replace(f" {station_code}", "").lower().replace(" ", "_")
             code_lower = station_code.lower()
             self.entity_id = f"binary_sensor.{base_name}_{code_lower}_update_state"
@@ -141,8 +141,8 @@ class MeteocatUpdateStatusBinarySensor(CoordinatorEntity[MeteocatCoordinator], B
             self.entity_id = f"binary_sensor.{base_name}_update_state"
         
         # Set device info to group with other entities
-        if mode == MODE_ESTACIO:
-            model = "Estació XEMA"
+        if mode == MODE_EXTERNAL:
+            model = "Estació Externa"
         else:
             model = "Predicció Municipal"
         
@@ -170,18 +170,18 @@ class MeteocatUpdateStatusBinarySensor(CoordinatorEntity[MeteocatCoordinator], B
         # Track failed API calls
         failed_calls = []
         
-        # For MODE_ESTACIO: check measurements (always required)
-        if self._mode == MODE_ESTACIO:
+        # For MODE_EXTERNAL: check measurements (always required)
+        if self._mode == MODE_EXTERNAL:
             measurements = self.coordinator.data.get("measurements")
             if measurements is None or (isinstance(measurements, (list, dict)) and len(measurements) == 0):
                 failed_calls.append("measurements")
         
         # For both modes: check forecasts if municipality_code exists
-        # In MODE_ESTACIO: forecasts are optional (only if station has municipality)
-        # In MODE_MUNICIPI: forecasts are always expected
+        # In MODE_EXTERNAL: forecasts are optional (only if station has municipality)
+        # In MODE_LOCAL: forecasts are always expected
         municipality_code = self.coordinator.data.get("municipality_code")
         
-        if municipality_code or self._mode == MODE_MUNICIPI:
+        if municipality_code or self._mode == MODE_LOCAL:
             # Check daily forecast (only if enabled)
             if self.coordinator.enable_forecast_daily:
                 forecast = self.coordinator.data.get("forecast")
@@ -224,8 +224,8 @@ class MeteocatUpdateStatusBinarySensor(CoordinatorEntity[MeteocatCoordinator], B
             else:
                 failed_calls = []
                 
-                # Check measurements (MODE_ESTACIO only)
-                if self._mode == MODE_ESTACIO:
+                # Check measurements (MODE_EXTERNAL only)
+                if self._mode == MODE_EXTERNAL:
                     measurements = self.coordinator.data.get("measurements")
                     if measurements is None:
                         failed_calls.append("measurements (API call failed)")
@@ -234,7 +234,7 @@ class MeteocatUpdateStatusBinarySensor(CoordinatorEntity[MeteocatCoordinator], B
                 
                 # Check forecasts (both modes if municipality_code exists)
                 municipality_code = self.coordinator.data.get("municipality_code")
-                if municipality_code or self._mode == MODE_MUNICIPI:
+                if municipality_code or self._mode == MODE_LOCAL:
                     if self.coordinator.enable_forecast_daily:
                         forecast = self.coordinator.data.get("forecast")
                         if forecast is None:

@@ -1,6 +1,6 @@
 """Sensor entities for Meteocat (Community Edition).
 
-This module provides all sensor entities for both MODE_ESTACIO and MODE_MUNICIPI.
+This module provides all sensor entities for both MODE_EXTERNAL and MODE_LOCAL.
 
 Geographic sensors (Comarca, Municipi, Prov\u00edncia):
 - Data source: entry.data (static metadata saved during config_flow)
@@ -48,8 +48,8 @@ from .const import (
     CONF_STATION_CODE,
     CONF_STATION_NAME,
     DOMAIN,
-    MODE_MUNICIPI,
-    MODE_ESTACIO,
+    MODE_LOCAL,
+    MODE_EXTERNAL,
     XEMA_VARIABLES,
 )
 from .coordinator import MeteocatCoordinator
@@ -124,11 +124,11 @@ async def async_setup_entry(
     entities: list[SensorEntity] = []
     
     # Get entity name based on mode
-    mode = entry.data.get(CONF_MODE, MODE_ESTACIO)
+    mode = entry.data.get(CONF_MODE, MODE_EXTERNAL)
     station_code = entry.data.get(CONF_STATION_CODE, "")
     municipality_code = entry.data.get(CONF_MUNICIPALITY_CODE, "")
     
-    if mode == MODE_ESTACIO:
+    if mode == MODE_EXTERNAL:
         station_name = entry.data.get(CONF_STATION_NAME, f"Estaci\u00f3 {station_code}")
         entity_name = station_name  # Visual name without code (for forecast sensors)
         entity_name_with_code = f"{station_name} {station_code}"  # For device grouping
@@ -143,7 +143,7 @@ async def async_setup_entry(
         entity_name_with_code = entity_name  # For device grouping
     
     # Add forecast sensors for municipal mode
-    if mode == MODE_MUNICIPI:
+    if mode == MODE_LOCAL:
         if coordinator.enable_forecast_hourly:
             entities.append(MeteocatForecastSensor(coordinator, entry, entity_name_with_code, entity_name, "hourly"))
         if coordinator.enable_forecast_daily:
@@ -186,7 +186,7 @@ async def async_setup_entry(
                         continue
                         
                     # Filter out XEMA plan in MUNICIPI mode (never used)
-                    if mode == MODE_MUNICIPI and "xema" in plan_name:
+                    if mode == MODE_LOCAL and "xema" in plan_name:
                         continue
                         
                     entities.append(
@@ -197,7 +197,7 @@ async def async_setup_entry(
                             entity_name,
                             entity_name_with_code,
                             mode,
-                            station_code if mode == MODE_ESTACIO else None,
+                            station_code if mode == MODE_EXTERNAL else None,
                         )
                     )
                     # Add estimation sensors
@@ -209,20 +209,20 @@ async def async_setup_entry(
                             entity_name,
                             entity_name_with_code,
                             mode,
-                            station_code if mode == MODE_ESTACIO else None,
+                            station_code if mode == MODE_EXTERNAL else None,
                         )
                     )
     
     # Add update timestamp sensors (for both modes)
     entities.extend([
-        MeteocatLastUpdateSensor(coordinator, entry, entity_name, entity_name_with_code, mode, station_code if mode == MODE_ESTACIO else None),
-        MeteocatNextUpdateSensor(coordinator, entry, entity_name, entity_name_with_code, mode, station_code if mode == MODE_ESTACIO else None),
-        MeteocatUpdateTimeSensor(coordinator, entry, entity_name, entity_name_with_code, mode, 1, station_code if mode == MODE_ESTACIO else None),
-        MeteocatUpdateTimeSensor(coordinator, entry, entity_name, entity_name_with_code, mode, 2, station_code if mode == MODE_ESTACIO else None),
+        MeteocatLastUpdateSensor(coordinator, entry, entity_name, entity_name_with_code, mode, station_code if mode == MODE_EXTERNAL else None),
+        MeteocatNextUpdateSensor(coordinator, entry, entity_name, entity_name_with_code, mode, station_code if mode == MODE_EXTERNAL else None),
+        MeteocatUpdateTimeSensor(coordinator, entry, entity_name, entity_name_with_code, mode, 1, station_code if mode == MODE_EXTERNAL else None),
+        MeteocatUpdateTimeSensor(coordinator, entry, entity_name, entity_name_with_code, mode, 2, station_code if mode == MODE_EXTERNAL else None),
     ])
     
     # Add forecast update sensors (only for station mode)
-    if mode == MODE_ESTACIO:
+    if mode == MODE_EXTERNAL:
         entities.extend([
             MeteocatNextForecastUpdateSensor(coordinator, entry, entity_name, entity_name_with_code, station_code),
             MeteocatLastForecastUpdateSensor(coordinator, entry, entity_name, entity_name_with_code, station_code),
@@ -231,11 +231,11 @@ async def async_setup_entry(
     # Add 3rd update time sensor if configured
     if coordinator.update_time_3:
         entities.append(
-            MeteocatUpdateTimeSensor(coordinator, entry, entity_name, entity_name_with_code, mode, 3, station_code if mode == MODE_ESTACIO else None)
+            MeteocatUpdateTimeSensor(coordinator, entry, entity_name, entity_name_with_code, mode, 3, station_code if mode == MODE_EXTERNAL else None)
         )
     
     # Add station location sensors (only for station mode)
-    if mode == MODE_ESTACIO:
+    if mode == MODE_EXTERNAL:
         entities.extend([
             MeteocatAltitudeSensor(coordinator, entry, entity_name, entity_name_with_code, station_code),
             MeteocatLatitudeSensor(coordinator, entry, entity_name, entity_name_with_code, station_code),
@@ -294,7 +294,7 @@ class MeteocatQuotaSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
         self._attr_name = f"Peticions disponibles {display_name}"
         
         # Set explicit entity_id based on mode
-        if mode == MODE_ESTACIO and station_code:
+        if mode == MODE_EXTERNAL and station_code:
             # XEMA: include station code in entity_id
             base_name = entity_name.replace(f" {station_code}", "").lower().replace(" ", "_")
             code_lower = station_code.lower()
@@ -309,7 +309,7 @@ class MeteocatQuotaSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
             "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
-            "model": "Estaci\u00f3 XEMA" if mode == MODE_ESTACIO else "Predicci\u00f3 Municipi",
+            "model": "Estaci\u00f3 XEMA" if mode == MODE_EXTERNAL else "Predicci\u00f3 Municipi",
         }
         
         # Quota sensors are diagnostic information
@@ -706,7 +706,7 @@ class MeteocatLastUpdateSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnt
         self._attr_translation_key = "last_update"
         
         # Set explicit entity_id based on mode
-        if mode == MODE_ESTACIO and station_code:
+        if mode == MODE_EXTERNAL and station_code:
             base_name = entity_name.replace(f" {station_code}", "").lower().replace(" ", "_")
             code_lower = station_code.lower()
             self.entity_id = f"sensor.{base_name}_{code_lower}_last_measurements_update"
@@ -715,12 +715,12 @@ class MeteocatLastUpdateSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnt
             self.entity_id = f"sensor.{base_name}_last_measurements_update"
         
         # Each entry is a separate device under a shared hub
-        hub_id = f"{DOMAIN}_hub_estacions" if mode == MODE_ESTACIO else f"{DOMAIN}_hub_municipis"
+        hub_id = f"{DOMAIN}_hub_external" if mode == MODE_EXTERNAL else f"{DOMAIN}_hub_local"
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
             "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
-            "model": "Estaci\u00f3 XEMA" if mode == MODE_ESTACIO else "Predicci\u00f3 Municipi",
+            "model": "Estaci\u00f3 XEMA" if mode == MODE_EXTERNAL else "Predicci\u00f3 Municipi",
 
         }
         
@@ -876,7 +876,7 @@ class MeteocatNextUpdateSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnt
         self._attr_translation_key = "next_update"
         
         # Set explicit entity_id based on mode
-        if mode == MODE_ESTACIO and station_code:
+        if mode == MODE_EXTERNAL and station_code:
             base_name = entity_name.replace(f" {station_code}", "").lower().replace(" ", "_")
             code_lower = station_code.lower()
             self.entity_id = f"sensor.{base_name}_{code_lower}_next_measurements_update"
@@ -885,12 +885,12 @@ class MeteocatNextUpdateSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnt
             self.entity_id = f"sensor.{base_name}_next_measurements_update"
         
         # Each entry is a separate device under a shared hub
-        hub_id = f"{DOMAIN}_hub_estacions" if mode == MODE_ESTACIO else f"{DOMAIN}_hub_municipis"
+        hub_id = f"{DOMAIN}_hub_external" if mode == MODE_EXTERNAL else f"{DOMAIN}_hub_local"
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
             "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
-            "model": "Estaci\u00f3 XEMA" if mode == MODE_ESTACIO else "Predicci\u00f3 Municipi",
+            "model": "Estaci\u00f3 XEMA" if mode == MODE_EXTERNAL else "Predicci\u00f3 Municipi",
 
         }
         
@@ -937,7 +937,7 @@ class MeteocatUpdateTimeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnt
         self._attr_translation_placeholders = {"number": str(time_number)}
         
         # Set explicit entity_id based on mode
-        if mode == MODE_ESTACIO and station_code:
+        if mode == MODE_EXTERNAL and station_code:
             base_name = entity_name.replace(f" {station_code}", "").lower().replace(" ", "_")
             code_lower = station_code.lower()
             self.entity_id = f"sensor.{base_name}_{code_lower}_update_time_{time_number}"
@@ -946,12 +946,12 @@ class MeteocatUpdateTimeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnt
             self.entity_id = f"sensor.{base_name}_update_time_{time_number}"
         
         # Each entry is a separate device under a shared hub
-        hub_id = f"{DOMAIN}_hub_estacions" if mode == MODE_ESTACIO else f"{DOMAIN}_hub_municipis"
+        hub_id = f"{DOMAIN}_hub_external" if mode == MODE_EXTERNAL else f"{DOMAIN}_hub_local"
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
             "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
-            "model": "Estaci\u00f3 XEMA" if mode == MODE_ESTACIO else "Predicci\u00f3 Municipi",
+            "model": "Estaci\u00f3 XEMA" if mode == MODE_EXTERNAL else "Predicci\u00f3 Municipi",
 
         }
         
@@ -1633,7 +1633,7 @@ class MeteocatEstimatedDaysRemainingSensor(MeteocatQuotaSensor):
         self._attr_unique_id = f"{entry.entry_id}_quota_dies_estimats_{plan_id}"
         self._attr_name = f"Dies disponibles {display_name}"
         
-        if mode == MODE_ESTACIO and station_code:
+        if mode == MODE_EXTERNAL and station_code:
             base_name = entity_name.replace(f" {station_code}", "").lower().replace(" ", "_")
             code_lower = station_code.lower()
             self.entity_id = f"sensor.{base_name}_{code_lower}_quota_dies_estimats_{plan_id}"
@@ -1656,7 +1656,7 @@ class MeteocatEstimatedDaysRemainingSensor(MeteocatQuotaSensor):
         plan_name_lower = self._plan_name.lower()
         
         if "xema" in plan_name_lower:
-            if self._mode == MODE_ESTACIO:
+            if self._mode == MODE_EXTERNAL:
                 calls_per_update = 1
         elif "predicci" in plan_name_lower:
             if self.coordinator.enable_forecast_daily:

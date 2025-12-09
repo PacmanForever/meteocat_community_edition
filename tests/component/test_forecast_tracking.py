@@ -1,6 +1,6 @@
 """Tests for forecast tracking in Station Mode.
 
-These tests verify that in MODE_ESTACIO, the coordinator correctly tracks
+These tests verify that in MODE_EXTERNAL, the coordinator correctly tracks
 measurement updates (hourly) separately from forecast updates (scheduled).
 """
 import pytest
@@ -15,7 +15,7 @@ from custom_components.meteocat_community_edition.const import (
     CONF_STATION_CODE,
     CONF_UPDATE_TIME_1,
     CONF_UPDATE_TIME_2,
-    MODE_ESTACIO,
+    MODE_EXTERNAL,
 )
 
 
@@ -34,7 +34,7 @@ def mock_entry():
     entry.entry_id = "test_entry_id"
     entry.data = {
         CONF_API_KEY: "test_key",
-        CONF_MODE: MODE_ESTACIO,
+        CONF_MODE: MODE_EXTERNAL,
         CONF_STATION_CODE: "YM",
         CONF_UPDATE_TIME_1: "06:00",
         CONF_UPDATE_TIME_2: "14:00",

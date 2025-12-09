@@ -14,8 +14,8 @@ Key Implementation Points:
 
 Quota Usage (with default 06:00 and 14:00 updates):
 - 2 scheduled updates per day per configured instance
-- MODE_ESTACIO: Queries XEMA and Forecast plans per update
-- MODE_MUNICIPI: Queries Forecast plan per update
+- MODE_EXTERNAL: Queries XEMA and Forecast plans per update
+- MODE_LOCAL: Queries Forecast plan per update
 - Station data cached in entry.data to save 1 API call per HA restart
 - Municipality/comarca/province names from config (no API calls needed)
 
@@ -68,8 +68,8 @@ from .const import (
     EVENT_ATTR_TIMESTAMP,
     EVENT_DATA_UPDATED,
     EVENT_NEXT_UPDATE_CHANGED,
-    MODE_ESTACIO,
-    MODE_MUNICIPI,
+    MODE_EXTERNAL,
+    MODE_LOCAL,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -81,12 +81,12 @@ class MeteocatBaseCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str) -> None:
         """Initialize the coordinator."""
         self.entry = entry
-        self.mode = entry.data.get(CONF_MODE, MODE_ESTACIO)
+        self.mode = entry.data.get(CONF_MODE, MODE_EXTERNAL)
         self.station_code = entry.data.get(CONF_STATION_CODE)
         self.municipality_code = entry.data.get(CONF_MUNICIPALITY_CODE)
         
         # If municipality code is not set (station mode), try to get it from station_municipality_code
-        if not self.municipality_code and self.mode == MODE_ESTACIO:
+        if not self.municipality_code and self.mode == MODE_EXTERNAL:
             self.municipality_code = entry.data.get("station_municipality_code")
         
         # Get update times from config or use defaults
@@ -256,7 +256,7 @@ class MeteocatBaseCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 EVENT_ATTR_PREVIOUS_UPDATE: self._previous_next_update.isoformat() if self._previous_next_update else None,
             }
             
-            if self.mode == MODE_ESTACIO and self.station_code:
+            if self.mode == MODE_EXTERNAL and self.station_code:
                 next_update_event_data[EVENT_ATTR_STATION_CODE] = self.station_code
             
             if self.municipality_code:
@@ -281,7 +281,7 @@ class MeteocatBaseCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             EVENT_ATTR_TIMESTAMP: dt_util.now().isoformat(),
         }
         
-        if self.mode == MODE_ESTACIO and self.station_code:
+        if self.mode == MODE_EXTERNAL and self.station_code:
             event_data[EVENT_ATTR_STATION_CODE] = self.station_code
         
         if self.municipality_code:
@@ -534,7 +534,7 @@ class MeteocatLegacyCoordinator(MeteocatBaseCoordinator):
                 fetch_measurements = True
                 fetch_forecast = self._should_fetch_forecast()
             
-            if self.mode == MODE_ESTACIO and self.station_code and fetch_measurements:
+            if self.mode == MODE_EXTERNAL and self.station_code and fetch_measurements:
                 tasks["measurements"] = self.api.get_station_measurements(self.station_code)
                 
                 entry_updates = {}
@@ -579,7 +579,7 @@ class MeteocatLegacyCoordinator(MeteocatBaseCoordinator):
             
             # Initialize data with previous values if available to preserve forecast
             data: dict[str, Any] = self.data.copy() if self.data else {
-                "station": self.station_data if self.mode == MODE_ESTACIO else None,
+                "station": self.station_data if self.mode == MODE_EXTERNAL else None,
                 "municipality_code": self.municipality_code,
             }
             
@@ -622,7 +622,7 @@ class MeteocatLegacyCoordinator(MeteocatBaseCoordinator):
                 raise UpdateFailed("Temporary error - retry scheduled")
             
             critical_fields = []
-            if self.mode == MODE_ESTACIO and fetch_measurements:
+            if self.mode == MODE_EXTERNAL and fetch_measurements:
                 critical_fields.append("measurements")
             if self.municipality_code:
                 # Only check forecast if we tried to fetch it or if it's missing

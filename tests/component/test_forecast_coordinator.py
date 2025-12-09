@@ -12,7 +12,7 @@ from custom_components.meteocat_community_edition.const import (
     CONF_MUNICIPALITY_CODE,
     CONF_ENABLE_FORECAST_DAILY,
     CONF_ENABLE_FORECAST_HOURLY,
-    MODE_MUNICIPI,
+    MODE_LOCAL,
     DOMAIN,
 )
 
@@ -32,7 +32,7 @@ def mock_entry():
     entry.entry_id = "test_entry_id"
     entry.data = {
         CONF_API_KEY: "test_key",
-        CONF_MODE: MODE_MUNICIPI,
+        CONF_MODE: MODE_LOCAL,
         CONF_MUNICIPALITY_CODE: "080193",
         CONF_ENABLE_FORECAST_DAILY: True,
         CONF_ENABLE_FORECAST_HOURLY: True,

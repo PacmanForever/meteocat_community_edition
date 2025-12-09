@@ -15,8 +15,8 @@ from custom_components.meteocat_community_edition.const import (
     DOMAIN,
     CONF_MODE,
     CONF_STATION_NAME,
-    MODE_ESTACIO,
-    MODE_MUNICIPI,
+    MODE_EXTERNAL,
+    MODE_LOCAL,
 )
 
 @pytest.fixture
@@ -32,7 +32,7 @@ def mock_entry():
     entry = MagicMock(spec=ConfigEntry)
     entry.entry_id = "test_entry_id"
     entry.data = {
-        CONF_MODE: MODE_ESTACIO,
+        CONF_MODE: MODE_EXTERNAL,
         CONF_STATION_NAME: "Test Station",
     }
     return entry
@@ -44,7 +44,7 @@ def mock_coordinator():
     return coordinator
 
 @pytest.mark.asyncio
-async def test_async_setup_entry_estacio_mode(mock_hass, mock_entry, mock_coordinator):
+async def test_async_setup_entry_external_mode(mock_hass, mock_entry, mock_coordinator):
     """Test setup entry in station mode."""
     mock_hass.data[DOMAIN][mock_entry.entry_id] = mock_coordinator
     async_add_entities = MagicMock()
@@ -57,9 +57,9 @@ async def test_async_setup_entry_estacio_mode(mock_hass, mock_entry, mock_coordi
     assert args[0].unique_id == "test_entry_id_weather"
 
 @pytest.mark.asyncio
-async def test_async_setup_entry_municipi_mode(mock_hass, mock_entry, mock_coordinator):
+async def test_async_setup_entry_local_mode(mock_hass, mock_entry, mock_coordinator):
     """Test setup entry in municipality mode (should skip)."""
-    mock_entry.data[CONF_MODE] = MODE_MUNICIPI
+    mock_entry.data[CONF_MODE] = MODE_LOCAL
     mock_hass.data[DOMAIN][mock_entry.entry_id] = mock_coordinator
     async_add_entities = MagicMock()
 
