@@ -132,6 +132,12 @@
       "next_update": {
         "name": "Pròxima actualització"
       },
+      "next_forecast_update": {
+        "name": "Pròxima actualització predicció"
+      },
+      "last_forecast_update": {
+        "name": "Última actualització predicció"
+      },
       "update_time": {
         "name": "Hora d'actualització {number}"
       },

@@ -40,13 +40,7 @@ def mock_entry():
     entry.options = {}
     return entry
 
-@pytest.fixture
-def hass():
-    """Mock Home Assistant."""
-    hass = MagicMock()
-    hass.bus = MagicMock()
-    hass.bus.async_fire = MagicMock()
-    return hass
+
 
 @pytest.mark.asyncio
 async def test_coordinator_calls_both_when_enabled(hass, mock_api, mock_entry):

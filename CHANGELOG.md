@@ -5,6 +5,15 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.0.8] - 2025-12-09
+
+### Corregit
+- Afegides claus de traducció faltants per als sensors d'actualització de predicció (`strings.json`).
+
+### Millorat
+- Millora significativa de la cobertura de tests (90%).
+- Afegits tests per a `api.py`, `button.py`, `coordinator.py` i `sensor.py`.
+
 ## [1.0.7] - 2025-12-09
 
 ### Afegit
