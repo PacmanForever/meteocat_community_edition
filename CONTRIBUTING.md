@@ -28,6 +28,7 @@ Si trobes un error o tens una idea per millorar la integració:
 - Segueix PEP 8 per Python
 - Afegeix docstrings a funcions i classes
 - Escriu tests per noves funcionalitats
+- **Sempre afegeix un test de regressió quan arreglis un error**
 - Actualitza la documentació si cal
 
 ### Tests
@@ -41,11 +42,12 @@ Aquesta integració té com a objectiu:
 - ✅ **Validació Hassfest** sense errors
 - ✅ **GitHub Actions CI/CD**
 
-Per això, quan afegeixis noves funcionalitats:
+Per això, quan afegeixis noves funcionalitats o arreglis errors:
 1. **Escriu tests** que cobreixin tots els casos (happy path + edge cases)
-2. **Verifica la cobertura** amb `pytest --cov`
-3. **Assegura't que tots els tests passen**
-4. **No esborris tests**: Si fas tests que poden executar-se en el servidor GitHub i donen cobertura, no els esborris. S'han de mantenir per evitar feina repetida.
+2. **Correcció d'errors**: Si arregles un bug, has d'afegir un test que falli sense la correcció i passi amb ella (test de regressió).
+3. **Verifica la cobertura** amb `pytest --cov`
+4. **Assegura't que tots els tests passen**
+5. **No esborris tests**: Si fas tests que poden executar-se en el servidor GitHub i donen cobertura, no els esborris. S'han de mantenir per evitar feina repetida.
 
 Executa els tests abans de fer un PR:
 
