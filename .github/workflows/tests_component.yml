@@ -1,4 +1,4 @@
-name: Unit Tests
+name: Component Tests
 
 on:
   push:
@@ -29,4 +29,4 @@ jobs:
 
       - name: Run tests with coverage
         run: |
-          python -m pytest tests/ --cov=custom_components.meteocat_community_edition --cov-report=term -v
+          python -m pytest tests/component --cov=custom_components.meteocat_community_edition --cov-report=term -v
