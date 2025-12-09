@@ -53,11 +53,11 @@ Per això, quan afegeixis noves funcionalitats o arreglis errors:
 
 Aquest projecte utilitza GitHub Actions per garantir la qualitat i compatibilitat:
 
-1. **Tests (`tests.yml`)**: S'executa a cada Push/PR. Verifica que el codi funciona amb les versions actuals.
-2. **Daily Compatibility Check (`daily_compatibility.yml`)**: S'executa diàriament (06:00 UTC). Verifica la compatibilitat amb:
+1. **Unit Tests (`tests.yml`)**: S'executa a cada Push/PR. Verifica que el codi funciona amb les versions actuals.
+2. **HA Daily Compatibility Check (`daily_compatibility.yml`)**: S'executa diàriament (06:00 UTC). Verifica la compatibilitat amb:
    - L'última versió **Stable** de Home Assistant.
    - L'última versió **Beta** de Home Assistant (per detectar problemes futurs).
-3. **Validacions**: `validate_hacs.yml` i `validate_hassfest.yml` asseguren el compliment dels estàndards.
+3. **Validacions**: `validate_hacs.yml` (HACS Validation Tests) i `validate_hassfest.yml` (HA Validation Tests) asseguren el compliment dels estàndards.
 
 Executa els tests abans de fer un PR:
 
