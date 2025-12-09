@@ -5,6 +5,18 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.0.7] - 2025-12-09
+
+### Millorat
+- Millora en l'estabilitat dels tests unitaris i de components.
+- Correcció de rutes en els fitxers de traducció durant els tests.
+
+## [1.0.6] - 2025-12-09
+
+### Afegit
+- Actualitzacions horàries per a les dades de les estacions (temperatura, humitat, etc.).
+- Model d'actualització híbrid: prediccions segons horari programat, dades d'estació cada hora.
+
 ## [1.0.5] - 2025-12-09
 
 ### Canviat
