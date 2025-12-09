@@ -13,11 +13,15 @@ i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
   - 3 sensors per a predicció (programades): última actualització predicció, pròxima actualització predicció
 - Millor visibilitat sobre quan s'actualitzen les dades de l'estació vs les prediccions
 
+### Millorat
+- Millora en l'estabilitat dels tests unitaris i de components.
+- Correcció de rutes en els fitxers de traducció durant els tests.
+
 ## [1.0.6] - 2025-12-09
 
 ### Afegit
-- Actualitzacions horàries de les mesures de l'estació (a l'inici de cada hora)
-- Les prediccions es mantenen amb les hores programades (per defecte 06:00 i 14:00)
+- Actualitzacions horàries per a les dades de les estacions (temperatura, humitat, etc.).
+- Model d'actualització híbrid: prediccions segons horari programat, dades d'estació cada hora.
 
 ### Canviat
 - En mode estació, les mesures s'actualitzen cada hora mentre que les prediccions segueixen l'horari configurat
