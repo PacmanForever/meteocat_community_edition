@@ -15,6 +15,7 @@ def load_translation(lang):
     path = os.path.join(
         os.path.dirname(__file__),
         "..",
+        "..",
         "custom_components",
         "meteocat_community_edition",
         "translations",
