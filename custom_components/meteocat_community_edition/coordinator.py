@@ -228,10 +228,11 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     async def _async_scheduled_update(self, now: datetime) -> None:
         """Handle scheduled update."""
         _LOGGER.info("Running scheduled update at %s", now)
-        await self.async_request_refresh()
         
         # Reschedule for the next update time
         self._schedule_next_update()
+        
+        await self.async_request_refresh()
 
     async def async_shutdown(self) -> None:
         """Clean up when shutting down.
@@ -358,6 +359,10 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             if self.mode == MODE_ESTACIO and self.station_code:
                 tasks["measurements"] = self.api.get_station_measurements(self.station_code)
                 
+                # Track updates to entry data to consolidate them into a single write
+                # This prevents race conditions and ensures all data is persisted correctly
+                entry_updates = {}
+                
                 # Get station info if not cached
                 if not self.station_data:
                     stations = await self.api.get_stations()
@@ -367,12 +372,7 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                             break
                     
                     if self.station_data:
-                        # Save station data to entry.data for persistence across HA restarts
-                        updated_data = {**self.entry.data, "_station_data": self.station_data}
-                        self.hass.config_entries.async_update_entry(
-                            self.entry,
-                            data=updated_data
-                        )
+                        entry_updates["_station_data"] = self.station_data
                 
                 # Find municipality code if not set (even if station data was cached)
                 if not self.municipality_code and self.station_data:
@@ -381,10 +381,16 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     )
                     # Save it to entry data if found to avoid future lookups
                     if self.municipality_code:
-                        updated_data = {**self.entry.data, "station_municipality_code": self.municipality_code}
+                        entry_updates["station_municipality_code"] = self.municipality_code
+                
+                # Apply consolidated updates if any
+                if entry_updates:
+                    new_data = {**self.entry.data, **entry_updates}
+                    if new_data != self.entry.data:
+                        _LOGGER.debug("Updating config entry with cached data: %s", list(entry_updates.keys()))
                         self.hass.config_entries.async_update_entry(
                             self.entry,
-                            data=updated_data
+                            data=new_data
                         )
             
             # Add forecast tasks if we have a municipality code (both modes)

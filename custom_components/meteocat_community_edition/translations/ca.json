@@ -78,7 +78,7 @@
     "step": {
       "init": {
         "title": "Opcions de Meteocat",
-        "description": "Configura opcions avançades, dades a descarregar i hores d'actualització\n\n**Tipus de consultes**\n{measurements_info}",
+        "description": "Configura les dades a descarregar i les hores d'actualització\n\n**Tipus de consultes**\n{measurements_info}",
         "data": {
           "api_base_url": "URL base de l'API (deixa per defecte per a producció)",
           "measurements_label": "Mesures (obligatori)",

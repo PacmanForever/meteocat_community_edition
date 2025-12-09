@@ -107,6 +107,7 @@
 ### 4.4. Optimització de quotes
 - **Persistència de dades d'estació**: station_data cached a entry.data
   - Estalvia 1 crida get_stations() per cada reinici de HA
+  - **Optimització de persistència**: Actualització atòmica de `entry.data` per evitar condicions de carrera i garantir que les dades es guarden correctament, evitant crides innecessàries en actualitzacions posteriors.
 - **Dades de configuració**: Noms de municipi, comarca, província desats durant config_flow
   - NO requereixen crides API durant execució
 - **Coordenades**: Desades durant configuració inicial

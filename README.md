@@ -88,7 +88,7 @@ Això crearà:
 
 #### Mode Municipi (només prediccions)
 
-> ⚠️ **Important:** Aquest mode està pensat **exclusivament** per a usuaris que tenen una **estació meteorològica local** (personal, Netatmo, Ecowitt, etc.) i volen complementar-la amb les **prediccions horàries i diàries oficials** de Meteocat. Si no tens cap estació meteorològica local, utilitza el **Mode Estació** que et proporcionarà tant dades en temps real com prediccions.
+> ⚠️ **Important:** Aquest mode està pensat **exclusivament** per a usuaris que tenen una **estació meteorològica local** (Davis, Netatmo, Ecowitt, etc.) i volen complementar-la amb les **prediccions horàries i diàries oficials** de Meteocat. Si no tens cap estació meteorològica local a Home Assistant, fes servir el **Mode Estació** que et proporcionarà tant dades de monitorització com de prediccions.
 
 Aquest mode crea sensors amb les prediccions en els seus atributs, permetent-te utilitzar-les en entitats `weather.template` personalitzades que combinin dades de la teva estació local amb prediccions oficials.
 

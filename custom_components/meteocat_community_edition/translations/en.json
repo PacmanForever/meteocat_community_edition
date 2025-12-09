@@ -78,7 +78,7 @@
     "step": {
       "init": {
         "title": "Meteocat Options",
-        "description": "Configure advanced options, data to download and update times\n\n**Query types**\n{measurements_info}",
+        "description": "Configure data to download and update times\n\n**Query types**\n{measurements_info}",
         "data": {
           "api_base_url": "API Base URL (leave default for production)",
           "measurements_label": "Measurements (required)",

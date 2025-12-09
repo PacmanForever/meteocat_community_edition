@@ -540,7 +540,7 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if self.mode == MODE_ESTACIO:
             description_placeholders["measurements_info"] = "Mesures (requerides)"
         else:
-            description_placeholders["measurements_info"] = ""
+            description_placeholders["measurements_info"] = "Predicció"
 
         return self.async_show_form(
             step_id="update_times",
@@ -563,8 +563,7 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         default=DEFAULT_UPDATE_TIME_2
                     ): str,
                     vol.Optional(
-                        CONF_UPDATE_TIME_3,
-                        default=""
+                        CONF_UPDATE_TIME_3
                     ): str,
                 }
             ),
@@ -639,7 +638,7 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
         if mode == MODE_ESTACIO:
             description_placeholders["measurements_info"] = "Mesures (requerides)"
         else:
-            description_placeholders["measurements_info"] = ""
+            description_placeholders["measurements_info"] = "Predicció"
 
         # Ensure options is not None
         options = self.config_entry.options or {}
@@ -681,8 +680,8 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                     vol.Optional(
                         CONF_UPDATE_TIME_3,
                         default=self.config_entry.data.get(
-                            CONF_UPDATE_TIME_3, ""
-                        ),
+                            CONF_UPDATE_TIME_3
+                        ) or vol.UNDEFINED,
                     ): str,
                 }
             ),

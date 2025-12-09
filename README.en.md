@@ -88,6 +88,8 @@ This will create:
 
 #### Municipality Mode (without station)
 
+> ⚠️ **Important:** This mode is designed **exclusively** for users who have a **local weather station** (Davis, Netatmo, Ecowitt, etc.) and want to complement it with **official hourly and daily forecasts** from Meteocat. If you do not have any local weather station in Home Assistant, use the **Station Mode** which will provide you with both monitoring data and forecasts.
+
 1. In Home Assistant, go to **Settings** → **Devices & Services**
 2. Click **Add Integration**
 3. Search for **Meteocat (Community Edition)**

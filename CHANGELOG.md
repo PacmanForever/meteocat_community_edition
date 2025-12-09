@@ -5,6 +5,12 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.0.4] - 2025-12-08
+
+### Corregit
+- Corregit error de traducció en el flux d'opcions on la variable `{measurements_info}` no es proporcionava correctament en mode municipi.
+- Corregit problema de visibilitat del camp "Tercera actualització" en el flux de configuració i opcions.
+
 ## [1.0.0] - 2025-11-29
 
 Primera versió estable de la integració Meteocat Community Edition per a Home Assistant.
