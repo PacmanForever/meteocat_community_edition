@@ -123,7 +123,7 @@ Para configurar un endpoint personalizado o modificar las horas de actualizació
 
 ## Entidades
 
-### Modo Estación XEMA
+### Modo Estación Externa (Medidas y predicción de Meteocat)
 
 Para cada estación configurada se crean:
 
@@ -166,13 +166,15 @@ Para cada estación configurada se crean:
 
 > **Nota:** Todas las entidades se agrupan bajo un único dispositivo con nombre "{Estación} {Código}" (ej: "Barcelona YM")
 
-### Modo Estación Local (Predicción + Sensores Locales)
+### Modo Estación Local (Medidas locales y predicción de Meteocat)
 
 Este modo está pensado para usuarios que tienen una estación meteorológica propia (Netatmo, Ecowitt, ESPHome, etc.) integrada en Home Assistant.
 
 Permite crear una entidad `weather` que combina:
-1. **Datos actuales**: De tus sensores locales (Temperatura, Humedad, Presión, Viento, Lluvia).
+1. **Datos actuales**: De tus sensores locales (Temperatura, Humedad, Presión, Viento, Intensidad de Lluvia).
 2. **Predicción**: Oficial del Meteocat para tu municipio.
+
+> **Nota sobre la lluvia**: Si configuras el sensor de **Intensidad de Lluvia**, la entidad mostrará el estado "Lluvioso" cuando detecte precipitación. Si no llueve, mostrará la predicción de Meteocat (ej: "Sol", "Nublado").
 
 Para cada municipio configurado se crean:
 

@@ -39,8 +39,8 @@
         }
       },
       "update_times": {
-        "title": "Actualización de datos",
-        "description": "Configura los datos a descargar y las horas de actualización.\n\n**Tipos de consultas**\n{measurements_info}",
+        "title": "Actualización de predicciones",
+        "description": "Configura las horas de actualización y las predicciones.",
         "data": {
           "measurements_label": "Medidas (obligatorio)",
           "enable_forecast_daily": "Predicción diaria",
@@ -56,9 +56,9 @@
         "data": {
           "sensor_temperature": "Temperatura",
           "sensor_humidity": "Humedad",
-          "sensor_pressure": "Presión",
+          "sensor_pressure": "Presión atmosférica",
           "sensor_wind_speed": "Velocidad del viento",
-          "sensor_wind_bearing": "Dirección del viento",
+          "sensor_wind_bearing": "Dirección del viento (numérico/grados)",
           "sensor_wind_gust": "Ráfaga de viento",
           "sensor_visibility": "Visibilidad",
           "sensor_uv_index": "Índice UV",
@@ -66,7 +66,7 @@
           "sensor_cloud_coverage": "Cobertura de nubes",
           "sensor_dew_point": "Punto de rocío",
           "sensor_apparent_temperature": "Temperatura aparente",
-          "sensor_rain": "Sensor de lluvia (para la condición)"
+          "sensor_rain": "Intensidad de lluvia"
         }
       },
       "reauth_confirm": {

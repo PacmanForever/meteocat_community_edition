@@ -111,7 +111,7 @@ async def test_async_setup_entry_external_mode(mock_hass, mock_entry_estacio):
 
 @pytest.mark.asyncio
 async def test_async_setup_entry_local_mode(mock_hass, mock_entry_municipi):
-    """Test setup entry for MODE_LOCAL loads only sensor and button platforms."""
+    """Test setup entry for MODE_LOCAL loads all platforms including weather."""
     with patch('custom_components.meteocat_community_edition.MeteocatForecastCoordinator') as mock_coordinator_class:
         mock_coordinator = MagicMock()
         mock_coordinator.async_config_entry_first_refresh = AsyncMock()
@@ -122,15 +122,15 @@ async def test_async_setup_entry_local_mode(mock_hass, mock_entry_municipi):
         # Should return True
         assert result is True
         
-        # Should load only sensor, button, and binary_sensor platforms (no weather)
+        # Should load all platforms including weather
         mock_hass.config_entries.async_forward_entry_setups.assert_called_once()
         call_args = mock_hass.config_entries.async_forward_entry_setups.call_args
         platforms = call_args[0][1]
-        assert Platform.WEATHER not in platforms
+        assert Platform.WEATHER in platforms
         assert Platform.SENSOR in platforms
         assert Platform.BUTTON in platforms
         assert Platform.BINARY_SENSOR in platforms
-        assert len(platforms) == 3
+        assert len(platforms) == 4
 
 
 @pytest.mark.asyncio

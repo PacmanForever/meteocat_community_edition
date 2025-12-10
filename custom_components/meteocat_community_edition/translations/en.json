@@ -39,8 +39,8 @@
         }
       },
       "update_times": {
-        "title": "Data update",
-        "description": "Configure data to download and update times.\n\n**Query types**\n{measurements_info}",
+        "title": "Forecast update",
+        "description": "Configure update times and forecasts.",
         "data": {
           "measurements_label": "Measurements (required)",
           "enable_forecast_daily": "Daily forecast",
@@ -56,9 +56,9 @@
         "data": {
           "sensor_temperature": "Temperature",
           "sensor_humidity": "Humidity",
-          "sensor_pressure": "Pressure",
+          "sensor_pressure": "Atmospheric Pressure",
           "sensor_wind_speed": "Wind Speed",
-          "sensor_wind_bearing": "Wind Direction",
+          "sensor_wind_bearing": "Wind Direction (numeric/degrees)",
           "sensor_wind_gust": "Wind Gust",
           "sensor_visibility": "Visibility",
           "sensor_uv_index": "UV Index",
@@ -66,7 +66,7 @@
           "sensor_cloud_coverage": "Cloud Coverage",
           "sensor_dew_point": "Dew Point",
           "sensor_apparent_temperature": "Apparent Temperature",
-          "sensor_rain": "Rain Sensor (for condition)"
+          "sensor_rain": "Rain Intensity"
         }
       },
       "reauth_confirm": {

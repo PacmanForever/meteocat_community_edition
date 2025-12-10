@@ -56,9 +56,9 @@
         "data": {
           "sensor_temperature": "Temperatura",
           "sensor_humidity": "Humitat",
-          "sensor_pressure": "Pressió",
+          "sensor_pressure": "Pressió atmosfèrica",
           "sensor_wind_speed": "Velocitat del vent",
-          "sensor_wind_bearing": "Direcció del vent",
+          "sensor_wind_bearing": "Direcció del vent (numèric/graus)",
           "sensor_wind_gust": "Ràfega de vent",
           "sensor_visibility": "Visibilitat",
           "sensor_uv_index": "Índex UV",
@@ -66,7 +66,7 @@
           "sensor_cloud_coverage": "Cobertura de núvols",
           "sensor_dew_point": "Punt de rosada",
           "sensor_apparent_temperature": "Temperatura aparent",
-          "sensor_rain": "Sensor de pluja (per a la condició)"
+          "sensor_rain": "Intensitat de pluja"
         }
       },
       "reauth_confirm": {

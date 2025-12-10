@@ -44,8 +44,8 @@ MODE_EXTERNAL: Final = "external"
 MODE_LOCAL: Final = "local"
 
 # Mode labels (used in config flow)
-MODE_EXTERNAL_LABEL: Final = "Estació Externa (Dades oficials XEMA)"
-MODE_LOCAL_LABEL: Final = "Estació Local (Predicció + Sensors propis)"
+MODE_EXTERNAL_LABEL: Final = "Estació Externa (Mesures i predicció de Meteocat)"
+MODE_LOCAL_LABEL: Final = "Estació Local (Mesures locals i predicció de Meteocat)"
 
 # Update times (defaults)
 DEFAULT_UPDATE_TIME_1: Final = "06:00"

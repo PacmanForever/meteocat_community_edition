@@ -68,16 +68,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = coordinator
     
-    if mode == MODE_EXTERNAL:
-        # XEMA mode: load weather entity + sensors + button + binary_sensor
-        platforms = PLATFORMS
-    else:
-        # Municipal mode: load sensors (forecasts) + button + binary_sensor
-        platforms = [Platform.SENSOR, Platform.BUTTON, Platform.BINARY_SENSOR]
-    
-    # Use async_forward_entry_setups for HA 2022.8+
-    # This method batches platform loading for better performance
-    await hass.config_entries.async_forward_entry_setups(entry, platforms)
+    # Load all platforms for both modes (External and Local)
+    # Weather entity is now supported in both modes
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     
     # Register update listener for options flow
     entry.async_on_unload(entry.add_update_listener(async_update_options))

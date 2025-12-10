@@ -493,6 +493,7 @@ class MeteocatLocalWeather(MeteocatWeather):
             "cloud_coverage": entry.data.get(CONF_SENSOR_CLOUD_COVERAGE),
             "dew_point": entry.data.get(CONF_SENSOR_DEW_POINT),
             "apparent_temp": entry.data.get(CONF_SENSOR_APPARENT_TEMPERATURE),
+            "rain": entry.data.get(CONF_SENSOR_RAIN),
         }
 
     def _get_sensor_value(self, sensor_type: str) -> float | None:
@@ -519,6 +520,27 @@ class MeteocatLocalWeather(MeteocatWeather):
     def humidity(self) -> float | None:
         """Return the current humidity."""
         return self._get_sensor_value("humidity")
+
+    @property
+    def native_precipitation(self) -> float | None:
+        """Return the current precipitation."""
+        return self._get_sensor_value("rain")
+
+    @property
+    def native_precipitation_unit(self) -> str:
+        """Return the precipitation unit."""
+        return UnitOfPrecipitationDepth.MILLIMETERS
+
+    @property
+    def condition(self) -> str | None:
+        """Return the current condition."""
+        # Check local rain sensor first
+        rain_value = self._get_sensor_value("rain")
+        if rain_value is not None and rain_value > 0:
+            return "rainy"
+            
+        # Fallback to forecast
+        return super().condition
 
     @property
     def native_pressure(self) -> float | None:

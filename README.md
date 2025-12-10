@@ -125,7 +125,7 @@ Per configurar un endpoint personalitzat o modificar les hores d'actualització:
 
 La integració crea diferents entitats segons el mode configurat:
 
-### Mode Estació XEMA (Dades en temps real + Predicció)
+### Mode Estació Externa (Mesures i predicció de Meteocat)
 
 Aquest mode està pensat per obtenir dades d'una estació meteorològica oficial del Meteocat.
 
@@ -149,13 +149,15 @@ Aquest mode està pensat per obtenir dades d'una estació meteorològica oficial
 | **Sensor** | `sensor.{estacio}_{codi}_provincia_name` | Nom de la província (si disponible). |
 | **Button** | `button.{estacio}_{codi}_refresh` | Botó per forçar una actualització manual immediata. |
 
-### Mode Estació Local (Predicció + Sensors Locals)
+### Mode Estació Local (Mesures locals i predicció de Meteocat)
 
 Aquest mode està pensat per a usuaris que tenen una estació meteorològica pròpia (Netatmo, Ecowitt, ESPHome, etc.) integrada a Home Assistant.
 
 Permet crear una entitat `weather` que combina:
-1. **Dades actuals**: Dels teus sensors locals (Temperatura, Humitat, Pressió, Vent, Pluja).
+1. **Dades actuals**: Dels teus sensors locals (Temperatura, Humitat, Pressió, Vent, Intensitat de Pluja).
 2. **Predicció**: Oficial del Meteocat per al teu municipi.
+
+> **Nota sobre la pluja**: Si configures el sensor d'**Intensitat de Pluja**, l'entitat mostrarà l'estat "Plujós" quan detecti precipitació. Si no plou, mostrarà la predicció de Meteocat (ex: "Sol", "Ennuvolat").
 
 **Dispositiu**: `{Nom Municipi}` (ex: "Barcelona")
 

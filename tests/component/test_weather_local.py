@@ -21,6 +21,7 @@ from custom_components.meteocat_community_edition.const import (
     CONF_SENSOR_PRESSURE,
     CONF_SENSOR_WIND_SPEED,
     CONF_SENSOR_WIND_BEARING,
+    CONF_SENSOR_RAIN,
 )
 
 @pytest.fixture
@@ -56,6 +57,7 @@ def mock_entry():
         CONF_SENSOR_PRESSURE: "sensor.pres",
         CONF_SENSOR_WIND_SPEED: "sensor.wind",
         CONF_SENSOR_WIND_BEARING: "sensor.bearing",
+        CONF_SENSOR_RAIN: "sensor.rain_intensity",
     }
     return entry
 
@@ -87,6 +89,8 @@ def test_local_weather_sensors(mock_coordinator, mock_entry):
             state.state = "10"
         elif entity_id == "sensor.bearing":
             state.state = "180"
+        elif entity_id == "sensor.rain_intensity":
+            state.state = "0"
         else:
             return None
         return state
@@ -98,6 +102,47 @@ def test_local_weather_sensors(mock_coordinator, mock_entry):
     assert weather.native_pressure == 1015.0
     assert weather.native_wind_speed == 10.0
     assert weather.wind_bearing == 180.0
+    assert weather.native_precipitation == 0.0
+
+def test_local_weather_condition_rain(mock_coordinator, mock_entry):
+    """Test condition logic with rain sensor."""
+    weather = MeteocatLocalWeather(mock_coordinator, mock_entry)
+    weather.hass = MagicMock()
+    
+    # Case 1: Rain sensor > 0 -> Should be rainy
+    def get_state_raining(entity_id):
+        state = MagicMock()
+        if entity_id == "sensor.rain_intensity":
+            state.state = "2.5"
+        else:
+            return None
+        return state
+        
+    weather.hass.states.get.side_effect = get_state_raining
+    assert weather.condition == "rainy"
+    
+    # Case 2: Rain sensor = 0 -> Should use forecast (Sunny)
+    def get_state_not_raining(entity_id):
+        state = MagicMock()
+        if entity_id == "sensor.rain_intensity":
+            state.state = "0"
+        else:
+            return None
+        return state
+        
+    weather.hass.states.get.side_effect = get_state_not_raining
+    # Mock _is_night to return False so sunny stays sunny
+    with patch.object(weather, '_is_night', return_value=False):
+        assert weather.condition == "sunny"
+
+    # Case 3: Rain sensor unavailable -> Should use forecast
+    def get_state_unavailable(entity_id):
+        return None
+        
+    weather.hass.states.get.side_effect = get_state_unavailable
+    with patch.object(weather, '_is_night', return_value=False):
+        assert weather.condition == "sunny"
+
 
 def test_local_weather_missing_sensors(mock_coordinator, mock_entry):
     """Test behavior when sensors are missing or unavailable."""

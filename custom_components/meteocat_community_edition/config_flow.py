@@ -522,17 +522,14 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             step_id="update_times",
             data_schema=vol.Schema(
                 {
-                    vol.Required(CONF_UPDATE_TIME_1, default="08:00"): str,
-                    vol.Optional(CONF_UPDATE_TIME_2): str,
+                    vol.Required(CONF_UPDATE_TIME_1, default=DEFAULT_UPDATE_TIME_1): str,
+                    vol.Optional(CONF_UPDATE_TIME_2, default=DEFAULT_UPDATE_TIME_2): str,
                     vol.Optional(CONF_UPDATE_TIME_3): str,
                     vol.Required(CONF_ENABLE_FORECAST_DAILY, default=True): bool,
                     vol.Required(CONF_ENABLE_FORECAST_HOURLY, default=False): bool,
                 }
             ),
             errors=errors,
-            description_placeholders={
-                "measurements_info": "Info about measurements"
-            }
         )
 
     async def async_step_local_sensors(
@@ -599,7 +596,7 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         selector.EntitySelectorConfig(domain="sensor", device_class="humidity")
                     ),
                     vol.Optional(CONF_SENSOR_PRESSURE): selector.EntitySelector(
-                        selector.EntitySelectorConfig(domain="sensor", device_class="pressure")
+                        selector.EntitySelectorConfig(domain="sensor", device_class=["pressure", "atmospheric_pressure"])
                     ),
                     vol.Optional(CONF_SENSOR_WIND_SPEED): selector.EntitySelector(
                         selector.EntitySelectorConfig(domain="sensor", device_class="wind_speed")

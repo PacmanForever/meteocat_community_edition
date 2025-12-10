@@ -123,7 +123,7 @@ To configure a custom endpoint or modify update times:
 
 ## Entities
 
-### Station Mode
+### External Station Mode (Meteocat measurements and forecast)
 
 For each configured station, these entities are created:
 
@@ -166,13 +166,15 @@ For each configured station, these entities are created:
 
 > **Note:** All entities are grouped under a single device named "{Station} {Code}" (e.g., "Barcelona YM")
 
-### Local Station Mode (Forecast + Local Sensors)
+### Local Station Mode (Local measurements and Meteocat forecast)
 
 This mode is designed for users who have their own weather station (Netatmo, Ecowitt, ESPHome, etc.) integrated into Home Assistant.
 
 It allows creating a `weather` entity that combines:
-1. **Current Data**: From your local sensors (Temperature, Humidity, Pressure, Wind, Rain).
+1. **Current Data**: From your local sensors (Temperature, Humidity, Pressure, Wind, Rain Intensity).
 2. **Forecast**: Official Meteocat forecast for your municipality.
+
+> **Note about rain**: If you configure the **Rain Intensity** sensor, the entity will show "Rainy" state when precipitation is detected. If it's not raining, it will show the Meteocat forecast (e.g., "Sunny", "Cloudy").
 
 For each configured municipality, these entities are created:
 
