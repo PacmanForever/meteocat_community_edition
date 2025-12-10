@@ -44,3 +44,18 @@ def test_options_flow_description_content():
     desc_en = en["options"]["step"]["init"]["description"]
     assert "Configure data to download" in desc_en
     assert "advanced options" not in desc_en
+
+def test_options_flow_sensors_labels():
+    """Test that options flow sensors step has correct labels."""
+    from custom_components.meteocat_community_edition.const import CONF_SENSOR_TEMPERATURE
+    
+    for lang in ["ca", "es", "en"]:
+        data = load_translation(lang)
+        sensors_data = data["options"]["step"]["sensors"]["data"]
+        
+        # Check that the key exists
+        assert CONF_SENSOR_TEMPERATURE in sensors_data
+        
+        # Check that it has a value
+        assert sensors_data[CONF_SENSOR_TEMPERATURE] is not None
+        assert len(sensors_data[CONF_SENSOR_TEMPERATURE]) > 0

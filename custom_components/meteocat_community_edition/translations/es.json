@@ -107,6 +107,25 @@
           "update_time_2": "Segunda actualización (Formato 24h: HH:MM)",
           "update_time_3": "Tercera actualización (Formato 24h: HH:MM)"
         }
+      },
+      "sensors": {
+        "title": "Selección de entidades meteorológicas locales",
+        "description": "Selecciona los sensores de Home Assistant para los datos actuales.\n\nNo todas las tarjetas meteorológicas muestran todos los datos.",
+        "data": {
+          "sensor_temperature": "Temperatura",
+          "sensor_humidity": "Humedad",
+          "sensor_pressure": "Presión atmosférica",
+          "sensor_wind_speed": "Velocidad del viento",
+          "sensor_wind_bearing": "Dirección del viento (numérico/grados)",
+          "sensor_wind_gust": "Ráfaga de viento",
+          "sensor_visibility": "Visibilidad",
+          "sensor_uv_index": "Índice UV",
+          "sensor_ozone": "Ozono",
+          "sensor_cloud_coverage": "Cobertura de nubes",
+          "sensor_dew_point": "Punto de rocío",
+          "sensor_apparent_temperature": "Temperatura aparente",
+          "sensor_rain": "Intensidad de lluvia"
+        }
       }
     }
   },

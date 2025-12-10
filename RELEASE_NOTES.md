@@ -1,3 +1,13 @@
+# v1.1.3 - Millora en l'Atribució i Correccions
+
+## 🐛 Correccions
+- **Valors NaN en Sensors Locals**: Solucionat un error crític on els valors de temperatura, pressió i vent apareixien com a `NaN` o `Desconegut` degut a un format incorrecte en la configuració dels sensors. Aquesta versió corregeix automàticament les configuracions afectades.
+
+## 💅 Millores Visuals
+- **Atribució de l'Entitat Weather**: S'ha millorat el text d'atribució (el que apareix al peu de la targeta de temps o als detalls):
+  - **Mode Estació**: Ara mostra "Estació {Nom} + predicció Meteocat".
+  - **Mode Local**: Ara mostra "Estació local + Predicció Meteocat".
+
 # v1.1.2 - Correcció de Reconfiguració i Millores Visuals
 
 ## 🐛 Correccions

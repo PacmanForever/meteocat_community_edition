@@ -22,8 +22,98 @@ from custom_components.meteocat_community_edition.const import (
     CONF_SENSOR_WIND_SPEED,
     CONF_SENSOR_WIND_BEARING,
     CONF_SENSOR_RAIN,
+    CONF_SENSOR_VISIBILITY,
+    CONF_SENSOR_UV_INDEX,
 )
 
+@pytest.fixture
+def mock_coordinator():
+    """Create a mock coordinator."""
+    coordinator = MagicMock()
+    coordinator.data = {
+        "forecast": {
+            "dies": [
+                {
+                    "data": "2025-11-24",
+                    "variables": {
+                        "tmax": {"valor": 22},
+                        "tmin": {"valor": 12},
+                        "estatCel": {"valor": 1},  # Sunny
+                    }
+                }
+            ]
+        }
+    }
+    return coordinator
+
+@pytest.fixture
+def mock_entry():
+    """Create a mock config entry for local mode."""
+    entry = MagicMock()
+    entry.entry_id = "test_entry_local"
+    entry.data = {
+        CONF_MODE: MODE_LOCAL,
+        CONF_MUNICIPALITY_NAME: "Abrera",
+        CONF_SENSOR_TEMPERATURE: "sensor.temp",
+        CONF_SENSOR_HUMIDITY: "sensor.hum",
+        CONF_SENSOR_PRESSURE: "sensor.pres",
+        CONF_SENSOR_WIND_SPEED: "sensor.wind",
+        CONF_SENSOR_WIND_BEARING: "sensor.bearing",
+        CONF_SENSOR_RAIN: "sensor.rain_intensity",
+        CONF_SENSOR_VISIBILITY: "sensor.visibility",
+        CONF_SENSOR_UV_INDEX: "sensor.uv",
+    }
+    return entry
+
+def test_local_weather_initialization(mock_coordinator, mock_entry):
+    """Test local weather entity initialization."""
+    weather = MeteocatLocalWeather(mock_coordinator, mock_entry)
+    
+    assert weather.name == "Abrera"
+    assert weather.unique_id == "test_entry_local_weather_local"
+    assert weather.entity_id == "weather.abrera_local"
+    
+    assert weather.device_info["model"] == "Estació Local"
+    assert weather.attribution == "Estació local + Predicció Meteocat"
+
+def test_local_weather_sensors(mock_coordinator, mock_entry):
+    """Test reading from local sensors."""
+    weather = MeteocatLocalWeather(mock_coordinator, mock_entry)
+    weather.hass = MagicMock()
+    
+    # Mock sensor states
+    def get_state(entity_id):
+        state = MagicMock()
+        if entity_id == "sensor.temp":
+            state.state = "20.5"
+        elif entity_id == "sensor.hum":
+            state.state = "60"
+        elif entity_id == "sensor.pres":
+            state.state = "1015"
+        elif entity_id == "sensor.wind":
+            state.state = "10"
+        elif entity_id == "sensor.bearing":
+            state.state = "180"
+        elif entity_id == "sensor.rain_intensity":
+            state.state = "0"
+        elif entity_id == "sensor.visibility":
+            state.state = "10000"
+        elif entity_id == "sensor.uv":
+            state.state = "5"
+        else:
+            return None
+        return state
+        
+    weather.hass.states.get.side_effect = get_state
+    
+    assert weather.native_temperature == 20.5
+    assert weather.humidity == 60
+    assert weather.native_pressure == 1015
+    assert weather.native_wind_speed == 10
+    assert weather.wind_bearing == 180
+    assert weather.native_precipitation == 0
+    assert weather.native_visibility == 10000
+    assert weather.uv_index == 5
 @pytest.fixture
 def mock_coordinator():
     """Create a mock coordinator."""
@@ -70,6 +160,7 @@ def test_local_weather_initialization(mock_coordinator, mock_entry):
     assert weather.entity_id == "weather.abrera_local"
     
     assert weather.device_info["model"] == "Estació Local"
+    assert weather.attribution == "Estació local + Predicció Meteocat"
 
 def test_local_weather_sensors(mock_coordinator, mock_entry):
     """Test reading from local sensors."""

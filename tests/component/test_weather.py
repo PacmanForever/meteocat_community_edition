@@ -214,11 +214,9 @@ def test_weather_entity_units(mock_coordinator, mock_entry):
 
 def test_weather_entity_attribution(mock_coordinator, mock_entry):
     """Test that weather entity has attribution."""
-    from custom_components.meteocat_community_edition.const import ATTRIBUTION
-    
     weather = MeteocatWeather(mock_coordinator, mock_entry)
     
-    assert weather.attribution == ATTRIBUTION
+    assert weather.attribution == "Estació Granollers + predicció Meteocat"
 
 
 def test_weather_entity_handles_none_measurements(mock_coordinator, mock_entry):

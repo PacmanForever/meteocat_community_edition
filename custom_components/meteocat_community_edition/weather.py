@@ -86,7 +86,6 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
     Only available in MODE_EXTERNAL.
     """
 
-    _attr_attribution = ATTRIBUTION
     _attr_native_precipitation_unit = UnitOfPrecipitationDepth.MILLIMETERS
     _attr_native_pressure_unit = UnitOfPressure.HPA
     _attr_native_temperature_unit = UnitOfTemperature.CELSIUS
@@ -115,6 +114,8 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
         
         station_code = entry.data.get(CONF_STATION_CODE, "")
         station_name = entry.data[CONF_STATION_NAME]
+        
+        self._attr_attribution = f"Estació {station_name} + predicció Meteocat"
         
         # Visual name without code, but entity_id will include code
         self._attr_name = station_name
@@ -476,6 +477,7 @@ class MeteocatLocalWeather(MeteocatWeather):
             
         self._entry = entry
         
+        self._attr_attribution = "Estació local + Predicció Meteocat"
         self._attr_name = entry.data[CONF_MUNICIPALITY_NAME]
         self._attr_unique_id = f"{entry.entry_id}_weather_local"
         self.entity_id = f"weather.{self._attr_name.lower().replace(' ', '_')}_local"
@@ -487,21 +489,28 @@ class MeteocatLocalWeather(MeteocatWeather):
             "model": "Estació Local",
         }
         
+        # Helper to handle potential list values from config
+        def get_conf(key):
+            val = entry.data.get(key)
+            if isinstance(val, list):
+                return val[0] if val else None
+            return val
+
         # Store sensor entity IDs
         self._sensors = {
-            "temp": entry.data.get(CONF_SENSOR_TEMPERATURE),
-            "humidity": entry.data.get(CONF_SENSOR_HUMIDITY),
-            "pressure": entry.data.get(CONF_SENSOR_PRESSURE),
-            "wind_speed": entry.data.get(CONF_SENSOR_WIND_SPEED),
-            "wind_bearing": entry.data.get(CONF_SENSOR_WIND_BEARING),
-            "wind_gust": entry.data.get(CONF_SENSOR_WIND_GUST),
-            "visibility": entry.data.get(CONF_SENSOR_VISIBILITY),
-            "uv_index": entry.data.get(CONF_SENSOR_UV_INDEX),
-            "ozone": entry.data.get(CONF_SENSOR_OZONE),
-            "cloud_coverage": entry.data.get(CONF_SENSOR_CLOUD_COVERAGE),
-            "dew_point": entry.data.get(CONF_SENSOR_DEW_POINT),
-            "apparent_temp": entry.data.get(CONF_SENSOR_APPARENT_TEMPERATURE),
-            "rain": entry.data.get(CONF_SENSOR_RAIN),
+            "temp": get_conf(CONF_SENSOR_TEMPERATURE),
+            "humidity": get_conf(CONF_SENSOR_HUMIDITY),
+            "pressure": get_conf(CONF_SENSOR_PRESSURE),
+            "wind_speed": get_conf(CONF_SENSOR_WIND_SPEED),
+            "wind_bearing": get_conf(CONF_SENSOR_WIND_BEARING),
+            "wind_gust": get_conf(CONF_SENSOR_WIND_GUST),
+            "visibility": get_conf(CONF_SENSOR_VISIBILITY),
+            "uv_index": get_conf(CONF_SENSOR_UV_INDEX),
+            "ozone": get_conf(CONF_SENSOR_OZONE),
+            "cloud_coverage": get_conf(CONF_SENSOR_CLOUD_COVERAGE),
+            "dew_point": get_conf(CONF_SENSOR_DEW_POINT),
+            "apparent_temp": get_conf(CONF_SENSOR_APPARENT_TEMPERATURE),
+            "rain": get_conf(CONF_SENSOR_RAIN),
         }
 
     def _get_sensor_value(self, sensor_type: str) -> float | None:

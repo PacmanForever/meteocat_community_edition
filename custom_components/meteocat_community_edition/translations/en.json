@@ -107,6 +107,25 @@
           "update_time_2": "Second update (24h format: HH:MM)",
           "update_time_3": "Third update (24h format: HH:MM)"
         }
+      },
+      "sensors": {
+        "title": "Local weather entities selection",
+        "description": "Select Home Assistant sensors for current data.\n\nNot all weather cards show all data.",
+        "data": {
+          "sensor_temperature": "Temperature",
+          "sensor_humidity": "Humidity",
+          "sensor_pressure": "Atmospheric pressure",
+          "sensor_wind_speed": "Wind speed",
+          "sensor_wind_bearing": "Wind direction (numeric/degrees)",
+          "sensor_wind_gust": "Wind gust",
+          "sensor_visibility": "Visibility",
+          "sensor_uv_index": "UV Index",
+          "sensor_ozone": "Ozone",
+          "sensor_cloud_coverage": "Cloud coverage",
+          "sensor_dew_point": "Dew point",
+          "sensor_apparent_temperature": "Apparent temperature",
+          "sensor_rain": "Rain intensity"
+        }
       }
     }
   },

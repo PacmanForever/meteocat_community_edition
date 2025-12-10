@@ -796,24 +796,31 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
     ) -> FlowResult:
         """Manage the sensors options."""
         if user_input is not None:
+            # Helper to ensure we store strings, not lists
+            def get_entity_id(key):
+                val = user_input.get(key)
+                if isinstance(val, list):
+                    return val[0] if val else None
+                return val
+
             # Update entry with sensors
             self.hass.config_entries.async_update_entry(
                 entry=self.config_entry,
                 data={
                     **self.config_entry.data,
-                    CONF_SENSOR_TEMPERATURE: user_input.get(CONF_SENSOR_TEMPERATURE),
-                    CONF_SENSOR_HUMIDITY: user_input.get(CONF_SENSOR_HUMIDITY),
-                    CONF_SENSOR_PRESSURE: user_input.get(CONF_SENSOR_PRESSURE),
-                    CONF_SENSOR_WIND_SPEED: user_input.get(CONF_SENSOR_WIND_SPEED),
-                    CONF_SENSOR_WIND_BEARING: user_input.get(CONF_SENSOR_WIND_BEARING),
-                    CONF_SENSOR_WIND_GUST: user_input.get(CONF_SENSOR_WIND_GUST),
-                    CONF_SENSOR_VISIBILITY: user_input.get(CONF_SENSOR_VISIBILITY),
-                    CONF_SENSOR_UV_INDEX: user_input.get(CONF_SENSOR_UV_INDEX),
-                    CONF_SENSOR_OZONE: user_input.get(CONF_SENSOR_OZONE),
-                    CONF_SENSOR_CLOUD_COVERAGE: user_input.get(CONF_SENSOR_CLOUD_COVERAGE),
-                    CONF_SENSOR_DEW_POINT: user_input.get(CONF_SENSOR_DEW_POINT),
-                    CONF_SENSOR_APPARENT_TEMPERATURE: user_input.get(CONF_SENSOR_APPARENT_TEMPERATURE),
-                    CONF_SENSOR_RAIN: user_input.get(CONF_SENSOR_RAIN),
+                    CONF_SENSOR_TEMPERATURE: get_entity_id(CONF_SENSOR_TEMPERATURE),
+                    CONF_SENSOR_HUMIDITY: get_entity_id(CONF_SENSOR_HUMIDITY),
+                    CONF_SENSOR_PRESSURE: get_entity_id(CONF_SENSOR_PRESSURE),
+                    CONF_SENSOR_WIND_SPEED: get_entity_id(CONF_SENSOR_WIND_SPEED),
+                    CONF_SENSOR_WIND_BEARING: get_entity_id(CONF_SENSOR_WIND_BEARING),
+                    CONF_SENSOR_WIND_GUST: get_entity_id(CONF_SENSOR_WIND_GUST),
+                    CONF_SENSOR_VISIBILITY: get_entity_id(CONF_SENSOR_VISIBILITY),
+                    CONF_SENSOR_UV_INDEX: get_entity_id(CONF_SENSOR_UV_INDEX),
+                    CONF_SENSOR_OZONE: get_entity_id(CONF_SENSOR_OZONE),
+                    CONF_SENSOR_CLOUD_COVERAGE: get_entity_id(CONF_SENSOR_CLOUD_COVERAGE),
+                    CONF_SENSOR_DEW_POINT: get_entity_id(CONF_SENSOR_DEW_POINT),
+                    CONF_SENSOR_APPARENT_TEMPERATURE: get_entity_id(CONF_SENSOR_APPARENT_TEMPERATURE),
+                    CONF_SENSOR_RAIN: get_entity_id(CONF_SENSOR_RAIN),
                 }
             )
             return self.async_create_entry(title="", data={})
@@ -827,43 +834,43 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
             step_id="sensors",
             data_schema=vol.Schema({
                 vol.Optional(CONF_SENSOR_TEMPERATURE, description={"suggested_value": data.get(CONF_SENSOR_TEMPERATURE)}): selector.EntitySelector(
-                    selector.EntitySelectorConfig(domain="sensor", device_class="temperature")
+                    selector.EntitySelectorConfig(domain="sensor", device_class="temperature", multiple=False)
                 ),
                 vol.Optional(CONF_SENSOR_HUMIDITY, description={"suggested_value": data.get(CONF_SENSOR_HUMIDITY)}): selector.EntitySelector(
-                    selector.EntitySelectorConfig(domain="sensor", device_class="humidity")
+                    selector.EntitySelectorConfig(domain="sensor", device_class="humidity", multiple=False)
                 ),
                 vol.Optional(CONF_SENSOR_PRESSURE, description={"suggested_value": data.get(CONF_SENSOR_PRESSURE)}): selector.EntitySelector(
-                    selector.EntitySelectorConfig(domain="sensor", device_class=["pressure", "atmospheric_pressure"])
+                    selector.EntitySelectorConfig(domain="sensor", device_class=["pressure", "atmospheric_pressure"], multiple=False)
                 ),
                 vol.Optional(CONF_SENSOR_WIND_SPEED, description={"suggested_value": data.get(CONF_SENSOR_WIND_SPEED)}): selector.EntitySelector(
-                    selector.EntitySelectorConfig(domain="sensor", device_class="wind_speed")
+                    selector.EntitySelectorConfig(domain="sensor", device_class="wind_speed", multiple=False)
                 ),
                 vol.Optional(CONF_SENSOR_WIND_BEARING, description={"suggested_value": data.get(CONF_SENSOR_WIND_BEARING)}): selector.EntitySelector(
-                    selector.EntitySelectorConfig(domain="sensor")
+                    selector.EntitySelectorConfig(domain="sensor", multiple=False)
                 ),
                 vol.Optional(CONF_SENSOR_WIND_GUST, description={"suggested_value": data.get(CONF_SENSOR_WIND_GUST)}): selector.EntitySelector(
-                    selector.EntitySelectorConfig(domain="sensor", device_class="wind_speed")
+                    selector.EntitySelectorConfig(domain="sensor", device_class="wind_speed", multiple=False)
                 ),
                 vol.Optional(CONF_SENSOR_RAIN, description={"suggested_value": data.get(CONF_SENSOR_RAIN)}): selector.EntitySelector(
-                    selector.EntitySelectorConfig(domain="sensor")
+                    selector.EntitySelectorConfig(domain="sensor", multiple=False)
                 ),
                 vol.Optional(CONF_SENSOR_VISIBILITY, description={"suggested_value": data.get(CONF_SENSOR_VISIBILITY)}): selector.EntitySelector(
-                    selector.EntitySelectorConfig(domain="sensor")
+                    selector.EntitySelectorConfig(domain="sensor", multiple=False)
                 ),
                 vol.Optional(CONF_SENSOR_UV_INDEX, description={"suggested_value": data.get(CONF_SENSOR_UV_INDEX)}): selector.EntitySelector(
-                    selector.EntitySelectorConfig(domain="sensor")
+                    selector.EntitySelectorConfig(domain="sensor", multiple=False)
                 ),
                 vol.Optional(CONF_SENSOR_OZONE, description={"suggested_value": data.get(CONF_SENSOR_OZONE)}): selector.EntitySelector(
-                    selector.EntitySelectorConfig(domain="sensor")
+                    selector.EntitySelectorConfig(domain="sensor", multiple=False)
                 ),
                 vol.Optional(CONF_SENSOR_CLOUD_COVERAGE, description={"suggested_value": data.get(CONF_SENSOR_CLOUD_COVERAGE)}): selector.EntitySelector(
-                    selector.EntitySelectorConfig(domain="sensor")
+                    selector.EntitySelectorConfig(domain="sensor", multiple=False)
                 ),
                 vol.Optional(CONF_SENSOR_DEW_POINT, description={"suggested_value": data.get(CONF_SENSOR_DEW_POINT)}): selector.EntitySelector(
-                    selector.EntitySelectorConfig(domain="sensor")
+                    selector.EntitySelectorConfig(domain="sensor", multiple=False)
                 ),
                 vol.Optional(CONF_SENSOR_APPARENT_TEMPERATURE, description={"suggested_value": data.get(CONF_SENSOR_APPARENT_TEMPERATURE)}): selector.EntitySelector(
-                    selector.EntitySelectorConfig(domain="sensor")
+                    selector.EntitySelectorConfig(domain="sensor", multiple=False)
                 ),
             })
         )
