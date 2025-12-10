@@ -530,6 +530,9 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 }
             ),
             errors=errors,
+            description_placeholders={
+                "measurements_info": "Info about measurements"
+            }
         )
 
     async def async_step_local_sensors(

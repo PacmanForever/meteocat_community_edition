@@ -165,9 +165,18 @@ For each configured station, these entities are created:
 
 > **Note:** All entities are grouped under a single device named "{Station} {Code}" (e.g., "Barcelona YM")
 
-### Municipality Mode
+### Local Station Mode (Forecast + Local Sensors)
+
+This mode is designed for users who have their own weather station (Netatmo, Ecowitt, ESPHome, etc.) integrated into Home Assistant.
+
+It allows creating a `weather` entity that combines:
+1. **Current Data**: From your local sensors (Temperature, Humidity, Pressure, Wind, Rain).
+2. **Forecast**: Official Meteocat forecast for your municipality.
 
 For each configured municipality, these entities are created:
+
+#### Weather Entity
+- `weather.{municipality}`: Main entity. Shows current state (from your sensors) and forecast (from Meteocat).
 
 #### Hourly Forecast Sensor
 - **Name**: {Municipality} Hourly Forecast
@@ -231,7 +240,7 @@ Data is updated as follows:
 - **At forecast times**: 3 additional calls (forecast + hourly + quotes)
 - **Daily average**: ~30 calls (24 hours × 1 + 2 forecasts × 3)
 
-**Municipal Mode**:
+**Local Station Mode**:
 - **At forecast times**: 3 calls (forecast + hourly + quotes)
 - **Daily average**: ~6 calls (2 scheduled × 3)
 
@@ -239,8 +248,8 @@ Data is updated as follows:
 
 | Mode | Calls/day | Calls/month | Remaining quota* | Available manual updates |
 |------|-----------|-------------|------------------|-------------------------|
-| **Station** | ~30 | ~900 | ~100 | ~3/day (100÷30) |
-| **Municipal** | ~6 | ~180 | ~820 | ~27/day (820÷30) |
+| **Station XEMA** | ~30 | ~900 | ~100 | ~3/day (100÷30) |
+| **Local Station** | ~6 | ~180 | ~820 | ~27/day (820÷30) |
 
 \* Assuming 1000 calls/month quota (standard Predicció plan)
 
@@ -265,7 +274,7 @@ Configuration examples:
 Each entry creates a **"Refresh data"** button that allows you to force an immediate update when needed:
 
 - Does not affect scheduled updates
-- Consumes API quota (5 calls in Station mode, 4 in Municipal mode)
+- Consumes API quota (5 calls in Station XEMA mode, 4 in Local Station mode)
 - Useful to get fresh data before an event or trip
 
 ## Events
@@ -274,7 +283,7 @@ Each integration entry fires an **event** (`meteocat_community_edition_data_upda
 
 This event contains the following information:
 
-- **`mode`**: Entry mode (`estacio` or `municipi`)
+- **`mode`**: Entry mode (`external` or `local`)
 - **`station_code`**: Station code (only in Station Mode)
 - **`municipality_code`**: Municipality code (if available)
 - **`timestamp`**: Exact moment of the update (ISO 8601)
@@ -290,7 +299,7 @@ automation:
       - platform: event
         event_type: meteocat_community_edition_data_updated
         event_data:
-          mode: estacio
+          mode: external
           station_code: YM
     action:
       - service: notify.mobile_app
@@ -302,7 +311,7 @@ automation:
       - platform: event
         event_type: meteocat_community_edition_data_updated
         event_data:
-          mode: municipi
+          mode: local
           municipality_code: "080759"
     action:
       - service: script.refresh_weather_dashboard
@@ -327,11 +336,11 @@ automation:
             Timestamp={{ trigger.event.data.timestamp }}
 ```
 
-## Using municipality forecasts in a custom Weather entity
+## Forecast Sensors Detail
 
-If you configured **Municipality Mode**, you can use the sensor data to create your own Weather entity using Home Assistant's [`template` component](https://www.home-assistant.io/integrations/weather.template/).
+Both in **Station XEMA Mode** and **Local Station Mode**, additional sensors are created with raw forecast data. This is useful if you want to create custom cards or advanced automations.
 
-### Available sensors in Municipality Mode
+### Available sensors
 
 Municipality Mode creates these sensors:
 
@@ -395,29 +404,7 @@ Available attributes:
 {{ state_attr('sensor.barcelona_daily_forecast', 'forecast').dies[1].variables.tmin.valor }}
 ```
 
-### Custom Weather entity example
 
-⚠️ **Important note**: The `weather.template` component requires preprocessing data since Meteocat API returns complex structures. It's more practical to use **custom cards** or **template sensors** to display forecasts.
-
-#### Add forecasts to a local weather entity
-
-If you have a local weather station and want to add Meteocat's forecasts, you can use a `weather.template` entity:
-
-```yaml
-weather:
-  - platform: template
-    name: "Home with Forecast"
-    condition_template: "{{ states('weather.my_local_station') }}"
-    temperature_template: "{{ state_attr('weather.my_local_station', 'temperature') }}"
-    humidity_template: "{{ state_attr('weather.my_local_station', 'humidity') }}"
-    # ... other fields from your local station ...
-    
-    # Hourly/daily forecasts from Meteocat
-    forecast_hourly_template: "{{ state_attr('sensor.barcelona_hourly_forecast', 'forecast_ha') }}"
-    forecast_daily_template: "{{ state_attr('sensor.barcelona_daily_forecast', 'forecast_ha') }}"
-```
-
-> **Note**: The `forecast_ha` attribute provides data in the standard Home Assistant format, ready to be used in `weather.template`. The `forecast` attribute contains the original data from the Meteocat API.
 
 ### Create custom cards
 

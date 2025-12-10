@@ -15,6 +15,7 @@ from custom_components.meteocat_community_edition.const import (
     DOMAIN,
     CONF_MODE,
     CONF_STATION_NAME,
+    CONF_MUNICIPALITY_NAME,
     MODE_EXTERNAL,
     MODE_LOCAL,
 )
@@ -58,11 +59,15 @@ async def test_async_setup_entry_external_mode(mock_hass, mock_entry, mock_coord
 
 @pytest.mark.asyncio
 async def test_async_setup_entry_local_mode(mock_hass, mock_entry, mock_coordinator):
-    """Test setup entry in municipality mode (should skip)."""
+    """Test setup entry in local mode."""
     mock_entry.data[CONF_MODE] = MODE_LOCAL
+    mock_entry.data[CONF_MUNICIPALITY_NAME] = "Abrera"
     mock_hass.data[DOMAIN][mock_entry.entry_id] = mock_coordinator
     async_add_entities = MagicMock()
 
     await async_setup_entry(mock_hass, mock_entry, async_add_entities)
 
-    assert not async_add_entities.called
+    assert async_add_entities.called
+    args = async_add_entities.call_args[0][0]
+    assert len(args) == 1
+    assert args[0].unique_id == "test_entry_id_weather_local"

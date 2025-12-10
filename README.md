@@ -38,7 +38,7 @@ Integració **comunitària** i **no oficial** per a Home Assistant del Servei Me
 - 📊 **Prediccions horàries** (72 hores) i **diàries** (8 dies)
 - 📈 **Sensors de quotes API** per controlar l'ús
 - 🏢 **Múltiples estacions** configurables
-- 🏙️ **Mode Municipi** per obtenir només prediccions (sense estació)
+- 🏙️ **Mode Estació Local** per combinar sensors propis amb prediccions oficials
 - 🌍 Traduccions en **català**, **castellà** i **anglès**
 
 ## Instal·lació
@@ -148,14 +148,19 @@ Aquest mode està pensat per obtenir dades d'una estació meteorològica oficial
 | **Sensor** | `sensor.{estacio}_{codi}_provincia_name` | Nom de la província (si disponible). |
 | **Button** | `button.{estacio}_{codi}_refresh` | Botó per forçar una actualització manual immediata. |
 
-### Mode Predicció Municipal (Només Predicció)
+### Mode Estació Local (Predicció + Sensors Locals)
 
-Aquest mode està pensat per a usuaris que ja tenen una estació meteorològica pròpia (Netatmo, Ecowitt, etc.) i només volen les prediccions oficials.
+Aquest mode està pensat per a usuaris que tenen una estació meteorològica pròpia (Netatmo, Ecowitt, ESPHome, etc.) integrada a Home Assistant.
+
+Permet crear una entitat `weather` que combina:
+1. **Dades actuals**: Dels teus sensors locals (Temperatura, Humitat, Pressió, Vent, Pluja).
+2. **Predicció**: Oficial del Meteocat per al teu municipi.
 
 **Dispositiu**: `{Nom Municipi}` (ex: "Barcelona")
 
 | Tipus | Entitat | Descripció |
 |-------|---------|------------|
+| **Weather** | `weather.{municipi}` | Entitat principal. Mostra l'estat actual (dels teus sensors) i la predicció (del Meteocat). |
 | **Sensor** | `sensor.{municipi}_prediccio_horaria` | L'estat mostra les hores disponibles. Els atributs contenen la predicció completa per a 72h. |
 | **Sensor** | `sensor.{municipi}_prediccio_diaria` | L'estat mostra els dies disponibles. Els atributs contenen la predicció completa per a 8 dies. |
 | **Sensor** | `sensor.{municipi}_quota_disponible_{pla}` | Un sensor per a cada pla de quotes rellevant (Predicció). Mostra les peticions restants. |
@@ -170,7 +175,7 @@ Aquest mode està pensat per a usuaris que ja tenen una estació meteorològica 
 | **Sensor** | `sensor.{municipi}_municipality_longitude` | Longitud del municipi (si disponible). |
 | **Button** | `button.{municipi}_refresh` | Botó per forçar una actualització manual immediata. |
 
-> **Nota:** En el Mode Municipi **NO es crea cap entitat `weather`**. Has de fer servir els sensors de predicció per crear la teva pròpia entitat `weather.template` o mostrar les dades en targetes personalitzades.
+> **Nota:** Durant la configuració, se't demanarà que seleccionis els sensors de la teva estació local per alimentar l'entitat `weather`.
 
 ## Actualització de dades
 
@@ -193,7 +198,7 @@ Les dades s'actualitzen de la següent manera:
 - **A les hores de predicció**: 3 crides addicionals (forecast + hourly + quotes)
 - **Mitjana diària**: ~30 crides (24 hores × 1 + 2 prediccions × 3)
 
-**Mode Municipal**:
+**Mode Estació Local**:
 - **A les hores de predicció**: 3 crides (forecast + hourly + quotes)
 - **Mitjana diària**: ~6 crides (2 programades × 3)
 
@@ -201,8 +206,8 @@ Les dades s'actualitzen de la següent manera:
 
 | Mode | Crides/dia | Crides/mes | Quota restant* | Actualitzacions manuals disponibles |
 |------|-----------|-----------|----------------|-------------------------------------|
-| **Estació** | ~30 | ~900 | ~100 | ~3/dia (100÷30) |
-| **Municipal** | ~6 | ~180 | ~820 | ~27/dia (820÷30) |
+| **Estació XEMA** | ~30 | ~900 | ~100 | ~3/dia (100÷30) |
+| **Estació Local** | ~6 | ~180 | ~820 | ~27/dia (820÷30) |
 
 \* Assumint quota de 1000 crides/mes (pla Predicció estàndard)
 
@@ -227,7 +232,7 @@ Exemples de configuració:
 Cada entrada crea un botó **"Actualitzar dades"** que et permet forçar una actualització immediata quan la necessitis:
 
 - No afecta les actualitzacions programades
-- Consumeix quota de l'API (5 crides en mode Estació, 4 en mode Municipal)
+- Consumeix quota de l'API (5 crides en mode Estació XEMA, 4 en mode Estació Local)
 - Útil per obtenir dades fresques abans d'un esdeveniment o viatge
 
 ## Esdeveniments
@@ -236,7 +241,7 @@ Cada entrada de la integració dispara un **esdeveniment** (`meteocat_community_
 
 Aquest esdeveniment conté la següent informació:
 
-- **`mode`**: Mode de l'entrada (`estacio` o `municipi`)
+- **`mode`**: Mode de l'entrada (`external` o `local`)
 - **`station_code`**: Codi de l'estació (només en Mode Estació)
 - **`municipality_code`**: Codi del municipi (si està disponible)
 - **`timestamp`**: Moment exacte de l'actualització (ISO 8601)
@@ -252,7 +257,7 @@ automation:
       - platform: event
         event_type: meteocat_community_edition_data_updated
         event_data:
-          mode: estacio
+          mode: external
           station_code: YM
     action:
       - service: notify.mobile_app
@@ -264,7 +269,7 @@ automation:
       - platform: event
         event_type: meteocat_community_edition_data_updated
         event_data:
-          mode: municipi
+          mode: local
           municipality_code: "080759"
     action:
       - service: script.refresh_weather_dashboard
@@ -289,17 +294,11 @@ automation:
             Timestamp={{ trigger.event.data.timestamp }}
 ```
 
-## Utilitzar les prediccions municipals en una entitat Weather personalitzada
+## Detall dels sensors de predicció
 
-> 💡 **Per a què serveix aquesta secció?** Si tens una **estació meteorològica local** (Netatmo, Ecowitt, personal, etc.) que proporciona dades actuals però **no té prediccions**, aquesta secció t'explica com combinar les dades de la teva estació amb les prediccions oficials de Meteocat utilitzant el **Mode Municipi**.
+Tant en el **Mode Estació XEMA** com en el **Mode Estació Local**, es creen sensors addicionals amb les dades de predicció en brut. Això és útil si vols crear targetes personalitzades o automatitzacions avançades.
 
-Si has configurat el **Mode Municipi**, pots utilitzar les dades dels sensors de predicció per crear la teva pròpia entitat Weather mitjançant el component [`weather.template` de Home Assistant](https://www.home-assistant.io/integrations/weather.template/), combinant:
-- **Dades actuals** de la teva estació meteorològica local
-- **Prediccions oficials** de Meteocat (horàries i diàries)
-
-### Sensors disponibles en Mode Municipi
-
-El Mode Municipi crea aquests sensors:
+### Sensors disponibles
 
 - **`sensor.{municipi}_prediccio_horaria`**: Predicció de les pròximes 72 hores
 - **`sensor.{municipi}_prediccio_diaria`**: Predicció dels pròxims 8 dies  
@@ -310,7 +309,7 @@ El Mode Municipi crea aquests sensors:
 
 ### Accedir a les dades de predicció
 
-Els sensors emmagatzemen les prediccions completes als seus **atributs**::
+Els sensors emmagatzemen les prediccions completes als seus **atributs**:
 
 #### Predicció Horària (`sensor.{municipi}_prediccio_horaria`)
 
@@ -318,21 +317,13 @@ L'estat del sensor mostra el nombre d'hores disponibles (ex: "72 hores").
 
 Atributs disponibles:
 ```yaml
-# Accedir a totes les dades de predicció horària
+# Accedir a totes les dades de predicció horària (Format original API Meteocat)
 {{ state_attr('sensor.barcelona_prediccio_horaria', 'forecast') }}
 
-# L'estructura conté:
-# - dies: array de dies amb prediccions
-#   - data: data del dia (ex: "2025-11-24")
-#   - variables: diccionari amb les variables meteorològiques
-#     - temp: temperatura (valors per hora)
-#     - hr: humitat relativa
-#     - ws: velocitat del vent
-#     - wd: direcció del vent
-#     - ppcp: precipitació
-#     - etc.
+# Accedir a les dades en format Home Assistant (llest per weather.template)
+{{ state_attr('sensor.barcelona_prediccio_horaria', 'forecast_ha') }}
 
-# Exemple: accedir a les temperatures d'avui
+# Exemple: accedir a les temperatures d'avui (Format original)
 {{ state_attr('sensor.barcelona_prediccio_horaria', 'forecast').dies[0].variables.temp.valors }}
 ```
 
@@ -342,48 +333,15 @@ L'estat del sensor mostra el nombre de dies disponibles (ex: "8 dies").
 
 Atributs disponibles:
 ```yaml
-# Accedir a totes les dades de predicció diària
+# Accedir a totes les dades de predicció diària (Format original API Meteocat)
 {{ state_attr('sensor.barcelona_prediccio_diaria', 'forecast') }}
 
-# L'estructura conté:
-# - dies: array de dies amb prediccions
-#   - data: data del dia (ex: "2025-11-24")
-#   - variables:
-#     - tmax: temperatura màxima
-#     - tmin: temperatura mínima
-#     - ppcp: precipitació total
-#     - etc.
+# Accedir a les dades en format Home Assistant (llest per weather.template)
+{{ state_attr('sensor.barcelona_prediccio_diaria', 'forecast_ha') }}
 
 # Exemple: temperatura màxima de demà
 {{ state_attr('sensor.barcelona_prediccio_diaria', 'forecast').dies[1].variables.tmax.valor }}
-
-# Exemple: temperatura mínima de demà
-{{ state_attr('sensor.barcelona_prediccio_diaria', 'forecast').dies[1].variables.tmin.valor }}
 ```
-
-### Exemple d'entitat Weather personalitzada
-
-⚠️ **Nota important**: El component `weather.template` requereix preprocessar les dades ja que l'API de Meteocat retorna estructures complexes. És més pràctic utilitzar **targetes personalitzades** o **sensors template** per mostrar les prediccions.
-
-#### Afegir prediccions a una entitat weather local
-
-Si tens una estació meteorològica local i vols afegir-hi les prediccions de Meteocat, pots utilitzar una entitat `weather.template`:
-
-```yaml
-weather:
-  - platform: template
-    name: "Casa amb Predicció"
-    condition_template: "{{ states('weather.la_meva_estacio_local') }}"
-    temperature_template: "{{ state_attr('weather.la_meva_estacio_local', 'temperature') }}"
-    humidity_template: "{{ state_attr('weather.la_meva_estacio_local', 'humidity') }}"
-    # ... altres camps de la teva estació local ...
-    
-    # Prediccions horàries/diàries de Meteocat
-    forecast_hourly_template: "{{ state_attr('sensor.barcelona_prediccio_horaria', 'forecast_ha') }}"
-    forecast_daily_template: "{{ state_attr('sensor.barcelona_prediccio_diaria', 'forecast_ha') }}"
-```
-
-> **Nota**: L'atribut `forecast_ha` proporciona les dades en el format estàndard de Home Assistant, llest per ser utilitzat en `weather.template`. L'atribut `forecast` conté les dades originals de l'API de Meteocat.
 
 ### Crear targetes personalitzades
 

@@ -1,7 +1,7 @@
 # Future Plans: Hybrid Weather Station (Estació Local)
 
 **Date:** 2025-12-10
-**Status:** Planned for next iteration
+**Status:** Completed in v1.1.0
 
 ## Concept
 Transform the current "Municipality Mode" into a "Local Station Mode" (Estació Local).

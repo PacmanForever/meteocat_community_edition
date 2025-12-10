@@ -165,9 +165,18 @@ Para cada estación configurada se crean:
 
 > **Nota:** Todas las entidades se agrupan bajo un único dispositivo con nombre "{Estación} {Código}" (ej: "Barcelona YM")
 
-### Modo Predicción Municipal
+### Modo Estación Local (Predicción + Sensores Locales)
+
+Este modo está pensado para usuarios que tienen una estación meteorológica propia (Netatmo, Ecowitt, ESPHome, etc.) integrada en Home Assistant.
+
+Permite crear una entidad `weather` que combina:
+1. **Datos actuales**: De tus sensores locales (Temperatura, Humedad, Presión, Viento, Lluvia).
+2. **Predicción**: Oficial del Meteocat para tu municipio.
 
 Para cada municipio configurado se crean:
+
+#### Weather Entity
+- `weather.{municipio}`: Entidad principal. Muestra el estado actual (de tus sensores) y la predicción (del Meteocat).
 
 #### Sensor Predicción Horaria
 - **Nombre**: {Municipio} Predicción Horaria
@@ -231,7 +240,7 @@ Los datos se actualizan de la siguiente manera:
 - **A las horas de predicción**: 3 llamadas adicionales (forecast + hourly + quotes)
 - **Media diaria**: ~30 llamadas (24 horas × 1 + 2 predicciones × 3)
 
-**Modo Municipal**:
+**Modo Estación Local**:
 - **A las horas de predicción**: 3 llamadas (forecast + hourly + quotes)
 - **Media diaria**: ~6 llamadas (2 programadas × 3)
 
@@ -239,8 +248,8 @@ Los datos se actualizan de la siguiente manera:
 
 | Modo | Llamadas/día | Llamadas/mes | Cuota restante* | Actualizaciones manuales disponibles |
 |------|-------------|--------------|-----------------|-------------------------------------|
-| **Estación** | ~30 | ~900 | ~100 | ~3/día (100÷30) |
-| **Municipal** | ~6 | ~180 | ~820 | ~27/día (820÷30) |
+| **Estación XEMA** | ~30 | ~900 | ~100 | ~3/día (100÷30) |
+| **Estación Local** | ~6 | ~180 | ~820 | ~27/día (820÷30) |
 
 \* Asumiendo cuota de 1000 llamadas/mes (plan Predicción estándar)
 
@@ -265,7 +274,7 @@ Ejemplos de configuración:
 Cada entrada crea un botón **"Actualizar datos"** que te permite forzar una actualización inmediata cuando la necesites:
 
 - No afecta a las actualizaciones programadas
-- Consume cuota de la API (5 llamadas en modo Estación, 4 en modo Municipal)
+- Consume cuota de la API (5 llamadas en modo Estación XEMA, 4 en modo Estación Local)
 - Útil para obtener datos frescos antes de un evento o viaje
 
 ## Eventos
@@ -274,7 +283,7 @@ Cada entrada de la integración dispara un **evento** (`meteocat_community_editi
 
 Este evento contiene la siguiente información:
 
-- **`mode`**: Modo de la entrada (`estacio` o `municipi`)
+- **`mode`**: Modo de la entrada (`external` o `local`)
 - **`station_code`**: Código de la estación (solo en Modo Estación)
 - **`municipality_code`**: Código del municipio (si está disponible)
 - **`timestamp`**: Momento exacto de la actualización (ISO 8601)
@@ -290,7 +299,7 @@ automation:
       - platform: event
         event_type: meteocat_community_edition_data_updated
         event_data:
-          mode: estacio
+          mode: external
           station_code: YM
     action:
       - service: notify.mobile_app
@@ -302,7 +311,7 @@ automation:
       - platform: event
         event_type: meteocat_community_edition_data_updated
         event_data:
-          mode: municipi
+          mode: local
           municipality_code: "080759"
     action:
       - service: script.refresh_weather_dashboard
@@ -327,15 +336,11 @@ automation:
             Timestamp={{ trigger.event.data.timestamp }}
 ```
 
-## Utilizar las predicciones municipales en una entidad Weather personalizada
+## Detalle de los sensores de predicción
 
-> 💡 **¿Para qué sirve esta sección?** Si tienes una **estación meteorológica local** (Netatmo, Ecowitt, personal, etc.) que proporciona datos actuales pero **no tiene predicciones**, esta sección te explica cómo combinar los datos de tu estación con las predicciones oficiales de Meteocat utilizando el **Modo Municipio**.
+Tanto en el **Modo Estación XEMA** como en el **Modo Estación Local**, se crean sensores adicionales con los datos de predicción en bruto. Esto es útil si quieres crear tarjetas personalizadas o automatizaciones avanzadas.
 
-Si has configurado el **Modo Municipio**, puedes utilizar los datos de los sensores de predicción para crear tu propia entidad Weather mediante el componente [`weather.template` de Home Assistant](https://www.home-assistant.io/integrations/weather.template/), combinando:
-- **Datos actuales** de tu estación meteorológica local
-- **Predicciones oficiales** de Meteocat (horarias y diarias)
-
-### Sensores disponibles en Modo Municipio
+### Sensores disponibles
 
 El Modo Municipio crea estos sensores:
 
@@ -402,29 +407,7 @@ Atributos disponibles:
 ### Ejemplo de entidad Weather personalizada
 ```
 
-### Ejemplo de entidad Weather personalizada
 
-⚠️ **Nota importante**: El componente `weather.template` requiere preprocesar los datos ya que la API de Meteocat devuelve estructuras complejas. Es más práctico utilizar **tarjetas personalizadas** o **sensores template** para mostrar las predicciones.
-
-#### Añadir predicciones a una entidad weather local
-
-Si tienes una estación meteorológica local y quieres añadirle las predicciones de Meteocat, puedes utilizar una entidad `weather.template`:
-
-```yaml
-weather:
-  - platform: template
-    name: "Casa con Predicción"
-    condition_template: "{{ states('weather.mi_estacion_local') }}"
-    temperature_template: "{{ state_attr('weather.mi_estacion_local', 'temperature') }}"
-    humidity_template: "{{ state_attr('weather.mi_estacion_local', 'humidity') }}"
-    # ... otros campos de tu estación local ...
-    
-    # Predicciones horarias/diarias de Meteocat
-    forecast_hourly_template: "{{ state_attr('sensor.barcelona_prediccion_horaria', 'forecast_ha') }}"
-    forecast_daily_template: "{{ state_attr('sensor.barcelona_prediccion_diaria', 'forecast_ha') }}"
-```
-
-> **Nota**: El atributo `forecast_ha` proporciona los datos en el formato estándar de Home Assistant, listo para ser utilizado en `weather.template`. El atributo `forecast` contiene los datos originales de la API de Meteocat.
 
 ### Crear tarjetas personalizadas
 

@@ -12,6 +12,7 @@
 - Configuració basada en municipis
 - Selecció per comarca i municipi
 - Accés a prediccions horàries i diàries
+- **Entitat Weather**: Crea una entitat weather combinant dades de sensors locals i prediccions del Meteocat
 
 ## 2. Sensors - MODE_EXTERNAL
 
@@ -66,6 +67,9 @@
   - Sempre disponible (reporta errors fins i tot quan el coordinator falla)
 
 ## 3. Sensors - MODE_LOCAL
+
+### 3.0. Entitat Weather
+- **Weather**: Entitat principal que combina dades de sensors locals (temperatura, humitat, etc.) amb la predicció del Meteocat.
 
 ### 3.1. Sensors de predicció
 - **Predicció horària**: 72 hores de predicció amb dades completes als atributs (si habilitada)
