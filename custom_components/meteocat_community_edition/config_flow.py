@@ -122,6 +122,7 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         from homeassistant.helpers import selector
         import voluptuous as vol
 
+        _LOGGER.warning("Entrant a async_step_condition_mapping (pantalla de mapping)")
         errors = {}
         mapping_type = None
         custom_mapping = None

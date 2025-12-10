@@ -262,3 +262,32 @@ async def test_flow_local_sensors_step():
     assert result2["title"] == "Abrera"
     assert result2["data"][CONF_SENSOR_TEMPERATURE] == "sensor.temp"
     assert result2["data"][CONF_SENSOR_HUMIDITY] == "sensor.hum"
+
+@pytest.mark.asyncio
+async def test_flow_mapping_step_called(caplog):
+    """Test que la pantalla de mapping (condition_mapping) es crida després de sensors locals."""
+    from custom_components.meteocat_community_edition.const import CONF_SENSOR_TEMPERATURE, CONF_SENSOR_HUMIDITY
+    flow = MeteocatConfigFlow()
+    flow.hass = MagicMock()
+    flow.api_key = "valid_key"
+    flow.mode = MODE_LOCAL
+    flow.municipality_code = "08001"
+    flow.municipality_name = "Abrera"
+    flow.comarca_code = "1"
+    flow.comarca_name = "Baix Llobregat"
+    flow.update_time_1 = "08:00"
+    flow.update_time_2 = ""
+    flow.update_time_3 = ""
+    flow.enable_forecast_daily = True
+    flow.enable_forecast_hourly = True
+    flow.context = {}
+    flow.api_base_url = "https://api.meteocat.cat/release/v1"
+    sensors_input = {
+        CONF_SENSOR_TEMPERATURE: "sensor.temp",
+        CONF_SENSOR_HUMIDITY: "sensor.hum",
+    }
+    with caplog.at_level("WARNING"):
+        result = await flow.async_step_local_sensors(sensors_input)
+        assert any("Entrant a async_step_condition_mapping" in r for r in caplog.text.splitlines())
+        assert result["type"] == "form"
+        assert result["step_id"] == "condition_mapping"
