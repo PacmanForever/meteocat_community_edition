@@ -624,7 +624,8 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 # Condition mapping fields
                 "mapping_type": getattr(self, "mapping_type", "meteocat"),
                 "custom_condition_mapping": getattr(self, "custom_condition_mapping", None),
-                "local_condition_entity": getattr(self, "local_condition_entity", None),
+                # Save the selected condition entity from the form
+                "local_condition_entity": user_input.get("local_condition_entity"),
             }
             # Add coordinates if available
             if hasattr(self, 'municipality_lat') and self.municipality_lat is not None:
@@ -656,6 +657,9 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     ),
                     vol.Required(CONF_SENSOR_HUMIDITY): selector.EntitySelector(
                         selector.EntitySelectorConfig(domain="sensor", device_class="humidity")
+                    ),
+                    vol.Required("local_condition_entity"): selector.EntitySelector(
+                        selector.EntitySelectorConfig(domain="sensor")
                     ),
                     vol.Optional(CONF_SENSOR_PRESSURE): selector.EntitySelector(
                         selector.EntitySelectorConfig(domain="sensor", device_class=["pressure", "atmospheric_pressure"])

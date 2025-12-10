@@ -77,6 +77,30 @@ def test_local_weather_initialization(mock_coordinator, mock_entry):
     assert weather.attribution == "Estació local + Predicció Meteocat"
 
 def test_local_weather_sensors(mock_coordinator, mock_entry):
+    def test_local_weather_ozone_extra_state(mock_coordinator, mock_entry):
+        """Test that ozone is present in extra_state_attributes and is serializable."""
+        weather = MeteocatLocalWeather(mock_coordinator, mock_entry)
+        weather.hass = MagicMock()
+        # Mock sensor states
+        def get_state(entity_id):
+            state = MagicMock()
+            if entity_id == "sensor.ozone":
+                state.state = "123.4"
+            else:
+                state.state = "0"
+            return state
+        # Patch _sensors to include ozone
+        weather._sensors["ozone"] = "sensor.ozone"
+        weather.hass.states.get.side_effect = get_state
+        attrs = weather.extra_state_attributes
+        assert "ozone" in attrs
+        assert attrs["ozone"] == 123.4
+        # Simulate JSON serialization (should not raise)
+        import json
+        try:
+            json.dumps(attrs)
+        except Exception as e:
+            pytest.fail(f"ozone attribute not serializable: {e}")
     """Test reading from local sensors."""
     weather = MeteocatLocalWeather(mock_coordinator, mock_entry)
     weather.hass = MagicMock()

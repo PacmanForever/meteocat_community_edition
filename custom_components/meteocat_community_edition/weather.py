@@ -440,6 +440,14 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
 
 
 class MeteocatLocalWeather(MeteocatWeather):
+        @property
+        def extra_state_attributes(self) -> dict:
+            """Return extra state attributes, including ozone if available."""
+            attrs = {}
+            ozone = self._get_sensor_value("ozone")
+            if ozone is not None:
+                attrs["ozone"] = ozone
+            return attrs
     """Representation of a Meteocat weather entity for Local Mode.
     
     Combines local sensor measurements with forecast data:
@@ -614,9 +622,9 @@ class MeteocatLocalWeather(MeteocatWeather):
     def wind_bearing(self) -> float | None:
         """Return the current wind bearing from the configured sensor."""
         return self._get_sensor_value("wind_bearing")
-    def ozone(self) -> float | None:
-        """Return the current ozone level."""
-        return self._get_sensor_value("ozone")
+
+
+    # Remove ozone property to avoid serialization issues. If ozone is needed, add to extra_state_attributes instead.
         
     @property
     def cloud_coverage(self) -> float | None:
