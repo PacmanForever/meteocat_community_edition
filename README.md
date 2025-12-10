@@ -6,7 +6,8 @@
 [![License](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 ![Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)
 
-[![Tests](https://github.com/PacmanForever/meteocat_community_edition/actions/workflows/tests.yml/badge.svg)](https://github.com/PacmanForever/meteocat_community_edition/actions/workflows/tests.yml)
+[![Unit Tests](https://github.com/PacmanForever/meteocat_community_edition/actions/workflows/tests_unit.yml/badge.svg)](https://github.com/PacmanForever/meteocat_community_edition/actions/workflows/tests_unit.yml)
+[![Component Tests](https://github.com/PacmanForever/meteocat_community_edition/actions/workflows/tests_component.yml/badge.svg)](https://github.com/PacmanForever/meteocat_community_edition/actions/workflows/tests_component.yml)
 [![Validate HACS](https://github.com/PacmanForever/meteocat_community_edition/actions/workflows/validate_hacs.yml/badge.svg)](https://github.com/PacmanForever/meteocat_community_edition/actions/workflows/validate_hacs.yml)
 [![Validate Hassfest](https://github.com/PacmanForever/meteocat_community_edition/actions/workflows/validate_hassfest.yml/badge.svg)](https://github.com/PacmanForever/meteocat_community_edition/actions/workflows/validate_hassfest.yml)
 
