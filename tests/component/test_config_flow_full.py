@@ -25,6 +25,7 @@ from custom_components.meteocat_community_edition.config_flow import (
     CONF_ENABLE_FORECAST_HOURLY,
 )
 from custom_components.meteocat_community_edition.api import MeteocatAPIError
+from custom_components.meteocat_community_edition.const import CONF_SENSOR_TEMPERATURE, CONF_SENSOR_HUMIDITY
 
 def test_is_valid_time_format():
     """Test time format validation."""
