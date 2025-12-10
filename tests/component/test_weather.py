@@ -132,7 +132,8 @@ def test_weather_entity_native_wind_speed(mock_coordinator, mock_entry):
     weather = MeteocatWeather(mock_coordinator, mock_entry)
     
     wind_speed = weather.native_wind_speed
-    assert wind_speed == 5.5
+    # 5.5 m/s * 3.6 = 19.8 km/h
+    assert wind_speed == 19.8
 
 
 def test_weather_entity_wind_bearing(mock_coordinator, mock_entry):
@@ -209,7 +210,7 @@ def test_weather_entity_units(mock_coordinator, mock_entry):
     assert weather.native_precipitation_unit == UnitOfPrecipitationDepth.MILLIMETERS
     assert weather.native_pressure_unit == UnitOfPressure.HPA
     assert weather.native_temperature_unit == UnitOfTemperature.CELSIUS
-    assert weather.native_wind_speed_unit == UnitOfSpeed.METERS_PER_SECOND
+    assert weather.native_wind_speed_unit == UnitOfSpeed.KILOMETERS_PER_HOUR
 
 
 def test_weather_entity_attribution(mock_coordinator, mock_entry):

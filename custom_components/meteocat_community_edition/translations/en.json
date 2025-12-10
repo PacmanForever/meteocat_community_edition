@@ -1,4 +1,8 @@
 {
+  "condition_mapping": {
+    "title": "Condition mapping (icon)",
+    "description": "Select the mapping for the 'condition' property (icon) of your Weather entity:\n\n- Meteocat: The value of 'condition' will be the official Meteocat forecast (fixed mapping, not editable).\n- Custom: The value of 'condition' will come from a local numeric entity. You must manually define the mapping between local sensor codes and the Home Assistant supported conditions (e.g. sunny, cloudy, rainy, clear-night, etc.)."
+  },
   "title": "Meteocat (Community Edition)",
   "config": {
     "step": {
@@ -54,8 +58,8 @@
         "title": "Local Sensors",
         "description": "Select Home Assistant sensors for current data.\n\nNot all weather cards display all data.",
         "data": {
-          "sensor_temperature": "Temperature",
-          "sensor_humidity": "Humidity",
+          "sensor_temperature": "Temperature (mandatory)",
+          "sensor_humidity": "Humidity (mandatory)",
           "sensor_pressure": "Atmospheric Pressure",
           "sensor_wind_speed": "Wind Speed",
           "sensor_wind_bearing": "Wind Direction (numeric/degrees)",

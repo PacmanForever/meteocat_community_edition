@@ -40,7 +40,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
     ATTRIBUTION,
-    CONDITION_MAP,
+    METEOCAT_CONDITION_MAP,
     CONF_COMARCA_NAME,
     CONF_MODE,
     CONF_MUNICIPALITY_CODE,
@@ -142,7 +142,7 @@ async def async_setup_entry(
         entity_name = entry.data.get(CONF_MUNICIPALITY_NAME, f"Municipi {municipality_code}")
         entity_name_with_code = entity_name  # For device grouping
     
-    # Add forecast sensors for municipal mode
+    # Add forecast sensors for local mode
     if mode == MODE_LOCAL:
         if coordinator.enable_forecast_hourly:
             entities.append(MeteocatForecastSensor(coordinator, entry, entity_name_with_code, entity_name, "hourly"))
@@ -185,7 +185,7 @@ async def async_setup_entry(
                     if "refer" in plan_name or "xdde" in plan_name:
                         continue
                         
-                    # Filter out XEMA plan in MUNICIPI mode (never used)
+                    # Filter out XEMA plan in LOCAL mode (never used)
                     if mode == MODE_LOCAL and "xema" in plan_name:
                         continue
                         
@@ -221,7 +221,7 @@ async def async_setup_entry(
         MeteocatUpdateTimeSensor(coordinator, entry, entity_name, entity_name_with_code, mode, 2, station_code if mode == MODE_EXTERNAL else None),
     ])
     
-    # Add forecast update sensors (only for station mode)
+    # Add forecast update sensors (only for external mode)
     if mode == MODE_EXTERNAL:
         entities.extend([
             MeteocatNextForecastUpdateSensor(coordinator, entry, entity_name, entity_name_with_code, station_code),
@@ -234,7 +234,7 @@ async def async_setup_entry(
             MeteocatUpdateTimeSensor(coordinator, entry, entity_name, entity_name_with_code, mode, 3, station_code if mode == MODE_EXTERNAL else None)
         )
     
-    # Add station location sensors (only for station mode)
+    # Add station location sensors (only for external mode)
     if mode == MODE_EXTERNAL:
         entities.extend([
             MeteocatAltitudeSensor(coordinator, entry, entity_name, entity_name_with_code, station_code),
@@ -598,7 +598,7 @@ class MeteocatForecastSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
                             pass
                     
                     if time_str in estat_dict:
-                        condition = CONDITION_MAP.get(estat_dict[time_str], "cloudy")
+                        condition = METEOCAT_CONDITION_MAP.get(estat_dict[time_str], "cloudy")
                         forecast_item["condition"] = condition
                     
                     if time_str in precip_dict:
@@ -655,7 +655,7 @@ class MeteocatForecastSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
             if isinstance(estat_cel, dict):
                 estat_code = estat_cel.get("valor")
                 if estat_code is not None:
-                    condition = CONDITION_MAP.get(estat_code, "cloudy")
+                    condition = METEOCAT_CONDITION_MAP.get(estat_code, "cloudy")
                     forecast_item["condition"] = condition
             
             # Precipitation (simple object with valor, percentage)
@@ -732,13 +732,18 @@ class MeteocatLastUpdateSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnt
         return self.coordinator.last_successful_update_time
 
     @property
+    def available(self) -> bool:
+        """Return True if entity is available."""
+        return True
+
+    @property
     def icon(self) -> str:
         """Return the icon."""
         return "mdi:update"
 
 
 class MeteocatNextForecastUpdateSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
-    """Sensor showing next scheduled forecast update timestamp (Station Mode)."""
+    """Sensor showing next scheduled forecast update timestamp (External Mode)."""
 
     _attr_attribution = ATTRIBUTION
     _attr_device_class = SensorDeviceClass.TIMESTAMP
@@ -781,13 +786,18 @@ class MeteocatNextForecastUpdateSensor(CoordinatorEntity[MeteocatCoordinator], S
         return getattr(self.coordinator, "next_forecast_update", None)
 
     @property
+    def available(self) -> bool:
+        """Return True if entity is available."""
+        return True
+
+    @property
     def icon(self) -> str:
         """Return the icon."""
         return "mdi:calendar-clock"
 
 
 class MeteocatLastForecastUpdateSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
-    """Sensor showing last forecast update timestamp (Station Mode)."""
+    """Sensor showing last forecast update timestamp (External Mode)."""
 
     _attr_attribution = ATTRIBUTION
     _attr_device_class = SensorDeviceClass.TIMESTAMP
@@ -828,6 +838,11 @@ class MeteocatLastForecastUpdateSensor(CoordinatorEntity[MeteocatCoordinator], S
     def native_value(self):
         """Return the last forecast update time."""
         return getattr(self.coordinator, "last_forecast_update", None)
+
+    @property
+    def available(self) -> bool:
+        """Return True if entity is available."""
+        return True
 
     @property
     def icon(self) -> str:
@@ -902,6 +917,11 @@ class MeteocatNextUpdateSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnt
         return self.coordinator.next_scheduled_update
 
     @property
+    def available(self) -> bool:
+        """Return True if entity is available."""
+        return True
+
+    @property
     def icon(self) -> str:
         """Return the icon."""
         return "mdi:clock-outline"
@@ -965,6 +985,11 @@ class MeteocatUpdateTimeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnt
         elif self._time_number == 2:
             return self.coordinator.update_time_2
         return self.coordinator.update_time_3
+
+    @property
+    def available(self) -> bool:
+        """Return True if entity is available."""
+        return True
 
     @property
     def icon(self) -> str:
@@ -1234,6 +1259,12 @@ class MeteocatMunicipalityNameSensor(CoordinatorEntity[MeteocatCoordinator], Sen
         return self._municipality_name
 
     @property
+    def available(self) -> bool:
+        """Return True if entity is available."""
+        # Always available since data is cached in entry.data
+        return bool(self._municipality_name)
+
+    @property
     def icon(self) -> str:
         """Return the icon."""
         return "mdi:city"
@@ -1281,6 +1312,12 @@ class MeteocatComarcaNameSensor(CoordinatorEntity[MeteocatCoordinator], SensorEn
     def native_value(self) -> str | None:
         """Return the comarca name."""
         return self._comarca_name
+
+    @property
+    def available(self) -> bool:
+        """Return True if entity is available."""
+        # Always available since data is cached in entry.data
+        return bool(self._comarca_name)
 
     @property
     def icon(self) -> str:
@@ -1449,6 +1486,12 @@ class MeteocatProvinciaNameSensor(CoordinatorEntity[MeteocatCoordinator], Sensor
         return self._provincia_name
 
     @property
+    def available(self) -> bool:
+        """Return True if entity is available."""
+        # Always available since data is cached in entry.data
+        return bool(self._provincia_name)
+
+    @property
     def icon(self) -> str:
         """Return the icon."""
         return "mdi:map-marker-radius"
@@ -1498,6 +1541,12 @@ class MeteocatStationComarcaNameSensor(CoordinatorEntity[MeteocatCoordinator], S
     def native_value(self) -> str | None:
         """Return the comarca name."""
         return self._comarca_name
+
+    @property
+    def available(self) -> bool:
+        """Return True if entity is available."""
+        # Always available since data is cached in entry.data
+        return bool(self._comarca_name)
 
     @property
     def icon(self) -> str:
@@ -1551,6 +1600,12 @@ class MeteocatStationMunicipalityNameSensor(CoordinatorEntity[MeteocatCoordinato
         return self._municipality_name
 
     @property
+    def available(self) -> bool:
+        """Return True if entity is available."""
+        # Always available since data is cached in entry.data
+        return bool(self._municipality_name)
+
+    @property
     def icon(self) -> str:
         """Return the icon."""
         return "mdi:city"
@@ -1600,6 +1655,12 @@ class MeteocatStationProvinciaNameSensor(CoordinatorEntity[MeteocatCoordinator],
     def native_value(self) -> str | None:
         """Return the provincia name."""
         return self._provincia_name
+
+    @property
+    def available(self) -> bool:
+        """Return True if entity is available."""
+        # Always available since data is cached in entry.data
+        return bool(self._provincia_name)
 
     @property
     def icon(self) -> str:

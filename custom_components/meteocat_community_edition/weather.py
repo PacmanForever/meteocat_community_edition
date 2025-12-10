@@ -31,7 +31,7 @@ from homeassistant.util import dt as dt_util
 
 from .const import (
     ATTRIBUTION, 
-    CONDITION_MAP, 
+    METEOCAT_CONDITION_MAP, 
     CONF_STATION_NAME, 
     CONF_MUNICIPALITY_NAME,
     DOMAIN,
@@ -76,6 +76,7 @@ async def async_setup_entry(
         async_add_entities([MeteocatLocalWeather(coordinator, entry)])
 
 
+
 class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
     """Representation of a Meteocat weather entity.
     
@@ -86,10 +87,29 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
     Only available in MODE_EXTERNAL.
     """
 
+    @property
+    def native_wind_speed(self) -> float | None:
+        """Return the current wind speed in km/h from API data (variable code 30)."""
+        measurements = self.coordinator.data.get("measurements")
+        if not measurements or not isinstance(measurements, list) or not measurements:
+            return None
+        station_data = measurements[0]
+        variables = station_data.get("variables", [])
+        for variable in variables:
+            if variable.get("codi") == 30:  # Wind speed
+                lectures = variable.get("lectures", [])
+                if lectures:
+                    valor = lectures[-1].get("valor")
+                    try:
+                        return round(float(valor) * 3.6, 1)  # Convert m/s to km/h
+                    except (TypeError, ValueError):
+                        return None
+        return None
+
     _attr_native_precipitation_unit = UnitOfPrecipitationDepth.MILLIMETERS
     _attr_native_pressure_unit = UnitOfPressure.HPA
     _attr_native_temperature_unit = UnitOfTemperature.CELSIUS
-    _attr_native_wind_speed_unit = UnitOfSpeed.METERS_PER_SECOND
+    _attr_native_wind_speed_unit = UnitOfSpeed.KILOMETERS_PER_HOUR
 
     def __init__(
         self,
@@ -192,25 +212,6 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
         
         return None
 
-    @property
-    def native_wind_speed(self) -> float | None:
-        """Return the current wind speed."""
-        measurements = self.coordinator.data.get("measurements")
-        if not measurements or not isinstance(measurements, list) or not measurements:
-            return None
-        
-        # API returns list of stations, get first one
-        station_data = measurements[0]
-        variables = station_data.get("variables", [])
-        
-        # Find wind speed measurement (variable code 30)
-        for variable in variables:
-            if variable.get("codi") == 30:  # Wind speed
-                lectures = variable.get("lectures", [])
-                if lectures:
-                    return lectures[-1].get("valor")
-        
-        return None
 
     @property
     def wind_bearing(self) -> float | None:
@@ -249,7 +250,7 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
                         last_reading = lectures[-1]
                         estat_code = last_reading.get("valor")
                         if estat_code is not None:
-                            condition = CONDITION_MAP.get(estat_code, "cloudy")
+                            condition = METEOCAT_CONDITION_MAP.get(estat_code, "cloudy")
                             
                             # Convert sunny to clear-night if sun is below horizon
                             if condition == "sunny" and self._is_night():
@@ -275,7 +276,7 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
         if isinstance(estat_cel, dict):
             estat_code = estat_cel.get("valor")
             if estat_code is not None:
-                condition = CONDITION_MAP.get(estat_code, "cloudy")
+                condition = METEOCAT_CONDITION_MAP.get(estat_code, "cloudy")
                 
                 # Convert sunny to clear-night if sun is below horizon
                 if condition == "sunny" and self._is_night():
@@ -283,14 +284,6 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
                 
                 return condition
         
-        return None
-
-    @property
-    def icon(self) -> str | None:
-        """Return the icon to use in the frontend."""
-        condition = self.condition
-        if condition == "partlycloudy" and self._is_night():
-            return "mdi:weather-night-partly-cloudy"
         return None
 
     def _is_night(self) -> bool:
@@ -370,7 +363,7 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
                             pass
                     
                     if time_str in estat_dict:
-                        condition = CONDITION_MAP.get(estat_dict[time_str], "cloudy")
+                        condition = METEOCAT_CONDITION_MAP.get(estat_dict[time_str], "cloudy")
                         forecast_item["condition"] = condition
                     
                     if time_str in precip_dict:
@@ -427,7 +420,7 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
             if isinstance(estat_cel, dict):
                 estat_code = estat_cel.get("valor")
                 if estat_code is not None:
-                    condition = CONDITION_MAP.get(estat_code, "cloudy")
+                    condition = METEOCAT_CONDITION_MAP.get(estat_code, "cloudy")
                     forecast_item["condition"] = condition
             
             # Precipitation (simple object with valor, percentage)
@@ -460,43 +453,32 @@ class MeteocatLocalWeather(MeteocatWeather):
         entry: ConfigEntry,
     ) -> None:
         """Initialize the weather entity."""
-        # Call SingleCoordinatorWeatherEntity.__init__ directly
         SingleCoordinatorWeatherEntity.__init__(self, coordinator)
-        
         from .const import (
             CONF_ENABLE_FORECAST_DAILY,
             CONF_ENABLE_FORECAST_HOURLY,
         )
-        
-        # Determine supported features based on configuration
         self._attr_supported_features = 0
         if entry.data.get(CONF_ENABLE_FORECAST_DAILY, True):
             self._attr_supported_features |= WeatherEntityFeature.FORECAST_DAILY
         if entry.data.get(CONF_ENABLE_FORECAST_HOURLY, False):
             self._attr_supported_features |= WeatherEntityFeature.FORECAST_HOURLY
-            
         self._entry = entry
-        
         self._attr_attribution = "Estació local + Predicció Meteocat"
         self._attr_name = entry.data[CONF_MUNICIPALITY_NAME]
         self._attr_unique_id = f"{entry.entry_id}_weather_local"
         self.entity_id = f"weather.{self._attr_name.lower().replace(' ', '_')}_local"
-        
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._attr_name,
             "manufacturer": "Meteocat Edició Comunitària",
             "model": "Estació Local",
         }
-        
-        # Helper to handle potential list values from config
         def get_conf(key):
             val = entry.data.get(key)
             if isinstance(val, list):
                 return val[0] if val else None
             return val
-
-        # Store sensor entity IDs
         self._sensors = {
             "temp": get_conf(CONF_SENSOR_TEMPERATURE),
             "humidity": get_conf(CONF_SENSOR_HUMIDITY),
@@ -512,6 +494,10 @@ class MeteocatLocalWeather(MeteocatWeather):
             "apparent_temp": get_conf(CONF_SENSOR_APPARENT_TEMPERATURE),
             "rain": get_conf(CONF_SENSOR_RAIN),
         }
+        # Read mapping config
+        self._mapping_type = entry.data.get("mapping_type", "meteocat")
+        self._custom_condition_mapping = entry.data.get("custom_condition_mapping")
+        self._local_condition_entity = entry.data.get("local_condition_entity")
 
     async def async_added_to_hass(self) -> None:
         """Connect to dispatcher listening for entity data notifications."""
@@ -574,14 +560,45 @@ class MeteocatLocalWeather(MeteocatWeather):
 
     @property
     def condition(self) -> str | None:
-        """Return the current condition."""
-        # Check local rain sensor first
+        """Return the current condition, supporting custom mapping and entity."""
+        # 1. If a local condition entity is configured, use its state
+        if self._local_condition_entity:
+            state = self.hass.states.get(self._local_condition_entity)
+            if state and state.state not in ("unknown", "unavailable"):
+                return state.state
+
+        # 2. If a rain sensor is present and >0, return rainy
         rain_value = self._get_sensor_value("rain")
         if rain_value is not None and rain_value > 0:
             return "rainy"
-            
-        # Fallback to forecast
-        return super().condition
+
+        # 3. Use forecast or default logic, but allow custom mapping
+        forecast = self.coordinator.data.get("forecast")
+        if forecast:
+            dies = forecast.get("dies", [])
+            if dies:
+                variables = dies[0].get("variables", {})
+                estat_cel = variables.get("estatCel", {})
+                if isinstance(estat_cel, dict):
+                    estat_code = estat_cel.get("valor")
+                    if estat_code is not None:
+                        # Choose mapping
+                        if self._mapping_type == "custom" and self._custom_condition_mapping:
+                            mapping = self._custom_condition_mapping
+                        else:
+                            from .const import METEOCAT_CONDITION_MAP
+                            mapping = METEOCAT_CONDITION_MAP
+                        # Map code to condition
+                        condition = mapping.get(estat_code, "cloudy")
+                        if condition == "sunny" and self._is_night():
+                            return "clear-night"
+                        return condition
+
+        # 4. Fallback to super (default) logic
+        condition = super().condition
+        if condition == "sunny" and self._is_night():
+            return "clear-night"
+        return condition
 
     @property
     def native_pressure(self) -> float | None:
@@ -590,30 +607,13 @@ class MeteocatLocalWeather(MeteocatWeather):
 
     @property
     def native_wind_speed(self) -> float | None:
-        """Return the current wind speed."""
+        """Return the current wind speed from the configured sensor (in km/h)."""
         return self._get_sensor_value("wind_speed")
 
     @property
     def wind_bearing(self) -> float | None:
-        """Return the current wind bearing."""
+        """Return the current wind bearing from the configured sensor."""
         return self._get_sensor_value("wind_bearing")
-        
-    @property
-    def native_wind_gust_speed(self) -> float | None:
-        """Return the current wind gust speed."""
-        return self._get_sensor_value("wind_gust")
-
-    @property
-    def native_visibility(self) -> float | None:
-        """Return the current visibility."""
-        return self._get_sensor_value("visibility")
-        
-    @property
-    def uv_index(self) -> float | None:
-        """Return the current UV index."""
-        return self._get_sensor_value("uv_index")
-        
-    @property
     def ozone(self) -> float | None:
         """Return the current ozone level."""
         return self._get_sensor_value("ozone")

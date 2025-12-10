@@ -97,6 +97,8 @@ def validate_update_times(time1: str, time2: str, time3: str) -> dict[str, str]:
     return errors
 
 
+
+
 class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Meteocat (Community Edition)."""
 
@@ -114,6 +116,62 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self.entry: config_entries.ConfigEntry | None = None
         self._comarques: list[dict[str, Any]] = []
         self.api_base_url: str = DEFAULT_API_BASE_URL
+
+    async def async_step_condition_mapping(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+        """Configura el mapping de la condició Weather."""
+        from homeassistant.helpers import selector
+        import voluptuous as vol
+
+        errors = {}
+        mapping_type = None
+        custom_mapping = None
+        local_entity = None
+
+        # Llista de condicions suportades per Home Assistant
+        ha_conditions = [
+            "sunny", "clear-night", "cloudy", "partlycloudy", "rainy", "pouring", "lightning-rainy", "hail", "snowy", "snowy-rainy", "fog"
+        ]
+
+        if user_input is not None:
+            mapping_type = user_input.get("mapping_type", "meteocat")
+            if mapping_type == "custom":
+                custom_mapping = user_input.get("custom_condition_mapping")
+                local_entity = user_input.get("local_condition_entity")
+                if not local_entity:
+                    errors["local_condition_entity"] = "required"
+                if not custom_mapping:
+                    errors["custom_condition_mapping"] = "required"
+            if not errors:
+                # Guarda la selecció a l'entrada
+                self.mapping_type = mapping_type
+                self.custom_condition_mapping = custom_mapping
+                self.local_condition_entity = local_entity
+                # Continua amb sensors locals
+                return await self.async_step_local_sensors()
+
+        # Definició del formulari
+        schema = vol.Schema({
+            vol.Required("mapping_type", default="meteocat"): vol.In(["meteocat", "custom"]),
+        })
+        # Si tries custom, afegeix camps addicionals
+        if user_input is not None and user_input.get("mapping_type") == "custom":
+            schema = schema.extend({
+                vol.Required("local_condition_entity"): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain="sensor", multiple=False)
+                ),
+                vol.Required("custom_condition_mapping"): selector.ObjectSelector(),
+            })
+
+        return self.async_show_form(
+            step_id="condition_mapping",
+            data_schema=schema,
+            errors=errors,
+            description_placeholders={
+                "description": self.hass.helpers.translation.async_get_translated_string(
+                    "condition_mapping.description", DOMAIN, self.hass
+                )
+            },
+        )
 
     async def async_step_reauth(
         self, entry_data: dict[str, Any]
@@ -466,7 +524,7 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             time_errors = validate_update_times(time1, time2, time3)
             errors.update(time_errors)
             
-            # Validate forecast selection (only for municipal mode)
+            # Validate forecast selection (only for local mode)
             if self.mode == MODE_LOCAL and not enable_daily and not enable_hourly:
                 errors["base"] = "must_select_one_forecast"
             
@@ -563,6 +621,10 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 CONF_SENSOR_DEW_POINT: user_input.get(CONF_SENSOR_DEW_POINT),
                 CONF_SENSOR_APPARENT_TEMPERATURE: user_input.get(CONF_SENSOR_APPARENT_TEMPERATURE),
                 CONF_SENSOR_RAIN: user_input.get(CONF_SENSOR_RAIN),
+                # Condition mapping fields
+                "mapping_type": getattr(self, "mapping_type", "meteocat"),
+                "custom_condition_mapping": getattr(self, "custom_condition_mapping", None),
+                "local_condition_entity": getattr(self, "local_condition_entity", None),
             }
             # Add coordinates if available
             if hasattr(self, 'municipality_lat') and self.municipality_lat is not None:
@@ -589,10 +651,10 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             step_id="local_sensors",
             data_schema=vol.Schema(
                 {
-                    vol.Optional(CONF_SENSOR_TEMPERATURE): selector.EntitySelector(
+                    vol.Required(CONF_SENSOR_TEMPERATURE): selector.EntitySelector(
                         selector.EntitySelectorConfig(domain="sensor", device_class="temperature")
                     ),
-                    vol.Optional(CONF_SENSOR_HUMIDITY): selector.EntitySelector(
+                    vol.Required(CONF_SENSOR_HUMIDITY): selector.EntitySelector(
                         selector.EntitySelectorConfig(domain="sensor", device_class="humidity")
                     ),
                     vol.Optional(CONF_SENSOR_PRESSURE): selector.EntitySelector(
@@ -707,7 +769,7 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
             time_errors = validate_update_times(time1, time2, time3)
             errors.update(time_errors)
             
-            # Validate forecast selection (only for municipal mode)
+            # Validate forecast selection (only for local mode)
             mode = self.config_entry.data.get(CONF_MODE)
             if mode == MODE_LOCAL and not enable_daily and not enable_hourly:
                 errors["base"] = "must_select_one_forecast"

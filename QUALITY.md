@@ -221,6 +221,7 @@ Quan suggereixis canvis o nova funcionalitat:
 4. **Comprova** que no trenquis tests existents
 5. **Gestiona errors** adequadament
 6. **Utilitza** les fixtures existents a `conftest.py`
+7. **Correcció d'errors**: Tot bug fix ha d'incloure un test de regressió que reprodueixi l'error i verifiqui la solució.
 
 ### Context important
 - Mode Estació (XEMA): Dades en temps real + prediccions

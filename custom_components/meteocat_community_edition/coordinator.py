@@ -75,17 +75,17 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 
-class MeteocatBaseCoordinator(DataUpdateCoordinator[dict[str, Any]]):
-    """Base class for Meteocat coordinators with shared scheduling logic."""
+class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
+    """Coordinator for Meteocat data (handles both External and Local modes)."""
 
-    def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str) -> None:
+    def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
         """Initialize the coordinator."""
         self.entry = entry
         self.mode = entry.data.get(CONF_MODE, MODE_EXTERNAL)
         self.station_code = entry.data.get(CONF_STATION_CODE)
         self.municipality_code = entry.data.get(CONF_MUNICIPALITY_CODE)
         
-        # If municipality code is not set (station mode), try to get it from station_municipality_code
+        # If municipality code is not set (external mode), try to get it from station_municipality_code
         if not self.municipality_code and self.mode == MODE_EXTERNAL:
             self.municipality_code = entry.data.get("station_municipality_code")
         
@@ -128,6 +128,17 @@ class MeteocatBaseCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self._is_retry_update = False
         self._is_first_refresh = True
         
+        # Station specific attributes
+        self.station_data: dict[str, Any] = entry.data.get("_station_data", {})
+        self.last_forecast_update: datetime | None = None
+        self.next_forecast_update: datetime | None = None
+        
+        name = f"{DOMAIN}_{entry.entry_id}"
+        if self.mode == MODE_EXTERNAL and self.station_code:
+            name = f"{DOMAIN}_{self.station_code}"
+        elif self.mode == MODE_LOCAL:
+            name = f"{DOMAIN}_forecast_{entry.entry_id}"
+
         super().__init__(
             hass,
             _LOGGER,
@@ -137,39 +148,49 @@ class MeteocatBaseCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
     @callback
     def _schedule_next_update(self) -> None:
-        """Schedule the next automatic update at the configured time."""
+        """Schedule the next automatic update."""
         if self._scheduled_update_remover:
             self._scheduled_update_remover()
             self._scheduled_update_remover = None
         
         now = dt_util.now()
-        today = now.date()
         
-        update_times_list = [self.update_time_1, self.update_time_2]
-        if self.update_time_3:
-            update_times_list.append(self.update_time_3)
+        if self.mode == MODE_EXTERNAL:
+            # External Mode: Hourly updates
+            # Schedule for the next hour top (e.g. 10:00, 11:00)
+            next_update = now.replace(minute=0, second=0, microsecond=0) + timedelta(hours=1)
             
-        update_datetimes = [
-            dt_util.as_local(
-                datetime.combine(today, time.fromisoformat(update_time))
-            )
-            for update_time in update_times_list
-            if update_time and update_time.strip()
-        ]
-        
-        next_update = None
-        for update_dt in sorted(update_datetimes):
-            if update_dt > now:
-                next_update = update_dt
-                break
-        
-        if next_update is None:
-            tomorrow = today + timedelta(days=1)
-            sorted_times = sorted([t for t in update_times_list if t and t.strip()])
-            if sorted_times:
-                next_update = dt_util.as_local(
-                    datetime.combine(tomorrow, time.fromisoformat(sorted_times[0]))
+            # Calculate next forecast update for display/logic
+            self._calculate_next_forecast_update(now)
+        else:
+            # Local Mode: Scheduled times only
+            today = now.date()
+            
+            update_times_list = [self.update_time_1, self.update_time_2]
+            if self.update_time_3:
+                update_times_list.append(self.update_time_3)
+                
+            update_datetimes = [
+                dt_util.as_local(
+                    datetime.combine(today, time.fromisoformat(update_time))
                 )
+                for update_time in update_times_list
+                if update_time and update_time.strip()
+            ]
+            
+            next_update = None
+            for update_dt in sorted(update_datetimes):
+                if update_dt > now:
+                    next_update = update_dt
+                    break
+            
+            if next_update is None:
+                tomorrow = today + timedelta(days=1)
+                sorted_times = sorted([t for t in update_times_list if t and t.strip()])
+                if sorted_times:
+                    next_update = dt_util.as_local(
+                        datetime.combine(tomorrow, time.fromisoformat(sorted_times[0]))
+                    )
         
         if not next_update:
             _LOGGER.warning("Could not calculate next update time. Automatic updates disabled.")
@@ -189,6 +210,38 @@ class MeteocatBaseCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             next_update,
             next_update - now,
         )
+
+    def _calculate_next_forecast_update(self, now: datetime) -> None:
+        """Calculate the next scheduled forecast update (External Mode)."""
+        today = now.date()
+        
+        update_times_list = [self.update_time_1, self.update_time_2]
+        if self.update_time_3:
+            update_times_list.append(self.update_time_3)
+            
+        update_datetimes = [
+            dt_util.as_local(
+                datetime.combine(today, time.fromisoformat(update_time))
+            )
+            for update_time in update_times_list
+            if update_time and update_time.strip()
+        ]
+        
+        next_forecast = None
+        for update_dt in sorted(update_datetimes):
+            if update_dt > now:
+                next_forecast = update_dt
+                break
+        
+        if next_forecast is None:
+            tomorrow = today + timedelta(days=1)
+            sorted_times = sorted([t for t in update_times_list if t and t.strip()])
+            if sorted_times:
+                next_forecast = dt_util.as_local(
+                    datetime.combine(tomorrow, time.fromisoformat(sorted_times[0]))
+                )
+        
+        self.next_forecast_update = next_forecast
 
     async def _async_scheduled_update(self, now: datetime) -> None:
         """Handle scheduled update."""
@@ -299,175 +352,6 @@ class MeteocatBaseCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         
         self.hass.bus.fire(EVENT_DATA_UPDATED, event_data)
 
-
-class MeteocatForecastCoordinator(MeteocatBaseCoordinator):
-    """Coordinator for Forecast data (Municipality Mode)."""
-
-    def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
-        """Initialize the forecast coordinator."""
-        super().__init__(hass, entry, f"{DOMAIN}_forecast_{entry.entry_id}")
-        
-        if not self.municipality_code:
-            _LOGGER.error("Forecast coordinator requires municipality_code!")
-
-    async def _async_update_data(self) -> dict[str, Any]:
-        """Fetch forecast data."""
-        self.last_successful_update_time = dt_util.utcnow()
-        
-        try:
-            tasks = {}
-            
-            if self.municipality_code:
-                if self.enable_forecast_daily:
-                    tasks["forecast"] = self.api.get_municipal_forecast(
-                        self.municipality_code
-                    )
-                if self.enable_forecast_hourly:
-                    tasks["forecast_hourly"] = self.api.get_hourly_forecast(
-                        self.municipality_code
-                    )
-            
-            results = await asyncio.gather(*tasks.values(), return_exceptions=True)
-            
-            data: dict[str, Any] = {
-                "station": None,
-                "municipality_code": self.municipality_code,
-            }
-            
-            has_retryable_error = False
-            for key, result in zip(tasks.keys(), results):
-                if isinstance(result, Exception):
-                    _LOGGER.warning("Error fetching %s: %s", key, result)
-                    if isinstance(result, MeteocatAuthError):
-                        raise result
-                    data[key] = None
-                    if not self._is_retry_update and self._is_retryable_error(result):
-                        has_retryable_error = True
-                else:
-                    data[key] = result
-            
-            if not self._is_retry_update:
-                try:
-                    data["quotes"] = await self.api.get_quotes()
-                except Exception as err:
-                    _LOGGER.warning("Error fetching quotes: %s", err)
-                    data["quotes"] = None
-            else:
-                data["quotes"] = None
-            
-            if has_retryable_error:
-                _LOGGER.warning("Retryable error detected, scheduling retry in 60 seconds")
-                await self._schedule_retry_update(delay_seconds=60)
-                raise UpdateFailed("Temporary error - retry scheduled")
-            
-            critical_fields = []
-            if self.enable_forecast_daily:
-                critical_fields.append("forecast")
-            if self.enable_forecast_hourly:
-                critical_fields.append("forecast_hourly")
-            
-            missing_data = [field for field in critical_fields if data.get(field) is None]
-            if missing_data:
-                error_msg = f"Missing critical data: {', '.join(missing_data)}"
-                if self._is_first_refresh:
-                    _LOGGER.warning(
-                        "%s - Setup will complete, data will be fetched on next scheduled update",
-                        error_msg
-                    )
-                else:
-                    _LOGGER.error(error_msg)
-                    raise UpdateFailed(error_msg)
-            
-            self._is_first_refresh = False
-            self._fire_events(self.next_scheduled_update)
-            
-            return data
-        
-        except MeteocatAuthError as err:
-            _LOGGER.error("Authentication failed: %s", err)
-            raise ConfigEntryAuthFailed(f"Authentication failed: {err}") from err
-        
-        except (MeteocatAPIError, ClientError, ServerTimeoutError, asyncio.TimeoutError) as err:
-            if not self._is_retry_update and self._is_retryable_error(err):
-                _LOGGER.warning("Retryable error: %s. Scheduling retry in 60 seconds", err)
-                await self._schedule_retry_update(delay_seconds=60)
-                raise UpdateFailed(f"Temporary error - retry scheduled: {err}") from err
-            raise UpdateFailed(f"Error communicating with Meteocat API: {err}") from err
-
-
-class MeteocatLegacyCoordinator(MeteocatBaseCoordinator):
-    """Legacy Coordinator for Station Mode (Handles both Station and Forecast)."""
-
-    def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
-        """Initialize the legacy coordinator."""
-        super().__init__(hass, entry, f"{DOMAIN}_{entry.data.get(CONF_STATION_CODE)}")
-        
-        self.station_data: dict[str, Any] = entry.data.get("_station_data", {})
-        
-        # Track forecast updates separately
-        self.last_forecast_update: datetime | None = None
-        self.next_forecast_update: datetime | None = None
-
-    @callback
-    def _schedule_next_update(self) -> None:
-        """Schedule the next automatic update (hourly)."""
-        if self._scheduled_update_remover:
-            self._scheduled_update_remover()
-            self._scheduled_update_remover = None
-        
-        now = dt_util.now()
-        # Schedule for the next hour top (e.g. 10:00, 11:00)
-        next_update = now.replace(minute=0, second=0, microsecond=0) + timedelta(hours=1)
-        
-        self.next_scheduled_update = next_update
-        
-        # Calculate next forecast update
-        self._calculate_next_forecast_update(now)
-        
-        self._scheduled_update_remover = async_track_point_in_utc_time(
-            self.hass,
-            self._async_scheduled_update,
-            dt_util.as_utc(next_update),
-        )
-        
-        _LOGGER.info(
-            "Scheduled next hourly update at %s (in %s)",
-            next_update,
-            next_update - now,
-        )
-
-    def _calculate_next_forecast_update(self, now: datetime) -> None:
-        """Calculate the next scheduled forecast update."""
-        today = now.date()
-        
-        update_times_list = [self.update_time_1, self.update_time_2]
-        if self.update_time_3:
-            update_times_list.append(self.update_time_3)
-            
-        update_datetimes = [
-            dt_util.as_local(
-                datetime.combine(today, time.fromisoformat(update_time))
-            )
-            for update_time in update_times_list
-            if update_time and update_time.strip()
-        ]
-        
-        next_forecast = None
-        for update_dt in sorted(update_datetimes):
-            if update_dt > now:
-                next_forecast = update_dt
-                break
-        
-        if next_forecast is None:
-            tomorrow = today + timedelta(days=1)
-            sorted_times = sorted([t for t in update_times_list if t and t.strip()])
-            if sorted_times:
-                next_forecast = dt_util.as_local(
-                    datetime.combine(tomorrow, time.fromisoformat(sorted_times[0]))
-                )
-        
-        self.next_forecast_update = next_forecast
-
     async def async_refresh_measurements(self) -> None:
         """Force refresh of measurements only."""
         self._force_measurements = True
@@ -507,8 +391,7 @@ class MeteocatLegacyCoordinator(MeteocatBaseCoordinator):
         return False
 
     async def _async_update_data(self) -> dict[str, Any]:
-        """Fetch all data (Station + Forecast)."""
-        self.last_successful_update_time = dt_util.utcnow()
+        """Fetch all data (External + Local)."""
         
         # Check forced update flags
         force_measurements = getattr(self, "_force_measurements", False)
@@ -525,14 +408,19 @@ class MeteocatLegacyCoordinator(MeteocatBaseCoordinator):
             fetch_measurements = False
             fetch_forecast = False
             
-            if force_measurements or force_forecast:
-                # Manual update via specific button
-                fetch_measurements = force_measurements
-                fetch_forecast = force_forecast
+            if self.mode == MODE_EXTERNAL:
+                if force_measurements or force_forecast:
+                    # Manual update via specific button
+                    fetch_measurements = force_measurements
+                    fetch_forecast = force_forecast
+                else:
+                    # Scheduled or generic update
+                    fetch_measurements = True
+                    fetch_forecast = self._should_fetch_forecast()
             else:
-                # Scheduled or generic update
-                fetch_measurements = True
-                fetch_forecast = self._should_fetch_forecast()
+                # Local Mode: Always fetch forecast on update
+                fetch_forecast = True
+                fetch_measurements = False
             
             if self.mode == MODE_EXTERNAL and self.station_code and fetch_measurements:
                 tasks["measurements"] = self.api.get_station_measurements(self.station_code)
@@ -606,6 +494,30 @@ class MeteocatLegacyCoordinator(MeteocatBaseCoordinator):
                 if should_fetch_quotes:
                     try:
                         data["quotes"] = await self.api.get_quotes()
+                    except MeteocatAPIError as err:
+                        if "429" in str(err) or "Rate limit exceeded" in str(err):
+                            _LOGGER.warning("Quota exceeded (429). Setting remaining requests to 0.")
+                            # If we have previous quotes, use them as a template but set remaining to 0
+                            old_quotes = data.get("quotes")
+                            if old_quotes and isinstance(old_quotes, dict) and "plans" in old_quotes:
+                                new_plans = []
+                                for plan in old_quotes.get("plans", []):
+                                    new_plan = plan.copy()
+                                    new_plan["consultesRestants"] = 0
+                                    new_plans.append(new_plan)
+                                data["quotes"] = {
+                                    "client": old_quotes.get("client", {}),
+                                    "plans": new_plans
+                                }
+                            else:
+                                _LOGGER.warning("Quota exceeded and no previous data available to construct zero-quota state.")
+                                if "quotes" not in data:
+                                    data["quotes"] = None
+                        else:
+                            _LOGGER.warning("Error fetching quotes: %s", err)
+                            # Keep old quotes if available
+                            if "quotes" not in data:
+                                data["quotes"] = None
                     except Exception as err:
                         _LOGGER.warning("Error fetching quotes: %s", err)
                         # Keep old quotes if available
@@ -647,6 +559,7 @@ class MeteocatLegacyCoordinator(MeteocatBaseCoordinator):
             self._is_first_refresh = False
             self._fire_events(self.next_scheduled_update)
             
+            self.last_successful_update_time = dt_util.utcnow()
             return data
         
         except MeteocatAuthError as err:
@@ -660,5 +573,7 @@ class MeteocatLegacyCoordinator(MeteocatBaseCoordinator):
                 raise UpdateFailed(f"Temporary error - retry scheduled: {err}") from err
             raise UpdateFailed(f"Error communicating with Meteocat API: {err}") from err
 
-# Alias for backward compatibility
-MeteocatCoordinator = MeteocatLegacyCoordinator
+# Alias for backward compatibility (if needed by tests, but we should update tests)
+MeteocatBaseCoordinator = MeteocatCoordinator
+MeteocatForecastCoordinator = MeteocatCoordinator
+MeteocatLegacyCoordinator = MeteocatCoordinator

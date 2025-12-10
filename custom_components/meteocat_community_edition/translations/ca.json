@@ -1,4 +1,8 @@
 {
+  "condition_mapping": {
+    "title": "Mapeig de la condició (icona)",
+    "description": "Selecciona el mapeig per la propietat 'condition' (icona) de la teva entitat Temps (Weather):\n\n- Meteocat: El valor de 'condition' serà la predicció oficial de Meteocat (mapeig fix, no editable).\n- Personalitzat: El valor de 'condition' vindrà d’una entitat numèrica local. Cal definir manualment el mapeig entre els codis del sensor local i les condicions suportades per Home Assistant (ex: sunny, cloudy, rainy, clear-night, etc.)."
+  },
   "title": "Meteocat (Edició Comunitària)",
   "config": {
     "step": {
@@ -54,8 +58,8 @@
         "title": "Sensors Locals",
         "description": "Selecciona els sensors de Home Assistant per a les dades actuals.\n\nNo totes les targes meteorològiques mostren totes les dades.",
         "data": {
-          "sensor_temperature": "Temperatura",
-          "sensor_humidity": "Humitat",
+          "sensor_temperature": "Temperatura (obligatori)",
+          "sensor_humidity": "Humitat (obligatori)",
           "sensor_pressure": "Pressió atmosfèrica",
           "sensor_wind_speed": "Velocitat del vent",
           "sensor_wind_bearing": "Direcció del vent (numèric/graus)",

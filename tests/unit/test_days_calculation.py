@@ -63,15 +63,15 @@ class MockSensor:
 # Test cases
 coordinator = MockCoordinator()
 
-print("--- Test 1: Station Mode, XEMA Plan ---")
+print("--- Test 1: External Mode, XEMA Plan ---")
 s1 = MockSensor(coordinator, "XEMA", MODE_EXTERNAL)
 print(f"Result: {s1.native_value}")
 
-print("\n--- Test 2: Municipality Mode, XEMA Plan ---")
+print("\n--- Test 2: Local Mode, XEMA Plan ---")
 s2 = MockSensor(coordinator, "XEMA", MODE_LOCAL)
 print(f"Result: {s2.native_value}")
 
-print("\n--- Test 3: Municipality Mode, Predicció Plan ---")
+print("\n--- Test 3: Local Mode, Predicció Plan ---")
 s3 = MockSensor(coordinator, "Predicció", MODE_LOCAL)
 print(f"Result: {s3.native_value}")
 

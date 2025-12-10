@@ -36,7 +36,7 @@ async def async_setup_entry(
     buttons = []
     
     if mode == MODE_EXTERNAL:
-        # Station mode: Two buttons (Measurements and Forecast)
+        # External mode: Two buttons (Measurements and Forecast)
         buttons.append(
             MeteocatRefreshMeasurementsButton(coordinator, entry, entity_name, device_name, mode)
         )
@@ -44,7 +44,7 @@ async def async_setup_entry(
             MeteocatRefreshForecastButton(coordinator, entry, entity_name, device_name, mode)
         )
     else:
-        # Municipality mode: One button (Forecast)
+        # Local mode: One button (Forecast)
         buttons.append(
             MeteocatRefreshForecastButton(coordinator, entry, entity_name, device_name, mode)
         )
@@ -96,6 +96,12 @@ class MeteocatRefreshMeasurementsButton(CoordinatorEntity[MeteocatCoordinator], 
     def icon(self) -> str:
         """Return the icon."""
         return "mdi:thermometer-refresh"
+
+    @property
+    def available(self) -> bool:
+        """Return True if entity is available."""
+        # Always available to allow manual refresh even if API is down
+        return True
 
     async def async_press(self) -> None:
         """Handle the button press."""
@@ -149,6 +155,12 @@ class MeteocatRefreshForecastButton(CoordinatorEntity[MeteocatCoordinator], Butt
     def icon(self) -> str:
         """Return the icon."""
         return "mdi:calendar-refresh"
+
+    @property
+    def available(self) -> bool:
+        """Return True if entity is available."""
+        # Always available to allow manual refresh even if API is down
+        return True
 
     async def async_press(self) -> None:
         """Handle the button press."""

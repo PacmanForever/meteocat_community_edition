@@ -1,10 +1,23 @@
-﻿# Changelog
+﻿
+# Changelog
 
 Tots els canvis notables del projecte es documenten aquí.
 
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.1.5] - 2025-12-10
+
+### Afegit
+- Nova pantalla de configuració per a la personalització de la correspondència de condicions meteorològiques (condition mapping) durant el config flow.
+
+### Canviat
+- Conversió automàtica de la velocitat del vent a km/h a l'entitat Weather (abans en m/s).
+
+### Corregit
+- Millores de robustesa i cobertura de tests per a la lògica de sensors locals i externs, especialment per a la velocitat del vent i la configuració avançada.
+
+---
 ## [1.0.8] - 2025-12-09
 
 ### Corregit

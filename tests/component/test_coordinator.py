@@ -208,3 +208,32 @@ async def test_coordinator_finds_municipality_for_station(mock_hass, mock_api, m
     assert coordinator.municipality_code == "081131"
     assert coordinator.station_data is not None
     assert coordinator.station_data["codi"] == "YM"
+
+
+@pytest.mark.asyncio
+async def test_coordinator_handles_quota_exceeded(mock_hass, mock_api, mock_entry_xema):
+    """Test coordinator handles 429 Quota Exceeded error."""
+    from custom_components.meteocat_community_edition.api import MeteocatAPIError
+    
+    # Setup initial state with valid quotes
+    coordinator = MeteocatCoordinator(mock_hass, mock_entry_xema)
+    coordinator.api = mock_api
+    coordinator.data = {
+        "quotes": {
+            "client": {"nom": "Test Client"},
+            "plans": [
+                {"nom": "Prediccio_100", "consultesRestants": 100, "maxConsultes": 1000}
+            ]
+        }
+    }
+    
+    # Mock API to raise 429 error
+    mock_api.get_quotes.side_effect = MeteocatAPIError("Rate limit exceeded (429)")
+    
+    # Run update
+    data = await coordinator._async_update_data()
+    
+    # Verify quotes are updated to 0
+    assert data["quotes"] is not None
+    assert data["quotes"]["plans"][0]["consultesRestants"] == 0
+    assert data["quotes"]["plans"][0]["maxConsultes"] == 1000  # Should preserve other fields

@@ -237,10 +237,11 @@ async def test_flow_local_sensors_step():
     flow.async_create_entry = MagicMock(return_value={"type": "create_entry"})
     
     # Import constants for sensors
-    from custom_components.meteocat_community_edition.const import CONF_SENSOR_TEMPERATURE
+    from custom_components.meteocat_community_edition.const import CONF_SENSOR_TEMPERATURE, CONF_SENSOR_HUMIDITY
     
     user_input = {
         CONF_SENSOR_TEMPERATURE: "sensor.temp",
+        CONF_SENSOR_HUMIDITY: "sensor.hum",
     }
     
     result = await flow.async_step_local_sensors(user_input)
@@ -250,3 +251,4 @@ async def test_flow_local_sensors_step():
     call_args = flow.async_create_entry.call_args[1]
     assert call_args["title"] == "Abrera"
     assert call_args["data"][CONF_SENSOR_TEMPERATURE] == "sensor.temp"
+    assert call_args["data"][CONF_SENSOR_HUMIDITY] == "sensor.hum"

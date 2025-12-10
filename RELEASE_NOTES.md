@@ -1,3 +1,8 @@
+# v1.1.5 - Conversió de la velocitat del vent
+
+## 🐛 Correccions
+- **Unitat de velocitat del vent**: Ara la velocitat del vent en l'entitat Weather es mostra en km/h (abans en m/s). El valor es converteix automàticament des de l'API (m/s → km/h) per evitar discrepàncies amb targetes i estacions Meteocat.
+
 # v1.1.4 - Correccions en Mode Local
 
 ## 🐛 Correccions
@@ -18,9 +23,6 @@
 
 ## 🐛 Correccions
 - **Reconfiguració de Sensors Locals**: Solucionat un error que impedia canviar els sensors seleccionats (temperatura, pluja, etc.) quan es reconfigurava una integració en "Mode Local". Ara apareix correctament la pantalla de selecció.
-
-## 💅 Millores Visuals
-- **Icona de Nit**: Millora en la icona mostrada quan l'estat és "Parcialment ennuvolat" durant la nit. Ara es mostrarà una lluna amb un núvol (`mdi:weather-night-partly-cloudy`) en lloc de la icona per defecte, millorant la coherència visual a les llistes d'entitats.
 
 # v1.0.8 - Millora de la Cobertura de Tests i Nous Sensors
 

@@ -21,7 +21,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_validation as cv
 
 from .const import CONF_MODE, DOMAIN, MODE_EXTERNAL
-from .coordinator import MeteocatCoordinator, MeteocatForecastCoordinator, MeteocatLegacyCoordinator
+from .coordinator import MeteocatCoordinator
 
 if TYPE_CHECKING:
     from .api import MeteocatAPI
@@ -48,14 +48,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     
     Test Coverage: test_no_duplicate_updates_on_ha_restart in test_scheduled_updates.py
     """
-    mode = entry.data.get(CONF_MODE, MODE_EXTERNAL)  # Default to ESTACIO for backwards compatibility
-
-    if mode == MODE_EXTERNAL:
-        # XEMA mode: Use Legacy Coordinator (handles both station and forecast)
-        coordinator = MeteocatLegacyCoordinator(hass, entry)
-    else:
-        # Municipal mode: Use Forecast Coordinator (handles only forecast)
-        coordinator = MeteocatForecastCoordinator(hass, entry)
+    
+    coordinator = MeteocatCoordinator(hass, entry)
     
     # ⚠️ CRITICAL: First refresh - this is the ONLY manual update call
     # All future updates will be scheduled automatically

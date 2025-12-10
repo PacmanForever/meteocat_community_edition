@@ -32,7 +32,7 @@ def mock_entry():
 
 @pytest.mark.asyncio
 async def test_async_setup_entry_external_mode(mock_hass, mock_coordinator, mock_entry):
-    """Test setup in station mode."""
+    """Test setup in external mode."""
     mock_hass.data[DOMAIN][mock_entry.entry_id] = mock_coordinator
     async_add_entities = MagicMock()
     
@@ -46,7 +46,7 @@ async def test_async_setup_entry_external_mode(mock_hass, mock_coordinator, mock
 
 @pytest.mark.asyncio
 async def test_async_setup_entry_local_mode(mock_hass, mock_coordinator):
-    """Test setup in municipal mode."""
+    """Test setup in local mode."""
     entry = MagicMock()
     entry.entry_id = "test_entry_muni"
     entry.data = {

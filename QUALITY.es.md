@@ -217,6 +217,7 @@ Cuando sugieras cambios o nueva funcionalidad:
 4. **Comprueba** que no rompes tests existentes
 5. **Gestiona errores** adecuadamente
 6. **Utiliza** las fixtures existentes en `conftest.py`
+7. **Corrección de errores**: Todo bug fix debe incluir un test de regresión que reproduzca el error y verifique la solución.
 
 ### Contexto importante
 - Modo Estación (XEMA): Datos en tiempo real + predicciones

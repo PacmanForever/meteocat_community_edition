@@ -46,14 +46,6 @@ def test_weather_icon_partlycloudy_day(mock_coordinator, mock_entry):
         assert weather.condition == "partlycloudy"
         assert weather.icon is None
 
-def test_weather_icon_partlycloudy_night(mock_coordinator, mock_entry):
-    """Test icon is mdi:weather-night-partly-cloudy for partly cloudy during night."""
-    weather = MeteocatWeather(mock_coordinator, mock_entry)
-    
-    with patch.object(MeteocatWeather, '_is_night', return_value=True):
-        assert weather.condition == "partlycloudy"
-        assert weather.icon == "mdi:weather-night-partly-cloudy"
-
 def test_weather_icon_sunny_night(mock_coordinator, mock_entry):
     """Test condition becomes clear-night for sunny during night."""
     # Change to sunny (1)

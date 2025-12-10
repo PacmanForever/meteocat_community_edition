@@ -217,6 +217,7 @@ When suggesting changes or new features:
 4. **Check** that existing tests don't break
 5. **Handle errors** appropriately
 6. **Use** existing fixtures in `conftest.py`
+7. **Bug fixes**: Every bug fix must include a regression test that reproduces the issue and verifies the fix.
 
 ### Important context
 - Station Mode (XEMA): Real-time data + forecasts
