@@ -191,7 +191,7 @@ async def test_flow_update_times_step_estacio():
 
 @pytest.mark.asyncio
 async def test_flow_update_times_step_local():
-    """Test update times step in local mode."""
+    """Test that after update_times in local mode, the flow transitions to local_sensors, i després a condition_mapping."""
     flow = MeteocatConfigFlow()
     flow.hass = MagicMock()
     flow.api_key = "valid_key"
@@ -202,22 +202,34 @@ async def test_flow_update_times_step_local():
     flow.comarca_name = "Baix Llobregat"
     flow.context = {}
     flow.api_base_url = "https://api.meteocat.cat/release/v1"
-    
     user_input = {
         CONF_UPDATE_TIME_1: "08:00",
         CONF_ENABLE_FORECAST_DAILY: True,
         CONF_ENABLE_FORECAST_HOURLY: True,
     }
-    
     # Should transition to local_sensors step
     result = await flow.async_step_update_times(user_input)
-    
     assert result["type"] == "form"
     assert result["step_id"] == "local_sensors"
+    # Simula resposta de sensors locals
+    sensors_input = {
+        CONF_SENSOR_TEMPERATURE: "sensor.temp",
+        CONF_SENSOR_HUMIDITY: "sensor.hum",
+    }
+    result2 = await flow.async_step_local_sensors(sensors_input)
+    assert result2["type"] == "form"
+    assert result2["step_id"] == "condition_mapping"
+    # Simula resposta de mapping
+    mapping_input = {"mapping_type": "meteocat"}
+    result3 = await flow.async_step_condition_mapping(mapping_input)
+    assert result3["type"] == "create_entry"
+    assert result3["title"] == "Abrera"
+    assert result3["data"][CONF_SENSOR_TEMPERATURE] == "sensor.temp"
+    assert result3["data"][CONF_SENSOR_HUMIDITY] == "sensor.hum"
 
 @pytest.mark.asyncio
 async def test_flow_local_sensors_step():
-    """Test local sensors step."""
+    """Test que la pantalla de sensors locals porta a la de mapping, i després es crea l'entrada."""
     flow = MeteocatConfigFlow()
     flow.hass = MagicMock()
     flow.api_key = "valid_key"
@@ -233,44 +245,19 @@ async def test_flow_local_sensors_step():
     flow.enable_forecast_hourly = True
     flow.context = {}
     flow.api_base_url = "https://api.meteocat.cat/release/v1"
-    
-    flow.async_create_entry = MagicMock(return_value={"type": "create_entry"})
-    
     # Import constants for sensors
     from custom_components.meteocat_community_edition.const import CONF_SENSOR_TEMPERATURE, CONF_SENSOR_HUMIDITY
-    
-    user_input = {
+    sensors_input = {
         CONF_SENSOR_TEMPERATURE: "sensor.temp",
         CONF_SENSOR_HUMIDITY: "sensor.hum",
     }
-    
-    result = await flow.async_step_local_sensors(user_input)
-    
-    assert result["type"] == "create_entry"
-    flow.async_create_entry.assert_called_once()
-    call_args = flow.async_create_entry.call_args[1]
-    assert call_args["title"] == "Abrera"
-    assert call_args["data"][CONF_SENSOR_TEMPERATURE] == "sensor.temp"
-    assert call_args["data"][CONF_SENSOR_HUMIDITY] == "sensor.hum"
-
-@pytest.mark.asyncio
-async def test_flow_update_times_transitions_to_condition_mapping():
-    """Test that after update_times in local mode, the flow transitions to condition_mapping."""
-    flow = MeteocatConfigFlow()
-    flow.hass = MagicMock()
-    flow.api_key = "valid_key"
-    flow.mode = MODE_LOCAL
-    flow.municipality_code = "08001"
-    flow.municipality_name = "Abrera"
-    flow.comarca_code = "1"
-    flow.comarca_name = "Baix Llobregat"
-    flow.context = {}
-    flow.api_base_url = "https://api.meteocat.cat/release/v1"
-    user_input = {
-        CONF_UPDATE_TIME_1: "08:00",
-        CONF_ENABLE_FORECAST_DAILY: True,
-        CONF_ENABLE_FORECAST_HOURLY: True,
-    }
-    result = await flow.async_step_update_times(user_input)
+    result = await flow.async_step_local_sensors(sensors_input)
     assert result["type"] == "form"
     assert result["step_id"] == "condition_mapping"
+    # Simula resposta de mapping
+    mapping_input = {"mapping_type": "meteocat"}
+    result2 = await flow.async_step_condition_mapping(mapping_input)
+    assert result2["type"] == "create_entry"
+    assert result2["title"] == "Abrera"
+    assert result2["data"][CONF_SENSOR_TEMPERATURE] == "sensor.temp"
+    assert result2["data"][CONF_SENSOR_HUMIDITY] == "sensor.hum"
