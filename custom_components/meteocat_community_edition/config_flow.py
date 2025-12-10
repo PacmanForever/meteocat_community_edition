@@ -118,7 +118,7 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self.api_base_url: str = DEFAULT_API_BASE_URL
 
     async def async_step_condition_mapping(self, user_input: dict[str, Any] | None = None) -> FlowResult:
-        """Configura el mapping de la condició Weather."""
+        """Pantalla de mapping després dels sensors locals. Crea l'entrada final."""
         from homeassistant.helpers import selector
         import voluptuous as vol
 
@@ -127,33 +127,40 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         custom_mapping = None
         local_entity = None
 
-        # Llista de condicions suportades per Home Assistant
-        ha_conditions = [
-            "sunny", "clear-night", "cloudy", "partlycloudy", "rainy", "pouring", "lightning-rainy", "hail", "snowy", "snowy-rainy", "fog"
-        ]
-
         if user_input is not None:
             mapping_type = user_input.get("mapping_type", "meteocat")
+            custom_mapping = user_input.get("custom_condition_mapping")
+            local_entity = user_input.get("local_condition_entity")
             if mapping_type == "custom":
-                custom_mapping = user_input.get("custom_condition_mapping")
-                local_entity = user_input.get("local_condition_entity")
                 if not local_entity:
                     errors["local_condition_entity"] = "required"
                 if not custom_mapping:
                     errors["custom_condition_mapping"] = "required"
             if not errors:
-                # Guarda la selecció a l'entrada
-                self.mapping_type = mapping_type
-                self.custom_condition_mapping = custom_mapping
-                self.local_condition_entity = local_entity
-                # Continua amb sensors locals
-                return await self.async_step_local_sensors()
+                entry_data = dict(self._local_sensors_input) if hasattr(self, '_local_sensors_input') else {}
+                entry_data["mapping_type"] = mapping_type
+                entry_data["custom_condition_mapping"] = custom_mapping
+                entry_data["local_condition_entity"] = local_entity
+                # afegeix info extra si cal (lat/lon/provincia)
+                if hasattr(self, 'municipality_lat') and self.municipality_lat is not None:
+                    entry_data["municipality_lat"] = self.municipality_lat
+                if hasattr(self, 'municipality_lon') and self.municipality_lon is not None:
+                    entry_data["municipality_lon"] = self.municipality_lon
+                if hasattr(self, 'provincia_code') and self.provincia_code:
+                    entry_data["provincia_code"] = self.provincia_code
+                if hasattr(self, 'provincia_name') and self.provincia_name:
+                    entry_data["provincia_name"] = self.provincia_name
+                return self.async_create_entry(
+                    title=self.municipality_name,
+                    data=entry_data,
+                    options={
+                        CONF_API_BASE_URL: self.api_base_url,
+                    },
+                )
 
-        # Definició del formulari
         schema = vol.Schema({
             vol.Required("mapping_type", default="meteocat"): vol.In(["meteocat", "custom"]),
         })
-        # Si tries custom, afegeix camps addicionals
         if user_input is not None and user_input.get("mapping_type") == "custom":
             schema = schema.extend({
                 vol.Required("local_condition_entity"): selector.EntitySelector(
@@ -593,142 +600,58 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_local_sensors(
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
-        """Handle the local sensors configuration step."""
+        """Pantalla de selecció de sensors locals. Després, mapping."""
         if user_input is not None:
-            entry_data = {
-                CONF_API_KEY: self.api_key,
-                CONF_MODE: MODE_LOCAL,
-                CONF_MUNICIPALITY_CODE: self.municipality_code,
-                CONF_MUNICIPALITY_NAME: self.municipality_name,
-                CONF_COMARCA_CODE: self.comarca_code,
-                CONF_COMARCA_NAME: self.comarca_name,
-                CONF_UPDATE_TIME_1: self.update_time_1,
-                CONF_UPDATE_TIME_2: self.update_time_2,
-                CONF_UPDATE_TIME_3: self.update_time_3,
-                CONF_ENABLE_FORECAST_DAILY: self.enable_forecast_daily,
-                CONF_ENABLE_FORECAST_HOURLY: self.enable_forecast_hourly,
-                # Local sensors
-                CONF_SENSOR_TEMPERATURE: user_input.get(CONF_SENSOR_TEMPERATURE),
-                CONF_SENSOR_HUMIDITY: user_input.get(CONF_SENSOR_HUMIDITY),
-                CONF_SENSOR_PRESSURE: user_input.get(CONF_SENSOR_PRESSURE),
-                CONF_SENSOR_WIND_SPEED: user_input.get(CONF_SENSOR_WIND_SPEED),
-                CONF_SENSOR_WIND_BEARING: user_input.get(CONF_SENSOR_WIND_BEARING),
-                CONF_SENSOR_WIND_GUST: user_input.get(CONF_SENSOR_WIND_GUST),
-                CONF_SENSOR_VISIBILITY: user_input.get(CONF_SENSOR_VISIBILITY),
-                CONF_SENSOR_UV_INDEX: user_input.get(CONF_SENSOR_UV_INDEX),
-                CONF_SENSOR_OZONE: user_input.get(CONF_SENSOR_OZONE),
-                CONF_SENSOR_CLOUD_COVERAGE: user_input.get(CONF_SENSOR_CLOUD_COVERAGE),
-                CONF_SENSOR_DEW_POINT: user_input.get(CONF_SENSOR_DEW_POINT),
-                CONF_SENSOR_APPARENT_TEMPERATURE: user_input.get(CONF_SENSOR_APPARENT_TEMPERATURE),
-                CONF_SENSOR_RAIN: user_input.get(CONF_SENSOR_RAIN),
-                # Condition mapping fields
-                "mapping_type": getattr(self, "mapping_type", "meteocat"),
-                "custom_condition_mapping": getattr(self, "custom_condition_mapping", None),
-                # Save the selected condition entity from the form
-                "local_condition_entity": user_input.get("local_condition_entity"),
-            }
-            # Add coordinates if available
-            if hasattr(self, 'municipality_lat') and self.municipality_lat is not None:
-                entry_data["municipality_lat"] = self.municipality_lat
-            if hasattr(self, 'municipality_lon') and self.municipality_lon is not None:
-                entry_data["municipality_lon"] = self.municipality_lon
-            # Add province if available
-            if hasattr(self, 'provincia_code') and self.provincia_code:
-                entry_data["provincia_code"] = self.provincia_code
-            if hasattr(self, 'provincia_name') and self.provincia_name:
-                entry_data["provincia_name"] = self.provincia_name
-            
-            return self.async_create_entry(
-                title=self.municipality_name,
-                data=entry_data,
-                options={
-                    CONF_API_BASE_URL: self.api_base_url,
-                },
-            )
+            # Desa els sensors locals seleccionats per passar-los a la pantalla de mapping
+            self._local_sensors_input = user_input
+            return await self.async_step_condition_mapping()
 
         from homeassistant.helpers import selector
-        
+        import voluptuous as vol
+
         return self.async_show_form(
             step_id="local_sensors",
-            data_schema=vol.Schema(
-                {
-                    vol.Required(CONF_SENSOR_TEMPERATURE): selector.EntitySelector(
-                        selector.EntitySelectorConfig(domain="sensor", device_class="temperature")
-                    ),
-                    vol.Required(CONF_SENSOR_HUMIDITY): selector.EntitySelector(
-                        selector.EntitySelectorConfig(domain="sensor", device_class="humidity")
-                    ),
-                    vol.Optional(CONF_SENSOR_PRESSURE): selector.EntitySelector(
-                        selector.EntitySelectorConfig(domain="sensor", device_class=["pressure", "atmospheric_pressure"])
-                    ),
-                    vol.Optional(CONF_SENSOR_WIND_SPEED): selector.EntitySelector(
-                        selector.EntitySelectorConfig(domain="sensor", device_class="wind_speed")
-                    ),
-                    vol.Optional(CONF_SENSOR_WIND_BEARING): selector.EntitySelector(
-                        selector.EntitySelectorConfig(domain="sensor")
-                    ),
-                    vol.Optional(CONF_SENSOR_WIND_GUST): selector.EntitySelector(
-                        selector.EntitySelectorConfig(domain="sensor", device_class="wind_speed")
-                    ),
-                    vol.Optional(CONF_SENSOR_RAIN): selector.EntitySelector(
-                        selector.EntitySelectorConfig(domain="sensor")
-                    ),
-                    vol.Optional(CONF_SENSOR_VISIBILITY): selector.EntitySelector(
-                        selector.EntitySelectorConfig(domain="sensor")
-                    ),
-                    vol.Optional(CONF_SENSOR_UV_INDEX): selector.EntitySelector(
-                        selector.EntitySelectorConfig(domain="sensor")
-                    ),
-                    vol.Optional(CONF_SENSOR_OZONE): selector.EntitySelector(
-                        selector.EntitySelectorConfig(domain="sensor")
-                    ),
-                    vol.Optional(CONF_SENSOR_CLOUD_COVERAGE): selector.EntitySelector(
-                        selector.EntitySelectorConfig(domain="sensor")
-                    ),
-                    vol.Optional(CONF_SENSOR_DEW_POINT): selector.EntitySelector(
-                        selector.EntitySelectorConfig(domain="sensor", device_class="temperature")
-                    ),
-                    vol.Optional(CONF_SENSOR_APPARENT_TEMPERATURE): selector.EntitySelector(
-                        selector.EntitySelectorConfig(domain="sensor", device_class="temperature")
-                    ),
-                }
-            ),
-        )
-
-        # Prepare description placeholders
-        description_placeholders = {}
-        if self.mode == MODE_EXTERNAL:
-            description_placeholders["measurements_info"] = "Mesures (requerides)"
-        else:
-            description_placeholders["measurements_info"] = "Predicció"
-
-        return self.async_show_form(
-            step_id="update_times",
-            data_schema=vol.Schema(
-                {
-                    vol.Required(
-                        CONF_ENABLE_FORECAST_DAILY,
-                        default=True
-                    ): bool,
-                    vol.Required(
-                        CONF_ENABLE_FORECAST_HOURLY,
-                        default=False
-                    ): bool,
-                    vol.Required(
-                        CONF_UPDATE_TIME_1,
-                        default=DEFAULT_UPDATE_TIME_1
-                    ): str,
-                    vol.Optional(
-                        CONF_UPDATE_TIME_2,
-                        default=DEFAULT_UPDATE_TIME_2
-                    ): str,
-                    vol.Optional(
-                        CONF_UPDATE_TIME_3
-                    ): str,
-                }
-            ),
-            description_placeholders=description_placeholders,
-            errors=errors,
+            data_schema=vol.Schema({
+                vol.Required(CONF_SENSOR_TEMPERATURE): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain="sensor", device_class="temperature")
+                ),
+                vol.Required(CONF_SENSOR_HUMIDITY): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain="sensor", device_class="humidity")
+                ),
+                vol.Optional(CONF_SENSOR_PRESSURE): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain="sensor", device_class=["pressure", "atmospheric_pressure"])
+                ),
+                vol.Optional(CONF_SENSOR_WIND_SPEED): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain="sensor", device_class="wind_speed")
+                ),
+                vol.Optional(CONF_SENSOR_WIND_BEARING): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain="sensor")
+                ),
+                vol.Optional(CONF_SENSOR_WIND_GUST): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain="sensor", device_class="wind_speed")
+                ),
+                vol.Optional(CONF_SENSOR_RAIN): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain="sensor")
+                ),
+                vol.Optional(CONF_SENSOR_VISIBILITY): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain="sensor")
+                ),
+                vol.Optional(CONF_SENSOR_UV_INDEX): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain="sensor")
+                ),
+                vol.Optional(CONF_SENSOR_OZONE): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain="sensor")
+                ),
+                vol.Optional(CONF_SENSOR_CLOUD_COVERAGE): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain="sensor")
+                ),
+                vol.Optional(CONF_SENSOR_DEW_POINT): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain="sensor", device_class="temperature")
+                ),
+                vol.Optional(CONF_SENSOR_APPARENT_TEMPERATURE): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain="sensor", device_class="temperature")
+                ),
+            }),
         )
 
     @staticmethod
