@@ -1,3 +1,9 @@
+# v1.1.4 - Correccions en Mode Local
+
+## 🐛 Correccions
+- **Actualització en Temps Real**: Solucionat un problema on l'entitat de temps no s'actualitzava immediatament quan canviaven els sensors locals (temperatura, vent, etc.), provocant que mostrés `NaN` si els sensors no estaven llestos a l'inici. Ara l'entitat escolta els canvis dels sensors i s'actualitza a l'instant.
+- **Persistència URL API**: Solucionat un error on l'URL de l'API es restablia al valor per defecte en reconfigurar una integració en "Mode Local". Ara es conserva l'URL personalitzada correctament.
+
 # v1.1.3 - Millora en l'Atribució i Correccions
 
 ## 🐛 Correccions

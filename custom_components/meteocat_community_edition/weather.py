@@ -513,6 +513,30 @@ class MeteocatLocalWeather(MeteocatWeather):
             "rain": get_conf(CONF_SENSOR_RAIN),
         }
 
+    async def async_added_to_hass(self) -> None:
+        """Connect to dispatcher listening for entity data notifications."""
+        await super().async_added_to_hass()
+        
+        # Subscribe to state changes for all configured sensors
+        sensors_to_track = [
+            entity_id 
+            for entity_id in self._sensors.values() 
+            if entity_id
+        ]
+        
+        if sensors_to_track:
+            from homeassistant.helpers.event import async_track_state_change_event
+            
+            async def async_sensor_state_listener(event):
+                """Handle sensor state changes."""
+                self.async_write_ha_state()
+                
+            self.async_on_remove(
+                async_track_state_change_event(
+                    self.hass, sensors_to_track, async_sensor_state_listener
+                )
+            )
+
     def _get_sensor_value(self, sensor_type: str) -> float | None:
         """Get value from a configured sensor."""
         entity_id = self._sensors.get(sensor_type)

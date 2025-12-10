@@ -823,7 +823,7 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                     CONF_SENSOR_RAIN: get_entity_id(CONF_SENSOR_RAIN),
                 }
             )
-            return self.async_create_entry(title="", data={})
+            return self.async_create_entry(title="", data=self.config_entry.options)
 
         from homeassistant.helpers import selector
         
