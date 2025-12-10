@@ -449,11 +449,25 @@ class MeteocatLocalWeather(MeteocatWeather):
 
     @property
     def extra_state_attributes(self) -> dict:
-        """Return extra state attributes, including ozone if available."""
+        """Return all configured sensor values as extra state attributes."""
         attrs = {}
-        ozone = self._get_sensor_value("ozone")
-        if ozone is not None:
-            attrs["ozone"] = ozone
+        sensors = [
+            ("ozone", "ozone"),
+            ("pressure", "pressure"),
+            ("wind_speed", "wind_speed"),
+            ("wind_bearing", "wind_bearing"),
+            ("wind_gust", "wind_gust"),
+            ("rain", "rain"),
+            ("visibility", "visibility"),
+            ("uv_index", "uv_index"),
+            ("cloud_coverage", "cloud_coverage"),
+            ("dew_point", "dew_point"),
+            ("apparent_temp", "apparent_temperature"),
+        ]
+        for sensor_key, attr_name in sensors:
+            value = self._get_sensor_value(sensor_key)
+            if value is not None:
+                attrs[attr_name] = value
         return attrs
 
     def __init__(

@@ -252,3 +252,25 @@ async def test_flow_local_sensors_step():
     assert call_args["title"] == "Abrera"
     assert call_args["data"][CONF_SENSOR_TEMPERATURE] == "sensor.temp"
     assert call_args["data"][CONF_SENSOR_HUMIDITY] == "sensor.hum"
+
+@pytest.mark.asyncio
+async def test_flow_update_times_transitions_to_condition_mapping():
+    """Test that after update_times in local mode, the flow transitions to condition_mapping."""
+    flow = MeteocatConfigFlow()
+    flow.hass = MagicMock()
+    flow.api_key = "valid_key"
+    flow.mode = MODE_LOCAL
+    flow.municipality_code = "08001"
+    flow.municipality_name = "Abrera"
+    flow.comarca_code = "1"
+    flow.comarca_name = "Baix Llobregat"
+    flow.context = {}
+    flow.api_base_url = "https://api.meteocat.cat/release/v1"
+    user_input = {
+        CONF_UPDATE_TIME_1: "08:00",
+        CONF_ENABLE_FORECAST_DAILY: True,
+        CONF_ENABLE_FORECAST_HOURLY: True,
+    }
+    result = await flow.async_step_update_times(user_input)
+    assert result["type"] == "form"
+    assert result["step_id"] == "condition_mapping"

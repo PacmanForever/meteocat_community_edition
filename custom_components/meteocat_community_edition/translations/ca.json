@@ -68,6 +68,7 @@
           "sensor_dew_point": "Punt de rosada",
           "sensor_apparent_temperature": "Temperatura aparent",
           "sensor_rain": "Intensitat de pluja"
+          "local_condition_entity": "Entitat de condició local (només si mapping personalitzat)"
         }
       },
       "reauth_confirm": {

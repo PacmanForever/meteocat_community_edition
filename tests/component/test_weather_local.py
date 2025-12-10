@@ -290,3 +290,35 @@ async def test_local_weather_forecast(mock_coordinator, mock_entry):
     assert forecast[0]["native_temperature"] == 22
     assert forecast[0]["native_templow"] == 12
     assert forecast[0]["condition"] == "sunny"
+
+def test_local_weather_extra_state_attributes_all_sensors(mock_coordinator, mock_entry):
+    """Test that all configured sensors are present in extra_state_attributes."""
+    weather = MeteocatLocalWeather(mock_coordinator, mock_entry)
+    weather.hass = MagicMock()
+    # Patch _sensors to include all possible keys
+    weather._sensors = {
+        "ozone": "sensor.ozone",
+        "pressure": "sensor.pres",
+        "wind_speed": "sensor.wind",
+        "wind_bearing": "sensor.bearing",
+        "wind_gust": "sensor.gust",
+        "rain": "sensor.rain_intensity",
+        "visibility": "sensor.visibility",
+        "uv_index": "sensor.uv",
+        "cloud_coverage": "sensor.cloud",
+        "dew_point": "sensor.dew",
+        "apparent_temp": "sensor.apparent",
+    }
+    # Mock sensor states
+    def get_state(entity_id):
+        state = MagicMock()
+        state.state = "42"
+        return state
+    weather.hass.states.get.side_effect = get_state
+    attrs = weather.extra_state_attributes
+    expected_keys = [
+        "ozone", "pressure", "wind_speed", "wind_bearing", "wind_gust", "rain", "visibility", "uv_index", "cloud_coverage", "dew_point", "apparent_temperature"
+    ]
+    for key in expected_keys:
+        assert key in attrs
+        assert attrs[key] == 42.0

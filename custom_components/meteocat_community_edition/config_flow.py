@@ -574,7 +574,7 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         },
                     )
                 else:  # MODE_LOCAL
-                    return await self.async_step_local_sensors()
+                    return await self.async_step_condition_mapping()
 
         return self.async_show_form(
             step_id="update_times",
@@ -657,9 +657,6 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     ),
                     vol.Required(CONF_SENSOR_HUMIDITY): selector.EntitySelector(
                         selector.EntitySelectorConfig(domain="sensor", device_class="humidity")
-                    ),
-                    vol.Required("local_condition_entity"): selector.EntitySelector(
-                        selector.EntitySelectorConfig(domain="sensor")
                     ),
                     vol.Optional(CONF_SENSOR_PRESSURE): selector.EntitySelector(
                         selector.EntitySelectorConfig(domain="sensor", device_class=["pressure", "atmospheric_pressure"])

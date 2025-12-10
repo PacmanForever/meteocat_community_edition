@@ -68,6 +68,7 @@
           "sensor_dew_point": "Punto de rocío",
           "sensor_apparent_temperature": "Temperatura aparente",
           "sensor_rain": "Intensidad de lluvia"
+          "local_condition_entity": "Entidad de condición local (solo si mapping personalizado)"
         }
       },
       "reauth_confirm": {

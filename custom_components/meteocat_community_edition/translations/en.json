@@ -68,6 +68,7 @@
           "sensor_dew_point": "Dew Point",
           "sensor_apparent_temperature": "Apparent Temperature",
           "sensor_rain": "Rain Intensity"
+          "local_condition_entity": "Local condition entity (only if custom mapping)"
         }
       },
       "reauth_confirm": {
