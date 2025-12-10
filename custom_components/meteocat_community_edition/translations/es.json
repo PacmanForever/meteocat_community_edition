@@ -1,6 +1,5 @@
 {
   "title": "Meteocat (Edición Comunitaria)",
-  "title": "Meteocat (Edición Comunitaria)",
   "config": {
     "step": {
       "user": {
@@ -67,7 +66,7 @@
           "sensor_cloud_coverage": "Cobertura de nubes",
           "sensor_dew_point": "Punto de rocío",
           "sensor_apparent_temperature": "Temperatura aparente",
-          "sensor_rain": "Intensidad de lluvia"
+          "sensor_rain": "Intensidad de lluvia",
           "local_condition_entity": "Entidad de condición local (solo si mapping personalizado)"
         }
       },
