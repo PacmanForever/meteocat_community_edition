@@ -2,7 +2,7 @@
 
 [![hacs][hacsbadge]][hacs]
 [![Version](https://img.shields.io/github/v/tag/PacmanForever/meteocat_community_edition?label=version)](https://github.com/PacmanForever/meteocat_community_edition/tags)
-[![Downloads](https://img.shields.io/github/downloads/PacmanForever/meteocat_community_edition/total)](https://github.com/PacmanForever/meteocat_community_edition/releases)
+[![Stars](https://img.shields.io/github/stars/PacmanForever/meteocat_community_edition?style=social)](https://github.com/PacmanForever/meteocat_community_edition/stargazers)
 [![License](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 ![Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)
 
