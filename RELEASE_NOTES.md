@@ -1,3 +1,11 @@
+# v1.1.2 - Correcció de Reconfiguració i Millores Visuals
+
+## 🐛 Correccions
+- **Reconfiguració de Sensors Locals**: Solucionat un error que impedia canviar els sensors seleccionats (temperatura, pluja, etc.) quan es reconfigurava una integració en "Mode Local". Ara apareix correctament la pantalla de selecció.
+
+## 💅 Millores Visuals
+- **Icona de Nit**: Millora en la icona mostrada quan l'estat és "Parcialment ennuvolat" durant la nit. Ara es mostrarà una lluna amb un núvol (`mdi:weather-night-partly-cloudy`) en lloc de la icona per defecte, millorant la coherència visual a les llistes d'entitats.
+
 # v1.0.8 - Millora de la Cobertura de Tests i Nous Sensors
 
 ## ✨ Novetats

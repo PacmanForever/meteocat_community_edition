@@ -727,6 +727,11 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                     },
                     options=user_input,
                 )
+                
+                # If in Local Mode, proceed to sensors configuration
+                if mode == MODE_LOCAL:
+                    return await self.async_step_sensors()
+                    
                 return self.async_create_entry(title="", data=user_input)
 
         # Prepare description placeholders
@@ -784,4 +789,81 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
             ),
             description_placeholders=description_placeholders,
             errors=errors,
+        )
+
+    async def async_step_sensors(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Manage the sensors options."""
+        if user_input is not None:
+            # Update entry with sensors
+            self.hass.config_entries.async_update_entry(
+                entry=self.config_entry,
+                data={
+                    **self.config_entry.data,
+                    CONF_SENSOR_TEMPERATURE: user_input.get(CONF_SENSOR_TEMPERATURE),
+                    CONF_SENSOR_HUMIDITY: user_input.get(CONF_SENSOR_HUMIDITY),
+                    CONF_SENSOR_PRESSURE: user_input.get(CONF_SENSOR_PRESSURE),
+                    CONF_SENSOR_WIND_SPEED: user_input.get(CONF_SENSOR_WIND_SPEED),
+                    CONF_SENSOR_WIND_BEARING: user_input.get(CONF_SENSOR_WIND_BEARING),
+                    CONF_SENSOR_WIND_GUST: user_input.get(CONF_SENSOR_WIND_GUST),
+                    CONF_SENSOR_VISIBILITY: user_input.get(CONF_SENSOR_VISIBILITY),
+                    CONF_SENSOR_UV_INDEX: user_input.get(CONF_SENSOR_UV_INDEX),
+                    CONF_SENSOR_OZONE: user_input.get(CONF_SENSOR_OZONE),
+                    CONF_SENSOR_CLOUD_COVERAGE: user_input.get(CONF_SENSOR_CLOUD_COVERAGE),
+                    CONF_SENSOR_DEW_POINT: user_input.get(CONF_SENSOR_DEW_POINT),
+                    CONF_SENSOR_APPARENT_TEMPERATURE: user_input.get(CONF_SENSOR_APPARENT_TEMPERATURE),
+                    CONF_SENSOR_RAIN: user_input.get(CONF_SENSOR_RAIN),
+                }
+            )
+            return self.async_create_entry(title="", data={})
+
+        from homeassistant.helpers import selector
+        
+        # Get current values
+        data = self.config_entry.data
+        
+        return self.async_show_form(
+            step_id="sensors",
+            data_schema=vol.Schema({
+                vol.Optional(CONF_SENSOR_TEMPERATURE, description={"suggested_value": data.get(CONF_SENSOR_TEMPERATURE)}): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain="sensor", device_class="temperature")
+                ),
+                vol.Optional(CONF_SENSOR_HUMIDITY, description={"suggested_value": data.get(CONF_SENSOR_HUMIDITY)}): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain="sensor", device_class="humidity")
+                ),
+                vol.Optional(CONF_SENSOR_PRESSURE, description={"suggested_value": data.get(CONF_SENSOR_PRESSURE)}): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain="sensor", device_class=["pressure", "atmospheric_pressure"])
+                ),
+                vol.Optional(CONF_SENSOR_WIND_SPEED, description={"suggested_value": data.get(CONF_SENSOR_WIND_SPEED)}): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain="sensor", device_class="wind_speed")
+                ),
+                vol.Optional(CONF_SENSOR_WIND_BEARING, description={"suggested_value": data.get(CONF_SENSOR_WIND_BEARING)}): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain="sensor")
+                ),
+                vol.Optional(CONF_SENSOR_WIND_GUST, description={"suggested_value": data.get(CONF_SENSOR_WIND_GUST)}): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain="sensor", device_class="wind_speed")
+                ),
+                vol.Optional(CONF_SENSOR_RAIN, description={"suggested_value": data.get(CONF_SENSOR_RAIN)}): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain="sensor")
+                ),
+                vol.Optional(CONF_SENSOR_VISIBILITY, description={"suggested_value": data.get(CONF_SENSOR_VISIBILITY)}): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain="sensor")
+                ),
+                vol.Optional(CONF_SENSOR_UV_INDEX, description={"suggested_value": data.get(CONF_SENSOR_UV_INDEX)}): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain="sensor")
+                ),
+                vol.Optional(CONF_SENSOR_OZONE, description={"suggested_value": data.get(CONF_SENSOR_OZONE)}): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain="sensor")
+                ),
+                vol.Optional(CONF_SENSOR_CLOUD_COVERAGE, description={"suggested_value": data.get(CONF_SENSOR_CLOUD_COVERAGE)}): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain="sensor")
+                ),
+                vol.Optional(CONF_SENSOR_DEW_POINT, description={"suggested_value": data.get(CONF_SENSOR_DEW_POINT)}): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain="sensor")
+                ),
+                vol.Optional(CONF_SENSOR_APPARENT_TEMPERATURE, description={"suggested_value": data.get(CONF_SENSOR_APPARENT_TEMPERATURE)}): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain="sensor")
+                ),
+            })
         )

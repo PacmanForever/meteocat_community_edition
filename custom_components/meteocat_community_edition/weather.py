@@ -284,6 +284,14 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
         
         return None
 
+    @property
+    def icon(self) -> str | None:
+        """Return the icon to use in the frontend."""
+        condition = self.condition
+        if condition == "partlycloudy" and self._is_night():
+            return "mdi:weather-night-partly-cloudy"
+        return None
+
     def _is_night(self) -> bool:
         """Check if sun is below horizon."""
         station = self.coordinator.data.get("station")
