@@ -1,8 +1,10 @@
 {
-  "condition_mapping": {
-    "title": "Condition mapping (icon)",
-    "description": "Select the mapping for the 'condition' property (icon) of your Weather entity:\n\n- Meteocat: The value of 'condition' will be the official Meteocat forecast (fixed mapping, not editable).\n- Custom: The value of 'condition' will come from a local numeric entity. You must manually define the mapping between local sensor codes and the Home Assistant supported conditions (e.g. sunny, cloudy, rainy, clear-night, etc.)."
-  },
+  "config": {
+    "step": {
+      "condition_mapping": {
+        "title": "Condition mapping (icon)",
+        "description": "Select the mapping for the 'condition' property (icon) of your Weather entity:\n\n- Meteocat: The value of 'condition' will be the official Meteocat forecast (fixed mapping, not editable).\n- Custom: The value of 'condition' will come from a local numeric entity. You must manually define the mapping between local sensor codes and the Home Assistant supported conditions (e.g. sunny, cloudy, rainy, clear-night, etc.)."
+      },
   "title": "Meteocat (Community Edition)",
   "config": {
     "step": {
