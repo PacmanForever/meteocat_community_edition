@@ -1,11 +1,21 @@
-﻿
-# Changelog
+﻿# Changelog
 
 Tots els canvis notables del projecte es documenten aquí.
 
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.1.6] - 2025-12-10
+
+### Afegit
+- Marcat visual dels camps requerits (condició, temperatura, humitat) a la UI de configuració del temps per plantilla.
+- Afegit test de regressió per garantir la correcta serialització de l'ozó.
+
+### Millorat
+- Millora de la gestió de l'ozó: ara es mostra com a extra_state_attribute i es serialitza correctament.
+- Traduccions i esquema de configuració revisats per compatibilitat amb Home Assistant.
+
+---
 ## [1.1.5] - 2025-12-10
 
 ### Afegit
