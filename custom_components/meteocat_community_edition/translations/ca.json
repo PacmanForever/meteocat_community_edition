@@ -1,10 +1,5 @@
 {
-  "config": {
-    "step": {
-      "condition_mapping": {
-        "title": "Mapeig de la condició (icona)",
-        "description": "Selecciona el mapeig per la propietat 'condition' (icona) de la teva entitat Temps (Weather):\n\n- Meteocat: El valor de 'condition' serà la predicció oficial de Meteocat (mapeig fix, no editable).\n- Personalitzat: El valor de 'condition' vindrà d’una entitat numèrica local. Cal definir manualment el mapeig entre els codis del sensor local i les condicions suportades per Home Assistant (ex: sunny, cloudy, rainy, clear-night, etc.)."
-      },
+  "title": "Meteocat (Edició Comunitària)",
   "title": "Meteocat (Edició Comunitària)",
   "config": {
     "step": {
@@ -213,5 +208,7 @@
     }
   }
 }
+
+
 
 

@@ -1,10 +1,5 @@
 {
-  "config": {
-    "step": {
-      "condition_mapping": {
-        "title": "Mapeo de la condición (icono)",
-        "description": "Selecciona el mapeo para la propiedad 'condition' (icono) de tu entidad Tiempo (Weather):\n\n- Meteocat: El valor de 'condition' será la predicción oficial de Meteocat (mapeo fijo, no editable).\n- Personalizado: El valor de 'condition' vendrá de una entidad numérica local. Debes definir manualmente el mapeo entre los códigos del sensor local y las condiciones soportadas por Home Assistant (ej: sunny, cloudy, rainy, clear-night, etc.)."
-      },
+  "title": "Meteocat (Edición Comunitaria)",
   "title": "Meteocat (Edición Comunitaria)",
   "config": {
     "step": {
@@ -204,5 +199,6 @@
     }
   }
 }
+
 
 
