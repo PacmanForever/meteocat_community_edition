@@ -440,21 +440,22 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
 
 
 class MeteocatLocalWeather(MeteocatWeather):
-        @property
-        def extra_state_attributes(self) -> dict:
-            """Return extra state attributes, including ozone if available."""
-            attrs = {}
-            ozone = self._get_sensor_value("ozone")
-            if ozone is not None:
-                attrs["ozone"] = ozone
-            return attrs
     """Representation of a Meteocat weather entity for Local Mode.
     
     Combines local sensor measurements with forecast data:
     - Current conditions: from configured Home Assistant sensors
     - Forecasts: hourly (72h) and daily (8 days) from Forecast API
     """
-    
+
+    @property
+    def extra_state_attributes(self) -> dict:
+        """Return extra state attributes, including ozone if available."""
+        attrs = {}
+        ozone = self._get_sensor_value("ozone")
+        if ozone is not None:
+            attrs["ozone"] = ozone
+        return attrs
+
     def __init__(
         self,
         coordinator: MeteocatCoordinator,
