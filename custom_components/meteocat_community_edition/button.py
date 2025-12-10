@@ -74,7 +74,7 @@ class MeteocatRefreshMeasurementsButton(CoordinatorEntity[MeteocatCoordinator], 
         self._device_name = device_name
         self._mode = mode
         self._entry = entry
-        
+        self._attr_icon = "mdi:thermometer-refresh"
         # Generate entity_id based on mode
         base_name = entity_name.lower().replace(" ", "_")
         if mode == MODE_EXTERNAL:
@@ -83,7 +83,6 @@ class MeteocatRefreshMeasurementsButton(CoordinatorEntity[MeteocatCoordinator], 
             self.entity_id = f"button.{base_name}_{code_lower}_refresh_measurements"
         else:  # Should not happen for measurements button, but safe fallback
             self.entity_id = f"button.{base_name}_refresh_measurements"
-        
         # Set device info to group with sensors and weather entity
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},

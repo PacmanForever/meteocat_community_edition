@@ -5,6 +5,22 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.1.9] - 2025-12-10
+
+### Afegit
+- Pantalla de mapping en el config flow per mode local: permet personalitzar la correspondència de condicions meteorològiques.
+- Test que verifica que la pantalla de mapping es mostra i que la lògica backend la crida.
+
+### Millorat
+- Camps requerits (condició, temperatura, humitat) marcats visualment a la UI de configuració.
+- Traduccions revisades i errors de JSON corregits.
+- Versió sincronitzada entre manifest i git tag.
+
+### Corregit
+- Ordre correcte dels passos del config flow en mode local (mapping després de sensors).
+- Cobertura de tests ampliada (302/302 passats).
+
+---
 ## [1.1.6] - 2025-12-10
 
 ### Afegit

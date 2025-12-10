@@ -175,9 +175,7 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             data_schema=schema,
             errors=errors,
             description_placeholders={
-                "description": self.hass.helpers.translation.async_get_translated_string(
-                    "condition_mapping.description", DOMAIN, self.hass
-                )
+                "description": "Personalitza la correspondència de condicions meteorològiques."
             },
         )
 

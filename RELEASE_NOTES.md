@@ -1,3 +1,16 @@
+# v1.1.9 - Pantalla de mapping i camps requerits
+
+## 🆕 Novetats
+- S'ha afegit la pantalla de mapping al config flow en mode local, permetent personalitzar la correspondència de condicions meteorològiques.
+- Els camps requerits (condició, temperatura, humitat) ara es marquen visualment a la UI.
+- S'ha afegit un test que verifica que la pantalla de mapping es mostra i que la lògica backend la crida.
+
+## 🐞 Correccions
+- S'ha corregit l'ordre dels passos del config flow en mode local (mapping després de sensors).
+- Traduccions revisades i errors de JSON corregits.
+- Versió sincronitzada entre manifest i git tag.
+- Cobertura de tests ampliada (302/302 passats).
+
 # v1.1.5 - Conversió de la velocitat del vent
 
 ## 🐛 Correccions
