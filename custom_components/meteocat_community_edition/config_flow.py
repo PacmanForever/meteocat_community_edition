@@ -719,13 +719,25 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
         """Pantalla de selecció de sensors locals. Després, mapping."""
-        if user_input is not None:
-            # Desa els sensors locals seleccionats per passar-los a la pantalla de mapping
-            self._local_sensors_input = user_input
-            return await self.async_step_condition_mapping_type()
-
         from homeassistant.helpers import selector
         import voluptuous as vol
+        
+        errors = {}
+        
+        if user_input is not None:
+            # Validate required fields
+            temp_sensor = user_input.get(CONF_SENSOR_TEMPERATURE)
+            hum_sensor = user_input.get(CONF_SENSOR_HUMIDITY)
+            
+            if not temp_sensor or temp_sensor == "":
+                errors[CONF_SENSOR_TEMPERATURE] = "required"
+            if not hum_sensor or hum_sensor == "":
+                errors[CONF_SENSOR_HUMIDITY] = "required"
+                
+            if not errors:
+                # Desa els sensors locals seleccionats per passar-los a la pantalla de mapping
+                self._local_sensors_input = user_input
+                return await self.async_step_condition_mapping_type()
 
         return self.async_show_form(
             step_id="local_sensors",
@@ -770,6 +782,7 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     selector.EntitySelectorConfig(domain="sensor", device_class="temperature")
                 ),
             }),
+            errors=errors,
         )
 
     @staticmethod
@@ -1105,41 +1118,58 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
         """Manage the sensors options."""
-        if user_input is not None:
-            # Helper to ensure we store strings, not lists
-            def get_entity_id(key):
-                val = user_input.get(key)
-                if isinstance(val, list):
-                    return val[0] if val else None
-                return val
-
-            # Update entry with sensors
-            self.hass.config_entries.async_update_entry(
-                entry=self.config_entry,
-                data={
-                    **self.config_entry.data,
-                    CONF_SENSOR_TEMPERATURE: get_entity_id(CONF_SENSOR_TEMPERATURE),
-                    CONF_SENSOR_HUMIDITY: get_entity_id(CONF_SENSOR_HUMIDITY),
-                    CONF_SENSOR_PRESSURE: get_entity_id(CONF_SENSOR_PRESSURE),
-                    CONF_SENSOR_WIND_SPEED: get_entity_id(CONF_SENSOR_WIND_SPEED),
-                    CONF_SENSOR_WIND_BEARING: get_entity_id(CONF_SENSOR_WIND_BEARING),
-                    CONF_SENSOR_WIND_GUST: get_entity_id(CONF_SENSOR_WIND_GUST),
-                    CONF_SENSOR_VISIBILITY: get_entity_id(CONF_SENSOR_VISIBILITY),
-                    CONF_SENSOR_UV_INDEX: get_entity_id(CONF_SENSOR_UV_INDEX),
-                    CONF_SENSOR_OZONE: get_entity_id(CONF_SENSOR_OZONE),
-                    CONF_SENSOR_CLOUD_COVERAGE: get_entity_id(CONF_SENSOR_CLOUD_COVERAGE),
-                    CONF_SENSOR_DEW_POINT: get_entity_id(CONF_SENSOR_DEW_POINT),
-                    CONF_SENSOR_APPARENT_TEMPERATURE: get_entity_id(CONF_SENSOR_APPARENT_TEMPERATURE),
-                    CONF_SENSOR_RAIN: get_entity_id(CONF_SENSOR_RAIN),
-                }
-            )
-            return self.async_create_entry(title="", data=self.config_entry.options)
-
         from homeassistant.helpers import selector
+        import voluptuous as vol
+        
+        errors = {}
         
         # Get current values
         data = self.config_entry.data
         
+        if user_input is not None:
+            # Validate required fields - only if they are being changed and would become empty
+            temp_sensor = user_input.get(CONF_SENSOR_TEMPERATURE)
+            hum_sensor = user_input.get(CONF_SENSOR_HUMIDITY)
+            current_temp = data.get(CONF_SENSOR_TEMPERATURE)
+            current_hum = data.get(CONF_SENSOR_HUMIDITY)
+            
+            # Temperature is required if it's being changed and would become empty
+            if CONF_SENSOR_TEMPERATURE in user_input and (not temp_sensor or temp_sensor == "") and current_temp:
+                errors[CONF_SENSOR_TEMPERATURE] = "required"
+            # Humidity is required if it's being changed and would become empty  
+            if CONF_SENSOR_HUMIDITY in user_input and (not hum_sensor or hum_sensor == "") and current_hum:
+                errors[CONF_SENSOR_HUMIDITY] = "required"
+                
+            if not errors:
+                # Helper to ensure we store strings, not lists
+                def get_entity_id(key):
+                    val = user_input.get(key)
+                    if isinstance(val, list):
+                        return val[0] if val else None
+                    return val
+
+                # Update entry with sensors
+                self.hass.config_entries.async_update_entry(
+                    entry=self.config_entry,
+                    data={
+                        **self.config_entry.data,
+                        CONF_SENSOR_TEMPERATURE: get_entity_id(CONF_SENSOR_TEMPERATURE),
+                        CONF_SENSOR_HUMIDITY: get_entity_id(CONF_SENSOR_HUMIDITY),
+                        CONF_SENSOR_PRESSURE: get_entity_id(CONF_SENSOR_PRESSURE),
+                        CONF_SENSOR_WIND_SPEED: get_entity_id(CONF_SENSOR_WIND_SPEED),
+                        CONF_SENSOR_WIND_BEARING: get_entity_id(CONF_SENSOR_WIND_BEARING),
+                        CONF_SENSOR_WIND_GUST: get_entity_id(CONF_SENSOR_WIND_GUST),
+                        CONF_SENSOR_VISIBILITY: get_entity_id(CONF_SENSOR_VISIBILITY),
+                        CONF_SENSOR_UV_INDEX: get_entity_id(CONF_SENSOR_UV_INDEX),
+                        CONF_SENSOR_OZONE: get_entity_id(CONF_SENSOR_OZONE),
+                        CONF_SENSOR_CLOUD_COVERAGE: get_entity_id(CONF_SENSOR_CLOUD_COVERAGE),
+                        CONF_SENSOR_DEW_POINT: get_entity_id(CONF_SENSOR_DEW_POINT),
+                        CONF_SENSOR_APPARENT_TEMPERATURE: get_entity_id(CONF_SENSOR_APPARENT_TEMPERATURE),
+                        CONF_SENSOR_RAIN: get_entity_id(CONF_SENSOR_RAIN),
+                    }
+                )
+                return self.async_create_entry(title="", data=self.config_entry.options)
+
         return self.async_show_form(
             step_id="sensors",
             data_schema=vol.Schema({
@@ -1182,7 +1212,8 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                 vol.Optional(CONF_SENSOR_APPARENT_TEMPERATURE, description={"suggested_value": data.get(CONF_SENSOR_APPARENT_TEMPERATURE)}): selector.EntitySelector(
                     selector.EntitySelectorConfig(domain="sensor", multiple=False)
                 ),
-            })
+            }),
+            errors=errors,
         )
 
     async def async_step_condition_mapping_type(self, user_input: dict[str, Any] | None = None) -> FlowResult:

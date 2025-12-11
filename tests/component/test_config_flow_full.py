@@ -228,6 +228,43 @@ async def test_flow_update_times_step_local():
     assert result2["step_id"] == "condition_mapping_type"
 
 @pytest.mark.asyncio
+async def test_flow_local_sensors_requires_temperature_and_humidity():
+    """Test that local sensors step requires temperature and humidity sensors."""
+    flow = MeteocatConfigFlow()
+    flow.hass = MagicMock()
+    flow.api_key = "valid_key"
+    flow.mode = MODE_LOCAL
+    flow.municipality_code = "08001"
+    flow.municipality_name = "Abrera"
+    flow.comarca_code = "1"
+    flow.comarca_name = "Baix Llobregat"
+    flow.api_base_url = "https://api.meteocat.cat/release/v1"
+    
+    # Missing both required fields
+    result = await flow.async_step_local_sensors({})
+    assert result["type"] == "form"
+    assert CONF_SENSOR_TEMPERATURE in result["errors"]
+    assert CONF_SENSOR_HUMIDITY in result["errors"]
+    
+    # Missing only temperature
+    result2 = await flow.async_step_local_sensors({CONF_SENSOR_HUMIDITY: "sensor.hum"})
+    assert result2["type"] == "form"
+    assert CONF_SENSOR_TEMPERATURE in result2["errors"]
+    assert CONF_SENSOR_HUMIDITY not in result2["errors"]
+    
+    # Missing only humidity
+    result3 = await flow.async_step_local_sensors({CONF_SENSOR_TEMPERATURE: "sensor.temp"})
+    assert result3["type"] == "form"
+    assert CONF_SENSOR_TEMPERATURE not in result3["errors"]
+    assert CONF_SENSOR_HUMIDITY in result3["errors"]
+    
+    # Empty strings should be treated as missing
+    result4 = await flow.async_step_local_sensors({CONF_SENSOR_TEMPERATURE: "", CONF_SENSOR_HUMIDITY: ""})
+    assert result4["type"] == "form"
+    assert CONF_SENSOR_TEMPERATURE in result4["errors"]
+    assert CONF_SENSOR_HUMIDITY in result4["errors"]
+
+@pytest.mark.asyncio
 async def test_flow_local_sensors_step():
     """Test que la pantalla de sensors locals porta a la de mapping, i després es crea l'entrada."""
     flow = MeteocatConfigFlow()
