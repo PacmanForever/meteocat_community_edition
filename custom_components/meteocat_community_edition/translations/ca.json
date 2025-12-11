@@ -144,7 +144,7 @@
       },
       "sensors": {
         "title": "Selecció d'entitats meteorològiques locals",
-        "description": "Selecciona els sensors de Home Assistant per a les dades actuals.",
+        "description": "",
         "data": {
           "sensor_temperature": "Temperatura",
           "sensor_humidity": "Humitat",
