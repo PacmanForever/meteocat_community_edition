@@ -5,6 +5,16 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.13] - 2025-12-11
+
+### Millorat
+- **Validació de camps obligatoris**: Millorada la validació dels sensors de temperatura i humitat en les pantalles de creació i edició
+- **Missatges d'error**: Els camps buits ara es posen vermells i mostren l'etiqueta "obligatori" correctament
+- **Experiència d'usuari**: Interfície més robusta amb feedback visual adequat per camps requerits
+
+### Afegit
+- **Test de validació**: Afegit test exhaustiu per verificar la validació dels camps de sensors requerits
+
 ## [1.2.12] - 2025-12-11
 
 ### Millorat
