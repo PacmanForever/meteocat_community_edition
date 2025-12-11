@@ -5,6 +5,17 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.6] - 2025-12-11
+
+### Corregit
+- **Correcció d'icones monocromes**: S'arregla que les icones dels estats del temps locals amb mapatge personalitzat apareixien en blanc i negre en lloc de colors
+- **Millora de l'atribució**: L'atribució de l'entitat weather local ara inclou el nom del municipi en lloc de text genèric
+- S'afegeix gestió correcta dels tipus de claus (integer vs string) per als mapatges de condicions personalitzats
+
+### Millorat
+- Experiència visual millorada amb icones de colors correctes en mapatges personalitzats
+- Informació d'atribució més específica i útil per als usuaris
+
 ## [1.2.5] - 2025-12-11
 
 ### Corregit

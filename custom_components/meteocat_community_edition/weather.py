@@ -503,8 +503,8 @@ class MeteocatLocalWeather(MeteocatWeather):
         if entry.data.get(CONF_ENABLE_FORECAST_HOURLY, False):
             self._attr_supported_features |= WeatherEntityFeature.FORECAST_HOURLY
         self._entry = entry
-        self._attr_attribution = "Estació local + Predicció Meteocat"
         municipality_name = entry.data.get(CONF_MUNICIPALITY_NAME, "Estació Local")
+        self._attr_attribution = f"Estació {municipality_name} + Predicció Meteocat"
         self._attr_name = municipality_name
         self._attr_unique_id = f"{entry.entry_id}_weather_local"
         self.entity_id = f"weather.{self._attr_name.lower().replace(' ', '_')}_local"
@@ -625,11 +625,13 @@ class MeteocatLocalWeather(MeteocatWeather):
                         # Choose mapping
                         if self._mapping_type == "custom" and self._custom_condition_mapping:
                             mapping = self._custom_condition_mapping
+                            # Custom mapping uses string keys
+                            condition = mapping.get(str(estat_code), "cloudy")
                         else:
                             from .const import METEOCAT_CONDITION_MAP
                             mapping = METEOCAT_CONDITION_MAP
-                        # Map code to condition
-                        condition = mapping.get(estat_code, "cloudy")
+                            # Default mapping uses integer keys
+                            condition = mapping.get(estat_code, "cloudy")
                         if condition == "sunny" and self._is_night():
                             return "clear-night"
                         return condition

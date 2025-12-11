@@ -104,6 +104,8 @@
       "must_select_one_forecast": "Has de seleccionar almenys un tipus de predicció (diària o horària) en mode municipi",
       "required": "Aquest camp és obligatori",
       "invalid_auth": "Clau API no vàlida. Si us plau, comprova que la clau API sigui correcta.",
+      "invalid_format": "Format no vàlid. Utilitza el format 'valor: condició' en cada línia.",
+      "invalid_condition": "Condició no vàlida. Les condicions vàlides són: sunny, partlycloudy, cloudy, rainy, pouring, lightning, lightning-rainy, hail, snowy, snowy-rainy, fog, windy, windy-variant, clear-night, exceptional.",
       "unknown": "Error desconegut"
     },
     "abort": {

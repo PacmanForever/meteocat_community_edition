@@ -195,8 +195,11 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 # Parse the mapping
                 try:
                     parsed_mapping = self._parse_condition_mapping(custom_mapping)
-                except ValueError:
-                    errors["custom_condition_mapping"] = "invalid_format"
+                except ValueError as e:
+                    if "Invalid condition" in str(e):
+                        errors["custom_condition_mapping"] = "invalid_condition"
+                    else:
+                        errors["custom_condition_mapping"] = "invalid_format"
                 else:
                     latest_input = getattr(self, '_local_sensors_input', None) or getattr(self, '_update_times_input', {})
                     entry_data = dict(latest_input)
@@ -251,6 +254,22 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     def _parse_condition_mapping(self, text: str) -> dict[str, str]:
         """Parse condition mapping from text format: key: value"""
+        from homeassistant.components.weather import (
+            ATTR_CONDITION_SUNNY, ATTR_CONDITION_PARTLYCLOUDY, ATTR_CONDITION_CLOUDY,
+            ATTR_CONDITION_RAINY, ATTR_CONDITION_POURING, ATTR_CONDITION_LIGHTNING,
+            ATTR_CONDITION_LIGHTNING_RAINY, ATTR_CONDITION_HAIL, ATTR_CONDITION_SNOWY,
+            ATTR_CONDITION_SNOWY_RAINY, ATTR_CONDITION_FOG, ATTR_CONDITION_WINDY,
+            ATTR_CONDITION_WINDY_VARIANT, ATTR_CONDITION_CLEAR_NIGHT, ATTR_CONDITION_EXCEPTIONAL
+        )
+        
+        valid_conditions = [
+            ATTR_CONDITION_SUNNY, ATTR_CONDITION_PARTLYCLOUDY, ATTR_CONDITION_CLOUDY,
+            ATTR_CONDITION_RAINY, ATTR_CONDITION_POURING, ATTR_CONDITION_LIGHTNING,
+            ATTR_CONDITION_LIGHTNING_RAINY, ATTR_CONDITION_HAIL, ATTR_CONDITION_SNOWY,
+            ATTR_CONDITION_SNOWY_RAINY, ATTR_CONDITION_FOG, ATTR_CONDITION_WINDY,
+            ATTR_CONDITION_WINDY_VARIANT, ATTR_CONDITION_CLEAR_NIGHT, ATTR_CONDITION_EXCEPTIONAL
+        ]
+        
         lines = text.strip().split('\n')
         mapping = {}
         for line in lines:
@@ -261,6 +280,8 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             key = key.strip()
             value = value.strip()
             if key and value:
+                if value not in valid_conditions:
+                    raise ValueError(f"Invalid condition '{value}'. Must be one of: {', '.join(valid_conditions)}")
                 mapping[key] = value
         if not mapping:
             raise ValueError("Empty mapping")
