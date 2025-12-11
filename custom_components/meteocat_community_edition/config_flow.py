@@ -537,7 +537,11 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             self._abort_if_unique_id_configured()
 
             # Set title placeholders for area assignment screen
-            self.context["title_placeholders"] = {"name": f"{self.station_name} {self.station_code}"}
+            try:
+                self.context.update({"title_placeholders": {"name": f"{self.station_name} {self.station_code}"}})
+            except TypeError:
+                # Context is immutable in some cases (like tests), skip setting placeholders
+                pass
 
             # Go to update times configuration
             return await self.async_step_update_times()
@@ -600,7 +604,11 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             self._abort_if_unique_id_configured()
 
             # Set title placeholders for area assignment screen
-            self.context["title_placeholders"] = {"name": self.municipality_name}
+            try:
+                self.context.update({"title_placeholders": {"name": self.municipality_name}})
+            except TypeError:
+                # Context is immutable in some cases (like tests), skip setting placeholders
+                pass
 
             # Go to update times configuration
             return await self.async_step_update_times()
@@ -925,7 +933,7 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
 
         # Set title placeholders in context for the flow (if context is mutable)
         try:
-            self.context["title_placeholders"] = title_placeholders
+            self.context.update({"title_placeholders": title_placeholders})
         except TypeError:
             # Context is immutable in some cases (like tests), skip setting placeholders
             pass
@@ -1065,12 +1073,21 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
 
         # Prepare title placeholders
         title_placeholders = {}
-        municipality_name = self.config_entry.data.get(CONF_MUNICIPALITY_NAME, "")
-        title_placeholders["name"] = municipality_name
+        mode = self.config_entry.data.get(CONF_MODE)
+        if mode == MODE_LOCAL:
+            municipality_name = self.config_entry.data.get(CONF_MUNICIPALITY_NAME, "")
+            title_placeholders["name"] = municipality_name
+        else:
+            station_name = self.config_entry.data.get(CONF_STATION_NAME, "")
+            station_code = self.config_entry.data.get(CONF_STATION_CODE, "")
+            if station_name and station_code:
+                title_placeholders["name"] = f"{station_name} {station_code}"
+            else:
+                title_placeholders["name"] = station_name or station_code or ""
 
         # Set title placeholders in context for the flow (if context is mutable)
         try:
-            self.context["title_placeholders"] = title_placeholders
+            self.context.update({"title_placeholders": title_placeholders})
         except TypeError:
             # Context is immutable in some cases (like tests), skip setting placeholders
             pass

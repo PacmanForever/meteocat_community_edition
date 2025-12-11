@@ -5,6 +5,16 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.11] - 2025-12-11
+
+### Millorat
+- **Textos de la interfície d'usuari millorats**: Canviats els títols i etiquetes de les pantalles de configuració per ser més clars i consistents
+- **Pantalla d'edició del mapping**: Títol canviat a "Configuració del mapeig de la condició climàtica" i etiquetes dels camps millorades
+- **Pantalla de creació d'estacions**: Títol "Actualització de prediccions" canviat a "Configuració de prediccions" i eliminada la descripció redundant
+
+### Afegit
+- **Tests de traduccions**: Afegits tests exhaustius per verificar que totes les traduccions estiguin correctes en català, castellà i anglès
+
 ## [1.2.10] - 2025-12-11
 
 ### Millorat

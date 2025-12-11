@@ -39,8 +39,8 @@
         }
       },
       "update_times": {
-        "title": "Forecast Update",
-        "description": "Configure the update times and forecasts.",
+        "title": "Forecast Configuration",
+        "description": "",
         "data": {
           "measurements_label": "Measurements (required)",
           "enable_forecast_daily": "Daily forecast",
@@ -115,7 +115,7 @@
   "options": {
     "step": {
       "init": {
-        "title": "External station configuration {name}",
+        "title": "Weather condition mapping configuration",
         "description": "{measurements_info}",
         "data": {
           "api_base_url": "API base URL (leave default for production)",

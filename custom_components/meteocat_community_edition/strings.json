@@ -116,7 +116,7 @@
   "options": {
     "step": {
       "init": {
-        "title": "Configuració",
+        "title": "Configuració del mapeig de la condició climàtica",
         "description": "",
         "data": {
           "api_base_url": "URL base de l'API (deixa per defecte per a producció)",

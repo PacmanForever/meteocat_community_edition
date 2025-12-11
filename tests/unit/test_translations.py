@@ -44,3 +44,87 @@ def test_options_flow_description_content():
     desc_en = en["options"]["step"]["init"]["description"]
     assert desc_en == "{measurements_info}"
     assert "advanced options" not in desc_en
+
+
+def test_options_flow_title_content():
+    """Test that options flow title is correct for mapping configuration."""
+    
+    # Catalan
+    ca = load_translation("ca")
+    title_ca = ca["options"]["step"]["init"]["title"]
+    assert title_ca == "Configuració del mapeig de la condició climàtica"
+    
+    # Spanish
+    es = load_translation("es")
+    title_es = es["options"]["step"]["init"]["title"]
+    assert title_es == "Configuración del mapeo de la condición climática"
+    
+    # English
+    en = load_translation("en")
+    title_en = en["options"]["step"]["init"]["title"]
+    assert title_en == "Weather condition mapping configuration"
+
+
+def test_update_times_title_and_description():
+    """Test that update_times step has correct title and empty description."""
+    
+    # Catalan
+    ca = load_translation("ca")
+    title_ca = ca["config"]["step"]["update_times"]["title"]
+    desc_ca = ca["config"]["step"]["update_times"]["description"]
+    assert title_ca == "Configuració de prediccions"
+    assert desc_ca == ""
+    
+    # Spanish
+    es = load_translation("es")
+    title_es = es["config"]["step"]["update_times"]["title"]
+    desc_es = es["config"]["step"]["update_times"]["description"]
+    assert title_es == "Configuración de predicciones"
+    assert desc_es == ""
+    
+    # English
+    en = load_translation("en")
+    title_en = en["config"]["step"]["update_times"]["title"]
+    desc_en = en["config"]["step"]["update_times"]["description"]
+    assert title_en == "Forecast Configuration"
+    assert desc_en == ""
+
+
+def test_condition_mapping_custom_texts():
+    """Test that condition mapping custom step has correct texts."""
+    
+    # Catalan
+    ca = load_translation("ca")
+    title_ca = ca["config"]["step"]["condition_mapping_custom"]["title"]
+    desc_ca = ca["config"]["step"]["condition_mapping_custom"]["description"]
+    entity_label_ca = ca["config"]["step"]["condition_mapping_custom"]["data"]["local_condition_entity"]
+    mapping_label_ca = ca["config"]["step"]["condition_mapping_custom"]["data"]["custom_condition_mapping"]
+    
+    assert title_ca == "Configuració del mapeig de la condició climàtica"
+    assert "sensor que conté el valor" in desc_ca
+    assert entity_label_ca == "Sensor que indica la condició (obligatori)"
+    assert mapping_label_ca == "Mapeig de valors (obligatori)"
+    
+    # Spanish
+    es = load_translation("es")
+    title_es = es["config"]["step"]["condition_mapping_custom"]["title"]
+    desc_es = es["config"]["step"]["condition_mapping_custom"]["description"]
+    entity_label_es = es["config"]["step"]["condition_mapping_custom"]["data"]["local_condition_entity"]
+    mapping_label_es = es["config"]["step"]["condition_mapping_custom"]["data"]["custom_condition_mapping"]
+    
+    assert title_es == "Configuración del mapeo de la condición climática"
+    assert "sensor que contiene el valor" in desc_es
+    assert entity_label_es == "Sensor que indica la condición (obligatorio)"
+    assert mapping_label_es == "Mapeo de valores (obligatorio)"
+    
+    # English
+    en = load_translation("en")
+    title_en = en["config"]["step"]["condition_mapping_custom"]["title"]
+    desc_en = en["config"]["step"]["condition_mapping_custom"]["description"]
+    entity_label_en = en["config"]["step"]["condition_mapping_custom"]["data"]["local_condition_entity"]
+    mapping_label_en = en["config"]["step"]["condition_mapping_custom"]["data"]["custom_condition_mapping"]
+    
+    assert title_en == "Configuration of the weather condition mapping"
+    assert "Select the sensor that contains the condition value" in desc_en
+    assert entity_label_en == "Sensor indicating the condition (required)"
+    assert mapping_label_en == "Value mapping (required)"

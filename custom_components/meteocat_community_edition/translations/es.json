@@ -39,8 +39,8 @@
         }
       },
       "update_times": {
-        "title": "Actualización de predicciones",
-        "description": "Configura las horas de actualización y las predicciones.",
+        "title": "Configuración de predicciones",
+        "description": "",
         "data": {
           "measurements_label": "Medidas (obligatorio)",
           "enable_forecast_daily": "Predicción diaria",
@@ -115,7 +115,7 @@
   "options": {
     "step": {
       "init": {
-        "title": "Configuración estación externa {name}",
+        "title": "Configuración del mapeo de la condición climática",
         "description": "{measurements_info}",
         "data": {
           "api_base_url": "URL base de la API (deja por defecto para producción)",
