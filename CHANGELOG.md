@@ -5,6 +5,13 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.3] - 2025-12-11
+
+### Corregit
+- **Correcció crítica**: S'arregla error `KeyError: 'api_key'` que impedia completar la configuració
+- S'assegura que l'api_key i api_base_url s'inclouen correctament a les dades d'entrada
+- S'afegeixen tests regressius per prevenir que aquest error torni a ocórrer
+
 ## [1.2.2] - 2025-12-11
 
 ### Millorat
