@@ -15,9 +15,11 @@ from custom_components.meteocat_community_edition.config_flow import (
     CONF_API_BASE_URL,
     CONF_MODE,
     CONF_COMARCA_CODE,
+    CONF_COMARCA_NAME,
     CONF_STATION_CODE,
     MODE_EXTERNAL,
     CONF_MUNICIPALITY_CODE,
+    CONF_MUNICIPALITY_NAME,
     MODE_LOCAL,
     CONF_UPDATE_TIME_1,
     CONF_UPDATE_TIME_2,
@@ -287,11 +289,14 @@ async def test_flow_mapping_type_meteocat_creates_entry():
     flow.hass = MagicMock()
     flow.api_key = "test_api_key"  # Add API key
     flow.mode = MODE_LOCAL  # Add mode
+    flow.municipality_code = "08001"  # Add municipality data
+    flow.municipality_name = "Abrera"
+    flow.comarca_code = "1"
+    flow.comarca_name = "Baix Llobregat"
     flow._local_sensors_input = {
         CONF_SENSOR_TEMPERATURE: "sensor.temp",
         CONF_SENSOR_HUMIDITY: "sensor.hum",
     }
-    flow.municipality_name = "Abrera"
     flow.api_base_url = "https://api.meteocat.cat/release/v1"
     result = await flow.async_step_condition_mapping_type({"mapping_type": "meteocat"})
     assert result["type"] == "create_entry"
@@ -304,6 +309,11 @@ async def test_flow_mapping_type_meteocat_creates_entry():
     assert result["data"][CONF_API_BASE_URL] == "https://api.meteocat.cat/release/v1"
     # Regression test: ensure mode is included in entry data
     assert result["data"][CONF_MODE] == MODE_LOCAL
+    # Regression test: ensure municipality and comarca data are included
+    assert result["data"][CONF_MUNICIPALITY_CODE] == "08001"
+    assert result["data"][CONF_MUNICIPALITY_NAME] == "Abrera"
+    assert result["data"][CONF_COMARCA_CODE] == "1"
+    assert result["data"][CONF_COMARCA_NAME] == "Baix Llobregat"
 
 @pytest.mark.asyncio
 async def test_flow_mapping_type_custom_leads_to_custom_step():
@@ -328,11 +338,14 @@ async def test_flow_custom_mapping_requires_fields():
     flow.hass = MagicMock()
     flow.api_key = "test_api_key"  # Add API key
     flow.mode = MODE_LOCAL  # Add mode
+    flow.municipality_code = "08001"  # Add municipality data
+    flow.municipality_name = "Abrera"
+    flow.comarca_code = "1"
+    flow.comarca_name = "Baix Llobregat"
     flow._local_sensors_input = {
         CONF_SENSOR_TEMPERATURE: "sensor.temp",
         CONF_SENSOR_HUMIDITY: "sensor.hum",
     }
-    flow.municipality_name = "Abrera"
     flow.api_base_url = "https://api.meteocat.cat/release/v1"
     # Missing both fields
     result = await flow.async_step_condition_mapping_custom({})
@@ -355,6 +368,11 @@ async def test_flow_custom_mapping_requires_fields():
     assert result4["data"][CONF_API_BASE_URL] == "https://api.meteocat.cat/release/v1"
     # Regression test: ensure mode is included in entry data
     assert result4["data"][CONF_MODE] == MODE_LOCAL
+    # Regression test: ensure municipality and comarca data are included
+    assert result4["data"][CONF_MUNICIPALITY_CODE] == "08001"
+    assert result4["data"][CONF_MUNICIPALITY_NAME] == "Abrera"
+    assert result4["data"][CONF_COMARCA_CODE] == "1"
+    assert result4["data"][CONF_COMARCA_NAME] == "Baix Llobregat"
 
 @pytest.mark.asyncio
 async def test_coordinator_handles_missing_api_key():

@@ -128,6 +128,15 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 entry_data = dict(latest_input)
                 entry_data["mapping_type"] = "meteocat"
                 entry_data[CONF_MODE] = self.mode  # Add the selected mode
+                # Add municipality and comarca data for sensors
+                if hasattr(self, 'municipality_code') and self.municipality_code:
+                    entry_data[CONF_MUNICIPALITY_CODE] = self.municipality_code
+                if hasattr(self, 'municipality_name'):
+                    entry_data[CONF_MUNICIPALITY_NAME] = self.municipality_name
+                if hasattr(self, 'comarca_code') and self.comarca_code:
+                    entry_data[CONF_COMARCA_CODE] = self.comarca_code
+                if hasattr(self, 'comarca_name'):
+                    entry_data[CONF_COMARCA_NAME] = self.comarca_name
                 # Add API key and base URL
                 entry_data[CONF_API_KEY] = self.api_key
                 entry_data[CONF_API_BASE_URL] = self.api_base_url
@@ -195,6 +204,15 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     entry_data["custom_condition_mapping"] = parsed_mapping
                     entry_data["local_condition_entity"] = local_entity
                     entry_data[CONF_MODE] = self.mode  # Add the selected mode
+                    # Add municipality and comarca data for sensors
+                    if hasattr(self, 'municipality_code') and self.municipality_code:
+                        entry_data[CONF_MUNICIPALITY_CODE] = self.municipality_code
+                    if hasattr(self, 'municipality_name'):
+                        entry_data[CONF_MUNICIPALITY_NAME] = self.municipality_name
+                    if hasattr(self, 'comarca_code') and self.comarca_code:
+                        entry_data[CONF_COMARCA_CODE] = self.comarca_code
+                    if hasattr(self, 'comarca_name'):
+                        entry_data[CONF_COMARCA_NAME] = self.comarca_name
                     # Add API key and base URL
                     entry_data[CONF_API_KEY] = self.api_key
                     entry_data[CONF_API_BASE_URL] = self.api_base_url

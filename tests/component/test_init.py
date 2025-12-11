@@ -197,14 +197,14 @@ async def test_async_unload_entry_local_mode(mock_hass, mock_entry_municipi):
     # Should return True
     assert result is True
     
-    # Should unload only sensor, button, and binary_sensor platforms
+    # Should unload all platforms (weather now supported in local mode)
     call_args = mock_hass.config_entries.async_unload_platforms.call_args
     platforms = call_args[0][1]
-    assert Platform.WEATHER not in platforms
+    assert Platform.WEATHER in platforms
     assert Platform.SENSOR in platforms
     assert Platform.BUTTON in platforms
     assert Platform.BINARY_SENSOR in platforms
-    assert len(platforms) == 3
+    assert len(platforms) == 4
 
 
 @pytest.mark.asyncio

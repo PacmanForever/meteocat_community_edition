@@ -5,6 +5,20 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.5] - 2025-12-11
+
+### Corregit
+- **Correcció crítica**: S'arregla error `KeyError: 'municipality_name'` a l'entitat weather local
+- L'entitat weather local ara utilitza un nom per defecte quan no hi ha informació de municipi
+- S'assegura que la informació de municipi i comarca es guarda sempre als entries del mode local
+- S'afegeixen millores de robustesa al config flow per gestionar casos on les dades d'API són incompletes
+- **Millora del mode local**: Ara té paritat completa amb el mode extern (sensors disponibles, entitat weather, etc.)
+- S'afegeixen logs de debug per ajudar en el diagnòstic de problemes futurs
+
+### Millorat
+- Millora de l'experiència d'usuari en mode local amb totes les funcionalitats disponibles
+- Config flow més robust per gestionar dades d'API variables
+
 ## [1.2.4] - 2025-12-11
 
 ### Corregit
