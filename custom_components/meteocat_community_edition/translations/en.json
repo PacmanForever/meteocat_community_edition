@@ -115,7 +115,7 @@
   "options": {
     "step": {
       "init": {
-        "title": "Weather condition mapping configuration",
+        "title": "External station configuration {name}",
         "description": "{measurements_info}",
         "data": {
           "api_base_url": "API base URL (leave default for production)",
@@ -158,6 +158,14 @@
           "sensor_dew_point": "Dew point",
           "sensor_apparent_temperature": "Apparent temperature",
           "sensor_rain": "Rain intensity"
+        }
+      },
+      "condition_mapping_custom": {
+        "title": "Configuration of the weather condition mapping",
+        "description": "Select the sensor that contains the condition value and the mapping to be used.",
+        "data": {
+          "local_condition_entity": "Sensor indicating the condition (required)",
+          "custom_condition_mapping": "Value mapping (required)"
         }
       }
     }

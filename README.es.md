@@ -563,6 +563,20 @@ Esta integración está optimizada para minimizar el uso:
 - Las cuotas se consultan **después** de las otras APIs para contabilizar correctamente
 - Los sensores de cuotas te permiten monitorizar el uso en tiempo real
 
+#### 💡 **Múltiples API Keys para maximizar el uso**
+
+Debido a que el **plan doméstico** permite pocas consultas al mes, el sistema permite crear **múltiples estaciones con API keys diferentes** para poder **exprimir las limitaciones de la API**.
+
+**Ventajas:**
+- Cada estación utiliza su propia cuota independiente
+- Puedes monitorizar el uso de cada API key por separado
+- Ideal para usuarios con múltiples estaciones o necesidades elevadas de datos
+
+**Cómo hacerlo:**
+1. Registra múltiples cuentas en la API de Meteocat (cada cuenta tiene su cuota independiente)
+2. Agrega cada estación con una API key diferente
+3. Utiliza los sensores de cuotas para controlar el uso de cada cuenta
+
 **Consejo**: Si necesitas más peticiones, puedes crear múltiples entradas con diferentes API Keys.
 
 ### Otras limitaciones

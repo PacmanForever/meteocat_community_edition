@@ -115,7 +115,7 @@
   "options": {
     "step": {
       "init": {
-        "title": "Configuración del mapeo de la condición climática",
+        "title": "Configuración estación externa {name}",
         "description": "{measurements_info}",
         "data": {
           "api_base_url": "URL base de la API (deja por defecto para producción)",
@@ -158,6 +158,14 @@
           "sensor_dew_point": "Punto de rocío",
           "sensor_apparent_temperature": "Temperatura aparente",
           "sensor_rain": "Intensidad de lluvia"
+        }
+      },
+      "condition_mapping_custom": {
+        "title": "Configuración del mapeo de la condición climática",
+        "description": "Selecciona el sensor que contiene el valor de la condición y el mapeo que se hará servir.",
+        "data": {
+          "local_condition_entity": "Sensor que indica la condición (obligatorio)",
+          "custom_condition_mapping": "Mapeo de valores (obligatorio)"
         }
       }
     }

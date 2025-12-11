@@ -116,7 +116,7 @@
   "options": {
     "step": {
       "init": {
-        "title": "Configuració del mapeig de la condició climàtica",
+        "title": "Configuració",
         "description": "",
         "data": {
           "api_base_url": "URL base de l'API (deixa per defecte per a producció)",
@@ -126,6 +126,27 @@
           "update_time_1": "Primera actualització (Format 24h: HH:MM)",
           "update_time_2": "Segona actualització (Format 24h: HH:MM)",
           "update_time_3": "Tercera actualització (Format 24h: HH:MM)"
+        }
+      },
+      "init_local": {
+        "title": "Configuració estació local {name}",
+        "description": "{measurements_info}",
+        "data": {
+          "api_base_url": "URL base de l'API (deixa per defecte per a producció)",
+          "measurements_label": "Mesures (obligatori)",
+          "enable_forecast_daily": "Predicció diària",
+          "enable_forecast_hourly": "Predicció horària",
+          "update_time_1": "Primera actualització (Format 24h: HH:MM)",
+          "update_time_2": "Segona actualització (Format 24h: HH:MM)",
+          "update_time_3": "Tercera actualització (Format 24h: HH:MM)"
+        }
+      },
+      "condition_mapping_custom": {
+        "title": "Configuració del mapeig de la condició climàtica",
+        "description": "Selecciona el sensor que conté el valor de la condició i el mapeig que es farà servir.",
+        "data": {
+          "local_condition_entity": "Sensor que indica la condició (obligatori)",
+          "custom_condition_mapping": "Mapeig de valors (obligatori)"
         }
       }
     }

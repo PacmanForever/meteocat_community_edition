@@ -600,6 +600,20 @@ Aquesta integració està optimitzada per minimitzar l'ús:
 - Les quotes es consulten **després** de les altres APIs per comptabilitzar correctament
 - Els sensors de quotes et permeten monitoritzar l'ús en temps real
 
+#### 💡 **Múltiples API Keys per maximitzar l'ús**
+
+Degut a que el **pla domèstic** permet poques consultes al mes, el sistema permet crear **diverses estacions amb API keys diferents** per poder **exprimir les limitacions de l'API**.
+
+**Avantatges:**
+- Cada estació utilitza la seva pròpia quota independent
+- Pots monitoritzar l'ús de cada API key per separat
+- Ideal per usuaris amb múltiples estacions o necessitats elevades de dades
+
+**Com fer-ho:**
+1. Registra múltiples comptes a l'API de Meteocat (cada compte té la seva quota independent)
+2. Afegeix cada estació amb una API key diferent
+3. Utilitza els sensors de quotes per controlar l'ús de cada compte
+
 **Consell**: Si necessites més peticions, pots crear múltiples entrades amb diferents API Keys.
 
 ### Altres limitacions

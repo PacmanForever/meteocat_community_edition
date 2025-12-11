@@ -127,7 +127,7 @@ Aquesta integració està **optimitzada** per no superar els límits del pla gra
 - ✅ Només **2 actualitzacions diàries** (6:00 i 14:00)
 - ✅ **Quotes consultades després** de les dades
 - ✅ **Sensors de monitoratge** en temps real
-- 💡 **Consell**: Usa múltiples API keys per més peticions
+- 💡 **Consell**: El pla domèstic permet poques consultes al mes. Crea diverses estacions amb API keys diferents per maximitzar l'ús de l'API!
 
 ---
 

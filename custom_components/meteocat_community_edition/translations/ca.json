@@ -115,7 +115,7 @@
   "options": {
     "step": {
       "init": {
-        "title": "Configuració del mapeig de la condició climàtica",
+        "title": "Configuració estació externa {name}",
         "description": "{measurements_info}",
         "data": {
           "api_base_url": "URL base de l'API (deixa per defecte per producció)",
@@ -160,6 +160,14 @@
           "sensor_apparent_temperature": "Temperatura aparent",
           "sensor_rain": "Intensitat de pluja",
           "local_condition_entity": "Entitat de condició local (només si mapping personalitzat)"
+        }
+      },
+      "condition_mapping_custom": {
+        "title": "Configuració del mapeig de la condició climàtica",
+        "description": "Selecciona el sensor que conté el valor de la condició i el mapeig que es farà servir.",
+        "data": {
+          "local_condition_entity": "Sensor que indica la condició (obligatori)",
+          "custom_condition_mapping": "Mapeig de valors (obligatori)"
         }
       }
     }

@@ -561,6 +561,20 @@ This integration is optimized to minimize usage:
 - Quotas are checked **after** other APIs to count correctly
 - Quota sensors allow you to monitor usage in real-time
 
+#### 💡 **Multiple API Keys to maximize usage**
+
+Since the **domestic plan** allows few queries per month, the system allows creating **multiple stations with different API keys** to **maximize API limitations**.
+
+**Advantages:**
+- Each station uses its own independent quota
+- You can monitor usage of each API key separately
+- Ideal for users with multiple stations or high data needs
+
+**How to do it:**
+1. Register multiple accounts on the Meteocat API (each account has its own independent quota)
+2. Add each station with a different API key
+3. Use quota sensors to monitor usage of each account
+
 **Tip**: If you need more requests, you can create multiple entries with different API keys.
 
 ### Other limitations
