@@ -1,3 +1,16 @@
+# v1.1.10 - Millores en gestió d'API i camps requerits
+
+## 🆕 Novetats
+- Ara la URL de proves de l'API s'utilitza sempre si està configurada, evitant consum de quota a la real.
+- S'ha afegit debug logging per traçar totes les crides a l'API i la URL utilitzada.
+
+## 🐞 Correccions
+- Camps requerits (condició, temperatura, humitat) marcats visualment a la UI.
+- Correcció de l'icona del botó "refresh measurements".
+- Traduccions revisades i errors de JSON corregits.
+- Ordre correcte dels passos del config flow en mode local (mapping després de sensors).
+- Cobertura de tests ampliada (302/302 passats).
+
 # v1.1.9 - Pantalla de mapping i camps requerits
 
 ## 🆕 Novetats

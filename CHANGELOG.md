@@ -5,6 +5,22 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.1.10] - 2025-12-11
+
+### Afegit
+- Millora de la gestió de l'URL de l'API: ara es garanteix que la URL de proves s'utilitza sempre si està configurada.
+- Debug logging millorat per traçar totes les crides a l'API i la URL utilitzada.
+
+### Millorat
+- Camps requerits (condició, temperatura, humitat) marcats visualment a la UI de configuració.
+- Traduccions revisades i errors de JSON corregits.
+
+### Corregit
+- Correcció de l'icona del botó "refresh measurements".
+- Ordre correcte dels passos del config flow en mode local (mapping després de sensors).
+- Cobertura de tests ampliada (302/302 passats).
+
+---
 ## [1.1.9] - 2025-12-10
 
 ### Afegit
