@@ -11,6 +11,9 @@ i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 - **Correcció crítica**: Millor gestió d'entrades existents sense clau API
 - S'afegeixen missatges d'error clars per a entrades antigues que falten la clau API
 - S'afegeixen tests de regressió per prevenir que el problema torni a ocórrer
+- **Correcció crítica**: S'arregla que les estacions locals es creaven incorrectament com a mode extern
+- S'assegura que el camp CONF_MODE s'inclou correctament a totes les entrades de configuració
+- S'afegeixen tests de regressió per verificar que el mode es configura correctament
 
 ## [1.2.3] - 2025-12-11
 
