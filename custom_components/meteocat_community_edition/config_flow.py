@@ -189,9 +189,9 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             local_entity = user_input.get("local_condition_entity")
             custom_mapping = user_input.get("custom_condition_mapping")
-            if not local_entity:
+            if not local_entity or local_entity == "":
                 errors["local_condition_entity"] = "required"
-            if not custom_mapping:
+            if not custom_mapping or custom_mapping == "":
                 errors["custom_condition_mapping"] = "required"
             if not errors:
                 # Parse the mapping

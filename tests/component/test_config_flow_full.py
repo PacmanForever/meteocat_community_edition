@@ -368,6 +368,11 @@ async def test_flow_custom_mapping_requires_fields():
     assert result4["data"][CONF_API_BASE_URL] == "https://api.meteocat.cat/release/v1"
     # Regression test: ensure mode is included in entry data
     assert result4["data"][CONF_MODE] == MODE_LOCAL
+    # Test empty strings are treated as missing
+    result5 = await flow.async_step_condition_mapping_custom({"local_condition_entity": "", "custom_condition_mapping": ""})
+    assert result5["type"] == "form"
+    assert "local_condition_entity" in result5["errors"]
+    assert "custom_condition_mapping" in result5["errors"]
     # Regression test: ensure municipality and comarca data are included
     assert result4["data"][CONF_MUNICIPALITY_CODE] == "08001"
     assert result4["data"][CONF_MUNICIPALITY_NAME] == "Abrera"
