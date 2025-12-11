@@ -86,9 +86,6 @@
         "data": {
           "local_condition_entity": "Sensor que indica la condición",
           "custom_condition_mapping": "Mapeo de los valores del sensor con las condiciones climáticas de Home Assistant"
-        },
-        "data_description": {
-          "custom_condition_mapping": "{\"condition_0\": \"clear-night\", \"condition_1\": \"sunny\", \"condition_2\": \"cloudy\", \"condition_3\": \"rainy\"}"
         }
       },
       "reauth_confirm": {

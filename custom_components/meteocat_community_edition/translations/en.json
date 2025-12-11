@@ -86,9 +86,6 @@
         "data": {
           "local_condition_entity": "Sensor indicating the condition",
           "custom_condition_mapping": "Mapping of sensor values to Home Assistant weather conditions"
-        },
-        "data_description": {
-          "custom_condition_mapping": "{\"condition_0\": \"clear-night\", \"condition_1\": \"sunny\", \"condition_2\": \"cloudy\", \"condition_3\": \"rainy\"}"
         }
       },
       "reauth_confirm": {
