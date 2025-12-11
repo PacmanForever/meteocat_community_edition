@@ -141,7 +141,7 @@ def test_button_icon(mock_coordinator, mock_entry_xema):
         MODE_EXTERNAL
     )
     
-    assert button.icon == "mdi:thermometer-refresh"
+    assert button.icon == "mdi:refresh"
 
 
 async def test_button_press_triggers_refresh(mock_coordinator, mock_entry_xema):
