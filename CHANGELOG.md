@@ -5,6 +5,14 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.2] - 2025-12-11
+
+### Millorat
+- Millora de l'exemple de mapping personalitzat amb totes les condicions climàtiques de Home Assistant
+- Etiquetes de camps obligatoris més clares amb "(obligatori)" als formularis de configuració
+- Unificació de la terminologia: canvi d'"Entitat" a "Sensor" per millor consistència
+- Experiència d'usuari millorada amb exemples més complets i textos més clars
+
 ## [1.2.1] - 2025-12-11
 
 ### Millorat
