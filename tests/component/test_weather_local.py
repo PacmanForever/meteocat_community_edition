@@ -74,7 +74,7 @@ def test_local_weather_initialization(mock_coordinator, mock_entry):
     assert weather.entity_id == "weather.abrera_local"
     
     assert weather.device_info["model"] == "Estació Local"
-    assert weather.attribution == "Estació local + Predicció Meteocat"
+    assert weather.attribution == "Estació Abrera + Predicció Meteocat"
 
 def test_local_weather_sensors(mock_coordinator, mock_entry):
     def test_local_weather_ozone_extra_state(mock_coordinator, mock_entry):
@@ -184,7 +184,7 @@ def test_local_weather_initialization(mock_coordinator, mock_entry):
     assert weather.entity_id == "weather.abrera_local"
     
     assert weather.device_info["model"] == "Estació Local"
-    assert weather.attribution == "Estació local + Predicció Meteocat"
+    assert weather.attribution == "Estació Abrera + Predicció Meteocat"
 
 def test_local_weather_sensors(mock_coordinator, mock_entry):
     """Test reading from local sensors."""
