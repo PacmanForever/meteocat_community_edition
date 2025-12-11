@@ -605,7 +605,59 @@ class MeteocatLocalWeather(MeteocatWeather):
         if self._local_condition_entity:
             state = self.hass.states.get(self._local_condition_entity)
             if state and state.state not in ("unknown", "unavailable"):
-                return state.state
+                raw_value = state.state
+                _LOGGER.debug("Local condition entity state: %s", raw_value)
+                # Try to convert to int for mapping
+                try:
+                    estat_code = int(raw_value)
+                    _LOGGER.debug("Converted to int: %s", estat_code)
+                    # Apply mapping if configured
+                    if self._mapping_type == "custom" and self._custom_condition_mapping:
+                        mapping = self._custom_condition_mapping
+                        _LOGGER.debug("Using custom mapping: %s", mapping)
+                        # Custom mapping uses string keys
+                        condition = mapping.get(str(estat_code))
+                        _LOGGER.debug("Custom mapping lookup for '%s': %s", str(estat_code), condition)
+                    else:
+                        from .const import METEOCAT_CONDITION_MAP
+                        mapping = METEOCAT_CONDITION_MAP
+                        _LOGGER.debug("Using default mapping")
+                        # Default mapping uses integer keys
+                        condition = mapping.get(estat_code)
+                        _LOGGER.debug("Default mapping lookup for %s: %s", estat_code, condition)
+                    
+                    if condition:
+                        _LOGGER.debug("Returning mapped condition: %s", condition)
+                        if condition == "sunny" and self._is_night():
+                            return "clear-night"
+                        return condition
+                    else:
+                        _LOGGER.debug("Condition not found in mapping, returning None")
+                        # Return None when mapping fails - better than guessing
+                        return None
+                except (ValueError, TypeError):
+                    _LOGGER.debug("Could not convert to int, checking if raw_value is valid condition")
+                    # Not a number, check if it's already a valid condition
+                    from homeassistant.components.weather import (
+                        ATTR_CONDITION_SUNNY, ATTR_CONDITION_PARTLYCLOUDY, ATTR_CONDITION_CLOUDY,
+                        ATTR_CONDITION_RAINY, ATTR_CONDITION_POURING, ATTR_CONDITION_LIGHTNING,
+                        ATTR_CONDITION_LIGHTNING_RAINY, ATTR_CONDITION_HAIL, ATTR_CONDITION_SNOWY,
+                        ATTR_CONDITION_SNOWY_RAINY, ATTR_CONDITION_FOG, ATTR_CONDITION_WINDY,
+                        ATTR_CONDITION_WINDY_VARIANT, ATTR_CONDITION_CLEAR_NIGHT, ATTR_CONDITION_EXCEPTIONAL
+                    )
+                    valid_conditions = [
+                        ATTR_CONDITION_SUNNY, ATTR_CONDITION_PARTLYCLOUDY, ATTR_CONDITION_CLOUDY,
+                        ATTR_CONDITION_RAINY, ATTR_CONDITION_POURING, ATTR_CONDITION_LIGHTNING,
+                        ATTR_CONDITION_LIGHTNING_RAINY, ATTR_CONDITION_HAIL, ATTR_CONDITION_SNOWY,
+                        ATTR_CONDITION_SNOWY_RAINY, ATTR_CONDITION_FOG, ATTR_CONDITION_WINDY,
+                        ATTR_CONDITION_WINDY_VARIANT, ATTR_CONDITION_CLEAR_NIGHT, ATTR_CONDITION_EXCEPTIONAL
+                    ]
+                    if raw_value in valid_conditions:
+                        if raw_value == "sunny" and self._is_night():
+                            return "clear-night"
+                        return raw_value
+                    _LOGGER.debug("Raw value is not a valid condition, returning None")
+                    return None  # fallback
 
         # 2. If a rain sensor is present and >0, return rainy
         rain_value = self._get_sensor_value("rain")

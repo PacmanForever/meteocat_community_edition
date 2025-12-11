@@ -5,16 +5,24 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.7] - 2025-12-11
+
+### Corregit
+- **Millora del fallback de condició**: Quan no es pot mapar un valor de sensor local a una condició meteorològica vàlida, ara retorna `None` en lloc de "cloudy" per ser més precís
+
 ## [1.2.6] - 2025-12-11
 
 ### Corregit
 - **Correcció d'icones monocromes**: S'arregla que les icones dels estats del temps locals amb mapatge personalitzat apareixien en blanc i negre en lloc de colors
 - **Millora de l'atribució**: L'atribució de l'entitat weather local ara inclou el nom del municipi en lloc de text genèric
+- **Correcció de sensors locals de condició**: Els sensors locals de condició ara apliquen correctament el mapping configurat (personalitzat o per defecte) als valors numèrics
 - S'afegeix gestió correcta dels tipus de claus (integer vs string) per als mapatges de condicions personalitzats
+- **Correcció del flow d'opcions**: Les estacions locals existents sense mapping configurat ara passen pels steps de configuració de mapping quan es reconfiguren
 
 ### Millorat
 - Experiència visual millorada amb icones de colors correctes en mapatges personalitzats
 - Informació d'atribució més específica i útil per als usuaris
+- Suport complet per sensors locals de condició amb mapping automàtic
 
 ## [1.2.5] - 2025-12-11
 

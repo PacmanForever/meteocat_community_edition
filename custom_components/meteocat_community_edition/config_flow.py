@@ -822,9 +822,14 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                     options=user_input,
                 )
                 
-                # If in Local Mode, proceed to sensors configuration
+                # If in Local Mode, check if mapping is configured
                 if mode == MODE_LOCAL:
-                    return await self.async_step_sensors()
+                    # If no mapping_type is configured yet, go through mapping setup
+                    if "mapping_type" not in self.config_entry.data:
+                        return await self.async_step_condition_mapping_type()
+                    # Otherwise, proceed to sensors configuration
+                    else:
+                        return await self.async_step_sensors()
                     
                 return self.async_create_entry(title="", data=user_input)
 
@@ -968,3 +973,155 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                 ),
             })
         )
+
+    async def async_step_condition_mapping_type(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+        """Step: Select mapping type for options flow."""
+        from homeassistant.helpers import selector
+        import voluptuous as vol
+        errors = {}
+        
+        if user_input is not None:
+            mapping_type = user_input.get("mapping_type", "meteocat")
+            if mapping_type == "meteocat":
+                # Update entry data with mapping type
+                updated_data = dict(self.config_entry.data)
+                updated_data["mapping_type"] = "meteocat"
+                # Remove custom mapping fields if they exist
+                updated_data.pop("custom_condition_mapping", None)
+                updated_data.pop("local_condition_entity", None)
+                
+                self.hass.config_entries.async_update_entry(
+                    entry=self.config_entry,
+                    data=updated_data
+                )
+                return await self.async_step_sensors()
+                
+            elif mapping_type == "custom":
+                return await self.async_step_condition_mapping_custom()
+
+        # Get current mapping type from entry data
+        current_mapping_type = self.config_entry.data.get("mapping_type", "meteocat")
+        
+        schema = vol.Schema({
+            vol.Required(
+                "mapping_type",
+                default=current_mapping_type,
+                description={"suggested_value": "mapping_type_label"}
+            ): selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=[
+                        {"value": "meteocat", "label": "Meteocat"},
+                        {"value": "custom", "label": "Personalitzat"}
+                    ]
+                )
+            ),
+        })
+        return self.async_show_form(
+            step_id="condition_mapping_type",
+            data_schema=schema,
+            errors=errors,
+            description_placeholders={"description": "mapping_description"},
+        )
+
+    async def async_step_condition_mapping_custom(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+        """Step: Custom mapping config for options flow."""
+        from homeassistant.helpers import selector
+        import voluptuous as vol
+        errors = {}
+        
+        # Get current custom mapping data
+        current_entity = self.config_entry.data.get("local_condition_entity", "")
+        current_mapping = self.config_entry.data.get("custom_condition_mapping", {})
+        
+        # Convert mapping dict back to string format for display
+        current_mapping_str = ""
+        if current_mapping:
+            current_mapping_str = "\n".join([f"{k}: {v}" for k, v in current_mapping.items()])
+        
+        example_mapping = self.hass.data.get(DOMAIN, {}).get("mapping_example", "0: clear-night\n1: sunny\n2: partlycloudy\n3: cloudy\n4: rainy\n5: pouring\n6: lightning\n7: lightning-rainy\n8: snowy\n9: snowy-rainy\n10: fog\n11: hail\n12: windy\n13: windy-variant\n14: exceptional")
+        
+        if user_input is not None:
+            local_entity = user_input.get("local_condition_entity")
+            custom_mapping = user_input.get("custom_condition_mapping")
+            
+            if not local_entity:
+                errors["local_condition_entity"] = "required"
+            if not custom_mapping:
+                errors["custom_condition_mapping"] = "required"
+                
+            if not errors:
+                # Parse the mapping
+                try:
+                    parsed_mapping = self._parse_condition_mapping(custom_mapping)
+                except ValueError as e:
+                    if "Invalid condition" in str(e):
+                        errors["custom_condition_mapping"] = "invalid_condition"
+                    else:
+                        errors["custom_condition_mapping"] = "invalid_format"
+                else:
+                    # Update entry data with custom mapping
+                    updated_data = dict(self.config_entry.data)
+                    updated_data["mapping_type"] = "custom"
+                    updated_data["custom_condition_mapping"] = parsed_mapping
+                    updated_data["local_condition_entity"] = local_entity
+                    
+                    self.hass.config_entries.async_update_entry(
+                        entry=self.config_entry,
+                        data=updated_data
+                    )
+                    return await self.async_step_sensors()
+
+        schema = vol.Schema({
+            vol.Required(
+                "local_condition_entity",
+                default=current_entity
+            ): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="sensor", multiple=False)
+            ),
+            vol.Required(
+                "custom_condition_mapping",
+                default=current_mapping_str or example_mapping,
+                description=current_mapping_str or example_mapping
+            ): selector.ObjectSelector(),
+        })
+        return self.async_show_form(
+            step_id="condition_mapping_custom",
+            data_schema=schema,
+            errors=errors,
+            description_placeholders={"description": "custom_mapping_description"},
+        )
+
+    def _parse_condition_mapping(self, text: str) -> dict[str, str]:
+        """Parse condition mapping from text format: key: value"""
+        from homeassistant.components.weather import (
+            ATTR_CONDITION_SUNNY, ATTR_CONDITION_PARTLYCLOUDY, ATTR_CONDITION_CLOUDY,
+            ATTR_CONDITION_RAINY, ATTR_CONDITION_POURING, ATTR_CONDITION_LIGHTNING,
+            ATTR_CONDITION_LIGHTNING_RAINY, ATTR_CONDITION_HAIL, ATTR_CONDITION_SNOWY,
+            ATTR_CONDITION_SNOWY_RAINY, ATTR_CONDITION_FOG, ATTR_CONDITION_WINDY,
+            ATTR_CONDITION_WINDY_VARIANT, ATTR_CONDITION_CLEAR_NIGHT, ATTR_CONDITION_EXCEPTIONAL
+        )
+        
+        valid_conditions = [
+            ATTR_CONDITION_SUNNY, ATTR_CONDITION_PARTLYCLOUDY, ATTR_CONDITION_CLOUDY,
+            ATTR_CONDITION_RAINY, ATTR_CONDITION_POURING, ATTR_CONDITION_LIGHTNING,
+            ATTR_CONDITION_LIGHTNING_RAINY, ATTR_CONDITION_HAIL, ATTR_CONDITION_SNOWY,
+            ATTR_CONDITION_SNOWY_RAINY, ATTR_CONDITION_FOG, ATTR_CONDITION_WINDY,
+            ATTR_CONDITION_WINDY_VARIANT, ATTR_CONDITION_CLEAR_NIGHT, ATTR_CONDITION_EXCEPTIONAL
+        ]
+        
+        lines = text.strip().split('\n')
+        mapping = {}
+        for line in lines:
+            line = line.strip()
+            if not line or not ':' in line:
+                continue
+            key, value = line.split(':', 1)
+            key = key.strip()
+            value = value.strip()
+            if key and value:
+                if value not in valid_conditions:
+                    raise ValueError(f"Invalid condition '{value}'. Must be one of: {', '.join(valid_conditions)}")
+                mapping[key] = value
+        if not mapping:
+            raise ValueError("Empty mapping")
+        return mapping

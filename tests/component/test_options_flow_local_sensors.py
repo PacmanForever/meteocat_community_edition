@@ -31,6 +31,7 @@ async def test_options_flow_local_sensors(hass: HomeAssistant):
             CONF_UPDATE_TIME_1: "06:00",
             CONF_SENSOR_TEMPERATURE: "sensor.old_temp",
             CONF_SENSOR_HUMIDITY: "sensor.old_hum",
+            "mapping_type": "meteocat",  # Add mapping_type to simulate existing entry
         },
         options={}
     )
