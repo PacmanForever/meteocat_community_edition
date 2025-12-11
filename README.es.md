@@ -64,6 +64,36 @@ Integración **comunitaria** y **no oficial** para Home Assistant del Servicio M
 
 ## Configuración
 
+### Novedades en el flujo de configuración
+
+- **Paso de mapeo de condición climática**: En modo local, después de seleccionar los sensores, aparece una pantalla para definir cómo se mapea la condición climática (icono) de la entidad Weather.
+    - Puedes elegir entre:
+        - **Automático (Meteocat)**: El valor de condición se toma directamente de la predicción oficial de Meteocat.
+        - **Personalizado**: Puedes definir un mapeo manual entre los valores del sensor local y las condiciones soportadas por Home Assistant (ejemplo: `{ "0": "clear-night", "1": "sunny", "2": "cloudy", "3": "rainy" }`).
+    - Esta pantalla está completamente traducida al catalán, español e inglés.
+
+- **Ejemplo de mapeo**: Se ofrece un ejemplo de mapeo en la pantalla para facilitar la configuración.
+
+## Entidades
+
+- **Botones de actualización**: Los botones "Actualizar Medidas" y "Actualizar Predicción" ahora siempre muestran un icono.
+
+## Opciones avanzadas
+
+- **URL de la API**: Cuando configuras una URL de pruebas, la integración utiliza esa URL para todas las llamadas, nunca la real si no está configurada.
+
+## Traducciones
+
+- Todas las pantallas, incluido el nuevo paso de mapeo, están traducidas al catalán, español e inglés.
+
+## Versionado
+
+- La versión actual del manifest es `1.1.10` y coincide con el último tag de git.
+
+## Tests
+
+- La lógica de la pantalla de mapeo, la configuración, los botones y la gestión de la API están cubiertos por tests automáticos.
+
 ### Obtener una API Key
 
 1. Regístrate en [https://apidocs.meteocat.gencat.cat/](https://apidocs.meteocat.gencat.cat/)
@@ -366,7 +396,7 @@ El estado del sensor muestra el número de horas disponibles (ej: "72 horas").
 Atributos disponibles:
 ```yaml
 # Acceder a todos los datos de predicción horaria
-{{ state_attr('sensor.barcelona_prediccion_horaria', 'forecast') }}
+{{ state_attr('sensor.barcelona_prediccio_horaria', 'forecast') }}
 
 # La estructura contiene:
 # - dies: array de días con predicciones
@@ -380,7 +410,7 @@ Atributos disponibles:
 #     - etc.
 
 # Ejemplo: acceder a las temperaturas de hoy
-{{ state_attr('sensor.barcelona_prediccion_horaria', 'forecast').dies[0].variables.temp.valors }}
+{{ state_attr('sensor.barcelona_prediccio_horaria', 'forecast').dies[0].variables.temp.valors }}
 ```
 
 #### Predicción Diaria (`sensor.{municipio}_prediccion_diaria`)
@@ -390,7 +420,7 @@ El estado del sensor muestra el número de días disponibles (ej: "8 días").
 Atributos disponibles:
 ```yaml
 # Acceder a todos los datos de predicción diaria
-{{ state_attr('sensor.barcelona_prediccion_diaria', 'forecast') }}
+{{ state_attr('sensor.barcelona_prediccio_diaria', 'forecast') }}
 
 # La estructura contiene:
 # - dies: array de días con predicciones
@@ -402,14 +432,13 @@ Atributos disponibles:
 #     - etc.
 
 # Ejemplo: temperatura máxima de mañana
-{{ state_attr('sensor.barcelona_prediccion_diaria', 'forecast').dies[1].variables.tmax.valor }}
+{{ state_attr('sensor.barcelona_prediccio_diaria', 'forecast').dies[1].variables.tmax.valor }}
 
 # Ejemplo: temperatura mínima de mañana
-{{ state_attr('sensor.barcelona_prediccion_diaria', 'forecast').dies[1].variables.tmin.valor }}
+{{ state_attr('sensor.barcelona_prediccio_diaria', 'forecast').dies[1].variables.tmin.valor }}
 ```
 
 ### Ejemplo de entidad Weather personalizada
-```
 
 
 
@@ -422,11 +451,11 @@ type: vertical-stack
 cards:
   - type: markdown
     content: |
-      ## Predicción Horaria - {{ state_attr('sensor.barcelona_prediccion_horaria', 'forecast').nom }}
+      ## Predicción Horaria - {{ state_attr('sensor.barcelona_prediccio_horaria', 'forecast').nom }}
       
-      **Disponibles:** {{ states('sensor.barcelona_prediccion_horaria') }}
+      **Disponibles:** {{ states('sensor.barcelona_prediccio_horaria') }}
       
-      {% set forecast = state_attr('sensor.barcelona_prediccion_horaria', 'forecast') %}
+      {% set forecast = state_attr('sensor.barcelona_prediccio_horaria', 'forecast') %}
       {% if forecast and forecast.dies %}
         {% for dia in forecast.dies[:2] %}
         ### {{ dia.data }}

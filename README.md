@@ -64,6 +64,36 @@ Integració **comunitària** i **no oficial** per a Home Assistant del Servei Me
 
 ## Configuració
 
+### Novetats en el flux de configuració
+
+- **Pas de mapeig de condició climàtica**: En mode local, després de seleccionar els sensors, apareix una pantalla per definir com es mapeja la condició climàtica (icona) de l'entitat Weather.
+    - Pots triar entre:
+        - **Automàtic (Meteocat)**: El valor de condició s'agafa directament de la predicció oficial de Meteocat.
+        - **Personalitzat**: Pots definir un mapeig manual entre els valors del sensor local i les condicions suportades per Home Assistant (exemple: `{ "0": "clear-night", "1": "sunny", "2": "cloudy", "3": "rainy" }`).
+    - Aquesta pantalla està completament traduïda a català, castellà i anglès.
+
+- **Exemple de mapeig**: S'ofereix un exemple de mapeig a la pantalla per facilitar la configuració.
+
+## Entitats
+
+- **Botons d'actualització**: Els botons "Actualitzar Mesures" i "Actualitzar Predicció" ara sempre mostren una icona.
+
+## Opcions avançades
+
+- **URL de l'API**: Quan configures una URL de proves, la integració utilitza aquesta URL per a totes les crides, mai la real si no està configurada.
+
+## Traduccions
+
+- Totes les pantalles, inclòs el nou pas de mapeig, estan traduïdes a català, castellà i anglès.
+
+## Versionat
+
+- La versió actual del manifest és `1.1.10` i coincideix amb l'últim tag de git.
+
+## Tests
+
+- La lògica de la pantalla de mapeig, la configuració, els botons i la gestió de l'API estan coberts per tests automàtics.
+
 ### Obtenir una API Key
 
 1. Registra't a [https://apidocs.meteocat.gencat.cat/](https://apidocs.meteocat.gencat.cat/)

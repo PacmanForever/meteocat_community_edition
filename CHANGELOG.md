@@ -5,7 +5,19 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
-## [1.1.10] - 2025-12-11
+## [1.2.0] - 2025-12-11
+
+### Millorat
+- Cobertura de tests significativament millorada (>90%) apropant-se al nivell Silver de Home Assistant
+- Tests comprehensius afegits per weather.py, coordinator.py i config_flow.py
+- Millores en el tractament d'errors i casos límit en les propietats del temps
+- Tests de gestió d'errors d'API i casos de dades faltants
+
+### Corregit
+- Correcció de constructors de tests per utilitzar mocks adequats de Home Assistant
+- Millores en la gestió de zones horàries en tests de planificació
+
+---
 
 ### Afegit
 - Millora de la gestió de l'URL de l'API: ara es garanteix que la URL de proves s'utilitza sempre si està configurada.

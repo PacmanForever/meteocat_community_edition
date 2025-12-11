@@ -1,3 +1,11 @@
+      "mapping_example": "{\"0\": \"clear-night\", \"1\": \"sunny\", \"2\": \"cloudy\", \"3\": \"rainy\"}",
+    "mapping_label_local_condition_entity": "Sensor que indica la condició",
+    "mapping_label_custom_condition_mapping": "Mapeig dels valors del sensor amb les condicions climàtiques de Home Assistant",
+  "mapping_title": "Condició climàtica",
+  "mapping_type_label": "Selecciona quin mapeig vols per la propietat 'Condició climàtica' (icona) de la teva entitat Temps (Weather):",
+  "mapping_option_meteocat": "Meteocat: El valor de condició s'agafarà automàticament de la predicció oficial de Meteocat (mapeig fix, no editable).",
+  "mapping_option_custom": "Personalitzat: El valor de la condició (icona) s'agafarà d’un sensor numèric local. Cal definir manualment el mapeig entre els valors del sensor local i les condicions suportades per Home Assistant (ex: sunny, cloudy, rainy, clear-night, etc.).",
+  "mapping_description": "Personalitza la correspondència de condicions meteorològiques."
 {
   "title": "Meteocat (Edició Comunitària)",
   "config": {

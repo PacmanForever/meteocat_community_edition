@@ -117,32 +117,16 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self._comarques: list[dict[str, Any]] = []
         self.api_base_url: str = DEFAULT_API_BASE_URL
 
-    async def async_step_condition_mapping(self, user_input: dict[str, Any] | None = None) -> FlowResult:
-        """Pantalla de mapping després dels sensors locals. Crea l'entrada final."""
-        from homeassistant.helpers import selector
+    async def async_step_condition_mapping_type(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+        """Step 1: Select mapping type only."""
         import voluptuous as vol
-
-        _LOGGER.warning("Entrant a async_step_condition_mapping (pantalla de mapping)")
         errors = {}
-        mapping_type = None
-        custom_mapping = None
-        local_entity = None
-
         if user_input is not None:
             mapping_type = user_input.get("mapping_type", "meteocat")
-            custom_mapping = user_input.get("custom_condition_mapping")
-            local_entity = user_input.get("local_condition_entity")
-            if mapping_type == "custom":
-                if not local_entity:
-                    errors["local_condition_entity"] = "required"
-                if not custom_mapping:
-                    errors["custom_condition_mapping"] = "required"
-            if not errors:
+            if mapping_type == "meteocat":
                 entry_data = dict(self._local_sensors_input) if hasattr(self, '_local_sensors_input') else {}
-                entry_data["mapping_type"] = mapping_type
-                entry_data["custom_condition_mapping"] = custom_mapping
-                entry_data["local_condition_entity"] = local_entity
-                # afegeix info extra si cal (lat/lon/provincia)
+                entry_data["mapping_type"] = "meteocat"
+                # Add extra info if needed
                 if hasattr(self, 'municipality_lat') and self.municipality_lat is not None:
                     entry_data["municipality_lat"] = self.municipality_lat
                 if hasattr(self, 'municipality_lon') and self.municipality_lon is not None:
@@ -154,29 +138,75 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 return self.async_create_entry(
                     title=self.municipality_name,
                     data=entry_data,
-                    options={
-                        CONF_API_BASE_URL: self.api_base_url,
-                    },
+                    options={CONF_API_BASE_URL: self.api_base_url},
+                )
+            elif mapping_type == "custom":
+                return await self.async_step_condition_mapping_custom()
+
+        schema = vol.Schema({
+            vol.Required(
+                "mapping_type",
+                default="meteocat",
+                description={"suggested_value": "mapping_type_label"}
+            ): vol.In(["meteocat", "custom"]),
+        })
+        return self.async_show_form(
+            step_id="condition_mapping_type",
+            data_schema=schema,
+            errors=errors,
+            description_placeholders={"description": "mapping_description"},
+        )
+
+    async def async_step_condition_mapping_custom(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+        """Step 2: Custom mapping config (entity + mapping)."""
+        from homeassistant.helpers import selector
+        import voluptuous as vol
+        errors = {}
+        example_mapping = self.hass.data[DOMAIN].get("mapping_example", '{"0": "clear-night", "1": "sunny", "2": "cloudy", "3": "rainy"}')
+        if user_input is not None:
+            local_entity = user_input.get("local_condition_entity")
+            custom_mapping = user_input.get("custom_condition_mapping")
+            if not local_entity:
+                errors["local_condition_entity"] = "required"
+            if not custom_mapping:
+                errors["custom_condition_mapping"] = "required"
+            if not errors:
+                entry_data = dict(self._local_sensors_input) if hasattr(self, '_local_sensors_input') else {}
+                entry_data["mapping_type"] = "custom"
+                entry_data["custom_condition_mapping"] = custom_mapping
+                entry_data["local_condition_entity"] = local_entity
+                if hasattr(self, 'municipality_lat') and self.municipality_lat is not None:
+                    entry_data["municipality_lat"] = self.municipality_lat
+                if hasattr(self, 'municipality_lon') and self.municipality_lon is not None:
+                    entry_data["municipality_lon"] = self.municipality_lon
+                if hasattr(self, 'provincia_code') and self.provincia_code:
+                    entry_data["provincia_code"] = self.provincia_code
+                if hasattr(self, 'provincia_name') and self.provincia_name:
+                    entry_data["provincia_name"] = self.provincia_name
+                return self.async_create_entry(
+                    title=self.municipality_name,
+                    data=entry_data,
+                    options={CONF_API_BASE_URL: self.api_base_url},
                 )
 
         schema = vol.Schema({
-            vol.Required("mapping_type", default="meteocat"): vol.In(["meteocat", "custom"]),
+            vol.Required(
+                "local_condition_entity",
+                description={"suggested_value": "mapping_label_local_condition_entity"}
+            ): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="sensor", multiple=False)
+            ),
+            vol.Required(
+                "custom_condition_mapping",
+                default=example_mapping,
+                description={"suggested_value": "mapping_label_custom_condition_mapping"}
+            ): selector.ObjectSelector(),
         })
-        if user_input is not None and user_input.get("mapping_type") == "custom":
-            schema = schema.extend({
-                vol.Required("local_condition_entity"): selector.EntitySelector(
-                    selector.EntitySelectorConfig(domain="sensor", multiple=False)
-                ),
-                vol.Required("custom_condition_mapping"): selector.ObjectSelector(),
-            })
-
         return self.async_show_form(
-            step_id="condition_mapping",
+            step_id="condition_mapping_custom",
             data_schema=schema,
             errors=errors,
-            description_placeholders={
-                "description": "Personalitza la correspondència de condicions meteorològiques."
-            },
+            description_placeholders={"description": "mapping_description"},
         )
 
     async def async_step_reauth(
@@ -603,7 +633,7 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             # Desa els sensors locals seleccionats per passar-los a la pantalla de mapping
             self._local_sensors_input = user_input
-            return await self.async_step_condition_mapping()
+            return await self.async_step_condition_mapping_type()
 
         from homeassistant.helpers import selector
         import voluptuous as vol

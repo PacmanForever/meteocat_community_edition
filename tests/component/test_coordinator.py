@@ -237,3 +237,171 @@ async def test_coordinator_handles_quota_exceeded(mock_hass, mock_api, mock_entr
     assert data["quotes"] is not None
     assert data["quotes"]["plans"][0]["consultesRestants"] == 0
     assert data["quotes"]["plans"][0]["maxConsultes"] == 1000  # Should preserve other fields
+
+
+@pytest.mark.asyncio
+async def test_coordinator_empty_api_key(mock_hass, mock_api):
+    """Test coordinator initialization with empty API key."""
+    # Create entry with empty API key
+    entry = MagicMock()
+    entry.data = {
+        "api_key": "",  # Empty API key
+        "mode": MODE_EXTERNAL,
+        "station_code": "YM",
+        "update_times": ["08:00", "14:00", "20:00"],
+        "enable_forecast_hourly": True,
+        "enable_forecast_daily": True,
+        "api_base_url": "https://api.meteo.cat",
+    }
+    entry.options = {}
+    
+    coordinator = MeteocatCoordinator(mock_hass, entry)
+    
+    # Should initialize without error but log warning
+    assert coordinator.api is not None
+
+
+@pytest.mark.asyncio
+async def test_coordinator_none_api_key(mock_hass, mock_api):
+    """Test coordinator initialization with None API key."""
+    # Create entry with None API key
+    entry = MagicMock()
+    entry.data = {
+        "api_key": None,  # None API key
+        "mode": MODE_EXTERNAL,
+        "station_code": "YM",
+        "update_times": ["08:00", "14:00", "20:00"],
+        "enable_forecast_hourly": True,
+        "enable_forecast_daily": True,
+        "api_base_url": "https://api.meteo.cat",
+    }
+    entry.options = {}
+    
+    coordinator = MeteocatCoordinator(mock_hass, entry)
+    
+    # Should initialize without error but log warning
+    assert coordinator.api is not None
+
+
+@pytest.mark.asyncio
+async def test_coordinator_schedule_next_update_external_mode_midnight(mock_hass, mock_api):
+    """Test _schedule_next_update for external mode around midnight."""
+    entry = MagicMock()
+    entry.data = {
+        "api_key": "test_key",
+        "mode": MODE_EXTERNAL,
+        "station_code": "YM",
+        "update_times": ["08:00", "14:00", "20:00"],
+        "enable_forecast_hourly": True,
+        "enable_forecast_daily": True,
+        "api_base_url": "https://api.meteo.cat",
+    }
+    entry.options = {}
+    
+    coordinator = MeteocatCoordinator(mock_hass, entry)
+    
+    # Mock current time to be just after midnight (timezone-aware)
+    with patch('homeassistant.util.dt.now') as mock_now:
+        from homeassistant.util import dt as dt_util
+        mock_now.return_value = dt_util.as_local(datetime(2025, 11, 24, 0, 5, 0))  # 00:05
+        
+        # Call schedule method
+        coordinator._schedule_next_update()
+        
+        # Should have scheduled something
+        assert coordinator._scheduled_update_remover is not None
+
+
+@pytest.mark.asyncio
+async def test_coordinator_schedule_next_update_local_mode(mock_hass, mock_api):
+    """Test _schedule_next_update for local mode."""
+    entry = MagicMock()
+    entry.data = {
+        "api_key": "test_key",
+        "mode": MODE_LOCAL,
+        "station_code": "08019",  # Barcelona municipality code
+        "update_times": ["08:00", "14:00", "20:00"],
+        "enable_forecast_hourly": False,
+        "enable_forecast_daily": True,
+        "api_base_url": "https://api.meteo.cat",
+    }
+    entry.options = {}
+    
+    coordinator = MeteocatCoordinator(mock_hass, entry)
+    
+    # Mock current time (timezone-aware)
+    with patch('homeassistant.util.dt.now') as mock_now:
+        from homeassistant.util import dt as dt_util
+        mock_now.return_value = dt_util.as_local(datetime(2025, 11, 24, 10, 0, 0))  # 10:00
+        
+        # Call schedule method
+        coordinator._schedule_next_update()
+        
+        # Should have scheduled something
+        assert coordinator._scheduled_update_remover is not None
+
+
+@pytest.mark.asyncio
+async def test_coordinator_async_update_data_api_errors(mock_hass, mock_api):
+    """Test _async_update_data with various API errors."""
+    entry = MagicMock()
+    entry.data = {
+        "api_key": "test_key",
+        "mode": MODE_EXTERNAL,
+        "station_code": "YM",
+        "update_times": ["08:00", "14:00", "20:00"],
+        "enable_forecast_hourly": True,
+        "enable_forecast_daily": True,
+        "api_base_url": "https://api.meteo.cat",
+    }
+    entry.options = {}
+    
+    coordinator = MeteocatCoordinator(mock_hass, entry)
+    coordinator.api = mock_api
+    
+    # Mock successful API calls to avoid actual network calls
+    mock_api.get_stations = AsyncMock(return_value=[])
+    mock_api.get_station_measurements = AsyncMock(return_value=[])
+    mock_api.get_quotes = AsyncMock(return_value={"plans": []})
+    
+    # Test with get_station_measurements failing
+    mock_api.get_station_measurements.side_effect = Exception("Network error")
+    
+    data = await coordinator._async_update_data()
+    
+    # Should return partial data with measurements as None
+    assert data is not None
+    assert "measurements" in data
+    assert data["measurements"] is None
+
+
+@pytest.mark.asyncio
+async def test_coordinator_handles_forecast_disabled(mock_hass, mock_api):
+    """Test coordinator when forecast features are disabled."""
+    entry = MagicMock()
+    entry.data = {
+        "api_key": "test_key",
+        "mode": MODE_EXTERNAL,
+        "station_code": "YM",
+        "update_times": ["08:00", "14:00", "20:00"],
+        "enable_forecast_hourly": False,
+        "enable_forecast_daily": False,
+        "api_base_url": "https://api.meteo.cat",
+    }
+    entry.options = {}
+    
+    coordinator = MeteocatCoordinator(mock_hass, entry)
+    coordinator.api = mock_api
+    
+    # Mock API calls to avoid actual network calls
+    mock_api.get_stations = AsyncMock(return_value=[])
+    mock_api.get_station_measurements = AsyncMock(return_value=[])
+    mock_api.get_quotes = AsyncMock(return_value={"plans": []})
+    
+    data = await coordinator._async_update_data()
+    
+    # Should not call forecast APIs
+    mock_api.get_municipal_forecast.assert_not_called()
+    mock_api.get_hourly_forecast.assert_not_called()
+    
+    assert data is not None

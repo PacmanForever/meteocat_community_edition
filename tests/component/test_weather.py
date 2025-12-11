@@ -7,12 +7,12 @@ from datetime import datetime
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 import pytest
-from unittest.mock import MagicMock, AsyncMock
+from unittest.mock import MagicMock, AsyncMock, patch
 
 from homeassistant.components.weather import WeatherEntityFeature
 
-from custom_components.meteocat_community_edition.weather import MeteocatWeather
-from custom_components.meteocat_community_edition.const import DOMAIN, MODE_EXTERNAL
+from custom_components.meteocat_community_edition.weather import MeteocatWeather, MeteocatLocalWeather
+from custom_components.meteocat_community_edition.const import DOMAIN, MODE_EXTERNAL, MODE_LOCAL
 
 
 @pytest.fixture
@@ -82,6 +82,34 @@ def mock_entry():
         "enable_forecast_hourly": True,
     }
     return entry
+
+
+@pytest.fixture
+def mock_local_entry():
+    """Create a mock config entry for local mode."""
+    entry = MagicMock()
+    entry.entry_id = "test_entry_local_weather"
+    entry.data = {
+        "mode": MODE_LOCAL,
+        "municipality_name": "Barcelona",
+        "municipality_lat": 41.3851,
+        "municipality_lon": 2.1734,
+        "enable_forecast_daily": True,
+        "enable_forecast_hourly": False,
+        "local_condition_entity": "weather.home_weather_station",
+        "mapping_type": "meteocat",
+    }
+    return entry
+
+
+@pytest.fixture
+def mock_hass():
+    """Create a mock Home Assistant instance."""
+    hass = MagicMock()
+    hass.config.latitude = 41.3851
+    hass.config.longitude = 2.1734
+    hass.states.get.return_value = MagicMock(state="sunny")
+    return hass
 
 
 def test_weather_entity_initialization(mock_coordinator, mock_entry):
@@ -269,3 +297,324 @@ def test_weather_entity_multiple_lectures_uses_last(mock_coordinator, mock_entry
     
     # Should use last lecture
     assert weather.native_temperature == 17.5
+
+
+def test_weather_entity_native_temperature_error_handling(mock_coordinator, mock_entry):
+    """Test native_temperature error handling."""
+    # Test invalid valor type
+    mock_coordinator.data = {
+        "measurements": [
+            {
+                "variables": [
+                    {"codi": 32, "lectures": [{"valor": "invalid", "data": "2025-11-24T12:00:00Z"}]},
+                ]
+            }
+        ]
+    }
+    
+    weather = MeteocatWeather(mock_coordinator, mock_entry)
+    assert weather.native_temperature is None
+
+
+def test_weather_entity_native_pressure_error_cases(mock_coordinator, mock_entry):
+    """Test native_pressure error cases."""
+    # Test measurements not list
+    mock_coordinator.data = {"measurements": "not_a_list"}
+    weather = MeteocatWeather(mock_coordinator, mock_entry)
+    assert weather.native_pressure is None
+    
+    # Test empty measurements list
+    mock_coordinator.data = {"measurements": []}
+    weather = MeteocatWeather(mock_coordinator, mock_entry)
+    assert weather.native_pressure is None
+
+
+def test_weather_entity_wind_bearing_error_cases(mock_coordinator, mock_entry):
+    """Test wind_bearing error cases."""
+    # Test measurements not list
+    mock_coordinator.data = {"measurements": "not_a_list"}
+    weather = MeteocatWeather(mock_coordinator, mock_entry)
+    assert weather.wind_bearing is None
+    
+    # Test empty measurements list
+    mock_coordinator.data = {"measurements": []}
+    weather = MeteocatWeather(mock_coordinator, mock_entry)
+    assert weather.wind_bearing is None
+
+
+def test_weather_entity_condition_error_cases(mock_coordinator, mock_entry):
+    """Test condition property error cases."""
+    # Test missing measurements
+    mock_coordinator.data = {}
+    weather = MeteocatWeather(mock_coordinator, mock_entry)
+    assert weather.condition is None
+    
+    # Test measurements not list
+    mock_coordinator.data = {"measurements": "not_a_list"}
+    weather = MeteocatWeather(mock_coordinator, mock_entry)
+    assert weather.condition is None
+    
+    # Test empty measurements
+    mock_coordinator.data = {"measurements": []}
+    weather = MeteocatWeather(mock_coordinator, mock_entry)
+    assert weather.condition is None
+
+
+def test_weather_entity_condition_local_mode(mock_coordinator, mock_entry):
+    """Test condition property in local mode (forecast fallback)."""
+    # Set up local mode data with proper forecast structure
+    mock_coordinator.data = {
+        "measurements": [],  # No measurements
+        "forecast": {
+            "dies": [
+                {
+                    "data": "2025-11-24",
+                    "variables": {
+                        "estatCel": {"valor": 1},  # Sunny
+                    }
+                }
+            ]
+        }
+    }
+    
+    weather = MeteocatWeather(mock_coordinator, mock_entry)
+    # Set mode to local by modifying the entry data
+    mock_entry.data["mode"] = MODE_LOCAL
+    condition = weather.condition
+    assert condition == "sunny"
+
+
+def test_weather_entity_condition_local_mode_missing_forecast(mock_coordinator, mock_entry):
+    """Test condition property when forecast is missing."""
+    mock_coordinator.data = {
+        "measurements": [],  # No measurements
+        "forecast": None
+    }
+    
+    weather = MeteocatWeather(mock_coordinator, mock_entry)
+    assert weather.condition is None
+
+
+def test_weather_entity_condition_local_mode_empty_forecast(mock_coordinator, mock_entry):
+    """Test condition property when forecast has no days."""
+    mock_coordinator.data = {
+        "measurements": [],  # No measurements
+        "forecast": {"dies": []}
+    }
+    
+    weather = MeteocatWeather(mock_coordinator, mock_entry)
+    assert weather.condition is None
+
+
+def test_weather_entity_is_night_error_handling(mock_coordinator, mock_entry, mock_hass):
+    """Test _is_night method error handling."""
+    weather = MeteocatWeather(mock_coordinator, mock_entry)
+    weather.hass = mock_hass
+    
+    # Test with exception in sun calculation
+    with patch('homeassistant.helpers.sun.get_astral_event_date', side_effect=Exception("Sun error")):
+        result = weather._is_night()
+        assert result is False
+
+
+@pytest.mark.asyncio
+async def test_weather_entity_async_forecast_hourly_missing_data(mock_coordinator, mock_entry):
+    """Test async_forecast_hourly with missing data."""
+    mock_coordinator.data = {}
+    
+    weather = MeteocatWeather(mock_coordinator, mock_entry)
+    result = await weather.async_forecast_hourly()
+    assert result is None
+
+
+@pytest.mark.asyncio
+async def test_weather_entity_async_forecast_hourly_error_handling(mock_coordinator, mock_entry):
+    """Test async_forecast_hourly error handling."""
+    # Test with invalid temperature data - proper structure
+    mock_coordinator.data = {
+        "forecast_hourly": {
+            "dies": [
+                {
+                    "data": "2025-11-24",
+                    "variables": {
+                        "temperatura": {"valors": [
+                            {"data": "2025-11-24T10:00:00", "valor": "invalid"},
+                            {"data": "2025-11-24T11:00:00", "valor": 16}
+                        ]},  # Invalid first value
+                        "estatCel": {"valors": [
+                            {"data": "2025-11-24T10:00:00", "valor": 1},
+                            {"data": "2025-11-24T11:00:00", "valor": 2}
+                        ]},
+                        "precipitacio": {"valors": [
+                            {"data": "2025-11-24T10:00:00", "valor": 0},
+                            {"data": "2025-11-24T11:00:00", "valor": 1}
+                        ]},
+                    }
+                }
+            ]
+        }
+    }
+    
+    weather = MeteocatWeather(mock_coordinator, mock_entry)
+    result = await weather.async_forecast_hourly()
+    assert result is not None
+    assert len(result) > 0
+
+
+@pytest.mark.asyncio
+async def test_weather_entity_async_forecast_daily_missing_data(mock_coordinator, mock_entry):
+    """Test async_forecast_daily with missing data."""
+    mock_coordinator.data = {}
+    
+    weather = MeteocatWeather(mock_coordinator, mock_entry)
+    result = await weather.async_forecast_daily()
+    assert result is None
+
+
+@pytest.mark.asyncio
+async def test_weather_entity_async_forecast_daily_error_handling(mock_coordinator, mock_entry):
+    """Test async_forecast_daily error handling."""
+    # Test with invalid temperature data
+    mock_coordinator.data = {
+        "forecast": {
+            "dies": [
+                {
+                    "data": "2025-11-24",
+                    "variables": {
+                        "tmin": {"valor": "invalid"},
+                        "tmax": {"valor": 20},
+                        "estatCel": {"valor": 1},
+                        "probPrecip": {"valor": 10},
+                    }
+                }
+            ]
+        }
+    }
+    
+    weather = MeteocatWeather(mock_coordinator, mock_entry)
+    result = await weather.async_forecast_daily()
+    assert result is not None
+    assert len(result) == 1
+
+
+def test_local_weather_entity_initialization(mock_coordinator, mock_local_entry, mock_hass):
+    """Test local weather entity initialization."""
+    with patch('homeassistant.helpers.event.async_track_state_change_event'):
+        weather = MeteocatLocalWeather(mock_coordinator, mock_local_entry)
+        weather.hass = mock_hass
+        
+        assert weather.name == "Barcelona"
+        assert weather.unique_id == "test_entry_local_weather_weather_local"
+        assert weather.entity_id == "weather.barcelona_local"
+
+
+def test_local_weather_condition_from_entity(mock_coordinator, mock_local_entry, mock_hass):
+    """Test local weather condition from configured entity."""
+    with patch('homeassistant.helpers.event.async_track_state_change_event'):
+        weather = MeteocatLocalWeather(mock_coordinator, mock_local_entry)
+        weather.hass = mock_hass
+        
+        condition = weather.condition
+        assert condition == "sunny"
+
+
+def test_local_weather_condition_from_rain_sensor(mock_coordinator, mock_local_entry, mock_hass):
+    """Test local weather condition from rain sensor."""
+    # Mock unavailable entity state
+    mock_hass.states.get.return_value = MagicMock(state="unavailable")
+    
+    with patch('homeassistant.helpers.event.async_track_state_change_event'):
+        weather = MeteocatLocalWeather(mock_coordinator, mock_local_entry)
+        weather.hass = mock_hass
+        
+        # Mock rain sensor returning > 0
+        with patch.object(weather, '_get_sensor_value', return_value=1.5):
+            condition = weather.condition
+            assert condition == "rainy"
+
+
+def test_local_weather_condition_from_forecast(mock_coordinator, mock_local_entry, mock_hass):
+    """Test local weather condition from forecast."""
+    # Mock unavailable entity state
+    mock_hass.states.get.return_value = MagicMock(state="unavailable")
+    
+    # Set up forecast data
+    mock_coordinator.data = {
+        "forecast": {
+            "dies": [
+                {
+                    "data": "2025-11-24",
+                    "variables": {
+                        "estatCel": {"valor": 1},  # Sunny
+                    }
+                }
+            ]
+        }
+    }
+    
+    with patch('homeassistant.helpers.event.async_track_state_change_event'):
+        weather = MeteocatLocalWeather(mock_coordinator, mock_local_entry)
+        weather.hass = mock_hass
+        
+        # Mock no rain sensor
+        with patch.object(weather, '_get_sensor_value', return_value=None):
+            condition = weather.condition
+            assert condition == "sunny"
+
+
+def test_local_weather_condition_night_mode(mock_coordinator, mock_local_entry, mock_hass):
+    """Test local weather condition converts sunny to clear-night."""
+    # Mock unavailable entity state
+    mock_hass.states.get.return_value = MagicMock(state="unavailable")
+    
+    # Set up forecast data with sunny
+    mock_coordinator.data = {
+        "forecast": {
+            "dies": [
+                {
+                    "data": "2025-11-24",
+                    "variables": {
+                        "estatCel": {"valor": 1},  # Sunny
+                    }
+                }
+            ]
+        }
+    }
+    
+    with patch('homeassistant.helpers.event.async_track_state_change_event'):
+        weather = MeteocatLocalWeather(mock_coordinator, mock_local_entry)
+        weather.hass = mock_hass
+        
+        # Mock no rain sensor and night time
+        with patch.object(weather, '_get_sensor_value', return_value=None), \
+             patch.object(weather, '_is_night', return_value=True):
+            condition = weather.condition
+            assert condition == "clear-night"
+
+
+def test_local_weather_native_pressure_from_sensor(mock_coordinator, mock_local_entry, mock_hass):
+    """Test local weather gets pressure from sensor."""
+    with patch('homeassistant.helpers.event.async_track_state_change_event'):
+        weather = MeteocatLocalWeather(mock_coordinator, mock_local_entry)
+        weather.hass = mock_hass
+        
+        with patch.object(weather, '_get_sensor_value', return_value=1013.25):
+            pressure = weather.native_pressure
+            assert pressure == 1013.25
+
+
+def test_local_weather_is_night_fallback_coords(mock_coordinator, mock_local_entry, mock_hass):
+    """Test _is_night method uses fallback coordinates."""
+    # Remove municipality coordinates
+    mock_local_entry.data.pop("municipality_lat", None)
+    mock_local_entry.data.pop("municipality_lon", None)
+    
+    with patch('homeassistant.helpers.event.async_track_state_change_event'):
+        weather = MeteocatLocalWeather(mock_coordinator, mock_local_entry)
+        weather.hass = mock_hass
+        
+        # Should use hass.config coordinates
+        with patch('homeassistant.helpers.sun.get_astral_event_date') as mock_get_event:
+            mock_get_event.return_value = None  # Simulate missing sun data
+            result = weather._is_night()
+            assert result is False

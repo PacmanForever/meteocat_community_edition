@@ -64,6 +64,36 @@
 
 ## Configuration
 
+### New in the configuration flow
+
+- **Weather condition mapping step**: In local mode, after selecting sensors, a screen appears to define how the weather condition (icon) of the Weather entity is mapped.
+    - You can choose between:
+        - **Automatic (Meteocat)**: The condition value is taken directly from the official Meteocat forecast.
+        - **Custom**: You can manually define a mapping between your local sensor values and the conditions supported by Home Assistant (example: `{ "0": "clear-night", "1": "sunny", "2": "cloudy", "3": "rainy" }`).
+    - This screen is fully translated to Catalan, Spanish, and English.
+
+- **Mapping example**: An example mapping is provided on the screen to make configuration easier.
+
+## Entities
+
+- **Update buttons**: The "Refresh Measurements" and "Refresh Forecast" buttons now always show an icon.
+
+## Advanced options
+
+- **API URL**: When you set a test API URL, the integration uses that URL for all requests, never the real one unless configured.
+
+## Translations
+
+- All screens, including the new mapping step, are translated to Catalan, Spanish, and English.
+
+## Versioning
+
+- The current manifest version is `1.1.10` and matches the latest git tag.
+
+## Tests
+
+- The logic for the mapping screen, configuration, buttons, and API management is covered by automated tests.
+
 ### Get an API Key
 
 1. Register at [https://apidocs.meteocat.gencat.cat/](https://apidocs.meteocat.gencat.cat/)

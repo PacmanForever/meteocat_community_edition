@@ -168,7 +168,11 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
             if variable.get("codi") == 32:  # Temperature
                 lectures = variable.get("lectures", [])
                 if lectures:
-                    return lectures[-1].get("valor")
+                    valor = lectures[-1].get("valor")
+                    try:
+                        return float(valor)
+                    except (TypeError, ValueError):
+                        return None
         
         return None
 
@@ -188,7 +192,11 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
             if variable.get("codi") == 33:  # Humidity
                 lectures = variable.get("lectures", [])
                 if lectures:
-                    return lectures[-1].get("valor")
+                    valor = lectures[-1].get("valor")
+                    try:
+                        return float(valor)
+                    except (TypeError, ValueError):
+                        return None
         
         return None
 
@@ -208,7 +216,11 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
             if variable.get("codi") == 34:  # Pressure
                 lectures = variable.get("lectures", [])
                 if lectures:
-                    return lectures[-1].get("valor")
+                    valor = lectures[-1].get("valor")
+                    try:
+                        return float(valor)
+                    except (TypeError, ValueError):
+                        return None
         
         return None
 
@@ -229,7 +241,11 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
             if variable.get("codi") == 31:  # Wind direction
                 lectures = variable.get("lectures", [])
                 if lectures:
-                    return lectures[-1].get("valor")
+                    valor = lectures[-1].get("valor")
+                    try:
+                        return float(valor)
+                    except (TypeError, ValueError):
+                        return None
         
         return None
 

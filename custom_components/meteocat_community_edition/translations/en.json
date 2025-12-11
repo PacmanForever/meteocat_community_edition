@@ -1,4 +1,12 @@
 {
+  "mapping_example": "{\"0\": \"clear-night\", \"1\": \"sunny\", \"2\": \"cloudy\", \"3\": \"rainy\"}",
+  "mapping_label_local_condition_entity": "Sensor indicating the condition",
+  "mapping_label_custom_condition_mapping": "Mapping of sensor values to Home Assistant weather conditions",
+  "mapping_title": "Weather Condition",
+  "mapping_type_label": "Select which mapping you want for the 'Weather Condition' (icon) property of your Weather entity:",
+  "mapping_option_meteocat": "Meteocat: The condition value will be automatically taken from the official Meteocat forecast (fixed mapping, not editable).",
+  "mapping_option_custom": "Custom: The condition (icon) value will be taken from a local numeric sensor. You must manually define the mapping between the local sensor values and the conditions supported by Home Assistant (e.g., sunny, cloudy, rainy, clear-night, etc.).",
+  "mapping_description": "Customize the mapping of weather conditions.",
   "title": "Meteocat (Community Edition)",
   "config": {
     "step": {
@@ -11,17 +19,17 @@
         }
       },
       "mode": {
-        "title": "Operation mode",
-        "description": "Select the operation mode",
+        "title": "Operating Mode",
+        "description": "Select the operating mode",
         "data": {
           "mode": "Mode"
         }
       },
       "comarca": {
-        "title": "Select a region",
-        "description": "Choose the region where the weather station is located",
+        "title": "Select a comarca",
+        "description": "Choose the comarca where the weather station is located",
         "data": {
-          "comarca_code": "Region"
+          "comarca_code": "Comarca"
         }
       },
       "station": {
@@ -32,15 +40,15 @@
         }
       },
       "municipality": {
-        "title": "Select local location",
-        "description": "Choose the municipality for forecast and local station location",
+        "title": "Select the local location",
+        "description": "Choose the municipality for the forecast and local station location",
         "data": {
           "municipality_code": "Municipality"
         }
       },
       "update_times": {
-        "title": "Forecast update",
-        "description": "Configure update times and forecasts.",
+        "title": "Forecast Update",
+        "description": "Configure the update times and forecasts.",
         "data": {
           "measurements_label": "Measurements (required)",
           "enable_forecast_daily": "Daily forecast",
@@ -52,41 +60,41 @@
       },
       "local_sensors": {
         "title": "Local Sensors",
-        "description": "Select Home Assistant sensors for current data.\n\nNot all weather cards display all data.",
+        "description": "Select the Home Assistant sensors for current data.\n\nNot all weather cards display all data.",
         "data": {
-          "sensor_temperature": "Temperature (mandatory)",
-          "sensor_humidity": "Humidity (mandatory)",
-          "sensor_pressure": "Atmospheric Pressure",
-          "sensor_wind_speed": "Wind Speed",
-          "sensor_wind_bearing": "Wind Direction (numeric/degrees)",
-          "sensor_wind_gust": "Wind Gust",
+          "sensor_temperature": "Temperature (required)",
+          "sensor_humidity": "Humidity (required)",
+          "sensor_pressure": "Atmospheric pressure",
+          "sensor_wind_speed": "Wind speed",
+          "sensor_wind_bearing": "Wind direction (numeric/degrees)",
+          "sensor_wind_gust": "Wind gust",
           "sensor_visibility": "Visibility",
-          "sensor_uv_index": "UV Index",
+          "sensor_uv_index": "UV index",
           "sensor_ozone": "Ozone",
-          "sensor_cloud_coverage": "Cloud Coverage",
-          "sensor_dew_point": "Dew Point",
-          "sensor_apparent_temperature": "Apparent Temperature",
-          "sensor_rain": "Rain Intensity",
+          "sensor_cloud_coverage": "Cloud coverage",
+          "sensor_dew_point": "Dew point",
+          "sensor_apparent_temperature": "Apparent temperature",
+          "sensor_rain": "Rain intensity",
           "local_condition_entity": "Local condition entity (only if custom mapping)"
         }
       },
       "reauth_confirm": {
         "title": "Re-authentication required",
-        "description": "Your API key has expired or is invalid. Please enter a new valid API key."
+        "description": "Your API key has expired or is invalid. Please enter a valid API key."
       }
     },
     "error": {
-      "cannot_connect": "Could not connect to Meteocat API. Check API key.",
-      "no_comarques": "No regions found",
-      "no_stations": "No stations found in this region",
-      "no_municipalities": "No municipalities found in this region",
-      "no_comarca_selected": "You must select a region",
+      "cannot_connect": "Could not connect to the Meteocat API. Check the API key.",
+      "no_comarques": "No comarques available",
+      "no_stations": "No stations found in this comarca",
+      "no_municipalities": "No municipalities found in this comarca",
+      "no_comarca_selected": "You must select a comarca",
       "no_station_selected": "You must select a station",
       "invalid_time_format": "Invalid time format. Use 24h format: HH:MM (example: 06:00 or 14:30)",
       "times_must_differ": "Update times must be different",
-      "must_select_one_forecast": "You must select at least one forecast type (daily or hourly) in municipality mode",
+      "must_select_one_forecast": "You must select at least one type of forecast (daily or hourly) in municipality mode",
       "required": "This field is required",
-      "invalid_auth": "Invalid API key. Please check that your API key is correct.",
+      "invalid_auth": "Invalid API key. Please check that the API key is correct.",
       "unknown": "Unknown error"
     },
     "abort": {
@@ -98,9 +106,9 @@
     "step": {
       "init": {
         "title": "Meteocat Options",
-        "description": "Configure data to download and update times\n\n**Query types**\n{measurements_info}",
+        "description": "Configure data to download and the update times\n\n**Query types**\n{measurements_info}",
         "data": {
-          "api_base_url": "API Base URL (leave default for production)",
+          "api_base_url": "API base URL (leave default for production)",
           "measurements_label": "Measurements (required)",
           "enable_forecast_daily": "Daily forecast",
           "enable_forecast_hourly": "Hourly forecast",
@@ -110,8 +118,8 @@
         }
       },
       "sensors": {
-        "title": "Local weather entities selection",
-        "description": "Select Home Assistant sensors for current data.\n\nNot all weather cards show all data.",
+        "title": "Local weather entity selection",
+        "description": "Select the Home Assistant sensors for current data.\n\nNot all weather cards display all data.",
         "data": {
           "sensor_temperature": "Temperature",
           "sensor_humidity": "Humidity",
@@ -120,7 +128,7 @@
           "sensor_wind_bearing": "Wind direction (numeric/degrees)",
           "sensor_wind_gust": "Wind gust",
           "sensor_visibility": "Visibility",
-          "sensor_uv_index": "UV Index",
+          "sensor_uv_index": "UV index",
           "sensor_ozone": "Ozone",
           "sensor_cloud_coverage": "Cloud coverage",
           "sensor_dew_point": "Dew point",
@@ -128,6 +136,12 @@
           "sensor_rain": "Rain intensity"
         }
       }
+    }
+  },
+  "events": {
+    "meteocat_community_edition_data_updated": {
+      "name": "Data updated",
+      "description": "A Meteocat data update has been completed (automatic or manual)"
     }
   },
   "device_automation": {
@@ -160,10 +174,10 @@
         "name": "Solar radiation"
       },
       "forecast_hourly": {
-        "name": "Hourly forecast"
+        "name": "Hourly Forecast"
       },
       "forecast_daily": {
-        "name": "Daily forecast"
+        "name": "Daily Forecast"
       },
       "last_update": {
         "name": "Last measurements update"
@@ -176,6 +190,9 @@
       },
       "last_forecast_update": {
         "name": "Last forecast update"
+      },
+      "update_time": {
+        "name": "Update time {number}"
       },
       "latitude": {
         "name": "Latitude"
@@ -191,14 +208,11 @@
     },
     "button": {
       "refresh_measurements": {
-        "name": "Update Measurements"
+        "name": "Refresh Measurements"
       },
       "refresh_forecast": {
-        "name": "Update Forecast"
+        "name": "Refresh Forecast"
       }
     }
   }
 }
-
-
-

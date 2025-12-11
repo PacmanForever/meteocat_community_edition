@@ -132,6 +132,7 @@ class MeteocatRefreshForecastButton(CoordinatorEntity[MeteocatCoordinator], Butt
         self._device_name = device_name
         self._mode = mode
         self._entry = entry
+        self._attr_icon = "mdi:calendar-refresh"
         
         # Generate entity_id based on mode
         base_name = entity_name.lower().replace(" ", "_")

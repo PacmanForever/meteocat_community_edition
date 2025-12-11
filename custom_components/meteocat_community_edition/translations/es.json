@@ -1,4 +1,12 @@
 {
+  "mapping_example": "{\"0\": \"clear-night\", \"1\": \"sunny\", \"2\": \"cloudy\", \"3\": \"rainy\"}",
+  "mapping_label_local_condition_entity": "Sensor que indica la condición",
+  "mapping_label_custom_condition_mapping": "Mapeo de los valores del sensor con las condiciones climáticas de Home Assistant",
+  "mapping_title": "Condición climática",
+  "mapping_type_label": "Selecciona qué mapeo quieres para la propiedad 'Condición climática' (icono) de tu entidad Tiempo (Weather):",
+  "mapping_option_meteocat": "Meteocat: El valor de condición se tomará automáticamente de la predicción oficial de Meteocat (mapeo fijo, no editable).",
+  "mapping_option_custom": "Personalizado: El valor de la condición (icono) se tomará de un sensor numérico local. Debes definir manualmente el mapeo entre los valores del sensor local y las condiciones soportadas por Home Assistant (ej: sunny, cloudy, rainy, clear-night, etc.).",
+  "mapping_description": "Personaliza la correspondencia de condiciones meteorológicas.",
   "title": "Meteocat (Edición Comunitaria)",
   "config": {
     "step": {
@@ -26,7 +34,7 @@
       },
       "station": {
         "title": "Selecciona una estación externa",
-        "description": "Elige la estación meteorológica XEMA que deseas añadir",
+        "description": "Elige la estación meteorológica XEMA que quieres añadir",
         "data": {
           "station_code": "Estación"
         }
@@ -67,7 +75,7 @@
           "sensor_dew_point": "Punto de rocío",
           "sensor_apparent_temperature": "Temperatura aparente",
           "sensor_rain": "Intensidad de lluvia",
-          "local_condition_entity": "Entidad de condición local (solo si mapping personalizado)"
+          "local_condition_entity": "Entidad de condición local (solo si mapeo personalizado)"
         }
       },
       "reauth_confirm": {
@@ -76,8 +84,8 @@
       }
     },
     "error": {
-      "cannot_connect": "No se pudo conectar con la API de Meteocat. Verifica la clave API.",
-      "no_comarques": "No se encontraron comarcas disponibles",
+      "cannot_connect": "No se ha podido conectar con la API de Meteocat. Comprueba la clave API.",
+      "no_comarques": "No se han encontrado comarcas disponibles",
       "no_stations": "No se han encontrado estaciones en esta comarca",
       "no_municipalities": "No se han encontrado municipios en esta comarca",
       "no_comarca_selected": "Debes seleccionar una comarca",
@@ -130,6 +138,12 @@
       }
     }
   },
+  "events": {
+    "meteocat_community_edition_data_updated": {
+      "name": "Datos actualizados",
+      "description": "Se ha completado una actualización de datos de Meteocat (automática o manual)"
+    }
+  },
   "device_automation": {
     "trigger_type": {
       "data_updated": "Datos actualizados",
@@ -160,22 +174,25 @@
         "name": "Radiación solar"
       },
       "forecast_hourly": {
-        "name": "Predicción horaria"
+        "name": "Predicción Horaria"
       },
       "forecast_daily": {
-        "name": "Predicción diaria"
+        "name": "Predicción Diaria"
       },
       "last_update": {
-        "name": "Última actualización mediciones"
+        "name": "Última actualización medidas"
       },
       "next_update": {
-        "name": "Próxima actualización mediciones"
+        "name": "Próxima actualización medidas"
       },
       "next_forecast_update": {
         "name": "Próxima actualización predicción"
       },
       "last_forecast_update": {
         "name": "Última actualización predicción"
+      },
+      "update_time": {
+        "name": "Hora de actualización {number}"
       },
       "latitude": {
         "name": "Latitud"
@@ -191,7 +208,7 @@
     },
     "button": {
       "refresh_measurements": {
-        "name": "Actualizar Mediciones"
+        "name": "Actualizar Medidas"
       },
       "refresh_forecast": {
         "name": "Actualizar Predicción"
@@ -199,6 +216,9 @@
     }
   }
 }
+
+
+
 
 
 

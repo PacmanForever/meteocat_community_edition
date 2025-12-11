@@ -24,8 +24,8 @@ Aquesta integració està dissenyada per complir:
 ### Estat actual
 
 ```
-Total: 102 tests
-Cobertura: >95%
+Total: 317 tests
+Cobertura: 91%
 Fitxers de test: 13
 Línies de codi de test: 2,443+
 ```

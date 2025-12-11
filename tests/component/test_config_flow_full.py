@@ -219,14 +219,7 @@ async def test_flow_update_times_step_local():
     }
     result2 = await flow.async_step_local_sensors(sensors_input)
     assert result2["type"] == "form"
-    assert result2["step_id"] == "condition_mapping"
-    # Simula resposta de mapping
-    mapping_input = {"mapping_type": "meteocat"}
-    result3 = await flow.async_step_condition_mapping(mapping_input)
-    assert result3["type"] == "create_entry"
-    assert result3["title"] == "Abrera"
-    assert result3["data"][CONF_SENSOR_TEMPERATURE] == "sensor.temp"
-    assert result3["data"][CONF_SENSOR_HUMIDITY] == "sensor.hum"
+    assert result2["step_id"] == "condition_mapping_type"
 
 @pytest.mark.asyncio
 async def test_flow_local_sensors_step():
@@ -254,17 +247,10 @@ async def test_flow_local_sensors_step():
     }
     result = await flow.async_step_local_sensors(sensors_input)
     assert result["type"] == "form"
-    assert result["step_id"] == "condition_mapping"
-    # Simula resposta de mapping
-    mapping_input = {"mapping_type": "meteocat"}
-    result2 = await flow.async_step_condition_mapping(mapping_input)
-    assert result2["type"] == "create_entry"
-    assert result2["title"] == "Abrera"
-    assert result2["data"][CONF_SENSOR_TEMPERATURE] == "sensor.temp"
-    assert result2["data"][CONF_SENSOR_HUMIDITY] == "sensor.hum"
+    assert result["step_id"] == "condition_mapping_type"
 
 @pytest.mark.asyncio
-async def test_flow_mapping_step_called(caplog):
+async def test_flow_mapping_step_called():
     """Test que la pantalla de mapping (condition_mapping) es crida després de sensors locals."""
     from custom_components.meteocat_community_edition.const import CONF_SENSOR_TEMPERATURE, CONF_SENSOR_HUMIDITY
     flow = MeteocatConfigFlow()
@@ -286,8 +272,68 @@ async def test_flow_mapping_step_called(caplog):
         CONF_SENSOR_TEMPERATURE: "sensor.temp",
         CONF_SENSOR_HUMIDITY: "sensor.hum",
     }
-    with caplog.at_level("WARNING"):
-        result = await flow.async_step_local_sensors(sensors_input)
-        assert any("Entrant a async_step_condition_mapping" in r for r in caplog.text.splitlines())
-        assert result["type"] == "form"
-        assert result["step_id"] == "condition_mapping"
+    result = await flow.async_step_local_sensors(sensors_input)
+    assert result["type"] == "form"
+    assert result["step_id"] == "condition_mapping_type"
+
+@pytest.mark.asyncio
+async def test_flow_mapping_type_meteocat_creates_entry():
+    """Selecting 'meteocat' in mapping type creates entry immediately."""
+    flow = MeteocatConfigFlow()
+    flow.hass = MagicMock()
+    flow._local_sensors_input = {
+        CONF_SENSOR_TEMPERATURE: "sensor.temp",
+        CONF_SENSOR_HUMIDITY: "sensor.hum",
+    }
+    flow.municipality_name = "Abrera"
+    flow.api_base_url = "https://api.meteocat.cat/release/v1"
+    result = await flow.async_step_condition_mapping_type({"mapping_type": "meteocat"})
+    assert result["type"] == "create_entry"
+    assert result["title"] == "Abrera"
+    assert result["data"][CONF_SENSOR_TEMPERATURE] == "sensor.temp"
+    assert result["data"][CONF_SENSOR_HUMIDITY] == "sensor.hum"
+    assert result["data"]["mapping_type"] == "meteocat"
+
+@pytest.mark.asyncio
+async def test_flow_mapping_type_custom_leads_to_custom_step():
+    """Selecting 'custom' in mapping type leads to custom mapping step."""
+    flow = MeteocatConfigFlow()
+    flow.hass = MagicMock()
+    flow._local_sensors_input = {
+        CONF_SENSOR_TEMPERATURE: "sensor.temp",
+        CONF_SENSOR_HUMIDITY: "sensor.hum",
+    }
+    flow.municipality_name = "Abrera"
+    flow.api_base_url = "https://api.meteocat.cat/release/v1"
+    result = await flow.async_step_condition_mapping_type({"mapping_type": "custom"})
+    assert result["type"] == "form"
+    assert result["step_id"] == "condition_mapping_custom"
+    # Cannot check default mapping directly due to ObjectSelector limitations
+
+@pytest.mark.asyncio
+async def test_flow_custom_mapping_requires_fields():
+    """Custom mapping step requires both fields."""
+    flow = MeteocatConfigFlow()
+    flow.hass = MagicMock()
+    flow._local_sensors_input = {
+        CONF_SENSOR_TEMPERATURE: "sensor.temp",
+        CONF_SENSOR_HUMIDITY: "sensor.hum",
+    }
+    flow.municipality_name = "Abrera"
+    flow.api_base_url = "https://api.meteocat.cat/release/v1"
+    # Missing both fields
+    result = await flow.async_step_condition_mapping_custom({})
+    assert result["type"] == "form"
+    assert "local_condition_entity" in result["errors"]
+    assert "custom_condition_mapping" in result["errors"]
+    # Only one field
+    result2 = await flow.async_step_condition_mapping_custom({"local_condition_entity": "sensor.mycond"})
+    assert "custom_condition_mapping" in result2["errors"]
+    result3 = await flow.async_step_condition_mapping_custom({"custom_condition_mapping": '{"0": "sunny"}'})
+    assert "local_condition_entity" in result3["errors"]
+    # Both fields present
+    result4 = await flow.async_step_condition_mapping_custom({"local_condition_entity": "sensor.mycond", "custom_condition_mapping": '{"0": "sunny"}'})
+    assert result4["type"] == "create_entry"
+    assert result4["data"]["mapping_type"] == "custom"
+    assert result4["data"]["local_condition_entity"] == "sensor.mycond"
+    assert "sunny" in result4["data"]["custom_condition_mapping"]
