@@ -5,6 +5,16 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.8] - 2025-12-11
+
+### Afegit
+- **Edició de mapping de condicions**: Les estacions locals existents ara poden canviar entre mapping Meteocat i personalitzat directament des de les opcions, sense necessitat de recrear l'entitat
+- **Millora de l'experiència d'usuari**: S'elimina el checkbox i s'afegeix un selector directe de tipus de mapping al formulari d'opcions
+- **Tests complets**: S'afegeixen tests per verificar el canvi entre tipus de mapping
+
+### Corregit
+- **Correcció ortogràfica**: "targes" → "targetes" en les traduccions al català
+
 ## [1.2.7] - 2025-12-11
 
 ### Corregit
