@@ -72,12 +72,12 @@
       },
       "condition_mapping_type": {
         "title": "Condició climàtica",
-        "description": "Selecciona quin mapeig vols per la propietat 'Condició climàtica' (icona) de la teva entitat Temps (Weather):",
+        "description": "Selecciona quin mapeig vols per la propietat 'Condició climàtica' (icona) per l'entitat Temps (Weather):",
         "data": {
           "mapping_type": "Tipus de mapeig"
         },
         "data_description": {
-          "mapping_type": "Personalitza la correspondència de condicions meteorològiques."
+          "mapping_type": "Meteocat: El valor de condició s'agafarà automàticament de la predicció oficial de Meteocat (mapeig fix, no editable).\nPersonalitzat: El valor de la condició (icona) s'agafarà d'un sensor numèric local. Cal definir manualment el mapeig entre els valors del sensor local i les condicions suportades per Home Assistant (ex: sunny, cloudy, rainy, clear-night, etc.)."
         }
       },
       "condition_mapping_custom": {

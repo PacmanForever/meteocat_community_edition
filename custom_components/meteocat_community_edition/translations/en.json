@@ -72,12 +72,12 @@
       },
       "condition_mapping_type": {
         "title": "Weather Condition",
-        "description": "Select which mapping you want for the 'Weather Condition' (icon) property of your Weather entity:",
+        "description": "Select which mapping you want for the 'Weather Condition' (icon) property for the Weather entity:",
         "data": {
           "mapping_type": "Mapping type"
         },
         "data_description": {
-          "mapping_type": "Customize the mapping of weather conditions."
+          "mapping_type": "Meteocat: The condition value will be automatically taken from the official Meteocat forecast (fixed mapping, not editable).\nCustom: The condition (icon) value will be taken from a local numeric sensor. You need to manually define the mapping between the local sensor values and the conditions supported by Home Assistant (e.g.: sunny, cloudy, rainy, clear-night, etc.)."
         }
       },
       "condition_mapping_custom": {

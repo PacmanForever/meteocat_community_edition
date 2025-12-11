@@ -143,12 +143,20 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             elif mapping_type == "custom":
                 return await self.async_step_condition_mapping_custom()
 
+        from homeassistant.helpers import selector
         schema = vol.Schema({
             vol.Required(
                 "mapping_type",
                 default="meteocat",
                 description={"suggested_value": "mapping_type_label"}
-            ): vol.In(["meteocat", "custom"]),
+            ): selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=[
+                        {"value": "meteocat", "label": "Meteocat"},
+                        {"value": "custom", "label": "Personalitzat"}
+                    ]
+                )
+            ),
         })
         return self.async_show_form(
             step_id="condition_mapping_type",

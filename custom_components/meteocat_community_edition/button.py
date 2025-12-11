@@ -74,7 +74,7 @@ class MeteocatRefreshMeasurementsButton(CoordinatorEntity[MeteocatCoordinator], 
         self._device_name = device_name
         self._mode = mode
         self._entry = entry
-        self._attr_icon = "mdi:thermometer-refresh"
+        self._attr_icon = "mdi:refresh"
         # Generate entity_id based on mode
         base_name = entity_name.lower().replace(" ", "_")
         if mode == MODE_EXTERNAL:
@@ -94,7 +94,7 @@ class MeteocatRefreshMeasurementsButton(CoordinatorEntity[MeteocatCoordinator], 
     @property
     def icon(self) -> str:
         """Return the icon."""
-        return "mdi:thermometer-refresh"
+        return "mdi:refresh"
 
     @property
     def available(self) -> bool:
@@ -132,7 +132,7 @@ class MeteocatRefreshForecastButton(CoordinatorEntity[MeteocatCoordinator], Butt
         self._device_name = device_name
         self._mode = mode
         self._entry = entry
-        self._attr_icon = "mdi:calendar-refresh"
+        self._attr_icon = "mdi:refresh"
         
         # Generate entity_id based on mode
         base_name = entity_name.lower().replace(" ", "_")
@@ -154,7 +154,7 @@ class MeteocatRefreshForecastButton(CoordinatorEntity[MeteocatCoordinator], Butt
     @property
     def icon(self) -> str:
         """Return the icon."""
-        return "mdi:calendar-refresh"
+        return "mdi:refresh"
 
     @property
     def available(self) -> bool:

@@ -72,12 +72,12 @@
       },
       "condition_mapping_type": {
         "title": "Condición climática",
-        "description": "Selecciona qué mapeo quieres para la propiedad 'Condición climática' (icono) de tu entidad Tiempo (Weather):",
+        "description": "Selecciona qué mapeo quieres para la propiedad 'Condición climática' (icono) para la entidad Tiempo (Weather):",
         "data": {
           "mapping_type": "Tipo de mapeo"
         },
         "data_description": {
-          "mapping_type": "Personaliza la correspondencia de condiciones meteorológicas."
+          "mapping_type": "Meteocat: El valor de condición se tomará automáticamente de la predicción oficial de Meteocat (mapeo fijo, no editable).\nPersonalizado: El valor de la condición (icono) se tomará de un sensor numérico local. Es necesario definir manualmente el mapeo entre los valores del sensor local y las condiciones soportadas por Home Assistant (ej: sunny, cloudy, rainy, clear-night, etc.)."
         }
       },
       "condition_mapping_custom": {
