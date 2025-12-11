@@ -933,8 +933,8 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
 
         # Set title placeholders in context for the flow (if context is mutable)
         try:
-            self.context.update({"title_placeholders": title_placeholders})
-        except TypeError:
+            self.context["title_placeholders"] = title_placeholders
+        except (TypeError, AttributeError):
             # Context is immutable in some cases (like tests), skip setting placeholders
             pass
 
@@ -1087,8 +1087,8 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
 
         # Set title placeholders in context for the flow (if context is mutable)
         try:
-            self.context.update({"title_placeholders": title_placeholders})
-        except TypeError:
+            self.context["title_placeholders"] = title_placeholders
+        except (TypeError, AttributeError):
             # Context is immutable in some cases (like tests), skip setting placeholders
             pass
 
