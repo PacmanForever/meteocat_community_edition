@@ -190,6 +190,9 @@ async def test_flow_update_times_step_estacio():
     assert call_args["title"] == "Granollers YM"
     assert call_args["data"][CONF_UPDATE_TIME_1] == "08:00"
     assert call_args["data"][CONF_UPDATE_TIME_2] == "20:00"
+    # Regression test: ensure API key is included in external station entry data
+    assert call_args["data"][CONF_API_KEY] == "valid_key"
+    assert call_args["data"][CONF_MODE] == MODE_EXTERNAL
 
 @pytest.mark.asyncio
 async def test_flow_update_times_step_local():
@@ -346,3 +349,25 @@ async def test_flow_custom_mapping_requires_fields():
     # Regression test: ensure API key is included in entry data
     assert result4["data"][CONF_API_KEY] == "test_api_key"
     assert result4["data"][CONF_API_BASE_URL] == "https://api.meteocat.cat/release/v1"
+
+@pytest.mark.asyncio
+async def test_coordinator_handles_missing_api_key():
+    """Test that coordinator properly handles entries without API key (migration scenario)."""
+    from custom_components.meteocat_community_edition.coordinator import MeteocatCoordinator
+    from unittest.mock import MagicMock
+    
+    hass = MagicMock()
+    # Create a mock entry without API key (simulating old entry)
+    entry = MagicMock()
+    entry.title = "Test Station"
+    entry.data = {
+        "mode": "external",
+        "station_code": "TEST",
+        "station_name": "Test Station"
+        # Missing api_key intentionally
+    }
+    entry.options = {}
+    
+    # Should raise ValueError with clear message
+    with pytest.raises(ValueError, match="Entry 'Test Station' is missing API key"):
+        MeteocatCoordinator(hass, entry)
