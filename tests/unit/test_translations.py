@@ -52,17 +52,17 @@ def test_options_flow_title_content():
     # Catalan
     ca = load_translation("ca")
     title_ca = ca["options"]["step"]["init"]["title"]
-    assert title_ca == "Configuració estació externa {name}"
+    assert title_ca == "Configuració estació externa"
     
     # Spanish
     es = load_translation("es")
     title_es = es["options"]["step"]["init"]["title"]
-    assert title_es == "Configuración estación externa {name}"
+    assert title_es == "Configuración estación externa"
     
     # English
     en = load_translation("en")
     title_en = en["options"]["step"]["init"]["title"]
-    assert title_en == "External station configuration {name}"
+    assert title_en == "External station configuration"
 
 
 def test_update_times_title_and_description():

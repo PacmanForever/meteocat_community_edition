@@ -115,7 +115,7 @@
   "options": {
     "step": {
       "init": {
-        "title": "External station configuration {name}",
+        "title": "External station configuration",
         "description": "{measurements_info}",
         "data": {
           "api_base_url": "API base URL (leave default for production)",

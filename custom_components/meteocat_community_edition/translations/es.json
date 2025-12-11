@@ -115,7 +115,7 @@
   "options": {
     "step": {
       "init": {
-        "title": "Configuración estación externa {name}",
+        "title": "Configuración estación externa",
         "description": "{measurements_info}",
         "data": {
           "api_base_url": "URL base de la API (deja por defecto para producción)",
@@ -128,7 +128,7 @@
         }
       },
       "init_local": {
-        "title": "Configuración estación local {name}",
+        "title": "Configuración estación local",
         "description": "{measurements_info}",
         "data": {
           "api_base_url": "URL base de la API (deja por defecto para producción)",
