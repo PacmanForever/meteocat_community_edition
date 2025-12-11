@@ -5,6 +5,13 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.4] - 2025-12-11
+
+### Corregit
+- **Correcció crítica**: Millor gestió d'entrades existents sense clau API
+- S'afegeixen missatges d'error clars per a entrades antigues que falten la clau API
+- S'afegeixen tests de regressió per prevenir que el problema torni a ocórrer
+
 ## [1.2.3] - 2025-12-11
 
 ### Corregit
