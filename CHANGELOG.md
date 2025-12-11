@@ -5,6 +5,16 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.12] - 2025-12-11
+
+### Millorat
+- **Interfície d'usuari simplificada**: Eliminat el text redundant "(obligatori)", "(obligatorio)" i "(required)" dels labels dels camps requerits
+- **Validació millorada**: Els camps requerits ara mostren missatges d'error de validació en comptes de text redundant als labels
+- **Experiència d'usuari millorada**: Interfície més neta i professional sense text innecessari
+
+### Afegit
+- **Test de traduccions d'errors**: Afegit test per verificar que els missatges d'error de camps requerits existeixen en tots els idiomes
+
 ## [1.2.11] - 2025-12-11
 
 ### Millorat

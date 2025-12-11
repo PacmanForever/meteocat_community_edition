@@ -8,5 +8,5 @@
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/PacmanForever/meteocat_community_edition/issues",
   "requirements": ["aiohttp>=3.9.0"],
-  "version": "1.2.11"
+  "version": "1.2.12"
 }
