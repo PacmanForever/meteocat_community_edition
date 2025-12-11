@@ -286,6 +286,7 @@ async def test_flow_mapping_type_meteocat_creates_entry():
     flow = MeteocatConfigFlow()
     flow.hass = MagicMock()
     flow.api_key = "test_api_key"  # Add API key
+    flow.mode = MODE_LOCAL  # Add mode
     flow._local_sensors_input = {
         CONF_SENSOR_TEMPERATURE: "sensor.temp",
         CONF_SENSOR_HUMIDITY: "sensor.hum",
@@ -301,6 +302,8 @@ async def test_flow_mapping_type_meteocat_creates_entry():
     # Regression test: ensure API key is included in entry data
     assert result["data"][CONF_API_KEY] == "test_api_key"
     assert result["data"][CONF_API_BASE_URL] == "https://api.meteocat.cat/release/v1"
+    # Regression test: ensure mode is included in entry data
+    assert result["data"][CONF_MODE] == MODE_LOCAL
 
 @pytest.mark.asyncio
 async def test_flow_mapping_type_custom_leads_to_custom_step():
@@ -324,6 +327,7 @@ async def test_flow_custom_mapping_requires_fields():
     flow = MeteocatConfigFlow()
     flow.hass = MagicMock()
     flow.api_key = "test_api_key"  # Add API key
+    flow.mode = MODE_LOCAL  # Add mode
     flow._local_sensors_input = {
         CONF_SENSOR_TEMPERATURE: "sensor.temp",
         CONF_SENSOR_HUMIDITY: "sensor.hum",
@@ -349,6 +353,8 @@ async def test_flow_custom_mapping_requires_fields():
     # Regression test: ensure API key is included in entry data
     assert result4["data"][CONF_API_KEY] == "test_api_key"
     assert result4["data"][CONF_API_BASE_URL] == "https://api.meteocat.cat/release/v1"
+    # Regression test: ensure mode is included in entry data
+    assert result4["data"][CONF_MODE] == MODE_LOCAL
 
 @pytest.mark.asyncio
 async def test_coordinator_handles_missing_api_key():
@@ -371,3 +377,43 @@ async def test_coordinator_handles_missing_api_key():
     # Should raise ValueError with clear message
     with pytest.raises(ValueError, match="Entry 'Test Station' is missing API key"):
         MeteocatCoordinator(hass, entry)
+
+
+@pytest.mark.asyncio
+async def test_flow_external_mode_creates_entry_with_correct_mode():
+    """Test that external mode station entries include the correct mode in data."""
+    from custom_components.meteocat_community_edition.config_flow import MeteocatConfigFlow
+    from unittest.mock import MagicMock, AsyncMock
+    
+    flow = MeteocatConfigFlow()
+    flow.hass = MagicMock()
+    flow.api_key = "test_api_key"
+    flow.mode = MODE_EXTERNAL
+    flow.station_code = "YM"
+    flow.station_name = "Granollers"
+    flow.comarca_code = "1"
+    flow.comarca_name = "Vallès Oriental"
+    flow.update_time_1 = "08:00"
+    flow.update_time_2 = ""
+    flow.update_time_3 = ""
+    flow.enable_forecast_daily = True
+    flow.enable_forecast_hourly = False
+    flow.api_base_url = "https://api.meteocat.cat/release/v1"
+    
+    # Mock async_set_unique_id
+    flow.async_set_unique_id = AsyncMock()
+    flow._abort_if_unique_id_configured = MagicMock()
+    
+    user_input = {
+        CONF_UPDATE_TIME_1: "08:00",
+        CONF_ENABLE_FORECAST_DAILY: True,
+        CONF_ENABLE_FORECAST_HOURLY: False,
+    }
+    
+    result = await flow.async_step_update_times(user_input)
+    
+    assert result["type"] == "create_entry"
+    assert result["title"] == "Granollers YM"
+    assert result["data"][CONF_MODE] == MODE_EXTERNAL
+    assert result["data"][CONF_API_KEY] == "test_api_key"
+    assert result["data"][CONF_STATION_CODE] == "YM"

@@ -127,6 +127,7 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 latest_input = getattr(self, '_local_sensors_input', None) or getattr(self, '_update_times_input', {})
                 entry_data = dict(latest_input)
                 entry_data["mapping_type"] = "meteocat"
+                entry_data[CONF_MODE] = self.mode  # Add the selected mode
                 # Add API key and base URL
                 entry_data[CONF_API_KEY] = self.api_key
                 entry_data[CONF_API_BASE_URL] = self.api_base_url
@@ -193,6 +194,7 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     entry_data["mapping_type"] = "custom"
                     entry_data["custom_condition_mapping"] = parsed_mapping
                     entry_data["local_condition_entity"] = local_entity
+                    entry_data[CONF_MODE] = self.mode  # Add the selected mode
                     # Add API key and base URL
                     entry_data[CONF_API_KEY] = self.api_key
                     entry_data[CONF_API_BASE_URL] = self.api_base_url
@@ -613,6 +615,7 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 if self.mode == MODE_EXTERNAL:
                     _LOGGER.info("Creating entry with title: %s %s", self.station_name, self.station_code)
                     entry_data = {
+                        CONF_MODE: MODE_EXTERNAL,  # Add mode for external station
                         CONF_API_KEY: self.api_key,
                         CONF_MODE: MODE_EXTERNAL,
                         CONF_STATION_CODE: self.station_code,
