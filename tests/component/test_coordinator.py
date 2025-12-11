@@ -255,10 +255,9 @@ async def test_coordinator_empty_api_key(mock_hass, mock_api):
     }
     entry.options = {}
     
-    coordinator = MeteocatCoordinator(mock_hass, entry)
-    
-    # Should initialize without error but log warning
-    assert coordinator.api is not None
+    # Should raise ValueError for missing API key
+    with pytest.raises(ValueError, match="is missing API key"):
+        MeteocatCoordinator(mock_hass, entry)
 
 
 @pytest.mark.asyncio
@@ -277,10 +276,9 @@ async def test_coordinator_none_api_key(mock_hass, mock_api):
     }
     entry.options = {}
     
-    coordinator = MeteocatCoordinator(mock_hass, entry)
-    
-    # Should initialize without error but log warning
-    assert coordinator.api is not None
+    # Should raise ValueError for missing API key
+    with pytest.raises(ValueError, match="is missing API key"):
+        MeteocatCoordinator(mock_hass, entry)
 
 
 @pytest.mark.asyncio
