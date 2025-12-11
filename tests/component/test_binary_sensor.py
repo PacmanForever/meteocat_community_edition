@@ -422,7 +422,7 @@ def test_binary_sensor_device_info_local_mode(mock_coordinator_success, mock_ent
     
     device_info = sensor.device_info
     assert device_info["name"] == "Barcelona"
-    assert device_info["model"] == "Predicció Municipal"
+    assert device_info["model"] == "Estació Local"
 
 
 def test_binary_sensor_icon_when_ok(mock_coordinator_success, mock_entry_external):

@@ -115,7 +115,7 @@
   "options": {
     "step": {
       "init": {
-        "title": "Configuració estació local",
+        "title": "Configuració estació externa {name}",
         "description": "{measurements_info}",
         "data": {
           "api_base_url": "URL base de l'API (deixa per defecte per producció)",
@@ -126,6 +126,20 @@
           "update_time_2": "Segona actualització (format 24h: HH:MM)",
           "update_time_3": "Tercera actualització (format 24h: HH:MM)"
 
+        }
+      },
+      "init_local": {
+        "title": "Configuració estació local {name}",
+        "description": "{measurements_info}",
+        "data": {
+          "api_base_url": "URL base de l'API (deixa per defecte per producció)",
+          "measurements_label": "Mesures (requerides)",
+          "enable_forecast_daily": "Predicció diària",
+          "enable_forecast_hourly": "Predicció horària",
+          "update_time_1": "Primera actualització (format 24h: HH:MM)",
+          "update_time_2": "Segona actualització (format 24h: HH:MM)",
+          "update_time_3": "Tercera actualització (format 24h: HH:MM)",
+          "mapping_type": "Tipus de mapeig per la condició climàtica"
         }
       },
       "sensors": {

@@ -41,7 +41,7 @@ async def test_options_flow_local_sensors(hass: HomeAssistant):
     result = await hass.config_entries.options.async_init(entry.entry_id)
 
     assert result["type"] == FlowResultType.FORM
-    assert result["step_id"] == "init"
+    assert result["step_id"] == "init_local"
 
     # Submit init step (no changes to options)
     user_input_init = {
@@ -97,7 +97,7 @@ async def test_options_flow_local_switch_to_custom_mapping(hass: HomeAssistant):
     result = await hass.config_entries.options.async_init(entry.entry_id)
 
     assert result["type"] == FlowResultType.FORM
-    assert result["step_id"] == "init"
+    assert result["step_id"] == "init_local"
 
     # Submit init step with switch to custom mapping
     user_input_init = {
@@ -168,7 +168,7 @@ async def test_options_flow_local_switch_to_meteocat_mapping(hass: HomeAssistant
     result = await hass.config_entries.options.async_init(entry.entry_id)
 
     assert result["type"] == FlowResultType.FORM
-    assert result["step_id"] == "init"
+    assert result["step_id"] == "init_local"
 
     # Submit init step with switch to meteocat mapping
     user_input_init = {
@@ -226,7 +226,7 @@ async def test_options_flow_local_edit_custom_mapping(hass: HomeAssistant):
     result = await hass.config_entries.options.async_init(entry.entry_id)
 
     assert result["type"] == FlowResultType.FORM
-    assert result["step_id"] == "init"
+    assert result["step_id"] == "init_local"
 
     # Submit init step with switch to custom mapping (already is custom, but this triggers the flow)
     user_input_init = {

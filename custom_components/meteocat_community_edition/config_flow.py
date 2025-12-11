@@ -899,8 +899,7 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
             schema_dict[
                 vol.Required(
                     "mapping_type",
-                    default=current_mapping_type,
-                    description="Mapeig de la condició climàtica"
+                    default=current_mapping_type
                 )
             ] = selector.SelectSelector(
                 selector.SelectSelectorConfig(
@@ -911,8 +910,173 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                 )
             )
 
+        # Prepare title placeholders
+        title_placeholders = {}
+        if mode == MODE_LOCAL:
+            municipality_name = self.config_entry.data.get(CONF_MUNICIPALITY_NAME, "")
+            title_placeholders["name"] = municipality_name
+        else:
+            station_name = self.config_entry.data.get(CONF_STATION_NAME, "")
+            station_code = self.config_entry.data.get(CONF_STATION_CODE, "")
+            if station_name and station_code:
+                title_placeholders["name"] = f"{station_name} {station_code}"
+            else:
+                title_placeholders["name"] = station_name or station_code or ""
+
+        # Set title placeholders in context for the flow (if context is mutable)
+        try:
+            self.context["title_placeholders"] = title_placeholders
+        except TypeError:
+            # Context is immutable in some cases (like tests), skip setting placeholders
+            pass
+
         return self.async_show_form(
-            step_id="init",
+            step_id="init_local" if mode == MODE_LOCAL else "init",
+            data_schema=vol.Schema(schema_dict),
+            description_placeholders=description_placeholders,
+            errors=errors,
+        )
+
+    async def async_step_init_local(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Manage the options for local mode."""
+        errors: dict[str, str] = {}
+        
+        if user_input is not None:
+            # Validate update times if they're being changed
+            time1 = user_input.get(CONF_UPDATE_TIME_1, "").strip()
+            time2 = user_input.get(CONF_UPDATE_TIME_2, "").strip()
+            time3 = user_input.get(CONF_UPDATE_TIME_3, "").strip()
+            enable_daily = user_input.get(CONF_ENABLE_FORECAST_DAILY, True)
+            enable_hourly = user_input.get(CONF_ENABLE_FORECAST_HOURLY, False)
+            
+            time_errors = validate_update_times(time1, time2, time3)
+            errors.update(time_errors)
+            
+            # Validate forecast selection (only for local mode)
+            mode = self.config_entry.data.get(CONF_MODE)
+            if mode == MODE_LOCAL and not enable_daily and not enable_hourly:
+                errors["base"] = "must_select_one_forecast"
+            
+            if not errors:
+                # Update both options and data
+                # Using kwargs for forward compatibility with future HA versions
+                self.hass.config_entries.async_update_entry(
+                    entry=self.config_entry,
+                    data={
+                        **self.config_entry.data, 
+                        CONF_UPDATE_TIME_1: time1, 
+                        CONF_UPDATE_TIME_2: time2,
+                        CONF_UPDATE_TIME_3: time3,
+                        CONF_ENABLE_FORECAST_DAILY: enable_daily,
+                        CONF_ENABLE_FORECAST_HOURLY: enable_hourly,
+                    },
+                    options=user_input,
+                )
+                
+                # Handle mapping type for local mode
+                if mode == MODE_LOCAL:
+                    current_mapping_type = self.config_entry.data.get("mapping_type", "meteocat")
+                    selected_mapping_type = user_input.get("mapping_type", current_mapping_type)
+                    if selected_mapping_type == "custom":
+                        return await self.async_step_condition_mapping_custom()
+                    elif selected_mapping_type == "meteocat" and current_mapping_type != "meteocat":
+                        # Update to meteocat
+                        updated_data = dict(self.config_entry.data)
+                        updated_data["mapping_type"] = "meteocat"
+                        updated_data.pop("custom_condition_mapping", None)
+                        updated_data.pop("local_condition_entity", None)
+                        self.hass.config_entries.async_update_entry(
+                            entry=self.config_entry,
+                            data=updated_data
+                        )
+                
+                if mode == MODE_LOCAL:
+                    return await self.async_step_sensors()
+                else:
+                    return self.async_create_entry(title="", data=user_input)
+
+        # Prepare description placeholders
+        description_placeholders = {}
+        mode = self.config_entry.data.get(CONF_MODE)
+        description_placeholders["measurements_info"] = ""
+
+        # Ensure options is not None
+        options = self.config_entry.options or {}
+
+        # Build schema
+        schema_dict = {
+            vol.Optional(
+                CONF_API_BASE_URL,
+                default=options.get(
+                    CONF_API_BASE_URL, DEFAULT_API_BASE_URL
+                ),
+            ): str,
+            vol.Required(
+                CONF_ENABLE_FORECAST_DAILY,
+                default=self.config_entry.data.get(
+                    CONF_ENABLE_FORECAST_DAILY, True
+                ),
+            ): bool,
+            vol.Required(
+                CONF_ENABLE_FORECAST_HOURLY,
+                default=self.config_entry.data.get(
+                    CONF_ENABLE_FORECAST_HOURLY, False
+                ),
+            ): bool,
+            vol.Required(
+                CONF_UPDATE_TIME_1,
+                default=self.config_entry.data.get(
+                    CONF_UPDATE_TIME_1, DEFAULT_UPDATE_TIME_1
+                ),
+            ): str,
+            vol.Optional(
+                CONF_UPDATE_TIME_2,
+                default=self.config_entry.data.get(
+                    CONF_UPDATE_TIME_2, DEFAULT_UPDATE_TIME_2
+                ),
+            ): str,
+            vol.Optional(
+                CONF_UPDATE_TIME_3,
+                default=self.config_entry.data.get(
+                    CONF_UPDATE_TIME_3
+                ) or vol.UNDEFINED,
+            ): str,
+        }
+
+        # Add mapping type selector for local mode
+        if mode == MODE_LOCAL:
+            from homeassistant.helpers import selector
+            current_mapping_type = self.config_entry.data.get("mapping_type", "meteocat")
+            schema_dict[
+                vol.Required(
+                    "mapping_type",
+                    default=current_mapping_type
+                )
+            ] = selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=[
+                        {"value": "meteocat", "label": "Meteocat"},
+                        {"value": "custom", "label": "Personalitzat"}
+                    ]
+                )
+            )
+
+        # Prepare title placeholders
+        title_placeholders = {}
+        municipality_name = self.config_entry.data.get(CONF_MUNICIPALITY_NAME, "")
+        title_placeholders["name"] = municipality_name
+
+        # Set title placeholders in context for the flow (if context is mutable)
+        try:
+            self.context["title_placeholders"] = title_placeholders
+        except TypeError:
+            # Context is immutable in some cases (like tests), skip setting placeholders
+            pass
+
+        return self.async_show_form(
+            step_id="init_local",
             data_schema=vol.Schema(schema_dict),
             description_placeholders=description_placeholders,
             errors=errors,

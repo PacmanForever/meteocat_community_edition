@@ -115,7 +115,7 @@
   "options": {
     "step": {
       "init": {
-        "title": "Local station configuration",
+        "title": "External station configuration {name}",
         "description": "{measurements_info}",
         "data": {
           "api_base_url": "API base URL (leave default for production)",
@@ -125,6 +125,20 @@
           "update_time_1": "First update (24h format: HH:MM)",
           "update_time_2": "Second update (24h format: HH:MM)",
           "update_time_3": "Third update (24h format: HH:MM)"
+        }
+      },
+      "init_local": {
+        "title": "Local station configuration {name}",
+        "description": "{measurements_info}",
+        "data": {
+          "api_base_url": "API base URL (leave default for production)",
+          "measurements_label": "Measurements (required)",
+          "enable_forecast_daily": "Daily forecast",
+          "enable_forecast_hourly": "Hourly forecast",
+          "update_time_1": "First update (24h format: HH:MM)",
+          "update_time_2": "Second update (24h format: HH:MM)",
+          "update_time_3": "Third update (24h format: HH:MM)",
+          "mapping_type": "Weather condition mapping type"
         }
       },
       "sensors": {

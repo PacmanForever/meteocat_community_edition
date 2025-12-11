@@ -5,6 +5,17 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.10] - 2025-12-11
+
+### Millorat
+- **Títols de pantalles d'opcions millorats**: Les pantalles d'edició d'estacions externes mostren "Configuració estació externa [nom estació]" i les locals mostren "Configuració estació local [nom municipi]"
+- **Text del camp mapping_type corregit**: Canviat a "Tipus de mapeig per la condició climàtica" per ser més descriptiu
+- **Traduccions actualitzades**: Millores en els fitxers de traducció per a millor usabilitat
+
+### Corregit
+- **Model del binary sensor corregit**: Canviat "Predicció Municipal" a "Estació Local" per consistència
+- **Flux d'opcions locals**: Afegit el mètode `async_step_init_local` per gestionar correctament les opcions d'estacions locals
+
 ## [1.2.9] - 2025-12-11
 
 ### Afegit

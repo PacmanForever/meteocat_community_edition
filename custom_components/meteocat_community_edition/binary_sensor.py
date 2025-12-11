@@ -144,7 +144,7 @@ class MeteocatUpdateStatusBinarySensor(CoordinatorEntity[MeteocatCoordinator], B
         if mode == MODE_EXTERNAL:
             model = "Estació Externa"
         else:
-            model = "Predicció Municipal"
+            model = "Estació Local"
         
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},

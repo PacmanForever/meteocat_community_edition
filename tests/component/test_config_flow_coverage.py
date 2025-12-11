@@ -95,3 +95,272 @@ def test_validate_update_times_coverage():
     
     # Valid time 3
     assert validate_update_times("08:00", "", "20:00") == {}
+
+
+@pytest.mark.asyncio
+async def test_flow_condition_mapping_custom_invalid_condition():
+    """Test custom condition mapping with invalid condition."""
+    flow = MeteocatConfigFlow()
+    flow.hass = MagicMock()
+    flow.mode = MODE_EXTERNAL
+    flow.api_key = "test_key"
+    flow.api_base_url = "https://api.meteo.cat"
+    flow.municipality_name = "Test Municipality"
+    flow._local_sensors_input = {
+        "municipality_code": "08001",
+        "municipality_name": "Test",
+        "comarca_code": "01",
+        "comarca_name": "Test Comarca"
+    }
+
+    user_input = {
+        "local_condition_entity": "sensor.test_condition",
+        "custom_condition_mapping": "0: invalid_condition"
+    }
+
+    result = await flow.async_step_condition_mapping_custom(user_input)
+
+    assert result["type"] == "form"
+    assert result["errors"] == {"custom_condition_mapping": "invalid_condition"}
+
+
+@pytest.mark.asyncio
+async def test_flow_condition_mapping_custom_invalid_format():
+    """Test custom condition mapping with invalid format."""
+    flow = MeteocatConfigFlow()
+    flow.hass = MagicMock()
+    flow.mode = MODE_EXTERNAL
+    flow.api_key = "test_key"
+    flow.api_base_url = "https://api.meteo.cat"
+    flow.municipality_name = "Test Municipality"
+    flow._local_sensors_input = {
+        "municipality_code": "08001",
+        "municipality_name": "Test",
+        "comarca_code": "01",
+        "comarca_name": "Test Comarca"
+    }
+
+    user_input = {
+        "local_condition_entity": "sensor.test_condition",
+        "custom_condition_mapping": "invalid_format_no_colon"
+    }
+
+    result = await flow.async_step_condition_mapping_custom(user_input)
+
+    assert result["type"] == "form"
+    assert result["errors"] == {"custom_condition_mapping": "invalid_format"}
+
+
+@pytest.mark.asyncio
+async def test_flow_condition_mapping_type_meteocat_with_location_data():
+    """Test meteocat mapping type creates entry with location data."""
+    flow = MeteocatConfigFlow()
+    flow.hass = MagicMock()
+    flow.mode = MODE_EXTERNAL
+    flow.api_key = "test_key"
+    flow.api_base_url = "https://api.meteo.cat"
+    flow.municipality_name = "Test Municipality"
+    # Set the location attributes that should be included in entry data
+    flow.municipality_lat = 41.123
+    flow.municipality_lon = 2.456
+    flow.provincia_code = "08"
+    flow.provincia_name = "Barcelona"
+    flow.municipality_code = "08001"
+    flow.comarca_code = "01"
+    flow.comarca_name = "Test Comarca"
+    flow._local_sensors_input = {
+        "municipality_code": "08001",
+        "municipality_name": "Test",
+        "comarca_code": "01",
+        "comarca_name": "Test Comarca"
+    }
+
+    user_input = {
+        "mapping_type": "meteocat"
+    }
+
+    # Mock async_create_entry to capture the call
+    flow.async_create_entry = MagicMock(return_value={"type": "create_entry"})
+
+    result = await flow.async_step_condition_mapping_type(user_input)
+
+    assert result["type"] == "create_entry"
+    flow.async_create_entry.assert_called_once()
+    call_args = flow.async_create_entry.call_args[1]
+    
+    # Verify that location data is included in entry creation
+    entry_data = call_args['data']
+    assert "municipality_lat" in entry_data
+    assert entry_data["municipality_lat"] == 41.123
+    assert "municipality_lon" in entry_data
+    assert entry_data["municipality_lon"] == 2.456
+    assert "provincia_code" in entry_data
+    assert entry_data["provincia_code"] == "08"
+    assert "provincia_name" in entry_data
+    assert entry_data["provincia_name"] == "Barcelona"
+
+
+@pytest.mark.asyncio
+async def test_flow_condition_mapping_type_meteocat_with_location_data():
+    """Test meteocat mapping type creates entry with location data."""
+    flow = MeteocatConfigFlow()
+    flow.hass = MagicMock()
+    flow.mode = MODE_EXTERNAL
+    flow.api_key = "test_key"
+    flow.api_base_url = "https://api.meteo.cat"
+    flow.municipality_name = "Test Municipality"
+    # Set the location attributes that should be included in entry data
+    flow.municipality_lat = 41.123
+    flow.municipality_lon = 2.456
+    flow.provincia_code = "08"
+    flow.provincia_name = "Barcelona"
+    flow.municipality_code = "08001"
+    flow.comarca_code = "01"
+    flow.comarca_name = "Test Comarca"
+    flow._local_sensors_input = {
+        "municipality_code": "08001",
+        "municipality_name": "Test",
+        "comarca_code": "01",
+        "comarca_name": "Test Comarca"
+    }
+
+    user_input = {
+        "mapping_type": "meteocat"
+    }
+
+    # Mock async_create_entry to capture the call
+    flow.async_create_entry = MagicMock(return_value={"type": "create_entry"})
+
+    result = await flow.async_step_condition_mapping_type(user_input)
+
+    assert result["type"] == "create_entry"
+    flow.async_create_entry.assert_called_once()
+    call_args = flow.async_create_entry.call_args[1]
+    
+    # Verify that location data is included in entry creation
+    entry_data = call_args['data']
+    assert "municipality_lat" in entry_data
+    assert entry_data["municipality_lat"] == 41.123
+    assert "municipality_lon" in entry_data
+    assert entry_data["municipality_lon"] == 2.456
+    assert "provincia_code" in entry_data
+    assert entry_data["provincia_code"] == "08"
+    assert "provincia_name" in entry_data
+    assert entry_data["provincia_name"] == "Barcelona"
+
+
+@pytest.mark.asyncio
+async def test_flow_condition_mapping_custom_with_location_data():
+    """Test custom condition mapping creates entry with location data."""
+    flow = MeteocatConfigFlow()
+    flow.hass = MagicMock()
+    flow.mode = MODE_EXTERNAL
+    flow.api_key = "test_key"
+    flow.api_base_url = "https://api.meteo.cat"
+    flow.municipality_name = "Test Municipality"
+    # Set the location attributes that should be included in entry data
+    flow.municipality_lat = 41.123
+    flow.municipality_lon = 2.456
+    flow.provincia_code = "08"
+    flow.provincia_name = "Barcelona"
+    flow.municipality_code = "08001"
+    flow.comarca_code = "01"
+    flow.comarca_name = "Test Comarca"
+    flow._local_sensors_input = {
+        "municipality_code": "08001",
+        "municipality_name": "Test",
+        "comarca_code": "01",
+        "comarca_name": "Test Comarca"
+    }
+
+    user_input = {
+        "local_condition_entity": "sensor.test_condition",
+        "custom_condition_mapping": "0: sunny\n1: cloudy"
+    }
+
+    # Mock async_create_entry to capture the call
+    flow.async_create_entry = MagicMock(return_value={"type": "create_entry"})
+
+    result = await flow.async_step_condition_mapping_custom(user_input)
+
+    assert result["type"] == "create_entry"
+    flow.async_create_entry.assert_called_once()
+    call_args = flow.async_create_entry.call_args[1]
+    
+    # Verify that location data is included in entry creation
+    entry_data = call_args['data']
+    assert "municipality_lat" in entry_data
+    assert entry_data["municipality_lat"] == 41.123
+    assert "municipality_lon" in entry_data
+    assert entry_data["municipality_lon"] == 2.456
+    assert "provincia_code" in entry_data
+    assert entry_data["provincia_code"] == "08"
+    assert "provincia_name" in entry_data
+    assert entry_data["provincia_name"] == "Barcelona"
+
+
+@pytest.mark.asyncio
+async def test_parse_condition_mapping_empty_lines():
+    """Test parsing condition mapping with empty lines."""
+    flow = MeteocatConfigFlow()
+
+    # Test with empty lines and comments
+    mapping_text = """
+    0: sunny
+
+    1: cloudy
+    """
+    result = flow._parse_condition_mapping(mapping_text)
+    assert result == {"0": "sunny", "1": "cloudy"}
+
+
+@pytest.mark.asyncio
+async def test_parse_condition_mapping_invalid_condition():
+    """Test parsing condition mapping with invalid condition."""
+    flow = MeteocatConfigFlow()
+
+    with pytest.raises(ValueError, match="Invalid condition 'invalid_condition'"):
+        flow._parse_condition_mapping("0: invalid_condition")
+
+
+@pytest.mark.asyncio
+async def test_parse_condition_mapping_empty_mapping():
+    """Test parsing condition mapping with empty result."""
+    flow = MeteocatConfigFlow()
+
+    with pytest.raises(ValueError, match="Empty mapping"):
+        flow._parse_condition_mapping("")
+
+
+@pytest.mark.asyncio
+async def test_step_reauth():
+    """Test reauth step."""
+    flow = MeteocatConfigFlow()
+    flow.hass = MagicMock()
+    flow.context = {"entry_id": "test_entry"}
+
+    mock_entry = MagicMock()
+    flow.hass.config_entries.async_get_entry.return_value = mock_entry
+
+    with patch.object(flow, 'async_step_reauth_confirm') as mock_reauth_confirm:
+        mock_reauth_confirm.return_value = {"type": "form"}
+
+        result = await flow.async_step_reauth({})
+
+        flow.hass.config_entries.async_get_entry.assert_called_once_with("test_entry")
+        mock_reauth_confirm.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_step_user_unexpected_exception():
+    """Test user step with unexpected exception."""
+    flow = MeteocatConfigFlow()
+    flow.hass = MagicMock()
+
+    with patch("custom_components.meteocat_community_edition.config_flow.MeteocatAPI") as mock_api:
+        mock_api.return_value.get_comarques.side_effect = Exception("Unexpected error")
+
+        result = await flow.async_step_user({CONF_API_KEY: "test_key"})
+
+        assert result["type"] == "form"
+        assert result["errors"] == {"base": "unknown"}
