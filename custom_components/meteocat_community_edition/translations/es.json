@@ -4,36 +4,36 @@
     "step": {
       "user": {
         "title": "Acceso a la API",
-        "description": "Introduce tu clave API de Meteocat",
+        "description": "",
         "data": {
           "api_key": "Clave API",
           "api_base_url": "URL de la API (opcional, por defecto producción)"
         }
       },
       "mode": {
-        "title": "Modo de funcionamiento",
-        "description": "Selecciona el modo de funcionamiento",
+        "title": "Nueva estación",
+        "description": "",
         "data": {
-          "mode": "Modo"
+          "mode": "Clase de estación"
         }
       },
       "comarca": {
         "title": "Selecciona una comarca",
-        "description": "Elige la comarca donde se encuentra la estación meteorológica",
+        "description": "",
         "data": {
           "comarca_code": "Comarca"
         }
       },
       "station": {
         "title": "Selecciona una estación externa",
-        "description": "Elige la estación meteorológica XEMA que quieres añadir",
+        "description": "",
         "data": {
           "station_code": "Estación"
         }
       },
       "municipality": {
-        "title": "Selecciona la ubicación local",
-        "description": "Elige el municipio para la predicción y ubicación de la estación local",
+        "title": "Selecciona el municipio",
+        "description": "",
         "data": {
           "municipality_code": "Municipio"
         }
@@ -42,7 +42,7 @@
         "title": "Configuración de predicciones",
         "description": "",
         "data": {
-          "measurements_label": "Medidas (obligatorio)",
+          "measurements_label": "Medidas",
           "enable_forecast_daily": "Predicción diaria",
           "enable_forecast_hourly": "Predicción horaria",
           "update_time_1": "Primera actualización (Formato 24h: HH:MM)",
@@ -52,10 +52,10 @@
       },
       "local_sensors": {
         "title": "Sensores Locales",
-        "description": "Selecciona los sensores para las medidas de la entidad Tiempo (Weather).\n\nNo todas las tarjetas meteorológicas muestran todos los datos.",
+        "description": "Selecciona los sensores para las medidas de la entidad Tiempo.",
         "data": {
-          "sensor_temperature": "Temperatura (obligatorio)",
-          "sensor_humidity": "Humedad (obligatorio)",
+          "sensor_temperature": "Temperatura",
+          "sensor_humidity": "Humedad",
           "sensor_pressure": "Presión atmosférica",
           "sensor_wind_speed": "Velocidad del viento",
           "sensor_wind_bearing": "Dirección del viento (numérico/grados)",
@@ -72,20 +72,25 @@
       },
       "condition_mapping_type": {
         "title": "Condición climática",
-        "description": "Selecciona qué mapeo quieres para la propiedad 'Condición climática'.",
+        "description": "",
         "data": {
-          "mapping_type": "Tipo de mapeo"
+          "mapping_type": "Selecciona qué mapeo quieres para la propiedad 'Condición climática' (Icono)."
         },
         "data_description": {
           "mapping_type": "Meteocat: El valor de condición se tomará automáticamente de la predicción oficial de Meteocat (mapeo fijo, no editable).\n\nPersonalizado: El valor de la condición se tomará de un sensor numérico local. Será necesario definir (en la siguiente pantalla) un mapeo entre los valores del sensor local y las condiciones soportadas por Home Assistant (ej: clear-night, sunny, partlycloudy, cloudy, rainy, pouring, lightning, snowy, fog, etc.)."
+        },
+        "errors": {
+          "mapping_type": {
+            "required": "Debes seleccionar un tipo de mapeo."
+          }
         }
       },
       "condition_mapping_custom": {
         "title": "Configuración del mapeo de la condición climática",
-        "description": "Selecciona el sensor que contiene el valor de la condición y el mapeo que se utilizará.",
+        "description": "",
         "data": {
-          "local_condition_entity": "Sensor que indica la condición (obligatorio)",
-          "custom_condition_mapping": "Mapeo de valores (obligatorio)"
+          "local_condition_entity": "Sensor que indica la condición",
+          "custom_condition_mapping": "Mapeo de valores"
         }
       },
       "reauth_confirm": {
@@ -119,7 +124,7 @@
         "description": "{measurements_info}",
         "data": {
           "api_base_url": "URL base de la API (deja por defecto para producción)",
-          "measurements_label": "Medidas (obligatorio)",
+          "measurements_label": "Medidas",
           "enable_forecast_daily": "Predicción diaria",
           "enable_forecast_hourly": "Predicción horaria",
           "update_time_1": "Primera actualización (Formato 24h: HH:MM)",
@@ -132,7 +137,7 @@
         "description": "{measurements_info}",
         "data": {
           "api_base_url": "URL base de la API (deja por defecto para producción)",
-          "measurements_label": "Medidas (obligatorio)",
+          "measurements_label": "Medidas",
           "enable_forecast_daily": "Predicción diaria",
           "enable_forecast_hourly": "Predicción horaria",
           "update_time_1": "Primera actualización (Formato 24h: HH:MM)",
@@ -143,7 +148,7 @@
       },
       "sensors": {
         "title": "Selección de entidades meteorológicas locales",
-        "description": "Selecciona los sensores de Home Assistant para los datos actuales.\n\nNo todas las tarjetas meteorológicas muestran todos los datos.",
+        "description": "Selecciona los sensores de Home Assistant para los datos actuales.",
         "data": {
           "sensor_temperature": "Temperatura",
           "sensor_humidity": "Humedad",
@@ -162,10 +167,10 @@
       },
       "condition_mapping_custom": {
         "title": "Configuración del mapeo de la condición climática",
-        "description": "Selecciona el sensor que contiene el valor de la condición y el mapeo que se hará servir.",
+        "description": "",
         "data": {
-          "local_condition_entity": "Sensor que indica la condición (obligatorio)",
-          "custom_condition_mapping": "Mapeo de valores (obligatorio)"
+          "local_condition_entity": "Sensor que indica la condición",
+          "custom_condition_mapping": "Mapeo de valores"
         }
       }
     }

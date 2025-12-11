@@ -135,7 +135,7 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
         station_code = entry.data.get(CONF_STATION_CODE, "")
         station_name = entry.data[CONF_STATION_NAME]
         
-        self._attr_attribution = f"Estació {station_name} + predicció Meteocat"
+        self._attr_attribution = f"Estació {station_name} + Predicció Meteocat"
         
         # Visual name without code, but entity_id will include code
         self._attr_name = station_name

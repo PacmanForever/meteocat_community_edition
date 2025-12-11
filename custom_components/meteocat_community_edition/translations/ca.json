@@ -4,36 +4,36 @@
     "step": {
       "user": {
         "title": "Accés a l'API",
-        "description": "Introdueix la teva clau API de Meteocat",
+        "description": "",
         "data": {
           "api_key": "Clau API",
           "api_base_url": "URL de l'API (opcional, per defecte producció)"
         }
       },
       "mode": {
-        "title": "Mode de funcionament",
-        "description": "Selecciona el mode de funcionament",
+        "title": "Nova estació",
+        "description": "",
         "data": {
-          "mode": "Mode"
+          "mode": "Classe d'estació"
         }
       },
       "comarca": {
         "title": "Selecciona una comarca",
-        "description": "Tria la comarca on es troba l'estació meteorològica",
+        "description": "",
         "data": {
           "comarca_code": "Comarca"
         }
       },
       "station": {
         "title": "Selecciona una estació externa",
-        "description": "Tria l'estació meteorològica XEMA que vols afegir",
+        "description": "",
         "data": {
           "station_code": "Estació"
         }
       },
       "municipality": {
-        "title": "Selecciona la ubicació local",
-        "description": "Tria el municipi per a la predicció i ubicació de l'estació local",
+        "title": "Selecciona el municipi",
+        "description": "",
         "data": {
           "municipality_code": "Municipi"
         }
@@ -42,7 +42,7 @@
         "title": "Configuració de prediccions",
         "description": "",
         "data": {
-          "measurements_label": "Mesures (obligatori)",
+          "measurements_label": "Mesures",
           "enable_forecast_daily": "Predicció diària",
           "enable_forecast_hourly": "Predicció horària",
           "update_time_1": "Primera actualització (Format 24h: HH:MM)",
@@ -52,10 +52,10 @@
       },
       "local_sensors": {
         "title": "Sensors Locals",
-        "description": "Selecciona els sensors per a les mesures de l'entitat Temps (Weather).\n\nNo totes les targetes meteorològiques mostren totes les dades.",
+        "description": "Selecciona els sensors per a les mesures de l'entitat Temps.",
         "data": {
-          "sensor_temperature": "Temperatura (obligatori)",
-          "sensor_humidity": "Humitat (obligatori)",
+          "sensor_temperature": "Temperatura",
+          "sensor_humidity": "Humitat",
           "sensor_pressure": "Pressió atmosfèrica",
           "sensor_wind_speed": "Velocitat del vent",
           "sensor_wind_bearing": "Direcció del vent (numèric/graus)",
@@ -72,20 +72,25 @@
       },
       "condition_mapping_type": {
         "title": "Condició climàtica",
-        "description": "Selecciona quin mapeig vols per la propietat 'Condició climàtica'.",
+        "description": "",
         "data": {
-          "mapping_type": "Tipus de mapeig"
+          "mapping_type": "Selecciona quin mapeig vols per la propietat 'Condició climàtica' (Icona)."
         },
         "data_description": {
           "mapping_type": "Meteocat: El valor de condició s'agafarà automàticament de la predicció oficial de Meteocat (mapeig fix, no editable).\n\nPersonalitzat: El valor de la condició s'agafarà d'un sensor numèric local. Caldrà definir (a la següent pantalla) un mapeig entre els valors del sensor local i les condicions suportades per Home Assistant (ex: clear-night, sunny, partlycloudy, cloudy, rainy, pouring, lightning, snowy, fog, etc.)."
+        },
+        "errors": {
+          "mapping_type": {
+            "required": "Cal seleccionar un tipus de mapeig."
+          }
         }
       },
       "condition_mapping_custom": {
         "title": "Configuració del mapeig de la condició climàtica",
-        "description": "Selecciona el sensor que conté el valor de la condició i el mapeig que es farà servir.",
+        "description": "",
         "data": {
-          "local_condition_entity": "Sensor que indica la condició (obligatori)",
-          "custom_condition_mapping": "Mapeig de valors (obligatori)"
+          "local_condition_entity": "Sensor que indica la condició",
+          "custom_condition_mapping": "Mapeig de valors"
         }
       },
       "reauth_confirm": {
@@ -144,7 +149,7 @@
       },
       "sensors": {
         "title": "Selecció d'entitats meteorològiques locals",
-        "description": "Selecciona els sensors de Home Assistant per a les dades actuals.\n\nNo totes les targetes meteorològiques mostren totes les dades.",
+        "description": "Selecciona els sensors de Home Assistant per a les dades actuals.",
         "data": {
           "sensor_temperature": "Temperatura",
           "sensor_humidity": "Humitat",
@@ -164,10 +169,10 @@
       },
       "condition_mapping_custom": {
         "title": "Configuració del mapeig de la condició climàtica",
-        "description": "Selecciona el sensor que conté el valor de la condició i el mapeig que es farà servir.",
+        "description": "",
         "data": {
-          "local_condition_entity": "Sensor que indica la condició (obligatori)",
-          "custom_condition_mapping": "Mapeig de valors (obligatori)"
+          "local_condition_entity": "Sensor que indica la condició",
+          "custom_condition_mapping": "Mapeig de valors"
         }
       }
     }

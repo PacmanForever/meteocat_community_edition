@@ -47,22 +47,22 @@ def test_options_flow_description_content():
 
 
 def test_options_flow_title_content():
-    """Test that options flow title is correct for mapping configuration."""
+    """Test that options flow title is correct for external station configuration."""
     
     # Catalan
     ca = load_translation("ca")
     title_ca = ca["options"]["step"]["init"]["title"]
-    assert title_ca == "Configuració del mapeig de la condició climàtica"
+    assert title_ca == "Configuració estació externa {name}"
     
     # Spanish
     es = load_translation("es")
     title_es = es["options"]["step"]["init"]["title"]
-    assert title_es == "Configuración del mapeo de la condición climática"
+    assert title_es == "Configuración estación externa {name}"
     
     # English
     en = load_translation("en")
     title_en = en["options"]["step"]["init"]["title"]
-    assert title_en == "Weather condition mapping configuration"
+    assert title_en == "External station configuration {name}"
 
 
 def test_update_times_title_and_description():
@@ -101,9 +101,9 @@ def test_condition_mapping_custom_texts():
     mapping_label_ca = ca["config"]["step"]["condition_mapping_custom"]["data"]["custom_condition_mapping"]
     
     assert title_ca == "Configuració del mapeig de la condició climàtica"
-    assert "sensor que conté el valor" in desc_ca
-    assert entity_label_ca == "Sensor que indica la condició (obligatori)"
-    assert mapping_label_ca == "Mapeig de valors (obligatori)"
+    assert desc_ca == ""
+    assert entity_label_ca == "Sensor que indica la condició"
+    assert mapping_label_ca == "Mapeig de valors"
     
     # Spanish
     es = load_translation("es")
@@ -113,9 +113,9 @@ def test_condition_mapping_custom_texts():
     mapping_label_es = es["config"]["step"]["condition_mapping_custom"]["data"]["custom_condition_mapping"]
     
     assert title_es == "Configuración del mapeo de la condición climática"
-    assert "sensor que contiene el valor" in desc_es
-    assert entity_label_es == "Sensor que indica la condición (obligatorio)"
-    assert mapping_label_es == "Mapeo de valores (obligatorio)"
+    assert desc_es == ""
+    assert entity_label_es == "Sensor que indica la condición"
+    assert mapping_label_es == "Mapeo de valores"
     
     # English
     en = load_translation("en")
@@ -125,6 +125,25 @@ def test_condition_mapping_custom_texts():
     mapping_label_en = en["config"]["step"]["condition_mapping_custom"]["data"]["custom_condition_mapping"]
     
     assert title_en == "Configuration of the weather condition mapping"
-    assert "Select the sensor that contains the condition value" in desc_en
-    assert entity_label_en == "Sensor indicating the condition (required)"
-    assert mapping_label_en == "Value mapping (required)"
+    assert desc_en == ""
+    assert entity_label_en == "Sensor indicating the condition"
+    assert mapping_label_en == "Value mapping"
+
+
+def test_required_field_error_translation():
+    """Test that required field error message exists in all languages."""
+    
+    # Catalan
+    ca = load_translation("ca")
+    required_ca = ca["config"]["error"]["required"]
+    assert required_ca == "Aquest camp és obligatori"
+    
+    # Spanish
+    es = load_translation("es")
+    required_es = es["config"]["error"]["required"]
+    assert required_es == "Este campo es obligatorio"
+    
+    # English
+    en = load_translation("en")
+    required_en = en["config"]["error"]["required"]
+    assert required_en == "This field is required"

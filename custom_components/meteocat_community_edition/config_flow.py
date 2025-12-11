@@ -122,8 +122,10 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         import voluptuous as vol
         errors = {}
         if user_input is not None:
-            mapping_type = user_input.get("mapping_type", "meteocat")
-            if mapping_type == "meteocat":
+            mapping_type = user_input.get("mapping_type")
+            if not mapping_type:
+                errors["mapping_type"] = "required"
+            elif mapping_type == "meteocat":
                 latest_input = getattr(self, '_local_sensors_input', None) or getattr(self, '_update_times_input', {})
                 entry_data = dict(latest_input)
                 entry_data["mapping_type"] = "meteocat"

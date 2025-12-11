@@ -4,36 +4,36 @@
     "step": {
       "user": {
         "title": "API Access",
-        "description": "Enter your Meteocat API key",
+        "description": "",
         "data": {
           "api_key": "API Key",
           "api_base_url": "API URL (optional, defaults to production)"
         }
       },
       "mode": {
-        "title": "Operating Mode",
-        "description": "Select the operating mode",
+        "title": "New Station",
+        "description": "",
         "data": {
-          "mode": "Mode"
+          "mode": "Station Class"
         }
       },
       "comarca": {
         "title": "Select a comarca",
-        "description": "Choose the comarca where the weather station is located",
+        "description": "",
         "data": {
           "comarca_code": "Comarca"
         }
       },
       "station": {
         "title": "Select an external station",
-        "description": "Choose the XEMA weather station you want to add",
+        "description": "",
         "data": {
           "station_code": "Station"
         }
       },
       "municipality": {
-        "title": "Select the local location",
-        "description": "Choose the municipality for the forecast and local station location",
+        "title": "Select the municipality",
+        "description": "",
         "data": {
           "municipality_code": "Municipality"
         }
@@ -42,7 +42,7 @@
         "title": "Forecast Configuration",
         "description": "",
         "data": {
-          "measurements_label": "Measurements (required)",
+          "measurements_label": "Measurements",
           "enable_forecast_daily": "Daily forecast",
           "enable_forecast_hourly": "Hourly forecast",
           "update_time_1": "First update (24h format: HH:MM)",
@@ -52,10 +52,10 @@
       },
       "local_sensors": {
         "title": "Local Sensors",
-        "description": "Select the sensors for the measurements of the Weather entity.\n\nNot all weather cards display all data.",
+        "description": "Select the sensors for the measurements of the Weather entity.",
         "data": {
-          "sensor_temperature": "Temperature (required)",
-          "sensor_humidity": "Humidity (required)",
+          "sensor_temperature": "Temperature",
+          "sensor_humidity": "Humidity",
           "sensor_pressure": "Atmospheric pressure",
           "sensor_wind_speed": "Wind speed",
           "sensor_wind_bearing": "Wind direction (numeric/degrees)",
@@ -72,20 +72,25 @@
       },
       "condition_mapping_type": {
         "title": "Weather Condition",
-        "description": "Select which mapping you want for the 'Weather Condition' property.",
+        "description": "",
         "data": {
-          "mapping_type": "Mapping type"
+          "mapping_type": "Select which mapping you want for the 'Weather Condition' property (Icon)."
         },
         "data_description": {
           "mapping_type": "Meteocat: The condition value will be automatically taken from the official Meteocat forecast (fixed mapping, not editable).\n\nCustom: The condition value will be taken from a local numeric sensor. You will need to define (in the next screen) a mapping between the local sensor values and the conditions supported by Home Assistant (e.g.: clear-night, sunny, partlycloudy, cloudy, rainy, pouring, lightning, snowy, fog, etc.)."
+        },
+        "errors": {
+          "mapping_type": {
+            "required": "You must select a mapping type."
+          }
         }
       },
       "condition_mapping_custom": {
         "title": "Configuration of the weather condition mapping",
-        "description": "Select the sensor that contains the condition value and the mapping to be used.",
+        "description": "",
         "data": {
-          "local_condition_entity": "Sensor indicating the condition (required)",
-          "custom_condition_mapping": "Value mapping (required)"
+          "local_condition_entity": "Sensor indicating the condition",
+          "custom_condition_mapping": "Value mapping"
         }
       },
       "reauth_confirm": {
@@ -119,7 +124,7 @@
         "description": "{measurements_info}",
         "data": {
           "api_base_url": "API base URL (leave default for production)",
-          "measurements_label": "Measurements (required)",
+          "measurements_label": "Measurements",
           "enable_forecast_daily": "Daily forecast",
           "enable_forecast_hourly": "Hourly forecast",
           "update_time_1": "First update (24h format: HH:MM)",
@@ -132,7 +137,7 @@
         "description": "{measurements_info}",
         "data": {
           "api_base_url": "API base URL (leave default for production)",
-          "measurements_label": "Measurements (required)",
+          "measurements_label": "Measurements",
           "enable_forecast_daily": "Daily forecast",
           "enable_forecast_hourly": "Hourly forecast",
           "update_time_1": "First update (24h format: HH:MM)",
@@ -143,7 +148,7 @@
       },
       "sensors": {
         "title": "Local weather entity selection",
-        "description": "Select the Home Assistant sensors for current data.\n\nNot all weather cards display all data.",
+        "description": "Select the Home Assistant sensors for current data.",
         "data": {
           "sensor_temperature": "Temperature",
           "sensor_humidity": "Humidity",
@@ -162,10 +167,10 @@
       },
       "condition_mapping_custom": {
         "title": "Configuration of the weather condition mapping",
-        "description": "Select the sensor that contains the condition value and the mapping to be used.",
+        "description": "",
         "data": {
-          "local_condition_entity": "Sensor indicating the condition (required)",
-          "custom_condition_mapping": "Value mapping (required)"
+          "local_condition_entity": "Sensor indicating the condition",
+          "custom_condition_mapping": "Value mapping"
         }
       }
     }

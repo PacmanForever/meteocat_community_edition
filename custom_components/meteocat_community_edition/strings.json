@@ -4,36 +4,36 @@
     "step": {
       "user": {
         "title": "Accés a l'API",
-        "description": "Introdueix la teva clau API de Meteocat",
+        "description": "",
         "data": {
           "api_key": "Clau API",
           "api_base_url": "URL de l'API (opcional, per defecte producció)"
         }
       },
       "mode": {
-        "title": "Mode de funcionament",
-        "description": "Selecciona el mode de funcionament",
+        "title": "Nova estació",
+        "description": "",
         "data": {
-          "mode": "Mode"
+          "mode": "Classe d'estació"
         }
       },
       "comarca": {
         "title": "Selecciona una comarca",
-        "description": "Tria la comarca on es troba l'estació meteorològica",
+        "description": "",
         "data": {
           "comarca_code": "Comarca"
         }
       },
       "station": {
         "title": "Selecciona una estació externa",
-        "description": "Tria l'estació meteorològica XEMA que vols afegir",
+        "description": "",
         "data": {
           "station_code": "Estació"
         }
       },
       "municipality": {
-        "title": "Selecciona la ubicació local",
-        "description": "Tria el municipi per a la predicció i ubicació de l'estació local",
+        "title": "Selecciona el municipi",
+        "description": "",
         "data": {
           "municipality_code": "Municipi"
         }
@@ -52,7 +52,7 @@
       },
       "local_sensors": {
         "title": "Sensors Locals",
-        "description": "Selecciona els sensors per a les mesures de l'entitat Temps (Weather).\n\nNo totes les targetes meteorològiques mostren totes les dades.",
+        "description": "Selecciona els sensors per a les mesures de l'entitat Temps.",
         "data": {
           "sensor_temperature": "Temperatura (obligatori)",
           "sensor_humidity": "Humitat (obligatori)",

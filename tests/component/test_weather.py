@@ -245,7 +245,7 @@ def test_weather_entity_attribution(mock_coordinator, mock_entry):
     """Test that weather entity has attribution."""
     weather = MeteocatWeather(mock_coordinator, mock_entry)
     
-    assert weather.attribution == "Estació Granollers + predicció Meteocat"
+    assert weather.attribution == "Estació Granollers + Predicció Meteocat"
 
 
 def test_weather_entity_handles_none_measurements(mock_coordinator, mock_entry):
