@@ -78,11 +78,6 @@
         },
         "data_description": {
           "mapping_type": "Meteocat: The condition value will be automatically taken from the official Meteocat forecast (fixed mapping, not editable).\n\nCustom: The condition value will be taken from a local numeric sensor. You will need to define (in the next screen) a mapping between the local sensor values and the conditions supported by Home Assistant (e.g.: clear-night, sunny, partlycloudy, cloudy, rainy, pouring, lightning, snowy, fog, etc.)."
-        },
-        "errors": {
-          "mapping_type": {
-            "required": "You must select a mapping type."
-          }
         }
       },
       "condition_mapping_custom": {
