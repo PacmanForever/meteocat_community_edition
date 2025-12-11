@@ -52,7 +52,7 @@
       },
       "local_sensors": {
         "title": "Local Sensors",
-        "description": "Select the Home Assistant sensors for current data.\n\nNot all weather cards display all data.",
+        "description": "Select the sensors for the measurements of the Weather entity.\n\nNot all weather cards display all data.",
         "data": {
           "sensor_temperature": "Temperature (required)",
           "sensor_humidity": "Humidity (required)",
@@ -72,12 +72,12 @@
       },
       "condition_mapping_type": {
         "title": "Weather Condition",
-        "description": "Select which mapping you want for the 'Weather Condition' (icon) property for the Weather entity:",
+        "description": "Select which mapping you want for the 'Weather Condition' (icon) property.",
         "data": {
           "mapping_type": "Mapping type"
         },
         "data_description": {
-          "mapping_type": "Meteocat: The condition value will be automatically taken from the official Meteocat forecast (fixed mapping, not editable).\nCustom: The condition (icon) value will be taken from a local numeric sensor. You need to manually define the mapping between the local sensor values and the conditions supported by Home Assistant (e.g.: sunny, cloudy, rainy, clear-night, etc.)."
+          "mapping_type": "Meteocat: The condition value will be automatically taken from the official Meteocat forecast (fixed mapping, not editable).\n\nCustom: The condition (icon) value will be taken from a local numeric sensor. You will need to define in the next screen the mapping between the local sensor values and the conditions supported by Home Assistant (e.g.: sunny, cloudy, rainy, clear-night, etc.)."
         }
       },
       "condition_mapping_custom": {

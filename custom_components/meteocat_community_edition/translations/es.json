@@ -52,7 +52,7 @@
       },
       "local_sensors": {
         "title": "Sensores Locales",
-        "description": "Selecciona los sensores de Home Assistant para los datos actuales.\n\nNo todas las tarjetas meteorológicas muestran todos los datos.",
+        "description": "Selecciona los sensores para las medidas de la entidad Tiempo (Weather).\n\nNo todas las tarjetas meteorológicas muestran todos los datos.",
         "data": {
           "sensor_temperature": "Temperatura (obligatorio)",
           "sensor_humidity": "Humedad (obligatorio)",
@@ -72,12 +72,12 @@
       },
       "condition_mapping_type": {
         "title": "Condición climática",
-        "description": "Selecciona qué mapeo quieres para la propiedad 'Condición climática' (icono) para la entidad Tiempo (Weather):",
+        "description": "Selecciona qué mapeo quieres para la propiedad 'Condición climática' (icono).",
         "data": {
           "mapping_type": "Tipo de mapeo"
         },
         "data_description": {
-          "mapping_type": "Meteocat: El valor de condición se tomará automáticamente de la predicción oficial de Meteocat (mapeo fijo, no editable).\nPersonalizado: El valor de la condición (icono) se tomará de un sensor numérico local. Es necesario definir manualmente el mapeo entre los valores del sensor local y las condiciones soportadas por Home Assistant (ej: sunny, cloudy, rainy, clear-night, etc.)."
+          "mapping_type": "Meteocat: El valor de condición se tomará automáticamente de la predicción oficial de Meteocat (mapeo fijo, no editable).\n\nPersonalizado: El valor de la condición (icono) se tomará de un sensor numérico local. Será necesario definir en la siguiente pantalla el mapeo entre los valores del sensor local y las condiciones soportadas por Home Assistant (ej: sunny, cloudy, rainy, clear-night, etc.)."
         }
       },
       "condition_mapping_custom": {

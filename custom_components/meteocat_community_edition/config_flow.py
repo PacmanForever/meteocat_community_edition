@@ -171,7 +171,7 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         from homeassistant.helpers import selector
         import voluptuous as vol
         errors = {}
-        example_mapping = self.hass.data[DOMAIN].get("mapping_example", '{"condition_0": "clear-night", "condition_1": "sunny", "condition_2": "cloudy", "condition_3": "rainy"}')
+        example_mapping = self.hass.data.get(DOMAIN, {}).get("mapping_example", '{"condition_0": "clear-night", "condition_1": "sunny", "condition_2": "cloudy", "condition_3": "rainy"}')
         if user_input is not None:
             local_entity = user_input.get("local_condition_entity")
             custom_mapping = user_input.get("custom_condition_mapping")

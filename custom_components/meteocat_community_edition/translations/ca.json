@@ -52,7 +52,7 @@
       },
       "local_sensors": {
         "title": "Sensors Locals",
-        "description": "Selecciona els sensors de Home Assistant per a les dades actuals.\n\nNo totes les targes meteorològiques mostren totes les dades.",
+        "description": "Selecciona els sensors per a les mesures de l'entitat Temps (Weather).\n\nNo totes les targes meteorològiques mostren totes les dades.",
         "data": {
           "sensor_temperature": "Temperatura (obligatori)",
           "sensor_humidity": "Humitat (obligatori)",
@@ -72,12 +72,12 @@
       },
       "condition_mapping_type": {
         "title": "Condició climàtica",
-        "description": "Selecciona quin mapeig vols per la propietat 'Condició climàtica' (icona) per l'entitat Temps (Weather):",
+        "description": "Selecciona quin mapeig vols per la propietat 'Condició climàtica' (icona).",
         "data": {
           "mapping_type": "Tipus de mapeig"
         },
         "data_description": {
-          "mapping_type": "Meteocat: El valor de condició s'agafarà automàticament de la predicció oficial de Meteocat (mapeig fix, no editable).\nPersonalitzat: El valor de la condició (icona) s'agafarà d'un sensor numèric local. Cal definir manualment el mapeig entre els valors del sensor local i les condicions suportades per Home Assistant (ex: sunny, cloudy, rainy, clear-night, etc.)."
+          "mapping_type": "Meteocat: El valor de condició s'agafarà automàticament de la predicció oficial de Meteocat (mapeig fix, no editable).\n\nPersonalitzat: El valor de la condició (icona) s'agafarà d'un sensor numèric local. Caldrà definir a la següent pantalla el mapeig entre els valors del sensor local i les condicions suportades per Home Assistant (ex: sunny, cloudy, rainy, clear-night, etc.)."
         }
       },
       "condition_mapping_custom": {
