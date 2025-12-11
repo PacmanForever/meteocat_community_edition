@@ -81,11 +81,11 @@
         }
       },
       "condition_mapping_custom": {
-        "title": "Mapeig personalitzat",
-        "description": "Defineix el mapeig personalitzat de condicions climàtiques",
+        "title": "Mapeig de la condició climàtica",
+        "description": "Selecciona el sensor que conté el valor de la condició i el mapeig que es farà servir.",
         "data": {
           "local_condition_entity": "Sensor que indica la condició",
-          "custom_condition_mapping": "Mapeig dels valors del sensor amb les condicions climàtiques de Home Assistant"
+          "custom_condition_mapping": "Mapeig de valors"
         }
       },
       "reauth_confirm": {

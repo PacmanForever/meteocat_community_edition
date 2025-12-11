@@ -5,6 +5,18 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.1] - 2025-12-11
+
+### Millorat
+- Millores en les traduccions i textos de la interfície de configuració
+- Actualització dels textos de mapeig de condicions climàtiques per millor usabilitat
+- Correcció d'icones de botons per utilitzar icones vàlides de Material Design
+
+### Corregit
+- Correcció d'errors en la configuració d'estacions externes amb mapeig personalitzat
+- Assegurar que les dades d'API es propaguen correctament en totes les configuracions
+- Validació de traduccions corregida per complir amb els requisits de Home Assistant
+
 ## [1.2.0] - 2025-12-11
 
 ### Millorat

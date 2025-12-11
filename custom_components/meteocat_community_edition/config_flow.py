@@ -124,7 +124,8 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             mapping_type = user_input.get("mapping_type", "meteocat")
             if mapping_type == "meteocat":
-                entry_data = dict(self._local_sensors_input) if hasattr(self, '_local_sensors_input') else {}
+                latest_input = getattr(self, '_local_sensors_input', None) or getattr(self, '_update_times_input', {})
+                entry_data = dict(latest_input)
                 entry_data["mapping_type"] = "meteocat"
                 # Add extra info if needed
                 if hasattr(self, 'municipality_lat') and self.municipality_lat is not None:
@@ -179,7 +180,8 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             if not custom_mapping:
                 errors["custom_condition_mapping"] = "required"
             if not errors:
-                entry_data = dict(self._local_sensors_input) if hasattr(self, '_local_sensors_input') else {}
+                latest_input = getattr(self, '_local_sensors_input', None) or getattr(self, '_update_times_input', {})
+                entry_data = dict(latest_input)
                 entry_data["mapping_type"] = "custom"
                 entry_data["custom_condition_mapping"] = custom_mapping
                 entry_data["local_condition_entity"] = local_entity
@@ -199,15 +201,14 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         schema = vol.Schema({
             vol.Required(
-                "local_condition_entity",
-                description={"suggested_value": "mapping_label_local_condition_entity"}
+                "local_condition_entity"
             ): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="sensor", multiple=False)
             ),
             vol.Required(
                 "custom_condition_mapping",
                 default=example_mapping,
-                description={"suggested_value": "mapping_label_custom_condition_mapping"}
+                description=example_mapping
             ): selector.ObjectSelector(),
         })
         return self.async_show_form(

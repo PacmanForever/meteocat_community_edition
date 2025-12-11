@@ -81,11 +81,11 @@
         }
       },
       "condition_mapping_custom": {
-        "title": "Mapeo personalizado",
-        "description": "Define el mapeo personalizado de condiciones climáticas",
+        "title": "Mapeo de la condición climática",
+        "description": "Selecciona el sensor que contiene el valor de la condición y el mapeo que se utilizará.",
         "data": {
           "local_condition_entity": "Sensor que indica la condición",
-          "custom_condition_mapping": "Mapeo de los valores del sensor con las condiciones climáticas de Home Assistant"
+          "custom_condition_mapping": "Mapeo de valores"
         }
       },
       "reauth_confirm": {
