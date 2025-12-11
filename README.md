@@ -66,13 +66,17 @@ Integració **comunitària** i **no oficial** per a Home Assistant del Servei Me
 
 ### Novetats en el flux de configuració
 
-- **Pas de mapeig de condició climàtica**: En mode local, després de seleccionar els sensors, apareix una pantalla per definir com es mapeja la condició climàtica (icona) de l'entitat Weather.
+- **Pas de mapeig de condició climàtica**: En mode local, pots definir com es mapeja la condició climàtica (icona) de l'entitat Weather.
     - Pots triar entre:
         - **Automàtic (Meteocat)**: El valor de condició s'agafa directament de la predicció oficial de Meteocat.
-        - **Personalitzat**: Pots definir un mapeig manual entre els valors del sensor local i les condicions suportades per Home Assistant (exemple: `{ "0": "clear-night", "1": "sunny", "2": "cloudy", "3": "rainy" }`).
+        - **Personalitzat**: Pots definir un mapeig manual entre els valors del sensor local i les condicions suportades per Home Assistant.
     - Aquesta pantalla està completament traduïda a català, castellà i anglès.
 
+- **Edició del mapping després de la configuració**: Les estacions locals ja configurades poden modificar el seu mapping de condició climàtica en qualsevol moment a través de les opcions de la integració.
+
 - **Exemple de mapeig**: S'ofereix un exemple de mapeig a la pantalla per facilitar la configuració.
+
+- **Millores en les etiquetes de la interfície**: Les pantalles de configuració tenen etiquetes més clares i descripcions simplificades.
 
 ## Entitats
 
@@ -143,7 +147,7 @@ Això crearà:
 
 ### Opcions avançades
 
-Per configurar un endpoint personalitzat o modificar les hores d'actualització:
+Per configurar un endpoint personalitzat, modificar les hores d'actualització o canviar el mapping de condicions climàtiques:
 
 1. Ves a **Configuració** → **Dispositius i Serveis**
 2. Troba **Meteocat (Community Edition)**
@@ -151,6 +155,104 @@ Per configurar un endpoint personalitzat o modificar les hores d'actualització:
 4. Modifica:
    - **URL base de l'API** (deixa valor per defecte o buit per a producció)
    - **Hores d'actualització** (format 24h: HH:MM)
+   - **Tipus de mapeig de la condició climàtica** (només en Mode Estació Local)
+
+### Configuració del mapping de condicions climàtiques (Mode Estació Local)
+
+En **Mode Estació Local**, pots personalitzar com es determina la **condició climàtica** (l'icona que es mostra a la targeta del temps) de l'entitat `weather`.
+
+#### Tipus de mapping disponibles
+
+1. **Automàtic (Meteocat)** *(per defecte)*
+   - La condició s'agafa directament de la predicció oficial del Meteocat
+   - No requereix cap configuració addicional
+   - Sempre mostra una condició vàlida basada en dades oficials
+
+2. **Personalitzat**
+   - Defineix el teu propi mapeig entre valors del teu sensor local i condicions de Home Assistant
+   - Útil quan tens sensors que reporten valors numèrics (0, 1, 2...) que representen condicions
+   - Permet integrar sensors personalitzats (ESPHome, etc.) amb lògica pròpia
+
+#### Com configurar el mapping personalitzat
+
+##### Primera configuració (durant la creació)
+
+Quan configures una nova estació local:
+
+1. Selecciona **"Predicció municipal"**
+2. Selecciona la **comarca** i **municipi**
+3. A la pantalla **"Tipus de mapeig de la condició climàtica"**, selecciona **"Personalitzat"**
+4. **Selecciona el sensor** que conté el valor de condició (obligatori)
+5. **Defineix el mapeig** en format text (obligatori):
+   ```
+   0: clear-night
+   1: sunny
+   2: partlycloudy
+   3: cloudy
+   4: rainy
+   5: pouring
+   6: lightning
+   7: lightning-rainy
+   8: snowy
+   9: snowy-rainy
+   10: fog
+   11: hail
+   12: windy
+   13: windy-variant
+   14: exceptional
+   ```
+
+##### Editar mapping existent
+
+Per modificar el mapping d'una estació ja configurada:
+
+1. Ves a **Configuració** → **Dispositius i Serveis**
+2. Troba la teva integració **Meteocat (Community Edition)**
+3. Fes clic als 3 punts → **Opcions**
+4. A **"Tipus de mapeig de la condició climàtica"**, canvia entre **"Meteocat"** o **"Personalitzat"**
+5. Si selecciones **"Personalitzat"**, apareixerà la pantalla de configuració del mapping
+6. Modifica el **sensor** i/o el **mapeig** segons calgui
+
+> **💡 Consell**: Quan edites un mapping existent, l'edició acaba directament sense tornar als sensors, ja que ja està tot configurat.
+
+#### Format del mapeig personalitzat
+
+- **Format**: `valor_sensor: condicio_home_assistant`
+- **Separador**: Una condició per línia
+- **Condicions vàlides**: Les mateixes que suporta Home Assistant (veure llista completa a la documentació)
+- **Exemple complet**:
+  ```
+  0: clear-night
+  1: sunny
+  2: partlycloudy
+  3: cloudy
+  4: rainy
+  5: pouring
+  6: lightning
+  7: lightning-rainy
+  8: snowy
+  9: snowy-rainy
+  10: fog
+  11: hail
+  12: windy
+  13: windy-variant
+  14: exceptional
+  ```
+
+#### Comportament quan no es pot determinar la condició
+
+Si el valor del sensor no té una correspondència al mapeig, o si hi ha algun error:
+
+- **La targeta del temps mostra**: "unknown" amb icona genèrica (blanc i negre)
+- **Això és el comportament correcte** i indica que cal revisar la configuració del mapping
+- **No es mostra cap icona de color** per evitar mostrar informació incorrecta
+
+#### Canviar entre tipus de mapping
+
+Pots canviar lliurement entre **"Meteocat"** i **"Personalitzat"** en qualsevol moment:
+
+- **De Meteocat a Personalitzat**: Apareix la pantalla de configuració del mapping
+- **De Personalitzat a Meteocat**: S'eliminen les dades de mapping personalitzat i es torna al comportament per defecte
 
 ## Entitats
 
@@ -194,7 +296,7 @@ Permet crear una entitat `weather` que combina:
 
 | Tipus | Entitat | Descripció |
 |-------|---------|------------|
-| **Weather** | `weather.{municipi}` | Entitat principal. Mostra l'estat actual (dels teus sensors) i la predicció (del Meteocat). |
+| **Weather** | `weather.{municipi}` | Entitat principal. Mostra l'estat actual (dels teus sensors) i la predicció (del Meteocat). Si la condició climàtica no es pot determinar, mostra "unknown" amb icona genèrica. |
 | **Sensor** | `sensor.{municipi}_prediccio_horaria` | L'estat mostra les hores disponibles. Els atributs contenen la predicció completa per a 72h. |
 | **Sensor** | `sensor.{municipi}_prediccio_diaria` | L'estat mostra els dies disponibles. Els atributs contenen la predicció completa per a 8 dies. |
 | **Sensor** | `sensor.{municipi}_quota_disponible_{pla}` | Un sensor per a cada pla de quotes rellevant (Predicció). Mostra les peticions restants. |

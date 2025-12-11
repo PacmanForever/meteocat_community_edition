@@ -847,10 +847,7 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
         # Prepare description placeholders
         description_placeholders = {}
         mode = self.config_entry.data.get(CONF_MODE)
-        if mode == MODE_EXTERNAL:
-            description_placeholders["measurements_info"] = "Mesures (requerides)"
-        else:
-            description_placeholders["measurements_info"] = "Predicció"
+        description_placeholders["measurements_info"] = ""
 
         # Ensure options is not None
         options = self.config_entry.options or {}
@@ -903,6 +900,7 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                 vol.Required(
                     "mapping_type",
                     default=current_mapping_type,
+                    description="Mapeig de la condició climàtica"
                 )
             ] = selector.SelectSelector(
                 selector.SelectSelectorConfig(
@@ -1099,7 +1097,13 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                         entry=self.config_entry,
                         data=updated_data
                     )
-                    return await self.async_step_sensors()
+                    
+                    # If this is an edit (already had custom mapping configured), finish directly
+                    # Otherwise, go to sensors configuration for initial setup
+                    if current_mapping:
+                        return self.async_create_entry(title="", data=self.config_entry.options)
+                    else:
+                        return await self.async_step_sensors()
 
         schema = vol.Schema({
             vol.Required(

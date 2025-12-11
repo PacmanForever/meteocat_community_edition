@@ -81,7 +81,7 @@
         }
       },
       "condition_mapping_custom": {
-        "title": "Mapeig de la condició climàtica",
+        "title": "Configuració del mapeig de la condició climàtica",
         "description": "Selecciona el sensor que conté el valor de la condició i el mapeig que es farà servir.",
         "data": {
           "local_condition_entity": "Sensor que indica la condició (obligatori)",
@@ -115,8 +115,8 @@
   "options": {
     "step": {
       "init": {
-        "title": "Opcions de Meteocat",
-        "description": "Configura les dades a descarregar i les hores d'actualització\n\n**Tipus de consultes**\n{measurements_info}",
+        "title": "Configuració estació local",
+        "description": "{measurements_info}",
         "data": {
           "api_base_url": "URL base de l'API (deixa per defecte per producció)",
           "measurements_label": "Mesures (requerides)",

@@ -5,6 +5,21 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.9] - 2025-12-11
+
+### Afegit
+- **Documentació completa del mapping de condicions**: S'afegeix secció detallada al README sobre com configurar i editar el mapping personalitzat de condicions climàtiques
+- **Guia d'edició de mapping existent**: Instruccions pas a pas per modificar el mapping d'estacions ja configurades
+- **Documentació del comportament "unknown"**: Explicació de quan i per què es mostra "unknown" amb icona genèrica
+
+### Millorat
+- **Interfície d'opcions simplificada**: S'elimina text descriptiu redundant de la pantalla d'opcions per a millor usabilitat
+- **Títol de pantalla d'opcions**: Canviat a "Configuració" per ser més genèric i clar
+- **Flux d'edició optimitzat**: Quan s'edita un mapping personalitzat existent, el flux acaba directament sense tornar als sensors
+
+### Corregit
+- **Millores en les traduccions**: Actualitzacions i correccions en els fitxers de traduccions
+
 ## [1.2.8] - 2025-12-11
 
 ### Afegit

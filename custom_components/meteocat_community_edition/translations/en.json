@@ -81,7 +81,7 @@
         }
       },
       "condition_mapping_custom": {
-        "title": "Weather condition mapping",
+        "title": "Configuration of the weather condition mapping",
         "description": "Select the sensor that contains the condition value and the mapping to be used.",
         "data": {
           "local_condition_entity": "Sensor indicating the condition (required)",
@@ -115,8 +115,8 @@
   "options": {
     "step": {
       "init": {
-        "title": "Meteocat Options",
-        "description": "Configure data to download and the update times\n\n**Query types**\n{measurements_info}",
+        "title": "Local station configuration",
+        "description": "{measurements_info}",
         "data": {
           "api_base_url": "API base URL (leave default for production)",
           "measurements_label": "Measurements (required)",

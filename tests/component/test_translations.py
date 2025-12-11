@@ -30,19 +30,19 @@ def test_options_flow_description_content():
     # Catalan
     ca = load_translation("ca")
     desc_ca = ca["options"]["step"]["init"]["description"]
-    assert "Configura les dades a descarregar" in desc_ca
+    assert desc_ca == "{measurements_info}"
     assert "opcions avançades" not in desc_ca
     
     # Spanish
     es = load_translation("es")
     desc_es = es["options"]["step"]["init"]["description"]
-    assert "Configura los datos a descargar" in desc_es
+    assert desc_es == "{measurements_info}"
     assert "opciones avanzadas" not in desc_es
     
     # English
     en = load_translation("en")
     desc_en = en["options"]["step"]["init"]["description"]
-    assert "Configure data to download" in desc_en
+    assert desc_en == "{measurements_info}"
     assert "advanced options" not in desc_en
 
 def test_options_flow_sensors_labels():
