@@ -127,7 +127,9 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 latest_input = getattr(self, '_local_sensors_input', None) or getattr(self, '_update_times_input', {})
                 entry_data = dict(latest_input)
                 entry_data["mapping_type"] = "meteocat"
-                # Add extra info if needed
+                # Add API key and base URL
+                entry_data[CONF_API_KEY] = self.api_key
+                entry_data[CONF_API_BASE_URL] = self.api_base_url
                 if hasattr(self, 'municipality_lat') and self.municipality_lat is not None:
                     entry_data["municipality_lat"] = self.municipality_lat
                 if hasattr(self, 'municipality_lon') and self.municipality_lon is not None:
@@ -191,6 +193,9 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     entry_data["mapping_type"] = "custom"
                     entry_data["custom_condition_mapping"] = parsed_mapping
                     entry_data["local_condition_entity"] = local_entity
+                    # Add API key and base URL
+                    entry_data[CONF_API_KEY] = self.api_key
+                    entry_data[CONF_API_BASE_URL] = self.api_base_url
                     if hasattr(self, 'municipality_lat') and self.municipality_lat is not None:
                         entry_data["municipality_lat"] = self.municipality_lat
                     if hasattr(self, 'municipality_lon') and self.municipality_lon is not None:

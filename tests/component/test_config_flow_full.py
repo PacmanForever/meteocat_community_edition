@@ -12,6 +12,7 @@ from custom_components.meteocat_community_edition.config_flow import (
     validate_update_times,
     is_valid_time_format,
     CONF_API_KEY,
+    CONF_API_BASE_URL,
     CONF_MODE,
     CONF_COMARCA_CODE,
     CONF_STATION_CODE,
@@ -281,6 +282,7 @@ async def test_flow_mapping_type_meteocat_creates_entry():
     """Selecting 'meteocat' in mapping type creates entry immediately."""
     flow = MeteocatConfigFlow()
     flow.hass = MagicMock()
+    flow.api_key = "test_api_key"  # Add API key
     flow._local_sensors_input = {
         CONF_SENSOR_TEMPERATURE: "sensor.temp",
         CONF_SENSOR_HUMIDITY: "sensor.hum",
@@ -293,6 +295,9 @@ async def test_flow_mapping_type_meteocat_creates_entry():
     assert result["data"][CONF_SENSOR_TEMPERATURE] == "sensor.temp"
     assert result["data"][CONF_SENSOR_HUMIDITY] == "sensor.hum"
     assert result["data"]["mapping_type"] == "meteocat"
+    # Regression test: ensure API key is included in entry data
+    assert result["data"][CONF_API_KEY] == "test_api_key"
+    assert result["data"][CONF_API_BASE_URL] == "https://api.meteocat.cat/release/v1"
 
 @pytest.mark.asyncio
 async def test_flow_mapping_type_custom_leads_to_custom_step():
@@ -315,6 +320,7 @@ async def test_flow_custom_mapping_requires_fields():
     """Custom mapping step requires both fields."""
     flow = MeteocatConfigFlow()
     flow.hass = MagicMock()
+    flow.api_key = "test_api_key"  # Add API key
     flow._local_sensors_input = {
         CONF_SENSOR_TEMPERATURE: "sensor.temp",
         CONF_SENSOR_HUMIDITY: "sensor.hum",
@@ -337,3 +343,6 @@ async def test_flow_custom_mapping_requires_fields():
     assert result4["data"]["mapping_type"] == "custom"
     assert result4["data"]["local_condition_entity"] == "sensor.mycond"
     assert "sunny" in result4["data"]["custom_condition_mapping"].values()
+    # Regression test: ensure API key is included in entry data
+    assert result4["data"][CONF_API_KEY] == "test_api_key"
+    assert result4["data"][CONF_API_BASE_URL] == "https://api.meteocat.cat/release/v1"
