@@ -139,7 +139,7 @@
           "update_time_1": "Primera actualització (format 24h: HH:MM)",
           "update_time_2": "Segona actualització (format 24h: HH:MM)",
           "update_time_3": "Tercera actualització (format 24h: HH:MM)",
-          "mapping_type": "Tipus de mapeig per la condició climàtica"
+          "mapping_type": "Classe de mapeig per la condició climàtica"
         }
       },
       "sensors": {
