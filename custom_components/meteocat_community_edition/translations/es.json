@@ -1,12 +1,4 @@
 {
-  "mapping_example": "{\"0\": \"clear-night\", \"1\": \"sunny\", \"2\": \"cloudy\", \"3\": \"rainy\"}",
-  "mapping_label_local_condition_entity": "Sensor que indica la condición",
-  "mapping_label_custom_condition_mapping": "Mapeo de los valores del sensor con las condiciones climáticas de Home Assistant",
-  "mapping_title": "Condición climática",
-  "mapping_type_label": "Selecciona qué mapeo quieres para la propiedad 'Condición climática' (icono) de tu entidad Tiempo (Weather):",
-  "mapping_option_meteocat": "Meteocat: El valor de condición se tomará automáticamente de la predicción oficial de Meteocat (mapeo fijo, no editable).",
-  "mapping_option_custom": "Personalizado: El valor de la condición (icono) se tomará de un sensor numérico local. Debes definir manualmente el mapeo entre los valores del sensor local y las condiciones soportadas por Home Assistant (ej: sunny, cloudy, rainy, clear-night, etc.).",
-  "mapping_description": "Personaliza la correspondencia de condiciones meteorológicas.",
   "title": "Meteocat (Edición Comunitaria)",
   "config": {
     "step": {
@@ -78,6 +70,27 @@
           "local_condition_entity": "Entidad de condición local (solo si mapeo personalizado)"
         }
       },
+      "condition_mapping_type": {
+        "title": "Condición climática",
+        "description": "Selecciona qué mapeo quieres para la propiedad 'Condición climática' (icono) de tu entidad Tiempo (Weather):",
+        "data": {
+          "mapping_type": "Tipo de mapeo"
+        },
+        "data_description": {
+          "mapping_type": "Personaliza la correspondencia de condiciones meteorológicas."
+        }
+      },
+      "condition_mapping_custom": {
+        "title": "Mapeo personalizado",
+        "description": "Define el mapeo personalizado de condiciones climáticas",
+        "data": {
+          "local_condition_entity": "Sensor que indica la condición",
+          "custom_condition_mapping": "Mapeo de los valores del sensor con las condiciones climáticas de Home Assistant"
+        },
+        "data_description": {
+          "custom_condition_mapping": "{\"0\": \"clear-night\", \"1\": \"sunny\", \"2\": \"cloudy\", \"3\": \"rainy\"}"
+        }
+      },
       "reauth_confirm": {
         "title": "Re-autenticación necesaria",
         "description": "Tu clave API ha expirado o no es válida. Por favor, introduce una nueva clave API válida."
@@ -136,12 +149,6 @@
           "sensor_rain": "Intensidad de lluvia"
         }
       }
-    }
-  },
-  "events": {
-    "meteocat_community_edition_data_updated": {
-      "name": "Datos actualizados",
-      "description": "Se ha completado una actualización de datos de Meteocat (automática o manual)"
     }
   },
   "device_automation": {
