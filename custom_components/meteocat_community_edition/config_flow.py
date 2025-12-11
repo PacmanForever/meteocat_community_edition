@@ -822,16 +822,27 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                     options=user_input,
                 )
                 
-                # If in Local Mode, check if mapping is configured
+                # Handle mapping type for local mode
                 if mode == MODE_LOCAL:
-                    # If no mapping_type is configured yet, go through mapping setup
-                    if "mapping_type" not in self.config_entry.data:
-                        return await self.async_step_condition_mapping_type()
-                    # Otherwise, proceed to sensors configuration
-                    else:
-                        return await self.async_step_sensors()
-                    
-                return self.async_create_entry(title="", data=user_input)
+                    current_mapping_type = self.config_entry.data.get("mapping_type", "meteocat")
+                    selected_mapping_type = user_input.get("mapping_type", current_mapping_type)
+                    if selected_mapping_type == "custom":
+                        return await self.async_step_condition_mapping_custom()
+                    elif selected_mapping_type == "meteocat" and current_mapping_type != "meteocat":
+                        # Update to meteocat
+                        updated_data = dict(self.config_entry.data)
+                        updated_data["mapping_type"] = "meteocat"
+                        updated_data.pop("custom_condition_mapping", None)
+                        updated_data.pop("local_condition_entity", None)
+                        self.hass.config_entries.async_update_entry(
+                            entry=self.config_entry,
+                            data=updated_data
+                        )
+                
+                if mode == MODE_LOCAL:
+                    return await self.async_step_sensors()
+                else:
+                    return self.async_create_entry(title="", data=user_input)
 
         # Prepare description placeholders
         description_placeholders = {}
@@ -844,48 +855,67 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
         # Ensure options is not None
         options = self.config_entry.options or {}
 
+        # Build schema
+        schema_dict = {
+            vol.Optional(
+                CONF_API_BASE_URL,
+                default=options.get(
+                    CONF_API_BASE_URL, DEFAULT_API_BASE_URL
+                ),
+            ): str,
+            vol.Required(
+                CONF_ENABLE_FORECAST_DAILY,
+                default=self.config_entry.data.get(
+                    CONF_ENABLE_FORECAST_DAILY, True
+                ),
+            ): bool,
+            vol.Required(
+                CONF_ENABLE_FORECAST_HOURLY,
+                default=self.config_entry.data.get(
+                    CONF_ENABLE_FORECAST_HOURLY, False
+                ),
+            ): bool,
+            vol.Required(
+                CONF_UPDATE_TIME_1,
+                default=self.config_entry.data.get(
+                    CONF_UPDATE_TIME_1, DEFAULT_UPDATE_TIME_1
+                ),
+            ): str,
+            vol.Optional(
+                CONF_UPDATE_TIME_2,
+                default=self.config_entry.data.get(
+                    CONF_UPDATE_TIME_2, DEFAULT_UPDATE_TIME_2
+                ),
+            ): str,
+            vol.Optional(
+                CONF_UPDATE_TIME_3,
+                default=self.config_entry.data.get(
+                    CONF_UPDATE_TIME_3
+                ) or vol.UNDEFINED,
+            ): str,
+        }
+
+        # Add mapping type selector for local mode
+        if mode == MODE_LOCAL:
+            from homeassistant.helpers import selector
+            current_mapping_type = self.config_entry.data.get("mapping_type", "meteocat")
+            schema_dict[
+                vol.Required(
+                    "mapping_type",
+                    default=current_mapping_type,
+                )
+            ] = selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=[
+                        {"value": "meteocat", "label": "Meteocat"},
+                        {"value": "custom", "label": "Personalitzat"}
+                    ]
+                )
+            )
+
         return self.async_show_form(
             step_id="init",
-            data_schema=vol.Schema(
-                {
-                    vol.Optional(
-                        CONF_API_BASE_URL,
-                        default=options.get(
-                            CONF_API_BASE_URL, DEFAULT_API_BASE_URL
-                        ),
-                    ): str,
-                    vol.Required(
-                        CONF_ENABLE_FORECAST_DAILY,
-                        default=self.config_entry.data.get(
-                            CONF_ENABLE_FORECAST_DAILY, True
-                        ),
-                    ): bool,
-                    vol.Required(
-                        CONF_ENABLE_FORECAST_HOURLY,
-                        default=self.config_entry.data.get(
-                            CONF_ENABLE_FORECAST_HOURLY, False
-                        ),
-                    ): bool,
-                    vol.Required(
-                        CONF_UPDATE_TIME_1,
-                        default=self.config_entry.data.get(
-                            CONF_UPDATE_TIME_1, DEFAULT_UPDATE_TIME_1
-                        ),
-                    ): str,
-                    vol.Optional(
-                        CONF_UPDATE_TIME_2,
-                        default=self.config_entry.data.get(
-                            CONF_UPDATE_TIME_2, DEFAULT_UPDATE_TIME_2
-                        ),
-                    ): str,
-                    vol.Optional(
-                        CONF_UPDATE_TIME_3,
-                        default=self.config_entry.data.get(
-                            CONF_UPDATE_TIME_3
-                        ) or vol.UNDEFINED,
-                    ): str,
-                }
-            ),
+            data_schema=vol.Schema(schema_dict),
             description_placeholders=description_placeholders,
             errors=errors,
         )
