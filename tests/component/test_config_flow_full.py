@@ -329,11 +329,11 @@ async def test_flow_custom_mapping_requires_fields():
     # Only one field
     result2 = await flow.async_step_condition_mapping_custom({"local_condition_entity": "sensor.mycond"})
     assert "custom_condition_mapping" in result2["errors"]
-    result3 = await flow.async_step_condition_mapping_custom({"custom_condition_mapping": '{"0": "sunny"}'})
+    result3 = await flow.async_step_condition_mapping_custom({"custom_condition_mapping": "0: sunny"})
     assert "local_condition_entity" in result3["errors"]
     # Both fields present
-    result4 = await flow.async_step_condition_mapping_custom({"local_condition_entity": "sensor.mycond", "custom_condition_mapping": '{"0": "sunny"}'})
+    result4 = await flow.async_step_condition_mapping_custom({"local_condition_entity": "sensor.mycond", "custom_condition_mapping": "0: sunny"})
     assert result4["type"] == "create_entry"
     assert result4["data"]["mapping_type"] == "custom"
     assert result4["data"]["local_condition_entity"] == "sensor.mycond"
-    assert "sunny" in result4["data"]["custom_condition_mapping"]
+    assert "sunny" in result4["data"]["custom_condition_mapping"].values()

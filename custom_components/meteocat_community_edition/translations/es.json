@@ -67,25 +67,25 @@
           "sensor_dew_point": "Punto de rocío",
           "sensor_apparent_temperature": "Temperatura aparente",
           "sensor_rain": "Intensidad de lluvia",
-          "local_condition_entity": "Entidad de condición local (solo si mapeo personalizado)"
+          "local_condition_entity": "Sensor de condición local (solo si mapeo personalizado)"
         }
       },
       "condition_mapping_type": {
         "title": "Condición climática",
-        "description": "Selecciona qué mapeo quieres para la propiedad 'Condición climática' (icono).",
+        "description": "Selecciona qué mapeo quieres para la propiedad 'Condición climática'.",
         "data": {
           "mapping_type": "Tipo de mapeo"
         },
         "data_description": {
-          "mapping_type": "Meteocat: El valor de condición se tomará automáticamente de la predicción oficial de Meteocat (mapeo fijo, no editable).\n\nPersonalizado: El valor de la condición (icono) se tomará de un sensor numérico local. Será necesario definir en la siguiente pantalla el mapeo entre los valores del sensor local y las condiciones soportadas por Home Assistant (ej: sunny, cloudy, rainy, clear-night, etc.)."
+          "mapping_type": "Meteocat: El valor de condición se tomará automáticamente de la predicción oficial de Meteocat (mapeo fijo, no editable).\n\nPersonalizado: El valor de la condición se tomará de un sensor numérico local. Será necesario definir (en la siguiente pantalla) un mapeo entre los valores del sensor local y las condiciones soportadas por Home Assistant (ej: clear-night, sunny, partlycloudy, cloudy, rainy, pouring, lightning, snowy, fog, etc.)."
         }
       },
       "condition_mapping_custom": {
         "title": "Mapeo de la condición climática",
         "description": "Selecciona el sensor que contiene el valor de la condición y el mapeo que se utilizará.",
         "data": {
-          "local_condition_entity": "Sensor que indica la condición",
-          "custom_condition_mapping": "Mapeo de valores"
+          "local_condition_entity": "Sensor que indica la condición (obligatorio)",
+          "custom_condition_mapping": "Mapeo de valores (obligatorio)"
         }
       },
       "reauth_confirm": {

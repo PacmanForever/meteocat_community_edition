@@ -67,25 +67,25 @@
           "sensor_dew_point": "Punt de rosada",
           "sensor_apparent_temperature": "Temperatura aparent",
           "sensor_rain": "Intensitat de pluja",
-          "local_condition_entity": "Entitat de condició local (només si mapping personalitzat)"
+          "local_condition_entity": "Sensor de condició local (només si mapping personalitzat)"
         }
       },
       "condition_mapping_type": {
         "title": "Condició climàtica",
-        "description": "Selecciona quin mapeig vols per la propietat 'Condició climàtica' (icona).",
+        "description": "Selecciona quin mapeig vols per la propietat 'Condició climàtica'.",
         "data": {
           "mapping_type": "Tipus de mapeig"
         },
         "data_description": {
-          "mapping_type": "Meteocat: El valor de condició s'agafarà automàticament de la predicció oficial de Meteocat (mapeig fix, no editable).\n\nPersonalitzat: El valor de la condició (icona) s'agafarà d'un sensor numèric local. Caldrà definir a la següent pantalla el mapeig entre els valors del sensor local i les condicions suportades per Home Assistant (ex: sunny, cloudy, rainy, clear-night, etc.)."
+          "mapping_type": "Meteocat: El valor de condició s'agafarà automàticament de la predicció oficial de Meteocat (mapeig fix, no editable).\n\nPersonalitzat: El valor de la condició s'agafarà d'un sensor numèric local. Caldrà definir (a la següent pantalla) un mapeig entre els valors del sensor local i les condicions suportades per Home Assistant (ex: clear-night, sunny, partlycloudy, cloudy, rainy, pouring, lightning, snowy, fog, etc.)."
         }
       },
       "condition_mapping_custom": {
         "title": "Mapeig de la condició climàtica",
         "description": "Selecciona el sensor que conté el valor de la condició i el mapeig que es farà servir.",
         "data": {
-          "local_condition_entity": "Sensor que indica la condició",
-          "custom_condition_mapping": "Mapeig de valors"
+          "local_condition_entity": "Sensor que indica la condició (obligatori)",
+          "custom_condition_mapping": "Mapeig de valors (obligatori)"
         }
       },
       "reauth_confirm": {

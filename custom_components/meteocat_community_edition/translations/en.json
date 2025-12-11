@@ -67,25 +67,25 @@
           "sensor_dew_point": "Dew point",
           "sensor_apparent_temperature": "Apparent temperature",
           "sensor_rain": "Rain intensity",
-          "local_condition_entity": "Local condition entity (only if custom mapping)"
+          "local_condition_entity": "Local condition sensor (only if custom mapping)"
         }
       },
       "condition_mapping_type": {
         "title": "Weather Condition",
-        "description": "Select which mapping you want for the 'Weather Condition' (icon) property.",
+        "description": "Select which mapping you want for the 'Weather Condition' property.",
         "data": {
           "mapping_type": "Mapping type"
         },
         "data_description": {
-          "mapping_type": "Meteocat: The condition value will be automatically taken from the official Meteocat forecast (fixed mapping, not editable).\n\nCustom: The condition (icon) value will be taken from a local numeric sensor. You will need to define in the next screen the mapping between the local sensor values and the conditions supported by Home Assistant (e.g.: sunny, cloudy, rainy, clear-night, etc.)."
+          "mapping_type": "Meteocat: The condition value will be automatically taken from the official Meteocat forecast (fixed mapping, not editable).\n\nCustom: The condition value will be taken from a local numeric sensor. You will need to define (in the next screen) a mapping between the local sensor values and the conditions supported by Home Assistant (e.g.: clear-night, sunny, partlycloudy, cloudy, rainy, pouring, lightning, snowy, fog, etc.)."
         }
       },
       "condition_mapping_custom": {
         "title": "Weather condition mapping",
         "description": "Select the sensor that contains the condition value and the mapping to be used.",
         "data": {
-          "local_condition_entity": "Sensor indicating the condition",
-          "custom_condition_mapping": "Value mapping"
+          "local_condition_entity": "Sensor indicating the condition (required)",
+          "custom_condition_mapping": "Value mapping (required)"
         }
       },
       "reauth_confirm": {

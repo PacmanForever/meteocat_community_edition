@@ -171,7 +171,7 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         from homeassistant.helpers import selector
         import voluptuous as vol
         errors = {}
-        example_mapping = self.hass.data.get(DOMAIN, {}).get("mapping_example", '{"condition_0": "clear-night", "condition_1": "sunny", "condition_2": "cloudy", "condition_3": "rainy"}')
+        example_mapping = self.hass.data.get(DOMAIN, {}).get("mapping_example", "0: clear-night\n1: sunny\n2: partlycloudy\n3: cloudy\n4: rainy\n5: pouring\n6: lightning\n7: lightning-rainy\n8: snowy\n9: snowy-rainy\n10: fog\n11: hail\n12: windy\n13: windy-variant\n14: exceptional")
         if user_input is not None:
             local_entity = user_input.get("local_condition_entity")
             custom_mapping = user_input.get("custom_condition_mapping")
@@ -180,24 +180,30 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             if not custom_mapping:
                 errors["custom_condition_mapping"] = "required"
             if not errors:
-                latest_input = getattr(self, '_local_sensors_input', None) or getattr(self, '_update_times_input', {})
-                entry_data = dict(latest_input)
-                entry_data["mapping_type"] = "custom"
-                entry_data["custom_condition_mapping"] = custom_mapping
-                entry_data["local_condition_entity"] = local_entity
-                if hasattr(self, 'municipality_lat') and self.municipality_lat is not None:
-                    entry_data["municipality_lat"] = self.municipality_lat
-                if hasattr(self, 'municipality_lon') and self.municipality_lon is not None:
-                    entry_data["municipality_lon"] = self.municipality_lon
-                if hasattr(self, 'provincia_code') and self.provincia_code:
-                    entry_data["provincia_code"] = self.provincia_code
-                if hasattr(self, 'provincia_name') and self.provincia_name:
-                    entry_data["provincia_name"] = self.provincia_name
-                return self.async_create_entry(
-                    title=self.municipality_name,
-                    data=entry_data,
-                    options={CONF_API_BASE_URL: self.api_base_url},
-                )
+                # Parse the mapping
+                try:
+                    parsed_mapping = self._parse_condition_mapping(custom_mapping)
+                except ValueError:
+                    errors["custom_condition_mapping"] = "invalid_format"
+                else:
+                    latest_input = getattr(self, '_local_sensors_input', None) or getattr(self, '_update_times_input', {})
+                    entry_data = dict(latest_input)
+                    entry_data["mapping_type"] = "custom"
+                    entry_data["custom_condition_mapping"] = parsed_mapping
+                    entry_data["local_condition_entity"] = local_entity
+                    if hasattr(self, 'municipality_lat') and self.municipality_lat is not None:
+                        entry_data["municipality_lat"] = self.municipality_lat
+                    if hasattr(self, 'municipality_lon') and self.municipality_lon is not None:
+                        entry_data["municipality_lon"] = self.municipality_lon
+                    if hasattr(self, 'provincia_code') and self.provincia_code:
+                        entry_data["provincia_code"] = self.provincia_code
+                    if hasattr(self, 'provincia_name') and self.provincia_name:
+                        entry_data["provincia_name"] = self.provincia_name
+                    return self.async_create_entry(
+                        title=self.municipality_name,
+                        data=entry_data,
+                        options={CONF_API_BASE_URL: self.api_base_url},
+                    )
 
         schema = vol.Schema({
             vol.Required(
@@ -217,6 +223,23 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors=errors,
             description_placeholders={"description": "mapping_description"},
         )
+
+    def _parse_condition_mapping(self, text: str) -> dict[str, str]:
+        """Parse condition mapping from text format: key: value"""
+        lines = text.strip().split('\n')
+        mapping = {}
+        for line in lines:
+            line = line.strip()
+            if not line or not ':' in line:
+                continue
+            key, value = line.split(':', 1)
+            key = key.strip()
+            value = value.strip()
+            if key and value:
+                mapping[key] = value
+        if not mapping:
+            raise ValueError("Empty mapping")
+        return mapping
 
     async def async_step_reauth(
         self, entry_data: dict[str, Any]
