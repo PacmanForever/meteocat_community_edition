@@ -150,7 +150,7 @@
         }
       },
       "sensors": {
-        "title": "Selección de entidades meteorológicas locales",
+        "title": "Sensores locales",
         "description": "Las tarjetas meteorológicas no siempre muestran todos los valores.",
         "data": {
           "sensor_temperature": "Temperatura",

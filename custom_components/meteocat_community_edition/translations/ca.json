@@ -150,7 +150,7 @@
         }
       },
       "sensors": {
-        "title": "Selecció d'entitats meteorològiques locals",
+        "title": "Sensors locals",
         "description": "Les targetes meteorològiques no sempre mostren tots els valors.",
         "data": {
           "sensor_temperature": "Temperatura",

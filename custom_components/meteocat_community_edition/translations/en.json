@@ -150,7 +150,7 @@
         }
       },
       "sensors": {
-        "title": "Local weather entity selection",
+        "title": "Local sensors",
         "description": "Weather cards do not always show all values.",
         "data": {
           "sensor_temperature": "Temperature",

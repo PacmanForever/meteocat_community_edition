@@ -364,12 +364,6 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Handle the initial step - ask for API key and optionally endpoint."""
         errors: dict[str, str] = {}
 
-        # For reconfigure, skip user input and go directly to mode selection
-        if self.entry:
-            self.api_key = self.entry.data.get(CONF_API_KEY, "")
-            self.api_base_url = self.entry.data.get(CONF_API_BASE_URL, DEFAULT_API_BASE_URL)
-            return await self.async_step_mode()
-
         if user_input is not None:
             self.api_key = user_input[CONF_API_KEY]
             # Get endpoint URL (default to production if not provided or empty, or from existing entry)
@@ -400,12 +394,15 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             step_id="user",
             data_schema=vol.Schema(
                 {
-                    vol.Required(CONF_API_KEY): str,
+                    vol.Required(
+                        CONF_API_KEY,
+                        default=self.entry.data.get(CONF_API_KEY, "") if self.entry else ""
+                    ): str,
                 } | {
                     vol.Optional(
                         CONF_API_BASE_URL,
-                        default=DEFAULT_API_BASE_URL,
-                        description={"suggested_value": DEFAULT_API_BASE_URL}
+                        default=self.entry.data.get(CONF_API_BASE_URL, DEFAULT_API_BASE_URL) if self.entry else DEFAULT_API_BASE_URL,
+                        description={"suggested_value": self.entry.data.get(CONF_API_BASE_URL, DEFAULT_API_BASE_URL) if self.entry else DEFAULT_API_BASE_URL}
                     ): str,
                 }
             ),
@@ -1106,17 +1103,13 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
         data = self.config_entry.data
         
         if user_input is not None:
-            # Validate required fields - only if they are being changed and would become empty
+            # Validate required fields
             temp_sensor = user_input.get(CONF_SENSOR_TEMPERATURE)
             hum_sensor = user_input.get(CONF_SENSOR_HUMIDITY)
-            current_temp = data.get(CONF_SENSOR_TEMPERATURE)
-            current_hum = data.get(CONF_SENSOR_HUMIDITY)
             
-            # Temperature is required if it's being changed and would become empty
-            if CONF_SENSOR_TEMPERATURE in user_input and (not temp_sensor or temp_sensor == "") and current_temp:
+            if not temp_sensor or temp_sensor == "":
                 errors[CONF_SENSOR_TEMPERATURE] = "required"
-            # Humidity is required if it's being changed and would become empty  
-            if CONF_SENSOR_HUMIDITY in user_input and (not hum_sensor or hum_sensor == "") and current_hum:
+            if not hum_sensor or hum_sensor == "":
                 errors[CONF_SENSOR_HUMIDITY] = "required"
                 
             if not errors:
@@ -1262,12 +1255,13 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
         example_mapping = self.hass.data.get(DOMAIN, {}).get("mapping_example", "0: clear-night\n1: sunny\n2: partlycloudy\n3: cloudy\n4: rainy\n5: pouring\n6: lightning\n7: lightning-rainy\n8: snowy\n9: snowy-rainy\n10: fog\n11: hail\n12: windy\n13: windy-variant\n14: exceptional")
         
         if user_input is not None:
+            # Validate required fields
             local_entity = user_input.get("local_condition_entity")
             custom_mapping = user_input.get("custom_condition_mapping")
             
-            if not local_entity:
+            if not local_entity or local_entity == "":
                 errors["local_condition_entity"] = "required"
-            if not custom_mapping:
+            if not custom_mapping or custom_mapping == "":
                 errors["custom_condition_mapping"] = "required"
                 
             if not errors:
@@ -1294,16 +1288,15 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                     return self.async_create_entry(title="", data=self.config_entry.options)
 
         schema = vol.Schema({
-            vol.Required(
+            vol.Optional(
                 "local_condition_entity",
-                default=current_entity
+                description={"suggested_value": current_entity}
             ): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="sensor", multiple=False)
             ),
-            vol.Required(
+            vol.Optional(
                 "custom_condition_mapping",
-                default=current_mapping_str or example_mapping,
-                description=current_mapping_str or example_mapping
+                description={"suggested_value": current_mapping_str or example_mapping}
             ): selector.ObjectSelector(),
         })
         return self.async_show_form(
