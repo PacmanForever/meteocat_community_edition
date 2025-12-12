@@ -30,19 +30,19 @@ def test_options_flow_description_content():
     # Catalan
     ca = load_translation("ca")
     desc_ca = ca["options"]["step"]["init"]["description"]
-    assert desc_ca == "{measurements_info}"
+    assert desc_ca == "Indica a quines hores vols que s'actualitzi la predicció.'"
     assert "opcions avançades" not in desc_ca
     
     # Spanish
     es = load_translation("es")
     desc_es = es["options"]["step"]["init"]["description"]
-    assert desc_es == "{measurements_info}"
+    assert desc_es == "Indica a qué horas quieres que se actualice.'"
     assert "opciones avanzadas" not in desc_es
     
     # English
     en = load_translation("en")
     desc_en = en["options"]["step"]["init"]["description"]
-    assert desc_en == "{measurements_info}"
+    assert desc_en == "Specify at what times you want the forecast to be updated.'"
     assert "advanced options" not in desc_en
 
 
@@ -52,17 +52,17 @@ def test_options_flow_title_content():
     # Catalan
     ca = load_translation("ca")
     title_ca = ca["options"]["step"]["init"]["title"]
-    assert title_ca == "Configuració estació externa"
+    assert title_ca == "Configuració de l'estació externa"
     
     # Spanish
     es = load_translation("es")
     title_es = es["options"]["step"]["init"]["title"]
-    assert title_es == "Configuración estación externa"
+    assert title_es == "Configuración de la estación externa"
     
     # English
     en = load_translation("en")
     title_en = en["options"]["step"]["init"]["title"]
-    assert title_en == "External station configuration"
+    assert title_en == "External Station Configuration"
 
 
 def test_update_times_title_and_description():
@@ -72,22 +72,22 @@ def test_update_times_title_and_description():
     ca = load_translation("ca")
     title_ca = ca["config"]["step"]["update_times"]["title"]
     desc_ca = ca["config"]["step"]["update_times"]["description"]
-    assert title_ca == "Configuració de prediccions"
-    assert desc_ca == ""
+    assert title_ca == "Configuració de la predicció Meteocat"
+    assert desc_ca == "Indica a quines hores vols que s'actualitzi.'"
     
     # Spanish
     es = load_translation("es")
     title_es = es["config"]["step"]["update_times"]["title"]
     desc_es = es["config"]["step"]["update_times"]["description"]
-    assert title_es == "Configuración de predicciones"
-    assert desc_es == ""
+    assert title_es == "Configuración de la predicción Meteocat"
+    assert desc_es == "Indica a qué horas quieres que se actualice.'"
     
     # English
     en = load_translation("en")
     title_en = en["config"]["step"]["update_times"]["title"]
     desc_en = en["config"]["step"]["update_times"]["description"]
-    assert title_en == "Forecast Configuration"
-    assert desc_en == ""
+    assert title_en == "Meteocat Forecast Configuration"
+    assert desc_en == "Specify at what times you want the forecast to be updated.'"
 
 
 def test_condition_mapping_custom_texts():
@@ -124,9 +124,9 @@ def test_condition_mapping_custom_texts():
     entity_label_en = en["config"]["step"]["condition_mapping_custom"]["data"]["local_condition_entity"]
     mapping_label_en = en["config"]["step"]["condition_mapping_custom"]["data"]["custom_condition_mapping"]
     
-    assert title_en == "Configuration of the weather condition mapping"
+    assert title_en == "Weather Condition Mapping Configuration"
     assert desc_en == ""
-    assert entity_label_en == "Sensor indicating the condition"
+    assert entity_label_en == "Sensor that indicates the condition"
     assert mapping_label_en == "Value mapping"
 
 

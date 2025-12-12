@@ -5,6 +5,11 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.20] - 2025-12-12
+
+### Notes de la versió
+- Versió de manteniment amb millores de validació UI i estabilitat.
+
 ## [1.2.19] - 2025-12-12
 
 ### Corregit

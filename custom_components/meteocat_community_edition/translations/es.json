@@ -1,9 +1,11 @@
 {
   "title": "Meteocat (Edición Comunitaria)",
   "config": {
+    "mode_external_label": "Una estación EXTERNA (Medidas y predicción de Meteocat)",
+    "mode_local_label": "Una estación LOCAL (Medidas locales y predicción de Meteocat)",
     "step": {
       "user": {
-        "title": "Acceso a la API",
+        "title": "Configuración de la conexión a la API",
         "description": "",
         "data": {
           "api_key": "Clave API",
@@ -11,10 +13,10 @@
         }
       },
       "mode": {
-        "title": "Nueva estación",
+        "title": "Configura la nueva estación",
         "description": "",
         "data": {
-          "mode": "Clase de estación"
+          "mode": "¿Qué clase de estación quieres crear?"
         }
       },
       "comarca": {
@@ -32,62 +34,60 @@
         }
       },
       "municipality": {
-        "title": "Selecciona el municipio",
+        "title": "Selecciona un municipio",
         "description": "",
         "data": {
           "municipality_code": "Municipio"
         }
       },
       "update_times": {
-        "title": "Configuración de predicciones",
-        "description": "",
+        "title": "Configuración de la predicción Meteocat",
+        "description": "Indica a qué horas quieres que se actualice.'",
         "data": {
-          "measurements_label": "Medidas",
-          "enable_forecast_daily": "Predicción diaria",
-          "enable_forecast_hourly": "Predicción horaria",
-          "update_time_1": "Primera actualización (Formato 24h: HH:MM)",
-          "update_time_2": "Segunda actualización (Formato 24h: HH:MM)",
-          "update_time_3": "Tercera actualización (Formato 24h: HH:MM)"
+          "update_time_1": "Primera hora de actualización (Formato 24h: HH:MM)",
+          "update_time_2": "Segunda hora de actualización (Formato 24h: HH:MM)",
+          "update_time_3": "Tercera hora de actualización (Formato 24h: HH:MM)",
+          "enable_forecast_daily": "Quiero la predicción diaria",
+          "enable_forecast_hourly": "Quiero la predicción horaria"
         }
       },
       "local_sensors": {
-        "title": "Sensores Locales",
-        "description": "Las tarjetas meteorológicas no siempre muestran todos los valores.",
+        "title": "Configuración de los sensores locales",
+        "description": "Las tarjetas meteorológicas no siempre muestran todos estos valores.",
         "data": {
           "sensor_temperature": "Temperatura",
-          "sensor_humidity": "Humedad",
+          "sensor_humidity": "Humedad relativa del aire",
           "sensor_pressure": "Presión atmosférica",
           "sensor_wind_speed": "Velocidad del viento",
-          "sensor_wind_bearing": "Dirección del viento (numérico/grados)",
-          "sensor_wind_gust": "Ráfaga de viento",
+          "sensor_wind_bearing": "Dirección del viento (grados)",
+          "sensor_wind_gust": "Ráfaga de viento máxima",
           "sensor_visibility": "Visibilidad",
           "sensor_uv_index": "Índice UV",
           "sensor_ozone": "Ozono",
           "sensor_cloud_coverage": "Cobertura de nubes",
           "sensor_dew_point": "Punto de rocío",
-          "sensor_apparent_temperature": "Temperatura aparente",
-          "sensor_rain": "Intensidad de lluvia",
-          "local_condition_entity": "Sensor de condición local (solo si mapeo personalizado)"
+          "sensor_apparent_temperature": "Temperatura de sensación",
+          "sensor_rain": "Intensidad de lluvia"
         }
       },
       "condition_mapping_type": {
-        "title": "Condición climática",
+        "title": "Configuración de la condición climática",
         "description": "",
         "data": {
           "mapping_type": "Selecciona qué mapeo quieres para la propiedad 'Condición climática' (Icono)."
         },
         "data_description": {
-          "mapping_type": "Meteocat: El valor de condición se tomará automáticamente de la predicción oficial de Meteocat (mapeo fijo, no editable).\n\nPersonalizado: El valor de la condición se tomará de un sensor numérico local. Será necesario definir (en la siguiente pantalla) un mapeo entre los valores del sensor local y las condiciones soportadas por Home Assistant (ej: clear-night, sunny, partlycloudy, cloudy, rainy, pouring, lightning, snowy, fog, etc.)."
+          "mapping_type": "Meteocat\nEl valor de condición se tomará automáticamente de la predicción oficial de Meteocat (mapeo fijo, no editable).\n\nPersonalizado\nEl valor de la condición se tomará de un sensor numérico local. Será necesario definir (en la siguiente pantalla) un mapeo entre los valores del sensor local y las condiciones soportadas por Home Assistant (ej: clear-night, sunny, partlycloudy, cloudy, rainy, pouring, lightning, snowy, fog, etc.)."
         }
       },
       "condition_mapping_type_local": {
-        "title": "Configuración climática",
+        "title": "Configuración de la condición climática",
         "description": "",
         "data": {
           "mapping_type": "Selecciona qué mapeo quieres para la propiedad 'Condición climática' (Icono)."
         },
         "data_description": {
-          "mapping_type": "Meteocat: El valor de condición se tomará automáticamente de la predicción oficial de Meteocat (mapeo fijo, no editable).\n\nPersonalizado: El valor de la condición se tomará de un sensor numérico local. Será necesario definir (en la siguiente pantalla) un mapeo entre los valores del sensor local y las condiciones soportadas por Home Assistant (ej: clear-night, sunny, partlycloudy, cloudy, rainy, pouring, lightning, snowy, fog, etc.)."
+          "mapping_type": "Meteocat\nEl valor de condición se tomará automáticamente de la predicción oficial de Meteocat (mapeo fijo, no editable).\n\nPersonalizado\nEl valor de la condición se tomará de un sensor numérico local. Será necesario definir (en la siguiente pantalla) un mapeo entre los valores del sensor local y las condiciones soportadas por Home Assistant (ej: clear-night, sunny, partlycloudy, cloudy, rainy, pouring, lightning, snowy, fog, etc.)."
         }
       },
       "condition_mapping_custom": {
@@ -112,7 +112,7 @@
       "no_station_selected": "Debes seleccionar una estación",
       "invalid_time_format": "Formato de hora no válido. Utiliza el formato 24h: HH:MM (ejemplo: 06:00 o 14:30)",
       "times_must_differ": "Las horas de actualización deben ser diferentes",
-      "must_select_one_forecast": "Debes seleccionar al menos un tipo de predicción (diaria u horaria) en modo municipio",
+      "must_select_one_forecast": "Debes seleccionar al menos un tipo de predicción (diaria u horaria)",
       "required": "Este campo es obligatorio",
       "invalid_auth": "Clave API no válida. Por favor, comprueba que la clave API sea correcta.",
       "unknown": "Error desconocido"
@@ -125,46 +125,43 @@
   "options": {
     "step": {
       "init": {
-        "title": "Configuración estación externa",
-        "description": "{measurements_info}",
+        "title": "Configuración de la estación externa",
+        "description": "Indica a qué horas quieres que se actualice.'",
         "data": {
-          "update_time_1": "Primera actualización (Formato 24h: HH:MM)",
-          "update_time_2": "Segunda actualización (Formato 24h: HH:MM)",
-          "update_time_3": "Tercera actualización (Formato 24h: HH:MM)",
-          "enable_forecast_daily": "Predicción diaria",
-          "enable_forecast_hourly": "Predicción horaria"
+          "update_time_1": "Primera hora de actualización (Formato 24h: HH:MM)",
+          "update_time_2": "Segunda hora de actualización (Formato 24h: HH:MM)",
+          "update_time_3": "Tercera hora de actualización (Formato 24h: HH:MM)",
+          "enable_forecast_daily": "Quiero la predicción diaria",
+          "enable_forecast_hourly": "Quiero la predicción horaria"
         }
       },
       "init_local": {
-        "title": "Configuración estación local",
-        "description": "{measurements_info}",
+        "title": "Configuración de la estación local",
+        "description": "Indica a qué horas quieres que se actualice.'",
         "data": {
-          "api_base_url": "URL base de la API (deja por defecto para producción)",
-          "measurements_label": "Medidas",
-          "enable_forecast_daily": "Predicción diaria",
-          "enable_forecast_hourly": "Predicción horaria",
-          "update_time_1": "Primera actualización (Formato 24h: HH:MM)",
-          "update_time_2": "Segunda actualización (Formato 24h: HH:MM)",
-          "update_time_3": "Tercera actualización (Formato 24h: HH:MM)",
-          "mapping_type": "Tipo de mapeo para la condición climática"
+          "update_time_1": "Primera hora de actualización (Formato 24h: HH:MM)",
+          "update_time_2": "Segunda hora de actualización (Formato 24h: HH:MM)",
+          "update_time_3": "Tercera hora de actualización (Formato 24h: HH:MM)",
+          "enable_forecast_daily": "Quiero la predicción diaria",
+          "enable_forecast_hourly": "Quiero la predicción horaria"
         }
       },
       "sensors": {
-        "title": "Sensores locales",
-        "description": "Las tarjetas meteorológicas no siempre muestran todos los valores.",
+        "title": "Configura los sensores locales",
+        "description": "Las tarjetas meteorológicas no siempre muestran todos estos valores'.",
         "data": {
           "sensor_temperature": "Temperatura",
-          "sensor_humidity": "Humedad",
+          "sensor_humidity": "Humedad relativa del aire",
           "sensor_pressure": "Presión atmosférica",
           "sensor_wind_speed": "Velocidad del viento",
-          "sensor_wind_bearing": "Dirección del viento (numérico/grados)",
-          "sensor_wind_gust": "Ráfaga de viento",
+          "sensor_wind_bearing": "Dirección del viento (grados)",
+          "sensor_wind_gust": "Ráfaga de viento máxima",
           "sensor_visibility": "Visibilidad",
           "sensor_uv_index": "Índice UV",
           "sensor_ozone": "Ozono",
           "sensor_cloud_coverage": "Cobertura de nubes",
           "sensor_dew_point": "Punto de rocío",
-          "sensor_apparent_temperature": "Temperatura aparente",
+          "sensor_apparent_temperature": "Temperatura de sensación",
           "sensor_rain": "Intensidad de lluvia"
         }
       },
@@ -190,7 +187,7 @@
         "name": "Temperatura"
       },
       "humidity": {
-        "name": "Humedad"
+        "name": "Humedad relativa"
       },
       "pressure": {
         "name": "Presión"
@@ -205,7 +202,7 @@
         "name": "Precipitación"
       },
       "solar_radiation": {
-        "name": "Radiación solar"
+        "name": "Radiación solar (UV)"
       },
       "forecast_hourly": {
         "name": "Predicción Horaria"
@@ -250,9 +247,3 @@
     }
   }
 }
-
-
-
-
-
-

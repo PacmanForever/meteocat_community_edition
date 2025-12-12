@@ -1324,13 +1324,13 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                     return self.async_create_entry(title="", data=self.config_entry.options)
 
         schema = vol.Schema({
-            vol.Optional(
+            vol.Required(
                 "local_condition_entity",
                 description={"suggested_value": current_entity}
             ): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="sensor", multiple=False)
             ),
-            vol.Optional(
+            vol.Required(
                 "custom_condition_mapping",
                 description={"suggested_value": current_mapping_str or example_mapping}
             ): selector.ObjectSelector(),

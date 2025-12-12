@@ -30,19 +30,19 @@ def test_options_flow_description_content():
     # Catalan
     ca = load_translation("ca")
     desc_ca = ca["options"]["step"]["init"]["description"]
-    assert desc_ca == "{measurements_info}"
+    assert desc_ca == "Indica a quines hores vols que s'actualitzi la predicció.'"
     assert "opcions avançades" not in desc_ca
     
     # Spanish
     es = load_translation("es")
     desc_es = es["options"]["step"]["init"]["description"]
-    assert desc_es == "{measurements_info}"
+    assert desc_es == "Indica a qué horas quieres que se actualice.'"
     assert "opciones avanzadas" not in desc_es
     
     # English
     en = load_translation("en")
     desc_en = en["options"]["step"]["init"]["description"]
-    assert desc_en == "{measurements_info}"
+    assert desc_en == "Specify at what times you want the forecast to be updated.'"
     assert "advanced options" not in desc_en
 
 def test_options_flow_sensors_labels():
