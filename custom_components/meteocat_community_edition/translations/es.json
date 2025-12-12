@@ -15,10 +15,6 @@
         "description": "Estación Externa: Mediciones y predicción de Meteocat\n\nEstación Local: Mediciones locales y predicción de Meteocat",
         "data": {
           "mode": "¿Qué clase de estación quieres crear?"
-        },
-        "data_options": {
-          "external": "Externa",
-          "local": "Local"
         }
       },
       "comarca": {
