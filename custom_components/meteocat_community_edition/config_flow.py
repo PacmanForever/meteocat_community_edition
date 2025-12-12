@@ -364,12 +364,16 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Handle the initial step - ask for API key and optionally endpoint."""
         errors: dict[str, str] = {}
 
+        # For reconfigure, skip user input and go directly to mode selection
+        if self.entry:
+            self.api_key = self.entry.data.get(CONF_API_KEY, "")
+            self.api_base_url = self.entry.data.get(CONF_API_BASE_URL, DEFAULT_API_BASE_URL)
+            return await self.async_step_mode()
+
         if user_input is not None:
             self.api_key = user_input[CONF_API_KEY]
             # Get endpoint URL (default to production if not provided or empty, or from existing entry)
             endpoint_url = user_input.get(CONF_API_BASE_URL, "").strip()
-            if not endpoint_url and self.entry:
-                endpoint_url = self.entry.data.get(CONF_API_BASE_URL, DEFAULT_API_BASE_URL)
             self.api_base_url = endpoint_url if endpoint_url else DEFAULT_API_BASE_URL
             
             # Strip whitespace from API key (common user error)
@@ -396,17 +400,14 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             step_id="user",
             data_schema=vol.Schema(
                 {
-                    vol.Required(
-                        CONF_API_KEY,
-                        default=self.entry.data.get(CONF_API_KEY, "") if self.entry else ""
-                    ): str,
-                } | ({
+                    vol.Required(CONF_API_KEY): str,
+                } | {
                     vol.Optional(
                         CONF_API_BASE_URL,
                         default=DEFAULT_API_BASE_URL,
                         description={"suggested_value": DEFAULT_API_BASE_URL}
                     ): str,
-                } if self.entry is None else {})
+                }
             ),
             errors=errors,
         )
@@ -1039,6 +1040,7 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
             step_id="init_local",
             data_schema=vol.Schema(schema_dict),
             description_placeholders=description_placeholders,
+            title_placeholders=title_placeholders,
             errors=errors,
         )
 
