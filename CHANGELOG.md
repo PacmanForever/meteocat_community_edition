@@ -5,7 +5,7 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
-## [1.2.14] - 2025-12-12
+## [1.2.15] - 2025-12-12
 
 ### Millorat
 - **Flux d'edició d'estacions locals**: Reordenat el flux d'opcions per coincidir amb el de creació (sensors → tipus de mapping)
@@ -16,7 +16,7 @@ i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 ### Corregit
 - **Ordre del flux d'opcions**: Les proves ara reflecteixen correctament l'ordre sensors → mapping type
 
-## [1.2.13] - 2025-12-11
+## [1.2.14] - 2025-12-12
 
 ### Millorat
 - **Validació de camps obligatoris**: Millorada la validació dels sensors de temperatura i humitat en les pantalles de creació i edició
