@@ -366,8 +366,10 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             self.api_key = user_input[CONF_API_KEY]
-            # Get endpoint URL (default to production if not provided or empty)
+            # Get endpoint URL (default to production if not provided or empty, or from existing entry)
             endpoint_url = user_input.get(CONF_API_BASE_URL, "").strip()
+            if not endpoint_url and self.entry:
+                endpoint_url = self.entry.data.get(CONF_API_BASE_URL, DEFAULT_API_BASE_URL)
             self.api_base_url = endpoint_url if endpoint_url else DEFAULT_API_BASE_URL
             
             # Strip whitespace from API key (common user error)
@@ -394,13 +396,17 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             step_id="user",
             data_schema=vol.Schema(
                 {
-                    vol.Required(CONF_API_KEY): str,
+                    vol.Required(
+                        CONF_API_KEY,
+                        default=self.entry.data.get(CONF_API_KEY, "") if self.entry else ""
+                    ): str,
+                } | ({
                     vol.Optional(
                         CONF_API_BASE_URL,
                         default=DEFAULT_API_BASE_URL,
                         description={"suggested_value": DEFAULT_API_BASE_URL}
                     ): str,
-                }
+                } if self.entry is None else {})
             ),
             errors=errors,
         )
@@ -845,23 +851,6 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                     options=user_input,
                 )
                 
-                # Handle mapping type for local mode
-                if mode == MODE_LOCAL:
-                    current_mapping_type = self.config_entry.data.get("mapping_type", "meteocat")
-                    selected_mapping_type = user_input.get("mapping_type", current_mapping_type)
-                    if selected_mapping_type == "custom":
-                        return await self.async_step_condition_mapping_custom()
-                    elif selected_mapping_type == "meteocat" and current_mapping_type != "meteocat":
-                        # Update to meteocat
-                        updated_data = dict(self.config_entry.data)
-                        updated_data["mapping_type"] = "meteocat"
-                        updated_data.pop("custom_condition_mapping", None)
-                        updated_data.pop("local_condition_entity", None)
-                        self.hass.config_entries.async_update_entry(
-                            entry=self.config_entry,
-                            data=updated_data
-                        )
-                
                 if mode == MODE_LOCAL:
                     return await self.async_step_sensors()
                 else:
@@ -911,27 +900,12 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
 
         # Add mapping type selector for local mode
         if mode == MODE_LOCAL:
-            from homeassistant.helpers import selector
-            current_mapping_type = self.config_entry.data.get("mapping_type", "meteocat")
-            schema_dict[
-                vol.Required(
-                    "mapping_type",
-                    default=current_mapping_type
-                )
-            ] = selector.SelectSelector(
-                selector.SelectSelectorConfig(
-                    options=[
-                        {"value": "meteocat", "label": "Meteocat"},
-                        {"value": "custom", "label": "Personalitzat"}
-                    ]
-                )
-            )
+            pass  # Mapping type moved to separate step
 
         # Prepare title placeholders
         title_placeholders = {}
         if mode == MODE_LOCAL:
-            municipality_name = self.config_entry.data.get(CONF_MUNICIPALITY_NAME, "")
-            title_placeholders["name"] = municipality_name
+            title_placeholders["name"] = "estació local"
         else:
             station_name = self.config_entry.data.get(CONF_STATION_NAME, "")
             station_code = self.config_entry.data.get(CONF_STATION_CODE, "")
@@ -994,7 +968,7 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                 
                 # For local mode, go to mapping type selection
                 if mode == MODE_LOCAL:
-                    return await self.async_step_condition_mapping_type_local()
+                    return await self.async_step_sensors()
                 else:
                     return self.async_create_entry(title="", data=user_input)
 
@@ -1088,7 +1062,7 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                     entry=self.config_entry,
                     data=updated_data
                 )
-                return await self.async_step_sensors()
+                return self.async_create_entry(title="", data=self.config_entry.options)
                 
             elif mapping_type == "custom":
                 return await self.async_step_condition_mapping_custom()
@@ -1171,7 +1145,7 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                         CONF_SENSOR_RAIN: get_entity_id(CONF_SENSOR_RAIN),
                     }
                 )
-                return self.async_create_entry(title="", data=self.config_entry.options)
+                return await self.async_step_condition_mapping_type_local()
 
         return self.async_show_form(
             step_id="sensors",
@@ -1315,8 +1289,7 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                         data=updated_data
                     )
                     
-                    # Always go to sensors configuration after custom mapping setup
-                    return await self.async_step_sensors()
+                    return self.async_create_entry(title="", data=self.config_entry.options)
 
         schema = vol.Schema({
             vol.Required(
