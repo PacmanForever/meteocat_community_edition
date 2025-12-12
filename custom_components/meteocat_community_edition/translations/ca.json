@@ -1,8 +1,6 @@
 {
   "title": "Meteocat (Edició Comunitària)",
   "config": {
-    "mode_external_label": "Una estació EXTERNA (Mesures i predicció de Meteocat)",
-    "mode_local_label": "Una estació LOCAL (Mesures locals i predicció de Meteocat)",
     "step": {
       "user": {
         "title": "Configuració de la connexió a l'API",
@@ -14,9 +12,13 @@
       },
       "mode": {
         "title": "Configura la nova estació",
-        "description": "",
+        "description": "Estació Externa: Mesures i predicció de Meteocat\n\nEstació Local: Mesures locals i predicció de Meteocat",
         "data": {
           "mode": "Quina classe d'estació vols crear?"
+        },
+        "data_options": {
+          "external": "Externa",
+          "local": "Local"
         }
       },
       "comarca": {

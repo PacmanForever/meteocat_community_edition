@@ -1,8 +1,6 @@
 {
   "title": "Meteocat (Community Edition)",
   "config": {
-    "mode_external_label": "An EXTERNAL station (Meteocat measurements and forecast)",
-    "mode_local_label": "A LOCAL station (Local measurements and Meteocat forecast)",
     "step": {
       "user": {
         "title": "API Connection Configuration",
@@ -14,9 +12,13 @@
       },
       "mode": {
         "title": "Configure the new station",
-        "description": "",
+        "description": "External Station: Measurements and forecast from Meteocat\n\nLocal Station: Local measurements and forecast from Meteocat",
         "data": {
-          "mode": "What type of station do you want to create?"
+          "mode": "What class of station do you want to create?"
+        },
+        "data_options": {
+          "external": "External",
+          "local": "Local"
         }
       },
       "comarca": {

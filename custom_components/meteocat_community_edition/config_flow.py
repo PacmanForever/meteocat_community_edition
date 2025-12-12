@@ -417,13 +417,19 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             self.mode = user_input[CONF_MODE]
             return await self.async_step_comarca()
 
+        translations = await self.hass.config_entries.flow.async_get_translations(
+            self.handler, self.flow_id
+        )
+        external_label = translations.get("config", {}).get("step", {}).get("mode", {}).get("data_options", {}).get("external", "Externa")
+        local_label = translations.get("config", {}).get("step", {}).get("mode", {}).get("data_options", {}).get("local", "Local")
+
         return self.async_show_form(
             step_id="mode",
             data_schema=vol.Schema(
                 {
                     vol.Required(CONF_MODE, default=MODE_EXTERNAL): vol.In({
-                        MODE_EXTERNAL: MODE_EXTERNAL_LABEL,
-                        MODE_LOCAL: MODE_LOCAL_LABEL,
+                        MODE_EXTERNAL: external_label,
+                        MODE_LOCAL: local_label,
                     }),
                 }
             ),
