@@ -5,6 +5,17 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.14] - 2025-12-12
+
+### Millorat
+- **Flux d'edició d'estacions locals**: Reordenat el flux d'opcions per coincidir amb el de creació (sensors → tipus de mapping)
+- **Interfície de reconfiguració**: Ocultat el camp URL de l'API quan es reconfiguren entrades existents
+- **Títols de pantalles**: Millorat el títol de l'edició d'estacions locals
+- **Traduccions**: Actualitzada la descripció dels sensors locals en tots els idiomes
+
+### Corregit
+- **Ordre del flux d'opcions**: Les proves ara reflecteixen correctament l'ordre sensors → mapping type
+
 ## [1.2.13] - 2025-12-11
 
 ### Millorat
