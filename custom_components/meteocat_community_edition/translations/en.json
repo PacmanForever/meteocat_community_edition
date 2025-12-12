@@ -52,7 +52,7 @@
       },
       "local_sensors": {
         "title": "Local Sensors",
-        "description": "Select the sensors for the measurements of the Weather entity.",
+        "description": "Weather cards do not always show all values.",
         "data": {
           "sensor_temperature": "Temperature",
           "sensor_humidity": "Humidity",
@@ -72,6 +72,16 @@
       },
       "condition_mapping_type": {
         "title": "Weather Condition",
+        "description": "",
+        "data": {
+          "mapping_type": "Select which mapping you want for the 'Weather Condition' property (Icon)."
+        },
+        "data_description": {
+          "mapping_type": "Meteocat: The condition value will be automatically taken from the official Meteocat forecast (fixed mapping, not editable).\n\nCustom: The condition value will be taken from a local numeric sensor. You will need to define (in the next screen) a mapping between the local sensor values and the conditions supported by Home Assistant (e.g.: clear-night, sunny, partlycloudy, cloudy, rainy, pouring, lightning, snowy, fog, etc.)."
+        }
+      },
+      "condition_mapping_type_local": {
+        "title": "Weather Configuration",
         "description": "",
         "data": {
           "mapping_type": "Select which mapping you want for the 'Weather Condition' property (Icon)."
@@ -118,13 +128,11 @@
         "title": "External station configuration",
         "description": "{measurements_info}",
         "data": {
-          "api_base_url": "API base URL (leave default for production)",
-          "measurements_label": "Measurements",
-          "enable_forecast_daily": "Daily forecast",
-          "enable_forecast_hourly": "Hourly forecast",
           "update_time_1": "First update (24h format: HH:MM)",
           "update_time_2": "Second update (24h format: HH:MM)",
-          "update_time_3": "Third update (24h format: HH:MM)"
+          "update_time_3": "Third update (24h format: HH:MM)",
+          "enable_forecast_daily": "Daily forecast",
+          "enable_forecast_hourly": "Hourly forecast"
         }
       },
       "init_local": {

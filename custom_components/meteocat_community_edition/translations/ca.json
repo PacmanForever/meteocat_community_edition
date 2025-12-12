@@ -52,7 +52,7 @@
       },
       "local_sensors": {
         "title": "Sensors Locals",
-        "description": "Selecciona els sensors per a les mesures de l'entitat Temps.",
+        "description": "Les targetes meteorològiques no sempre mostren tots els valors.",
         "data": {
           "sensor_temperature": "Temperatura",
           "sensor_humidity": "Humitat",
@@ -72,6 +72,16 @@
       },
       "condition_mapping_type": {
         "title": "Condició climàtica",
+        "description": "",
+        "data": {
+          "mapping_type": "Selecciona quin mapeig vols per la propietat 'Condició climàtica' (Icona)."
+        },
+        "data_description": {
+          "mapping_type": "Meteocat: El valor de condició s'agafarà automàticament de la predicció oficial de Meteocat (mapeig fix, no editable).\n\nPersonalitzat: El valor de la condició s'agafarà d'un sensor numèric local. Caldrà definir (a la següent pantalla) un mapeig entre els valors del sensor local i les condicions suportades per Home Assistant (ex: clear-night, sunny, partlycloudy, cloudy, rainy, pouring, lightning, snowy, fog, etc.)."
+        }
+      },
+      "condition_mapping_type_local": {
+        "title": "Configuració climàtica",
         "description": "",
         "data": {
           "mapping_type": "Selecciona quin mapeig vols per la propietat 'Condició climàtica' (Icona)."
@@ -118,14 +128,11 @@
         "title": "Configuració estació externa",
         "description": "{measurements_info}",
         "data": {
-          "api_base_url": "URL base de l'API (deixa per defecte per producció)",
-          "measurements_label": "Mesures (requerides)",
-          "enable_forecast_daily": "Predicció diària",
-          "enable_forecast_hourly": "Predicció horària",
           "update_time_1": "Primera actualització (format 24h: HH:MM)",
           "update_time_2": "Segona actualització (format 24h: HH:MM)",
-          "update_time_3": "Tercera actualització (format 24h: HH:MM)"
-
+          "update_time_3": "Tercera actualització (format 24h: HH:MM)",
+          "enable_forecast_daily": "Predicció diària",
+          "enable_forecast_hourly": "Predicció horària"
         }
       },
       "init_local": {

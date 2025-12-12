@@ -54,6 +54,19 @@ async def test_options_flow_local_sensors(hass: HomeAssistant):
         result["flow_id"], user_input=user_input_init
     )
 
+    # Should redirect to condition mapping type step
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "condition_mapping_type_local"
+
+    # Submit condition mapping type step (keep meteocat)
+    user_input_mapping = {
+        "mapping_type": "meteocat",
+    }
+    
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input=user_input_mapping
+    )
+
     # Should redirect to sensors step
     assert result["type"] == FlowResultType.FORM
     assert result["step_id"] == "sensors"
@@ -99,16 +112,28 @@ async def test_options_flow_local_switch_to_custom_mapping(hass: HomeAssistant):
     assert result["type"] == FlowResultType.FORM
     assert result["step_id"] == "init_local"
 
-    # Submit init step with switch to custom mapping
+    # Submit init step (no mapping type in init anymore)
     user_input_init = {
         CONF_UPDATE_TIME_1: "06:00",
         CONF_ENABLE_FORECAST_DAILY: True,
         CONF_ENABLE_FORECAST_HOURLY: False,
-        "mapping_type": "custom",
     }
     
     result = await hass.config_entries.options.async_configure(
         result["flow_id"], user_input=user_input_init
+    )
+
+    # Should redirect to condition mapping type step
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "condition_mapping_type_local"
+
+    # Submit condition mapping type step (switch to custom)
+    user_input_mapping = {
+        "mapping_type": "custom",
+    }
+    
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input=user_input_mapping
     )
 
     # Should redirect to custom mapping step
@@ -170,16 +195,28 @@ async def test_options_flow_local_switch_to_meteocat_mapping(hass: HomeAssistant
     assert result["type"] == FlowResultType.FORM
     assert result["step_id"] == "init_local"
 
-    # Submit init step with switch to meteocat mapping
+    # Submit init step (no mapping type in init anymore)
     user_input_init = {
         CONF_UPDATE_TIME_1: "06:00",
         CONF_ENABLE_FORECAST_DAILY: True,
         CONF_ENABLE_FORECAST_HOURLY: False,
-        "mapping_type": "meteocat",
     }
     
     result = await hass.config_entries.options.async_configure(
         result["flow_id"], user_input=user_input_init
+    )
+
+    # Should redirect to condition mapping type step
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "condition_mapping_type_local"
+
+    # Submit condition mapping type step (switch to meteocat)
+    user_input_mapping = {
+        "mapping_type": "meteocat",
+    }
+    
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input=user_input_mapping
     )
 
     # Should redirect to sensors step (since meteocat mapping is updated automatically)
@@ -205,7 +242,7 @@ async def test_options_flow_local_switch_to_meteocat_mapping(hass: HomeAssistant
 
 @pytest.mark.asyncio
 async def test_options_flow_local_edit_custom_mapping(hass: HomeAssistant):
-    """Test options flow for Local Mode allows editing existing custom mapping without going to sensors."""
+    """Test options flow for Local Mode allows editing existing custom mapping and then goes to sensors."""
     entry = MockConfigEntry(
         domain=DOMAIN,
         data={
@@ -228,16 +265,28 @@ async def test_options_flow_local_edit_custom_mapping(hass: HomeAssistant):
     assert result["type"] == FlowResultType.FORM
     assert result["step_id"] == "init_local"
 
-    # Submit init step with switch to custom mapping (already is custom, but this triggers the flow)
+    # Submit init step (no mapping type in init anymore)
     user_input_init = {
         CONF_UPDATE_TIME_1: "06:00",
         CONF_ENABLE_FORECAST_DAILY: True,
         CONF_ENABLE_FORECAST_HOURLY: False,
-        "mapping_type": "custom",
     }
     
     result = await hass.config_entries.options.async_configure(
         result["flow_id"], user_input=user_input_init
+    )
+
+    # Should redirect to condition mapping type step
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "condition_mapping_type_local"
+
+    # Submit condition mapping type step (switch to custom)
+    user_input_mapping = {
+        "mapping_type": "custom",
+    }
+    
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input=user_input_mapping
     )
 
     # Should redirect to custom mapping step
@@ -250,13 +299,233 @@ async def test_options_flow_local_edit_custom_mapping(hass: HomeAssistant):
         "custom_condition_mapping": "0: clear-night\n1: sunny\n2: partlycloudy",
     }
 
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input=user_input_custom
+    )
+
+    # Should redirect to sensors step (always goes to sensors after custom mapping)
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "sensors"
+
+    # Submit sensors step
+    user_input_sensors = {
+        CONF_SENSOR_TEMPERATURE: "sensor.updated_temp",
+    }
+
     with patch("custom_components.meteocat_community_edition.async_setup_entry", return_value=True):
         result = await hass.config_entries.options.async_configure(
-            result["flow_id"], user_input=user_input_custom
+            result["flow_id"], user_input=user_input_sensors
         )
 
-    # Should finish directly (not go to sensors since already configured)
+    # Should finish and update entry
     assert result["type"] == FlowResultType.CREATE_ENTRY
     assert entry.data["mapping_type"] == "custom"
     assert entry.data["local_condition_entity"] == "sensor.new_condition"
     assert "custom_condition_mapping" in entry.data
+    assert entry.data[CONF_SENSOR_TEMPERATURE] == "sensor.updated_temp"
+
+
+@pytest.mark.asyncio
+async def test_options_flow_local_edit_meteocat_mapping(hass: HomeAssistant):
+    """Test options flow for Local Mode allows editing existing meteocat mapping and goes to sensors."""
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        data={
+            CONF_API_KEY: "test_key",
+            CONF_MODE: MODE_LOCAL,
+            CONF_MUNICIPALITY_CODE: "081131",
+            CONF_UPDATE_TIME_1: "06:00",
+            "mapping_type": "meteocat",
+            CONF_SENSOR_TEMPERATURE: "sensor.temp",  # Already configured sensors
+            CONF_SENSOR_HUMIDITY: "sensor.hum",
+        },
+        options={}
+    )
+    entry.add_to_hass(hass)
+
+    # Initialize options flow
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "init_local"
+
+    # Submit init step (no mapping type in init anymore)
+    user_input_init = {
+        CONF_UPDATE_TIME_1: "06:00",
+        CONF_ENABLE_FORECAST_DAILY: True,
+        CONF_ENABLE_FORECAST_HOURLY: False,
+    }
+    
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input=user_input_init
+    )
+
+    # Should redirect to condition mapping type step
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "condition_mapping_type_local"
+
+    # Submit condition mapping type step (keep meteocat)
+    user_input_mapping = {
+        "mapping_type": "meteocat",
+    }
+    
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input=user_input_mapping
+    )
+
+    # Should redirect to sensors step (always goes to sensors after mapping selection)
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "sensors"
+
+    # Submit sensors step
+    user_input_sensors = {
+        CONF_SENSOR_TEMPERATURE: "sensor.updated_temp",
+    }
+
+    with patch("custom_components.meteocat_community_edition.async_setup_entry", return_value=True):
+        result = await hass.config_entries.options.async_configure(
+            result["flow_id"], user_input=user_input_sensors
+        )
+
+    # Should finish and update entry
+    assert result["type"] == FlowResultType.CREATE_ENTRY
+    assert entry.data["mapping_type"] == "meteocat"
+    assert "local_condition_entity" not in entry.data
+    assert "custom_condition_mapping" not in entry.data
+    assert entry.data[CONF_SENSOR_TEMPERATURE] == "sensor.updated_temp"
+
+
+@pytest.mark.asyncio
+async def test_options_flow_local_sensors_validation_errors(hass: HomeAssistant):
+    """Test options flow for Local Mode validates sensor requirements during editing."""
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        data={
+            CONF_API_KEY: "test_key",
+            CONF_MODE: MODE_LOCAL,
+            CONF_MUNICIPALITY_CODE: "081131",
+            CONF_UPDATE_TIME_1: "06:00",
+            "mapping_type": "meteocat",
+            CONF_SENSOR_TEMPERATURE: "sensor.temp",  # Already configured sensors
+            CONF_SENSOR_HUMIDITY: "sensor.hum",
+        },
+        options={}
+    )
+    entry.add_to_hass(hass)
+
+    # Initialize options flow
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "init_local"
+
+    # Submit init step
+    user_input_init = {
+        CONF_UPDATE_TIME_1: "06:00",
+        CONF_ENABLE_FORECAST_DAILY: True,
+        CONF_ENABLE_FORECAST_HOURLY: False,
+    }
+
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input=user_input_init
+    )
+
+    # Should redirect to condition mapping type step
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "condition_mapping_type_local"
+
+    # Submit condition mapping type step (keep meteocat)
+    user_input_mapping = {
+        "mapping_type": "meteocat",
+    }
+
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input=user_input_mapping
+    )
+
+    # Should redirect to sensors step
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "sensors"
+
+    # Submit sensors step with valid changes
+    user_input_sensors_valid = {
+        CONF_SENSOR_TEMPERATURE: "sensor.new_temp",
+        CONF_SENSOR_HUMIDITY: "sensor.new_hum",
+    }
+
+    with patch("custom_components.meteocat_community_edition.async_setup_entry", return_value=True):
+        result = await hass.config_entries.options.async_configure(
+            result["flow_id"], user_input=user_input_sensors_valid
+        )
+
+    # Should finish and update entry
+    assert result["type"] == FlowResultType.CREATE_ENTRY
+    assert entry.data[CONF_SENSOR_TEMPERATURE] == "sensor.new_temp"
+    assert entry.data[CONF_SENSOR_HUMIDITY] == "sensor.new_hum"
+
+
+@pytest.mark.asyncio
+async def test_options_flow_local_no_changes(hass: HomeAssistant):
+    """Test options flow for Local Mode when no changes are made."""
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        data={
+            CONF_API_KEY: "test_key",
+            CONF_MODE: MODE_LOCAL,
+            CONF_MUNICIPALITY_CODE: "081131",
+            CONF_UPDATE_TIME_1: "06:00",
+            "mapping_type": "meteocat",
+            CONF_SENSOR_TEMPERATURE: "sensor.temp",
+            CONF_SENSOR_HUMIDITY: "sensor.hum",
+        },
+        options={}
+    )
+    entry.add_to_hass(hass)
+
+    # Initialize options flow
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "init_local"
+
+    # Submit init step with same values
+    user_input_init = {
+        CONF_UPDATE_TIME_1: "06:00",  # Same value
+        CONF_ENABLE_FORECAST_DAILY: True,
+        CONF_ENABLE_FORECAST_HOURLY: False,
+    }
+
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input=user_input_init
+    )
+
+    # Should redirect to condition mapping type step
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "condition_mapping_type_local"
+
+    # Submit condition mapping type step (keep meteocat)
+    user_input_mapping = {
+        "mapping_type": "meteocat",
+    }
+
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input=user_input_mapping
+    )
+
+    # Should redirect to sensors step
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "sensors"
+
+    # Submit sensors step with same values (no changes)
+    user_input_sensors = {
+        CONF_SENSOR_TEMPERATURE: "sensor.temp",  # Same value
+        CONF_SENSOR_HUMIDITY: "sensor.hum",      # Same value
+    }
+
+    with patch("custom_components.meteocat_community_edition.async_setup_entry", return_value=True):
+        result = await hass.config_entries.options.async_configure(
+            result["flow_id"], user_input=user_input_sensors
+        )
+
+    # Should finish
+    assert result["type"] == FlowResultType.CREATE_ENTRY

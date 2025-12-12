@@ -52,7 +52,7 @@
       },
       "local_sensors": {
         "title": "Sensores Locales",
-        "description": "Selecciona los sensores para las medidas de la entidad Tiempo.",
+        "description": "Las tarjetas meteorológicas no siempre muestran todos los valores.",
         "data": {
           "sensor_temperature": "Temperatura",
           "sensor_humidity": "Humedad",
@@ -72,6 +72,16 @@
       },
       "condition_mapping_type": {
         "title": "Condición climática",
+        "description": "",
+        "data": {
+          "mapping_type": "Selecciona qué mapeo quieres para la propiedad 'Condición climática' (Icono)."
+        },
+        "data_description": {
+          "mapping_type": "Meteocat: El valor de condición se tomará automáticamente de la predicción oficial de Meteocat (mapeo fijo, no editable).\n\nPersonalizado: El valor de la condición se tomará de un sensor numérico local. Será necesario definir (en la siguiente pantalla) un mapeo entre los valores del sensor local y las condiciones soportadas por Home Assistant (ej: clear-night, sunny, partlycloudy, cloudy, rainy, pouring, lightning, snowy, fog, etc.)."
+        }
+      },
+      "condition_mapping_type_local": {
+        "title": "Configuración climática",
         "description": "",
         "data": {
           "mapping_type": "Selecciona qué mapeo quieres para la propiedad 'Condición climática' (Icono)."
@@ -118,13 +128,11 @@
         "title": "Configuración estación externa",
         "description": "{measurements_info}",
         "data": {
-          "api_base_url": "URL base de la API (deja por defecto para producción)",
-          "measurements_label": "Medidas",
-          "enable_forecast_daily": "Predicción diaria",
-          "enable_forecast_hourly": "Predicción horaria",
           "update_time_1": "Primera actualización (Formato 24h: HH:MM)",
           "update_time_2": "Segunda actualización (Formato 24h: HH:MM)",
-          "update_time_3": "Tercera actualización (Formato 24h: HH:MM)"
+          "update_time_3": "Tercera actualización (Formato 24h: HH:MM)",
+          "enable_forecast_daily": "Predicción diaria",
+          "enable_forecast_hourly": "Predicción horaria"
         }
       },
       "init_local": {

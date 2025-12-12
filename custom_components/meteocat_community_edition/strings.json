@@ -52,7 +52,7 @@
       },
       "local_sensors": {
         "title": "Sensors Locals",
-        "description": "Selecciona els sensors per a les mesures de l'entitat Temps.",
+        "description": "Les targetes meteorològiques no sempre mostren tots els valors.",
         "data": {
           "sensor_temperature": "Temperatura (obligatori)",
           "sensor_humidity": "Humitat (obligatori)",
