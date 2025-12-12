@@ -834,12 +834,16 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                 errors["base"] = "must_select_one_forecast"
             
             if not errors:
+                # Ensure API key is preserved in data (migration from old entries where it might be in options)
+                api_key = self.config_entry.data.get(CONF_API_KEY) or self.config_entry.options.get(CONF_API_KEY)
+                
                 # Update both options and data
                 # Using kwargs for forward compatibility with future HA versions
                 self.hass.config_entries.async_update_entry(
                     entry=self.config_entry,
                     data={
                         **self.config_entry.data, 
+                        CONF_API_KEY: api_key,
                         CONF_UPDATE_TIME_1: time1, 
                         CONF_UPDATE_TIME_2: time2,
                         CONF_UPDATE_TIME_3: time3,
@@ -949,12 +953,16 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                 errors["base"] = "must_select_one_forecast"
             
             if not errors:
+                # Ensure API key is preserved in data (migration from old entries where it might be in options)
+                api_key = self.config_entry.data.get(CONF_API_KEY) or self.config_entry.options.get(CONF_API_KEY)
+                
                 # Update both options and data
                 # Using kwargs for forward compatibility with future HA versions
                 self.hass.config_entries.async_update_entry(
                     entry=self.config_entry,
                     data={
                         **self.config_entry.data, 
+                        CONF_API_KEY: api_key,
                         CONF_UPDATE_TIME_1: time1, 
                         CONF_UPDATE_TIME_2: time2,
                         CONF_UPDATE_TIME_3: time3,
@@ -1050,8 +1058,12 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
         if user_input is not None:
             mapping_type = user_input.get("mapping_type", "meteocat")
             if mapping_type == "meteocat":
+                # Ensure API key is preserved in data
+                api_key = self.config_entry.data.get(CONF_API_KEY) or self.config_entry.options.get(CONF_API_KEY)
+                
                 # Update entry data with mapping type
                 updated_data = dict(self.config_entry.data)
+                updated_data[CONF_API_KEY] = api_key
                 updated_data["mapping_type"] = "meteocat"
                 # Remove custom mapping fields if they exist
                 updated_data.pop("custom_condition_mapping", None)
@@ -1120,11 +1132,15 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                         return val[0] if val else None
                     return val
 
+                # Ensure API key is preserved in data
+                api_key = self.config_entry.data.get(CONF_API_KEY) or self.config_entry.options.get(CONF_API_KEY)
+
                 # Update entry with sensors
                 self.hass.config_entries.async_update_entry(
                     entry=self.config_entry,
                     data={
                         **self.config_entry.data,
+                        CONF_API_KEY: api_key,
                         CONF_SENSOR_TEMPERATURE: get_entity_id(CONF_SENSOR_TEMPERATURE),
                         CONF_SENSOR_HUMIDITY: get_entity_id(CONF_SENSOR_HUMIDITY),
                         CONF_SENSOR_PRESSURE: get_entity_id(CONF_SENSOR_PRESSURE),
@@ -1274,8 +1290,12 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                     else:
                         errors["custom_condition_mapping"] = "invalid_format"
                 else:
+                    # Ensure API key is preserved in data
+                    api_key = self.config_entry.data.get(CONF_API_KEY) or self.config_entry.options.get(CONF_API_KEY)
+                    
                     # Update entry data with custom mapping
                     updated_data = dict(self.config_entry.data)
+                    updated_data[CONF_API_KEY] = api_key
                     updated_data["mapping_type"] = "custom"
                     updated_data["custom_condition_mapping"] = parsed_mapping
                     updated_data["local_condition_entity"] = local_entity

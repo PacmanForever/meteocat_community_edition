@@ -5,6 +5,11 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.17] - 2025-12-12
+
+### Corregit
+- **Preservació de la clau API**: Corregit el problema on la clau API es perdia quan s'editava una estació o configuració local. Ara es garanteix que la clau API es manté en les dades de l'entrada durant tot el flux d'opcions.
+
 ## [1.2.16] - 2025-12-12
 
 ### Millorat

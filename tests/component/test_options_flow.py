@@ -72,3 +72,4 @@ async def test_options_flow_save(hass: HomeAssistant):
     assert result["type"] == FlowResultType.CREATE_ENTRY
     assert entry.data[CONF_UPDATE_TIME_1] == "07:00"
     assert entry.data[CONF_UPDATE_TIME_2] == "15:00"
+    assert entry.data[CONF_API_KEY] == "test_key"
