@@ -5,6 +5,16 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.16] - 2025-12-12
+
+### Millorat
+- **Flux de reconfiguració**: Simplificat el flux de reconfiguració per saltar l'entrada de clau API i anar directament a la selecció de mode
+- **Camp URL de l'API**: Sempre visible en el pas inicial per a major consistència
+- **Traduccions**: Afegit missatge d'advertència a la pantalla de sensors locals sobre les limitacions de les targetes meteorològiques
+
+### Corregit
+- **Flux d'opcions locals**: Afegit title_placeholders faltants al pas init_local per evitar errors de traducció
+
 ## [1.2.15] - 2025-12-12
 
 ### Millorat
