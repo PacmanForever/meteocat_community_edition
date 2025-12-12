@@ -850,7 +850,15 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                         CONF_ENABLE_FORECAST_DAILY: enable_daily,
                         CONF_ENABLE_FORECAST_HOURLY: enable_hourly,
                     },
-                    options=user_input,
+                    options={
+                        **self.config_entry.options,
+                        CONF_API_KEY: api_key,  # Also store in options for safety
+                        CONF_UPDATE_TIME_1: time1, 
+                        CONF_UPDATE_TIME_2: time2,
+                        CONF_UPDATE_TIME_3: time3,
+                        CONF_ENABLE_FORECAST_DAILY: enable_daily,
+                        CONF_ENABLE_FORECAST_HOURLY: enable_hourly,
+                    },
                 )
                 
                 if mode == MODE_LOCAL:
@@ -969,7 +977,15 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                         CONF_ENABLE_FORECAST_DAILY: enable_daily,
                         CONF_ENABLE_FORECAST_HOURLY: enable_hourly,
                     },
-                    options=user_input,
+                    options={
+                        **self.config_entry.options,
+                        CONF_API_KEY: api_key,  # Also store in options for safety
+                        CONF_UPDATE_TIME_1: time1, 
+                        CONF_UPDATE_TIME_2: time2,
+                        CONF_UPDATE_TIME_3: time3,
+                        CONF_ENABLE_FORECAST_DAILY: enable_daily,
+                        CONF_ENABLE_FORECAST_HOURLY: enable_hourly,
+                    },
                 )
                 
                 # For local mode, go to mapping type selection
@@ -1161,10 +1177,10 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
         return self.async_show_form(
             step_id="sensors",
             data_schema=vol.Schema({
-                vol.Optional(CONF_SENSOR_TEMPERATURE, description={"suggested_value": data.get(CONF_SENSOR_TEMPERATURE)}): selector.EntitySelector(
+                vol.Required(CONF_SENSOR_TEMPERATURE, description={"suggested_value": data.get(CONF_SENSOR_TEMPERATURE)}): selector.EntitySelector(
                     selector.EntitySelectorConfig(domain="sensor", device_class="temperature", multiple=False)
                 ),
-                vol.Optional(CONF_SENSOR_HUMIDITY, description={"suggested_value": data.get(CONF_SENSOR_HUMIDITY)}): selector.EntitySelector(
+                vol.Required(CONF_SENSOR_HUMIDITY, description={"suggested_value": data.get(CONF_SENSOR_HUMIDITY)}): selector.EntitySelector(
                     selector.EntitySelectorConfig(domain="sensor", device_class="humidity", multiple=False)
                 ),
                 vol.Optional(CONF_SENSOR_PRESSURE, description={"suggested_value": data.get(CONF_SENSOR_PRESSURE)}): selector.EntitySelector(

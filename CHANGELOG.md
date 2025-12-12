@@ -5,6 +5,12 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.19] - 2025-12-12
+
+### Corregit
+- **Validació UI**: Els camps de temperatura i humitat requerits en les pantalles de sensors locals ara mostren correctament l'estil d'error (vora vermella) quan es deixen en blanc, tant en creació com en edició d'estacions.
+- **Preservació de la clau API**: Millorada la preservació de la clau API en editar configuracions, emmagatzemant-la tant a `data` com a `options` per major seguretat. Afegit logging detallat al coordinador per diagnosticar problemes amb la clau API.
+
 ## [1.2.18] - 2025-12-12
 
 ### Corregit

@@ -105,9 +105,12 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         api_key = entry.data.get(CONF_API_KEY) or entry.options.get(CONF_API_KEY)
         if not api_key:
             _LOGGER.error(
-                "Entry '%s' is missing API key. This entry was created with an older version. "
+                "Entry '%s' is missing API key. Entry data keys: %s, Entry options keys: %s. "
+                "This entry was created with an older version or corrupted during editing. "
                 "Please delete and re-add this integration to fix the issue.",
-                entry.title
+                entry.title,
+                list(entry.data.keys()),
+                list(entry.options.keys())
             )
             raise ValueError(f"Entry '{entry.title}' is missing API key. Please reconfigure this integration.")
         if api_key:
