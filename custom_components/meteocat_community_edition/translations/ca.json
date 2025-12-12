@@ -151,7 +151,7 @@
       },
       "sensors": {
         "title": "Selecció d'entitats meteorològiques locals",
-        "description": "",
+        "description": "Les targetes meteorològiques no sempre mostren tots els valors.",
         "data": {
           "sensor_temperature": "Temperatura",
           "sensor_humidity": "Humitat",
@@ -249,5 +249,8 @@
         "name": "Actualitzar Predicció"
       }
     }
+  },
+  "description_placeholders": {
+    "reconfigure_description": "La clau API existent es mantindrà. Fes clic a 'Continuar' per modificar la configuració de l'estació."
   }
 }

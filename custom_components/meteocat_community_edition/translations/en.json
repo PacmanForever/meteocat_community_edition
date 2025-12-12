@@ -136,7 +136,7 @@
         }
       },
       "init_local": {
-        "title": "Local station configuration {name}",
+        "title": "Local station configuration",
         "description": "{measurements_info}",
         "data": {
           "api_base_url": "API base URL (leave default for production)",
@@ -151,7 +151,7 @@
       },
       "sensors": {
         "title": "Local weather entity selection",
-        "description": "Select the Home Assistant sensors for current data.",
+        "description": "Weather cards do not always show all values.",
         "data": {
           "sensor_temperature": "Temperature",
           "sensor_humidity": "Humidity",
@@ -248,5 +248,8 @@
         "name": "Refresh Forecast"
       }
     }
+  },
+  "description_placeholders": {
+    "reconfigure_description": "The existing API key will be preserved. Click 'Continue' to modify the station configuration."
   }
 }

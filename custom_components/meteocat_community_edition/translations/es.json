@@ -151,7 +151,7 @@
       },
       "sensors": {
         "title": "Selección de entidades meteorológicas locales",
-        "description": "Selecciona los sensores de Home Assistant para los datos actuales.",
+        "description": "Las tarjetas meteorológicas no siempre muestran todos los valores.",
         "data": {
           "sensor_temperature": "Temperatura",
           "sensor_humidity": "Humedad",
@@ -247,8 +247,9 @@
       "refresh_forecast": {
         "name": "Actualizar Predicción"
       }
-    }
-  }
+    }  },
+  "description_placeholders": {
+    "reconfigure_description": "La clave API existente se mantendrá. Haz clic en 'Continuar' para modificar la configuración de la estación."  }
 }
 
 
