@@ -247,9 +247,8 @@
       "refresh_forecast": {
         "name": "Actualizar Predicción"
       }
-    }  },
-  "description_placeholders": {
-    "reconfigure_description": "La clave API existente se mantendrá. Haz clic en 'Continuar' para modificar la configuración de la estación."  }
+    }
+  }
 }
 
 

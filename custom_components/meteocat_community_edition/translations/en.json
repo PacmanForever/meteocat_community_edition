@@ -248,8 +248,5 @@
         "name": "Refresh Forecast"
       }
     }
-  },
-  "description_placeholders": {
-    "reconfigure_description": "The existing API key will be preserved. Click 'Continue' to modify the station configuration."
   }
 }

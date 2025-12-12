@@ -249,8 +249,5 @@
         "name": "Actualitzar Predicció"
       }
     }
-  },
-  "description_placeholders": {
-    "reconfigure_description": "La clau API existent es mantindrà. Fes clic a 'Continuar' per modificar la configuració de l'estació."
   }
 }
