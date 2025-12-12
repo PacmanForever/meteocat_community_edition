@@ -58,18 +58,6 @@ async def test_flow_user_step_valid_api_key():
     """Test user step with valid API key."""
     flow = MeteocatConfigFlow()
     flow.hass = MagicMock()
-    flow.hass.config_entries.flow.async_get_translations = AsyncMock(return_value={
-        "config": {
-            "step": {
-                "mode": {
-                    "data_options": {
-                        "external": "Externa",
-                        "local": "Local"
-                    }
-                }
-            }
-        }
-    })
     
     with patch("custom_components.meteocat_community_edition.config_flow.MeteocatAPI") as mock_api:
         mock_api.return_value.get_comarques = AsyncMock(return_value=[{"codi": "1", "nom": "Alt Camp"}])
