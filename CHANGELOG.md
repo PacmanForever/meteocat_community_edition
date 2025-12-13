@@ -5,10 +5,16 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.24] - 2025-12-13
+
+### Millorat
+- **Manteniment**: Versió de manteniment per resoldre problemes de caché de traduccions.
+
 ## [1.2.23] - 2025-12-13
 
 ### Millorat
 - **Manteniment**: Versió de manteniment amb millores internes.
+- **Documentació**: S'ha documentat que els títols de les pantalles d'opcions mostren "Configura la predicció de Meteocat" per estacions externes i "Configura l'estació local" per estacions locals, tal com està implementat al codi.
 
 ## [1.2.22] - 2025-12-13
 
