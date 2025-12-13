@@ -867,7 +867,7 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                 if mode == MODE_LOCAL:
                     return await self.async_step_sensors()
                 else:
-                    return self.async_create_entry(title="", data=user_input)
+                    return self.async_create_entry(title="", data={})
 
         # Prepare description placeholders
         description_placeholders = {}
@@ -1092,7 +1092,7 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                     entry=self.config_entry,
                     data=updated_data
                 )
-                return self.async_create_entry(title="", data=self.config_entry.options)
+                return self.async_create_entry(title="", data={})
                 
             elif mapping_type == "custom":
                 return await self.async_step_condition_mapping_custom()
@@ -1324,7 +1324,7 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                         data=updated_data
                     )
                     
-                    return self.async_create_entry(title="", data=self.config_entry.options)
+                    return self.async_create_entry(title="", data={})
 
         schema = vol.Schema({
             vol.Required(
