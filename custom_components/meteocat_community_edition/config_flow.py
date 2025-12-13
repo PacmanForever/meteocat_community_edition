@@ -579,11 +579,13 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             self.municipality_code = user_input[CONF_MUNICIPALITY_CODE]
+            _LOGGER.debug("Selected municipality code: %s", self.municipality_code)
             
             # Find municipality and extract all relevant data
             for municipality in self._municipalities:
                 if municipality.get("codi") == self.municipality_code:
                     self.municipality_name = municipality.get("nom")
+                    _LOGGER.debug("Found municipality name: %s", self.municipality_name)
                     # Extract coordinates if available
                     # Saved to entry.data to avoid API calls during runtime
                     coordenades = municipality.get("coordenades", {})
@@ -609,17 +611,13 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     break
             
             # Check if municipality already configured
-            await self.async_set_unique_id(f"municipal_{self.municipality_code}")
+            unique_id = f"municipal_{self.municipality_code}"
+            _LOGGER.debug("Setting unique_id: %s", unique_id)
+            await self.async_set_unique_id(unique_id)
+            _LOGGER.debug("Checking if unique_id is already configured")
             self._abort_if_unique_id_configured()
 
-            # Set title placeholders for area assignment screen
-            try:
-                self.context.update({"title_placeholders": {"name": self.municipality_name}})
-            except TypeError:
-                # Context is immutable in some cases (like tests), skip setting placeholders
-                pass
-
-            # Go to update times configuration
+            # Go to update times configuration (don't update context here to avoid flow issues)
             return await self.async_step_update_times()
 
         # Create municipality options
@@ -847,11 +845,6 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                     data={
                         **self.config_entry.data, 
                         CONF_API_KEY: api_key,
-                        CONF_UPDATE_TIME_1: time1, 
-                        CONF_UPDATE_TIME_2: time2,
-                        CONF_UPDATE_TIME_3: time3,
-                        CONF_ENABLE_FORECAST_DAILY: enable_daily,
-                        CONF_ENABLE_FORECAST_HOURLY: enable_hourly,
                     },
                     options={
                         **self.config_entry.options,
@@ -974,11 +967,6 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                     data={
                         **self.config_entry.data, 
                         CONF_API_KEY: api_key,
-                        CONF_UPDATE_TIME_1: time1, 
-                        CONF_UPDATE_TIME_2: time2,
-                        CONF_UPDATE_TIME_3: time3,
-                        CONF_ENABLE_FORECAST_DAILY: enable_daily,
-                        CONF_ENABLE_FORECAST_HOURLY: enable_hourly,
                     },
                     options={
                         **self.config_entry.options,

@@ -90,13 +90,13 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             self.municipality_code = entry.data.get("station_municipality_code")
         
         # Get update times from config or use defaults
-        self.update_time_1 = entry.data.get(CONF_UPDATE_TIME_1, DEFAULT_UPDATE_TIME_1)
-        self.update_time_2 = entry.data.get(CONF_UPDATE_TIME_2, DEFAULT_UPDATE_TIME_2)
-        self.update_time_3 = entry.data.get(CONF_UPDATE_TIME_3, "")
+        self.update_time_1 = entry.options.get(CONF_UPDATE_TIME_1, entry.data.get(CONF_UPDATE_TIME_1, DEFAULT_UPDATE_TIME_1))
+        self.update_time_2 = entry.options.get(CONF_UPDATE_TIME_2, entry.data.get(CONF_UPDATE_TIME_2, DEFAULT_UPDATE_TIME_2))
+        self.update_time_3 = entry.options.get(CONF_UPDATE_TIME_3, entry.data.get(CONF_UPDATE_TIME_3, ""))
         
         # Get forecast settings
-        self.enable_forecast_daily = entry.data.get(CONF_ENABLE_FORECAST_DAILY, True)
-        self.enable_forecast_hourly = entry.data.get(CONF_ENABLE_FORECAST_HOURLY, False)
+        self.enable_forecast_daily = entry.options.get(CONF_ENABLE_FORECAST_DAILY, entry.data.get(CONF_ENABLE_FORECAST_DAILY, True))
+        self.enable_forecast_hourly = entry.options.get(CONF_ENABLE_FORECAST_HOURLY, entry.data.get(CONF_ENABLE_FORECAST_HOURLY, False))
         
         # Get API base URL from options or use default
         api_base_url = entry.options.get(CONF_API_BASE_URL, DEFAULT_API_BASE_URL)

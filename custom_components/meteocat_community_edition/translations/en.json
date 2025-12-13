@@ -14,7 +14,7 @@
         "title": "Configure the new station",
         "description": "External Station: Measurements and forecast from Meteocat\n\nLocal Station: Local measurements and forecast from Meteocat",
         "data": {
-          "mode": "What class of station do you want to create?"
+          "mode": "What type of station do you want to create?"
         }
       },
       "comarca": {

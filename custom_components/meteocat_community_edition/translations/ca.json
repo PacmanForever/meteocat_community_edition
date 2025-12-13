@@ -3,11 +3,11 @@
   "config": {
     "step": {
       "user": {
-        "title": "Configuració de la connexió a l'API",
+        "title": "Configura la connexió a l'API",
         "description": "",
         "data": {
           "api_key": "Clau API",
-          "api_base_url": "URL de l'API (opcional, per defecte producció)"
+          "api_base_url": "URL de l'API (opcional, per defecte la de producció)"
         }
       },
       "mode": {
@@ -39,7 +39,7 @@
         }
       },
       "update_times": {
-        "title": "Configuració de la predicció Meteocat",
+        "title": "Configura la predicció de Meteocat",
         "description": "Indica a quines hores vols que s'actualitzi.",
         "data": {
           "update_time_1": "Primera hora d'actualització (Format 24h: HH:MM)",
@@ -50,7 +50,7 @@
         }
       },
       "local_sensors": {
-        "title": "Configuració dels sensors Locals",
+        "title": "Configura els sensors Locals",
         "description": "Les targetes meteorològiques no sempre mostren tots aquests valors.",
         "data": {
           "sensor_temperature": "Temperatura",
@@ -69,7 +69,7 @@
         }
       },
       "condition_mapping_type": {
-        "title": "Configuració de la condició climàtica",
+        "title": "Configura la condició climàtica",
         "description": "",
         "data": {
           "mapping_type": "Selecciona quin mapeig vols per la propietat 'Condició climàtica' (Icona)."
@@ -79,7 +79,7 @@
         }
       },
       "condition_mapping_type_local": {
-        "title": "Configuració de la condició climàtica",
+        "title": "Configura la condició climàtica",
         "description": "",
         "data": {
           "mapping_type": "Selecciona quin mapeig vols per la propietat 'Condició climàtica' (Icona)."
@@ -89,7 +89,7 @@
         }
       },
       "condition_mapping_custom": {
-        "title": "Configuració del mapeig de la condició climàtica",
+        "title": "Configura el mapeig de la condició climàtica",
         "description": "",
         "data": {
           "local_condition_entity": "Sensor que indica la condició",
@@ -98,7 +98,7 @@
       },
       "reauth_confirm": {
         "title": "Re-autenticació necessària",
-        "description": "La teva clau API ha expirat o no és vàlida. Si us plau, introdueix una nova clau API vàlida."
+        "description": "La clau API ha expirat o no és vàlida. Si us plau, introdueix una nova clau API vàlida."
       }
     },
     "error": {
@@ -123,7 +123,7 @@
   "options": {
     "step": {
       "init": {
-        "title": "Configuració de l'estació externa",
+        "title": "Configura l'estació externa",
         "description": "Indica a quines hores vols que s'actualitzi la predicció.'",
         "data": {
           "update_time_1": "Primera hora d'actualització (format 24h: HH:MM)",
@@ -134,7 +134,7 @@
         }
       },
       "init_local": {
-        "title": "Configuració de l'estació local",
+        "title": "Configura l'estació local",
         "description": "Indica a quines hores vols que s'actualitzi la predicció.'",
         "data": {
           "update_time_1": "Primera hora d'actualització (format 24h: HH:MM)",
@@ -164,7 +164,7 @@
         }
       },
       "condition_mapping_custom": {
-        "title": "Configuració del mapeig de la condició climàtica",
+        "title": "Configura el mapeig de la condició climàtica",
         "description": "",
         "data": {
           "local_condition_entity": "Sensor que indica la condició",

@@ -5,6 +5,16 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.21] - 2025-12-13
+
+### Millorat
+- **Gestió de dades i opcions**: Separades correctament les dades immutables (API key en `data`) de les configuracions editables (temps d'actualització i opcions de forecast en `options`) per prevenir corrupció d'entrades quan s'editen múltiples vegades.
+
+### Corregit
+- **Error "already_in_progress"**: Solucionat l'error que apareixia quan es creaven estacions locals, eliminant l'actualització innecessària del context del flow.
+- **Flux d'opcions**: Millorada l'estabilitat del flux d'opcions amb logging detallat per diagnosticar problemes.
+- **Tests**: Arreglat el test d'opcions flow per verificar correctament la preservació de l'API key.
+
 ## [1.2.20] - 2025-12-12
 
 ### Notes de la versió
