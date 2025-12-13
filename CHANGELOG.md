@@ -5,7 +5,7 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
-## [1.2.16] - 2025-12-14
+## [1.2.25] - 2025-12-14
 
 ### Corregit
 - **Traduccions**: Afegit el step "condition_mapping_type_local" a strings.json per evitar que es mostri "Opcions" com a títol genèric.

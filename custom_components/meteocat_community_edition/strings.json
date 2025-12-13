@@ -81,7 +81,7 @@
       },
       "condition_mapping_type_local": {
         "title": "Condició climàtica",
-        "description": "",
+        "description": "Selecciona quin mapeig vols per la propietat 'Condició climàtica' (icona).",
         "data": {
           "mapping_type": "Tipus de mapeig"
         },
