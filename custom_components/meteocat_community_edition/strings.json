@@ -79,6 +79,16 @@
           "mapping_type": "Meteocat: El valor de condició s'agafarà automàticament de la predicció oficial de Meteocat (mapeig fix, no editable).\n\nPersonalitzat: El valor de la condició s'agafarà d'un sensor numèric local. Caldrà definir (a la següent pantalla) un mapeig entre els valors del sensor local i les condicions suportades per Home Assistant (ex: clear-night, sunny, partlycloudy, cloudy, rainy, pouring, lightning, snowy, fog, etc.)."
         }
       },
+      "condition_mapping_type_local": {
+        "title": "Condició climàtica",
+        "description": "",
+        "data": {
+          "mapping_type": "Tipus de mapeig"
+        },
+        "data_description": {
+          "mapping_type": "Meteocat: El valor de condició s'agafarà automàticament de la predicció oficial de Meteocat (mapeig fix, no editable).\n\nPersonalitzat: El valor de la condició s'agafarà d'un sensor numèric local. Caldrà definir (a la següent pantalla) un mapeig entre els valors del sensor local i les condicions suportades per Home Assistant (ex: clear-night, sunny, partlycloudy, cloudy, rainy, pouring, lightning, snowy, fog, etc.)."
+        }
+      },
       "condition_mapping_custom": {
         "title": "Configuració del mapeig de la condició climàtica",
         "description": "Selecciona el sensor que conté el valor de la condició i el mapeig que es farà servir.",
@@ -139,6 +149,16 @@
           "update_time_1": "Primera actualització (Format 24h: HH:MM)",
           "update_time_2": "Segona actualització (Format 24h: HH:MM)",
           "update_time_3": "Tercera actualització (Format 24h: HH:MM)"
+        }
+      },
+      "condition_mapping_type_local": {
+        "title": "Condició climàtica",
+        "description": "",
+        "data": {
+          "mapping_type": "Tipus de mapeig"
+        },
+        "data_description": {
+          "mapping_type": "Meteocat: El valor de condició s'agafarà automàticament de la predicció oficial de Meteocat (mapeig fix, no editable).\n\nPersonalitzat: El valor de la condició s'agafarà d'un sensor numèric local. Caldrà definir (a la següent pantalla) un mapeig entre els valors del sensor local i les condicions suportades per Home Assistant (ex: clear-night, sunny, partlycloudy, cloudy, rainy, pouring, lightning, snowy, fog, etc.)."
         }
       },
       "condition_mapping_custom": {

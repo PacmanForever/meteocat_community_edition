@@ -838,29 +838,33 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                 # Ensure API key is preserved in data (migration from old entries where it might be in options)
                 api_key = self.config_entry.data.get(CONF_API_KEY) or self.config_entry.options.get(CONF_API_KEY)
                 
-                # Update both options and data
-                # Using kwargs for forward compatibility with future HA versions
-                self.hass.config_entries.async_update_entry(
-                    entry=self.config_entry,
-                    data={
-                        **self.config_entry.data, 
-                        CONF_API_KEY: api_key,
-                    },
-                    options={
-                        **self.config_entry.options,
-                        CONF_API_KEY: api_key,  # Also store in options for safety
-                        CONF_UPDATE_TIME_1: time1, 
-                        CONF_UPDATE_TIME_2: time2,
-                        CONF_UPDATE_TIME_3: time3,
-                        CONF_ENABLE_FORECAST_DAILY: enable_daily,
-                        CONF_ENABLE_FORECAST_HOURLY: enable_hourly,
-                    },
-                )
-                
-                if mode == MODE_LOCAL:
-                    return await self.async_step_sensors()
+                # Validate that API key exists
+                if not api_key:
+                    errors["base"] = "invalid_auth"
                 else:
-                    return self.async_create_entry(title="", data={})
+                    # Update both options and data
+                    # Using kwargs for forward compatibility with future HA versions
+                    self.hass.config_entries.async_update_entry(
+                        entry=self.config_entry,
+                        data={
+                            **self.config_entry.data, 
+                            CONF_API_KEY: api_key,
+                        },
+                        options={
+                            **self.config_entry.options,
+                            CONF_API_KEY: api_key,  # Also store in options for safety
+                            CONF_UPDATE_TIME_1: time1, 
+                            CONF_UPDATE_TIME_2: time2,
+                            CONF_UPDATE_TIME_3: time3,
+                            CONF_ENABLE_FORECAST_DAILY: enable_daily,
+                            CONF_ENABLE_FORECAST_HOURLY: enable_hourly,
+                        },
+                    )
+                    
+                    if mode == MODE_LOCAL:
+                        return await self.async_step_sensors()
+                    else:
+                        return self.async_create_entry(title="", data={})
 
         # Prepare description placeholders
         description_placeholders = {}
@@ -960,30 +964,34 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                 # Ensure API key is preserved in data (migration from old entries where it might be in options)
                 api_key = self.config_entry.data.get(CONF_API_KEY) or self.config_entry.options.get(CONF_API_KEY)
                 
-                # Update both options and data
-                # Using kwargs for forward compatibility with future HA versions
-                self.hass.config_entries.async_update_entry(
-                    entry=self.config_entry,
-                    data={
-                        **self.config_entry.data, 
-                        CONF_API_KEY: api_key,
-                    },
-                    options={
-                        **self.config_entry.options,
-                        CONF_API_KEY: api_key,  # Also store in options for safety
-                        CONF_UPDATE_TIME_1: time1, 
-                        CONF_UPDATE_TIME_2: time2,
-                        CONF_UPDATE_TIME_3: time3,
-                        CONF_ENABLE_FORECAST_DAILY: enable_daily,
-                        CONF_ENABLE_FORECAST_HOURLY: enable_hourly,
-                    },
-                )
-                
-                # For local mode, go to mapping type selection
-                if mode == MODE_LOCAL:
-                    return await self.async_step_sensors()
+                # Validate that API key exists
+                if not api_key:
+                    errors["base"] = "invalid_auth"
                 else:
-                    return self.async_create_entry(title="", data=user_input)
+                    # Update both options and data
+                    # Using kwargs for forward compatibility with future HA versions
+                    self.hass.config_entries.async_update_entry(
+                        entry=self.config_entry,
+                        data={
+                            **self.config_entry.data, 
+                            CONF_API_KEY: api_key,
+                        },
+                        options={
+                            **self.config_entry.options,
+                            CONF_API_KEY: api_key,  # Also store in options for safety
+                            CONF_UPDATE_TIME_1: time1, 
+                            CONF_UPDATE_TIME_2: time2,
+                            CONF_UPDATE_TIME_3: time3,
+                            CONF_ENABLE_FORECAST_DAILY: enable_daily,
+                            CONF_ENABLE_FORECAST_HOURLY: enable_hourly,
+                        },
+                    )
+                    
+                    # For local mode, go to mapping type selection
+                    if mode == MODE_LOCAL:
+                        return await self.async_step_sensors()
+                    else:
+                        return self.async_create_entry(title="", data=user_input)
 
         # Prepare description placeholders
         description_placeholders = {}
@@ -1083,6 +1091,17 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                 return self.async_create_entry(title="", data={})
                 
             elif mapping_type == "custom":
+                # Ensure API key is preserved in data before going to custom mapping
+                api_key = self.config_entry.data.get(CONF_API_KEY) or self.config_entry.options.get(CONF_API_KEY)
+                
+                # Update entry data with API key preserved
+                updated_data = dict(self.config_entry.data)
+                updated_data[CONF_API_KEY] = api_key
+                
+                self.hass.config_entries.async_update_entry(
+                    entry=self.config_entry,
+                    data=updated_data
+                )
                 return await self.async_step_condition_mapping_custom()
 
         # Get current mapping type from entry data
@@ -1233,6 +1252,17 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                 return await self.async_step_sensors()
                 
             elif mapping_type == "custom":
+                # Ensure API key is preserved in data before going to custom mapping
+                api_key = self.config_entry.data.get(CONF_API_KEY) or self.config_entry.options.get(CONF_API_KEY)
+                
+                # Update entry data with API key preserved
+                updated_data = dict(self.config_entry.data)
+                updated_data[CONF_API_KEY] = api_key
+                
+                self.hass.config_entries.async_update_entry(
+                    entry=self.config_entry,
+                    data=updated_data
+                )
                 return await self.async_step_condition_mapping_custom()
 
         # Get current mapping type from entry data
