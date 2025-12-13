@@ -704,7 +704,7 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         },
                     )
                 else:  # MODE_LOCAL
-                    return await self.async_step_local_sensors()
+                    return await self.async_step_sensors()
 
         return self.async_show_form(
             step_id="update_times",
@@ -932,199 +932,10 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
             pass
 
         return self.async_show_form(
-            step_id="init_local" if mode == MODE_LOCAL else "init",
+            step_id="init",
             data_schema=vol.Schema(schema_dict),
             description_placeholders=description_placeholders,
             errors=errors,
-        )
-
-    async def async_step_init_local(
-        self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
-        """Manage the options for local mode."""
-        errors: dict[str, str] = {}
-        
-        if user_input is not None:
-            # Validate update times if they're being changed
-            time1 = user_input.get(CONF_UPDATE_TIME_1, "").strip()
-            time2 = user_input.get(CONF_UPDATE_TIME_2, "").strip()
-            time3 = user_input.get(CONF_UPDATE_TIME_3, "").strip()
-            enable_daily = user_input.get(CONF_ENABLE_FORECAST_DAILY, True)
-            enable_hourly = user_input.get(CONF_ENABLE_FORECAST_HOURLY, False)
-            
-            time_errors = validate_update_times(time1, time2, time3)
-            errors.update(time_errors)
-            
-            # Validate forecast selection (only for local mode)
-            mode = self.config_entry.data.get(CONF_MODE)
-            if mode == MODE_LOCAL and not enable_daily and not enable_hourly:
-                errors["base"] = "must_select_one_forecast"
-            
-            if not errors:
-                # Ensure API key is preserved in data (migration from old entries where it might be in options)
-                api_key = self.config_entry.data.get(CONF_API_KEY) or self.config_entry.options.get(CONF_API_KEY)
-                
-                # Validate that API key exists
-                if not api_key:
-                    errors["base"] = "invalid_auth"
-                else:
-                    # Update both options and data
-                    # Using kwargs for forward compatibility with future HA versions
-                    self.hass.config_entries.async_update_entry(
-                        entry=self.config_entry,
-                        data={
-                            **self.config_entry.data, 
-                            CONF_API_KEY: api_key,
-                        },
-                        options={
-                            **self.config_entry.options,
-                            CONF_API_KEY: api_key,  # Also store in options for safety
-                            CONF_UPDATE_TIME_1: time1, 
-                            CONF_UPDATE_TIME_2: time2,
-                            CONF_UPDATE_TIME_3: time3,
-                            CONF_ENABLE_FORECAST_DAILY: enable_daily,
-                            CONF_ENABLE_FORECAST_HOURLY: enable_hourly,
-                        },
-                    )
-                    
-                    # For local mode, go to mapping type selection
-                    if mode == MODE_LOCAL:
-                        return await self.async_step_sensors()
-                    else:
-                        return self.async_create_entry(title="", data=user_input)
-
-        # Prepare description placeholders
-        description_placeholders = {}
-        mode = self.config_entry.data.get(CONF_MODE)
-        description_placeholders["measurements_info"] = ""
-
-        # Ensure options is not None
-        options = self.config_entry.options or {}
-
-        # Build schema
-        schema_dict = {
-            vol.Required(
-                CONF_UPDATE_TIME_1,
-                default=self.config_entry.data.get(
-                    CONF_UPDATE_TIME_1, DEFAULT_UPDATE_TIME_1
-                ),
-            ): str,
-            vol.Optional(
-                CONF_UPDATE_TIME_2,
-                default=self.config_entry.data.get(
-                    CONF_UPDATE_TIME_2, DEFAULT_UPDATE_TIME_2
-                ),
-            ): str,
-            vol.Optional(
-                CONF_UPDATE_TIME_3,
-                default=self.config_entry.data.get(
-                    CONF_UPDATE_TIME_3
-                ) or vol.UNDEFINED,
-            ): str,
-            vol.Required(
-                CONF_ENABLE_FORECAST_DAILY,
-                default=self.config_entry.data.get(
-                    CONF_ENABLE_FORECAST_DAILY, True
-                ),
-            ): bool,
-            vol.Required(
-                CONF_ENABLE_FORECAST_HOURLY,
-                default=self.config_entry.data.get(
-                    CONF_ENABLE_FORECAST_HOURLY, False
-                ),
-            ): bool,
-        }
-
-        # Prepare title placeholders
-        title_placeholders = {}
-        mode = self.config_entry.data.get(CONF_MODE)
-        if mode == MODE_LOCAL:
-            municipality_name = self.config_entry.data.get(CONF_MUNICIPALITY_NAME, "")
-            title_placeholders["name"] = municipality_name
-        else:
-            station_name = self.config_entry.data.get(CONF_STATION_NAME, "")
-            station_code = self.config_entry.data.get(CONF_STATION_CODE, "")
-            if station_name and station_code:
-                title_placeholders["name"] = f"{station_name} {station_code}"
-            else:
-                title_placeholders["name"] = station_name or station_code or ""
-
-        # Set title placeholders in context for the flow (if context is mutable)
-        try:
-            self.context["title_placeholders"] = title_placeholders
-        except (TypeError, AttributeError):
-            # Context is immutable in some cases (like tests), skip setting placeholders
-            pass
-
-        return self.async_show_form(
-            step_id="init_local",
-            data_schema=vol.Schema(schema_dict),
-            description_placeholders=description_placeholders,
-            title_placeholders=title_placeholders,
-            errors=errors,
-        )
-
-    async def async_step_condition_mapping_type_local(self, user_input: dict[str, Any] | None = None) -> FlowResult:
-        """Step: Select mapping type for local station options flow."""
-        from homeassistant.helpers import selector
-        import voluptuous as vol
-        errors = {}
-        
-        if user_input is not None:
-            mapping_type = user_input.get("mapping_type", "meteocat")
-            if mapping_type == "meteocat":
-                # Ensure API key is preserved in data
-                api_key = self.config_entry.data.get(CONF_API_KEY) or self.config_entry.options.get(CONF_API_KEY)
-                
-                # Update entry data with mapping type
-                updated_data = dict(self.config_entry.data)
-                updated_data[CONF_API_KEY] = api_key
-                updated_data["mapping_type"] = "meteocat"
-                # Remove custom mapping fields if they exist
-                updated_data.pop("custom_condition_mapping", None)
-                updated_data.pop("local_condition_entity", None)
-                
-                self.hass.config_entries.async_update_entry(
-                    entry=self.config_entry,
-                    data=updated_data
-                )
-                return self.async_create_entry(title="", data={})
-                
-            elif mapping_type == "custom":
-                # Ensure API key is preserved in data before going to custom mapping
-                api_key = self.config_entry.data.get(CONF_API_KEY) or self.config_entry.options.get(CONF_API_KEY)
-                
-                # Update entry data with API key preserved
-                updated_data = dict(self.config_entry.data)
-                updated_data[CONF_API_KEY] = api_key
-                
-                self.hass.config_entries.async_update_entry(
-                    entry=self.config_entry,
-                    data=updated_data
-                )
-                return await self.async_step_condition_mapping_custom()
-
-        # Get current mapping type from entry data
-        current_mapping_type = self.config_entry.data.get("mapping_type", "meteocat")
-        
-        schema = vol.Schema({
-            vol.Required(
-                "mapping_type",
-                default=current_mapping_type
-            ): selector.SelectSelector(
-                selector.SelectSelectorConfig(
-                    options=[
-                        {"value": "meteocat", "label": "Meteocat"},
-                        {"value": "custom", "label": "Personalitzat"}
-                    ]
-                )
-            ),
-        })
-        return self.async_show_form(
-            step_id="condition_mapping_type_local",
-            data_schema=schema,
-            errors=errors,
-            description_placeholders={"description": "mapping_description"},
         )
 
     async def async_step_sensors(
@@ -1181,7 +992,7 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                         CONF_SENSOR_RAIN: get_entity_id(CONF_SENSOR_RAIN),
                     }
                 )
-                return await self.async_step_condition_mapping_type_local()
+                return await self.async_step_condition_mapping_type()
 
         return self.async_show_form(
             step_id="sensors",
@@ -1249,7 +1060,14 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                     entry=self.config_entry,
                     data=updated_data
                 )
-                return await self.async_step_sensors()
+                
+                # If sensors are already configured (local mode), close the flow
+                # Otherwise, go to sensors configuration
+                mode = self.config_entry.data.get(CONF_MODE)
+                if mode == MODE_LOCAL and CONF_SENSOR_TEMPERATURE in self.config_entry.data:
+                    return self.async_create_entry(title="", data={})
+                else:
+                    return await self.async_step_sensors()
                 
             elif mapping_type == "custom":
                 # Ensure API key is preserved in data before going to custom mapping

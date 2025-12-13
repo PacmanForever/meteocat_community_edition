@@ -6,8 +6,7 @@
         "title": "Configura la connexió a l'API",
         "description": "",
         "data": {
-          "api_key": "Clau API",
-          "api_base_url": "URL de l'API (opcional, per defecte la de producció)"
+          "api_key": "Clau API"
         }
       },
       "mode": {
@@ -78,16 +77,6 @@
           "mapping_type": "Meteocat\nEl valor de condició s'agafarà automàticament de la predicció oficial de Meteocat (mapeig fix, no editable).\n\nPersonalitzat\nEl valor de la condició s'agafarà d'un sensor numèric local. Caldrà definir (a la següent pantalla) un mapeig entre els valors del sensor local i les condicions suportades per Home Assistant (ex: clear-night, sunny, partlycloudy, cloudy, rainy, pouring, lightning, snowy, fog, etc.)."
         }
       },
-      "condition_mapping_type_local": {
-        "title": "Configura la condició climàtica",
-        "description": "",
-        "data": {
-          "mapping_type": "Selecciona quin mapeig vols per la propietat 'Condició climàtica' (Icona)."
-        },
-        "data_description": {
-          "mapping_type": "Meteocat\nEl valor de condició s'agafarà automàticament de la predicció oficial de Meteocat (mapeig fix, no editable).\n\nPersonalitzat\nEl valor de la condició s'agafarà d'un sensor numèric local. Caldrà definir (a la següent pantalla) un mapeig entre els valors del sensor local i les condicions suportades per Home Assistant (ex: clear-night, sunny, partlycloudy, cloudy, rainy, pouring, lightning, snowy, fog, etc.)."
-        }
-      },
       "condition_mapping_custom": {
         "title": "Configura el mapeig de la condició climàtica",
         "description": "",
@@ -113,6 +102,8 @@
       "must_select_one_forecast": "Has de seleccionar almenys un tipus de predicció (diària o horària)",
       "required": "Aquest camp és obligatori",
       "invalid_auth": "Clau API no vàlida. Si us plau, comprova que la clau API sigui correcta.",
+      "invalid_format": "Format no vàlid. Utilitza el format 'valor: condició' en cada línia.",
+      "invalid_condition": "Condició no vàlida. Les condicions vàlides són: sunny, partlycloudy, cloudy, rainy, pouring, lightning, lightning-rainy, hail, snowy, snowy-rainy, fog, windy, windy-variant, clear-night, exceptional.",
       "unknown": "Error desconegut"
     },
     "abort": {
@@ -124,27 +115,16 @@
     "step": {
       "init": {
         "title": "Configura la predicció de Meteocat",
-        "description": "Indica a quines hores vols que s'actualitzi la predicció:",
+        "description": "Indica a quines hores vols que s'actualitzi:",
         "data": {
-          "update_time_1": "Primera hora d'actualització (format 24h: HH:MM)",
-          "update_time_2": "Segona hora d'actualització (format 24h: HH:MM)",
-          "update_time_3": "Tercera hora d'actualització (format 24h: HH:MM)",
+          "update_time_1": "Primera hora d'actualització (Format 24h: HH:MM)",
+          "update_time_2": "Segona hora d'actualització (Format 24h: HH:MM)",
+          "update_time_3": "Tercera hora d'actualització (Format 24h: HH:MM)",
           "enable_forecast_daily": "Vull la predicció diària",
           "enable_forecast_hourly": "Vull la predicció horària"
         }
       },
-      "init_local": {
-        "title": "Configura l'estació local",
-        "description": "Indica a quines hores vols que s'actualitzi la predicció:",
-        "data": {
-          "update_time_1": "Primera hora d'actualització (format 24h: HH:MM)",
-          "update_time_2": "Segona hora d'actualització (format 24h: HH:MM)",
-          "update_time_3": "Tercera hora d'actualització (format 24h: HH:MM)",
-          "enable_forecast_daily": "Vull la predicció diària",
-          "enable_forecast_hourly": "Vull la predicció horària"
-        }
-      },
-      "sensors": {
+      "local_sensors": {
         "title": "Configura els sensors locals",
         "description": "Les targetes meteorològiques no sempre mostren tots aquests valors.",
         "data": {

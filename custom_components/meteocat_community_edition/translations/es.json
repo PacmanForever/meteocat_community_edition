@@ -6,8 +6,7 @@
         "title": "Configuración de la conexión a la API",
         "description": "",
         "data": {
-          "api_key": "Clave API",
-          "api_base_url": "URL de la API (opcional, por defecto producción)"
+          "api_key": "Clave API"
         }
       },
       "mode": {
@@ -78,16 +77,6 @@
           "mapping_type": "Meteocat\nEl valor de condición se tomará automáticamente de la predicción oficial de Meteocat (mapeo fijo, no editable).\n\nPersonalizado\nEl valor de la condición se tomará de un sensor numérico local. Será necesario definir (en la siguiente pantalla) un mapeo entre los valores del sensor local y las condiciones soportadas por Home Assistant (ej: clear-night, sunny, partlycloudy, cloudy, rainy, pouring, lightning, snowy, fog, etc.)."
         }
       },
-      "condition_mapping_type_local": {
-        "title": "Configuración de la condición climática",
-        "description": "",
-        "data": {
-          "mapping_type": "Selecciona qué mapeo quieres para la propiedad 'Condición climática' (Icono)."
-        },
-        "data_description": {
-          "mapping_type": "Meteocat\nEl valor de condición se tomará automáticamente de la predicción oficial de Meteocat (mapeo fijo, no editable).\n\nPersonalizado\nEl valor de la condición se tomará de un sensor numérico local. Será necesario definir (en la siguiente pantalla) un mapeo entre los valores del sensor local y las condiciones soportadas por Home Assistant (ej: clear-night, sunny, partlycloudy, cloudy, rainy, pouring, lightning, snowy, fog, etc.)."
-        }
-      },
       "condition_mapping_custom": {
         "title": "Configuración del mapeo de la condición climática",
         "description": "",
@@ -113,6 +102,8 @@
       "must_select_one_forecast": "Debes seleccionar al menos un tipo de predicción (diaria u horaria)",
       "required": "Este campo es obligatorio",
       "invalid_auth": "Clave API no válida. Por favor, comprueba que la clave API sea correcta.",
+      "invalid_format": "Formato no válido. Utiliza el formato 'valor: condición' en cada línea.",
+      "invalid_condition": "Condición no válida. Las condiciones válidas son: sunny, partlycloudy, cloudy, rainy, pouring, lightning, lightning-rainy, hail, snowy, snowy-rainy, fog, windy, windy-variant, clear-night, exceptional.",
       "unknown": "Error desconocido"
     },
     "abort": {
@@ -123,7 +114,7 @@
   "options": {
     "step": {
       "init": {
-        "title": "Configuración de la estación externa",
+        "title": "Configuración de la predicción Meteocat",
         "description": "Indica a qué horas quieres que se actualice.'",
         "data": {
           "update_time_1": "Primera hora de actualización (Formato 24h: HH:MM)",
@@ -133,18 +124,7 @@
           "enable_forecast_hourly": "Quiero la predicción horaria"
         }
       },
-      "init_local": {
-        "title": "Configuración de la estación local",
-        "description": "Indica a qué horas quieres que se actualice.'",
-        "data": {
-          "update_time_1": "Primera hora de actualización (Formato 24h: HH:MM)",
-          "update_time_2": "Segunda hora de actualización (Formato 24h: HH:MM)",
-          "update_time_3": "Tercera hora de actualización (Formato 24h: HH:MM)",
-          "enable_forecast_daily": "Quiero la predicción diaria",
-          "enable_forecast_hourly": "Quiero la predicción horaria"
-        }
-      },
-      "sensors": {
+      "local_sensors": {
         "title": "Configura los sensores locales",
         "description": "Las tarjetas meteorológicas no siempre muestran todos estos valores'.",
         "data": {

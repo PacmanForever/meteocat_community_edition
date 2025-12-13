@@ -1,244 +1,226 @@
 {
-  "title": "Meteocat (Edició Comunitària)",
+  "title": "Meteocat (Community Edition)",
   "config": {
     "step": {
       "user": {
-        "title": "Accés a l'API",
+        "title": "API Access",
         "description": "",
         "data": {
-          "api_key": "Clau API",
-          "api_base_url": "URL de l'API (opcional, per defecte producció)"
+          "api_key": "API Key"
         }
       },
       "mode": {
-        "title": "Nova estació",
+        "title": "New Station",
         "description": "",
         "data": {
-          "mode": "Classe d'estació"
+          "mode": "Station Type"
         }
       },
       "comarca": {
-        "title": "Selecciona una comarca",
+        "title": "Select a Region",
         "description": "",
         "data": {
-          "comarca_code": "Comarca"
+          "comarca_code": "Region"
         }
       },
       "station": {
-        "title": "Selecciona una estació externa",
+        "title": "Select External Station",
         "description": "",
         "data": {
-          "station_code": "Estació"
+          "station_code": "Station"
         }
       },
       "municipality": {
-        "title": "Selecciona el municipi",
+        "title": "Select Municipality",
         "description": "",
         "data": {
-          "municipality_code": "Municipi"
+          "municipality_code": "Municipality"
         }
       },
       "update_times": {
-        "title": "Actualització de dades",
-        "description": "Configura les dades a descarregar i les hores d'actualització.\n\n**Tipus de consultes**\n{measurements_info}",
+        "title": "Data Updates",
+        "description": "Configure data to download and update times.\n\n**Query Types**\n{measurements_info}",
         "data": {
-          "measurements_label": "Mesures (obligatori)",
-          "enable_forecast_daily": "Predicció diària",
-          "enable_forecast_hourly": "Predicció horària",
-          "update_time_1": "Primera actualització (Format 24h: HH:MM)",
-          "update_time_2": "Segona actualització (Format 24h: HH:MM)",
-          "update_time_3": "Tercera actualització (Format 24h: HH:MM)"
+          "enable_forecast_daily": "Daily Forecast",
+          "enable_forecast_hourly": "Hourly Forecast",
+          "update_time_1": "First update (24h format: HH:MM)",
+          "update_time_2": "Second update (24h format: HH:MM)",
+          "update_time_3": "Third update (24h format: HH:MM)"
         }
       },
       "local_sensors": {
-        "title": "Sensors Locals",
-        "description": "Les targetes meteorològiques no sempre mostren tots els valors.",
+        "title": "Local Sensors",
+        "description": "Weather cards don't always display all values.",
         "data": {
-          "sensor_temperature": "Temperatura (obligatori)",
-          "sensor_humidity": "Humitat (obligatori)",
-          "sensor_pressure": "Pressió atmosfèrica",
-          "sensor_wind_speed": "Velocitat del vent",
-          "sensor_wind_bearing": "Direcció del vent (numèric/graus)",
-          "sensor_wind_gust": "Ràfega de vent",
-          "sensor_visibility": "Visibilitat",
-          "sensor_uv_index": "Índex UV",
-          "sensor_ozone": "Ozó",
-          "sensor_cloud_coverage": "Cobertura de núvols",
-          "sensor_dew_point": "Punt de rosada",
-          "sensor_apparent_temperature": "Temperatura aparent",
-          "sensor_rain": "Intensitat de pluja"
+          "sensor_temperature": "Temperature (required)",
+          "sensor_humidity": "Humidity (required)",
+          "sensor_pressure": "Atmospheric Pressure",
+          "sensor_wind_speed": "Wind Speed",
+          "sensor_wind_bearing": "Wind Direction (numeric/degrees)",
+          "sensor_wind_gust": "Wind Gust",
+          "sensor_visibility": "Visibility",
+          "sensor_uv_index": "UV Index",
+          "sensor_ozone": "Ozone",
+          "sensor_cloud_coverage": "Cloud Coverage",
+          "sensor_dew_point": "Dew Point",
+          "sensor_apparent_temperature": "Apparent Temperature",
+          "sensor_rain": "Rain Intensity"
         }
       },
       "condition_mapping_type": {
-        "title": "Condició climàtica",
-        "description": "Selecciona quin mapeig vols per la propietat 'Condició climàtica' (icona).",
+        "title": "Weather Condition",
+        "description": "Select which mapping you want for the 'Weather Condition' property (icon).",
         "data": {
-          "mapping_type": "Tipus de mapeig"
+          "mapping_type": "Mapping Type"
         },
         "data_description": {
-          "mapping_type": "Meteocat: El valor de condició s'agafarà automàticament de la predicció oficial de Meteocat (mapeig fix, no editable).\n\nPersonalitzat: El valor de la condició s'agafarà d'un sensor numèric local. Caldrà definir (a la següent pantalla) un mapeig entre els valors del sensor local i les condicions suportades per Home Assistant (ex: clear-night, sunny, partlycloudy, cloudy, rainy, pouring, lightning, snowy, fog, etc.)."
-        }
-      },
-      "condition_mapping_type_local": {
-        "title": "Condició climàtica",
-        "description": "Selecciona quin mapeig vols per la propietat 'Condició climàtica' (icona).",
-        "data": {
-          "mapping_type": "Tipus de mapeig"
-        },
-        "data_description": {
-          "mapping_type": "Meteocat: El valor de condició s'agafarà automàticament de la predicció oficial de Meteocat (mapeig fix, no editable).\n\nPersonalitzat: El valor de la condició s'agafarà d'un sensor numèric local. Caldrà definir (a la següent pantalla) un mapeig entre els valors del sensor local i les condicions suportades per Home Assistant (ex: clear-night, sunny, partlycloudy, cloudy, rainy, pouring, lightning, snowy, fog, etc.)."
+          "mapping_type": "Meteocat: The condition value will be taken automatically from the official Meteocat forecast (fixed mapping, not editable).\n\nCustom: The condition value will be taken from a local numeric sensor. You will need to define (on the next screen) a mapping between the local sensor values and the weather conditions supported by Home Assistant (ex: clear-night, sunny, partlycloudy, cloudy, rainy, pouring, lightning, snowy, fog, etc.)."
         }
       },
       "condition_mapping_custom": {
-        "title": "Configuració del mapeig de la condició climàtica",
-        "description": "Selecciona el sensor que conté el valor de la condició i el mapeig que es farà servir.",
+        "title": "Weather Condition Mapping Configuration",
+        "description": "Select the sensor that contains the condition value and the mapping to be used.",
         "data": {
-          "local_condition_entity": "Sensor que indica la condició (obligatori)",
-          "custom_condition_mapping": "Mapeig de valors (obligatori)"
+          "local_condition_entity": "Sensor that indicates the condition (required)",
+          "custom_condition_mapping": "Value mapping (required)"
         }
       },
       "reauth_confirm": {
-        "title": "Re-autenticació necessària",
-        "description": "La teva clau API ha expirat o no és vàlida. Si us plau, introdueix una nova clau API vàlida."
+        "title": "Re-authentication Required",
+        "description": "Your API key has expired or is invalid. Please enter a new valid API key."
       }
     },
     "error": {
-      "cannot_connect": "No s'ha pogut connectar amb l'API de Meteocat. Comprova la clau API.",
-      "no_comarques": "No s'han trobat comarques disponibles",
-      "no_stations": "No s'han trobat estacions en aquesta comarca",
-      "no_municipalities": "No s'han trobat municipis en aquesta comarca",
-      "no_comarca_selected": "Has de seleccionar una comarca",
-      "no_station_selected": "Has de seleccionar una estació",
-      "invalid_time_format": "Format d'hora no vàlid. Utilitza el format 24h: HH:MM (exemple: 06:00 o 14:30)",
-      "times_must_differ": "Les hores d'actualització han de ser diferents",
-      "must_select_one_forecast": "Has de seleccionar almenys un tipus de predicció (diària o horària) en mode municipi",
-      "required": "Aquest camp és obligatori",
-      "invalid_auth": "Clau API no vàlida. Si us plau, comprova que la clau API sigui correcta.",
-      "invalid_format": "Format no vàlid. Utilitza el format 'valor: condició' en cada línia.",
-      "invalid_condition": "Condició no vàlida. Les condicions vàlides són: sunny, partlycloudy, cloudy, rainy, pouring, lightning, lightning-rainy, hail, snowy, snowy-rainy, fog, windy, windy-variant, clear-night, exceptional.",
-      "unknown": "Error desconegut"
+      "cannot_connect": "Cannot connect to Meteocat API. Check your API key.",
+      "no_comarques": "No regions available",
+      "no_stations": "No stations found in this region",
+      "no_municipalities": "No municipalities found in this region",
+      "no_comarca_selected": "You must select a region",
+      "no_station_selected": "You must select a station",
+      "invalid_time_format": "Invalid time format. Use 24h format: HH:MM (example: 06:00 or 14:30)",
+      "times_must_differ": "Update times must be different",
+      "must_select_one_forecast": "You must select at least one forecast type (daily or hourly) in municipality mode",
+      "required": "This field is required",
+      "invalid_auth": "Invalid API key. Please check that your API key is correct.",
+      "invalid_format": "Invalid format. Use the format 'value: condition' on each line.",
+      "invalid_condition": "Invalid condition. Valid conditions are: sunny, partlycloudy, cloudy, rainy, pouring, lightning, lightning-rainy, hail, snowy, snowy-rainy, fog, windy, windy-variant, clear-night, exceptional.",
+      "unknown": "Unknown error"
     },
     "abort": {
-      "already_configured": "Aquesta estació ja està configurada",
-      "reauth_successful": "Re-autenticació completada correctament"
+      "already_configured": "This station is already configured",
+      "reauth_successful": "Re-authentication completed successfully"
     }
   },
   "options": {
     "step": {
       "init": {
-        "title": "Configuració",
+        "title": "Configuration",
         "description": "",
         "data": {
-          "api_base_url": "URL base de l'API (deixa per defecte per a producció)",
-          "measurements_label": "Mesures (obligatori)",
-          "enable_forecast_daily": "Predicció diària",
-          "enable_forecast_hourly": "Predicció horària",
-          "update_time_1": "Primera actualització (Format 24h: HH:MM)",
-          "update_time_2": "Segona actualització (Format 24h: HH:MM)",
-          "update_time_3": "Tercera actualització (Format 24h: HH:MM)"
+          "enable_forecast_daily": "Daily Forecast",
+          "enable_forecast_hourly": "Hourly Forecast",
+          "update_time_1": "First update (24h format: HH:MM)",
+          "update_time_2": "Second update (24h format: HH:MM)",
+          "update_time_3": "Third update (24h format: HH:MM)"
         }
       },
-      "init_local": {
-        "title": "Configuració estació local {name}",
-        "description": "{measurements_info}",
+      "local_sensors": {
+        "title": "Configure Local Sensors",
+        "description": "Weather cards don't always display all values.",
         "data": {
-          "api_base_url": "URL base de l'API (deixa per defecte per a producció)",
-          "measurements_label": "Mesures (obligatori)",
-          "enable_forecast_daily": "Predicció diària",
-          "enable_forecast_hourly": "Predicció horària",
-          "update_time_1": "Primera actualització (Format 24h: HH:MM)",
-          "update_time_2": "Segona actualització (Format 24h: HH:MM)",
-          "update_time_3": "Tercera actualització (Format 24h: HH:MM)"
-        }
-      },
-      "condition_mapping_type_local": {
-        "title": "Condició climàtica",
-        "description": "",
-        "data": {
-          "mapping_type": "Tipus de mapeig"
-        },
-        "data_description": {
-          "mapping_type": "Meteocat: El valor de condició s'agafarà automàticament de la predicció oficial de Meteocat (mapeig fix, no editable).\n\nPersonalitzat: El valor de la condició s'agafarà d'un sensor numèric local. Caldrà definir (a la següent pantalla) un mapeig entre els valors del sensor local i les condicions suportades per Home Assistant (ex: clear-night, sunny, partlycloudy, cloudy, rainy, pouring, lightning, snowy, fog, etc.)."
+          "sensor_temperature": "Temperature",
+          "sensor_humidity": "Relative Air Humidity",
+          "sensor_pressure": "Atmospheric Pressure",
+          "sensor_wind_speed": "Wind Speed",
+          "sensor_wind_bearing": "Wind Direction (degrees)",
+          "sensor_wind_gust": "Maximum Wind Gust",
+          "sensor_visibility": "Visibility",
+          "sensor_uv_index": "UV Index",
+          "sensor_ozone": "Ozone",
+          "sensor_cloud_coverage": "Cloud Coverage",
+          "sensor_dew_point": "Dew Point",
+          "sensor_apparent_temperature": "Apparent Temperature",
+          "sensor_rain": "Rain Intensity"
         }
       },
       "condition_mapping_custom": {
-        "title": "Configuració del mapeig de la condició climàtica",
-        "description": "Selecciona el sensor que conté el valor de la condició i el mapeig que es farà servir.",
+        "title": "Weather Condition Mapping Configuration",
+        "description": "Select the sensor that contains the condition value and the mapping to be used.",
         "data": {
-          "local_condition_entity": "Sensor que indica la condició (obligatori)",
-          "custom_condition_mapping": "Mapeig de valors (obligatori)"
+          "local_condition_entity": "Sensor that indicates the condition (required)",
+          "custom_condition_mapping": "Value mapping (required)"
         }
       }
     }
   },
   "device_automation": {
     "trigger_type": {
-      "data_updated": "Dades actualitzades",
-      "next_update_changed": "Canvi de pròxima actualització"
+      "data_updated": "Data Updated",
+      "next_update_changed": "Next Update Changed"
     }
   },
   "entity": {
     "sensor": {
       "temperature": {
-        "name": "Temperatura"
+        "name": "Temperature"
       },
       "humidity": {
-        "name": "Humitat"
+        "name": "Humidity"
       },
       "pressure": {
-        "name": "Pressió"
+        "name": "Pressure"
       },
       "wind_speed": {
-        "name": "Velocitat del vent"
+        "name": "Wind Speed"
       },
       "wind_direction": {
-        "name": "Direcció del vent"
+        "name": "Wind Direction"
       },
       "precipitation": {
-        "name": "Precipitació"
+        "name": "Precipitation"
       },
       "solar_radiation": {
-        "name": "Radiació solar"
+        "name": "Solar Radiation"
       },
       "forecast_hourly": {
-        "name": "Predicció Horària"
+        "name": "Hourly Forecast"
       },
       "forecast_daily": {
-        "name": "Predicció Diària"
+        "name": "Daily Forecast"
       },
       "last_update": {
-        "name": "Última actualització"
+        "name": "Last Update"
       },
       "next_update": {
-        "name": "Pròxima actualització"
+        "name": "Next Update"
       },
       "next_forecast_update": {
-        "name": "Pròxima actualització predicció"
+        "name": "Next Forecast Update"
       },
       "last_forecast_update": {
-        "name": "Última actualització predicció"
+        "name": "Last Forecast Update"
       },
       "update_time": {
-        "name": "Hora d'actualització {number}"
+        "name": "Update Time {number}"
       },
       "latitude": {
-        "name": "Latitud"
+        "name": "Latitude"
       },
       "longitude": {
-        "name": "Longitud"
+        "name": "Longitude"
       }
     },
     "binary_sensor": {
       "update_state": {
-        "name": "Última actualització correcte"
+        "name": "Last Update Successful"
       }
     },
     "button": {
       "refresh_measurements": {
-        "name": "Actualitzar Mesures"
+        "name": "Refresh Measurements"
       },
       "refresh_forecast": {
-        "name": "Actualitzar Predicció"
+        "name": "Refresh Forecast"
       }
     }
   }
