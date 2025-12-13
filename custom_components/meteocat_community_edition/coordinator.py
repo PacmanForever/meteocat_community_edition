@@ -90,13 +90,17 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             self.municipality_code = entry.data.get("station_municipality_code")
         
         # Get update times from config or use defaults
-        self.update_time_1 = entry.options.get(CONF_UPDATE_TIME_1, entry.data.get(CONF_UPDATE_TIME_1, DEFAULT_UPDATE_TIME_1))
-        self.update_time_2 = entry.options.get(CONF_UPDATE_TIME_2, entry.data.get(CONF_UPDATE_TIME_2, DEFAULT_UPDATE_TIME_2))
-        self.update_time_3 = entry.options.get(CONF_UPDATE_TIME_3, entry.data.get(CONF_UPDATE_TIME_3, ""))
+        self.update_time_1 = entry.options.get(CONF_UPDATE_TIME_1, entry.data.get(CONF_UPDATE_TIME_1, DEFAULT_UPDATE_TIME_1)) or DEFAULT_UPDATE_TIME_1
+        self.update_time_2 = entry.options.get(CONF_UPDATE_TIME_2, entry.data.get(CONF_UPDATE_TIME_2, DEFAULT_UPDATE_TIME_2)) or DEFAULT_UPDATE_TIME_2
+        self.update_time_3 = entry.options.get(CONF_UPDATE_TIME_3, entry.data.get(CONF_UPDATE_TIME_3, "")) or ""
         
         # Get forecast settings
         self.enable_forecast_daily = entry.options.get(CONF_ENABLE_FORECAST_DAILY, entry.data.get(CONF_ENABLE_FORECAST_DAILY, True))
+        if self.enable_forecast_daily is None:
+            self.enable_forecast_daily = True
         self.enable_forecast_hourly = entry.options.get(CONF_ENABLE_FORECAST_HOURLY, entry.data.get(CONF_ENABLE_FORECAST_HOURLY, False))
+        if self.enable_forecast_hourly is None:
+            self.enable_forecast_hourly = False
         
         # Get API base URL from options or use default
         api_base_url = entry.options.get(CONF_API_BASE_URL, DEFAULT_API_BASE_URL)
@@ -226,7 +230,7 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         today = now.date()
         
         update_times_list = [self.update_time_1, self.update_time_2]
-        if self.update_time_3:
+        if self.update_time_3 and self.update_time_3.strip():
             update_times_list.append(self.update_time_3)
             
         update_datetimes = [

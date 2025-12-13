@@ -1091,8 +1091,7 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
         schema = vol.Schema({
             vol.Required(
                 "mapping_type",
-                default=current_mapping_type,
-                description={"suggested_value": "mapping_type_label"}
+                default=current_mapping_type
             ): selector.SelectSelector(
                 selector.SelectSelectorConfig(
                     options=[
@@ -1242,8 +1241,7 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
         schema = vol.Schema({
             vol.Required(
                 "mapping_type",
-                default=current_mapping_type,
-                description={"suggested_value": "mapping_type_label"}
+                default=current_mapping_type
             ): selector.SelectSelector(
                 selector.SelectSelectorConfig(
                     options=[

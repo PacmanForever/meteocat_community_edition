@@ -5,6 +5,12 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.22] - 2025-12-13
+
+### Corregit
+- **Flux d'opcions**: S'ha corregit la selecció del tipus de mapping a l'editar estacions locals, eliminant un paràmetre que interferia amb la visualització del valor per defecte.
+- **Tests**: S'han actualitzat els tests de traduccions per coincidir amb els fitxers de traduccions actuals.
+
 ## [1.2.21] - 2025-12-13
 
 ### Millorat

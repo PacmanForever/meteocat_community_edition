@@ -30,7 +30,7 @@ def test_options_flow_description_content():
     # Catalan
     ca = load_translation("ca")
     desc_ca = ca["options"]["step"]["init"]["description"]
-    assert desc_ca == "Indica a quines hores vols que s'actualitzi la predicció.'"
+    assert desc_ca == "Indica a quines hores vols que s'actualitzi la predicció:"
     assert "opcions avançades" not in desc_ca
     
     # Spanish

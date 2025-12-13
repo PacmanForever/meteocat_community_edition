@@ -28,6 +28,7 @@ def mock_entry():
         "update_time_1": "06:00",
         "update_time_2": "14:00",
     }
+    entry.options = {}
     return entry
 
 @pytest.mark.asyncio

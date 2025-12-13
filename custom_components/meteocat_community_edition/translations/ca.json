@@ -40,7 +40,7 @@
       },
       "update_times": {
         "title": "Configura la predicció de Meteocat",
-        "description": "Indica a quines hores vols que s'actualitzi.",
+        "description": "Indica a quines hores vols que s'actualitzi:",
         "data": {
           "update_time_1": "Primera hora d'actualització (Format 24h: HH:MM)",
           "update_time_2": "Segona hora d'actualització (Format 24h: HH:MM)",
@@ -123,8 +123,8 @@
   "options": {
     "step": {
       "init": {
-        "title": "Configura l'estació externa",
-        "description": "Indica a quines hores vols que s'actualitzi la predicció.'",
+        "title": "Configura la predicció de Meteocat",
+        "description": "Indica a quines hores vols que s'actualitzi la predicció:",
         "data": {
           "update_time_1": "Primera hora d'actualització (format 24h: HH:MM)",
           "update_time_2": "Segona hora d'actualització (format 24h: HH:MM)",
@@ -135,7 +135,7 @@
       },
       "init_local": {
         "title": "Configura l'estació local",
-        "description": "Indica a quines hores vols que s'actualitzi la predicció.'",
+        "description": "Indica a quines hores vols que s'actualitzi la predicció:",
         "data": {
           "update_time_1": "Primera hora d'actualització (format 24h: HH:MM)",
           "update_time_2": "Segona hora d'actualització (format 24h: HH:MM)",
@@ -146,7 +146,7 @@
       },
       "sensors": {
         "title": "Configura els sensors locals",
-        "description": "Les targetes meteorològiques no sempre mostren tots aquests valors'.",
+        "description": "Les targetes meteorològiques no sempre mostren tots aquests valors.",
         "data": {
           "sensor_temperature": "Temperatura",
           "sensor_humidity": "Humitat relativa de l'aire",

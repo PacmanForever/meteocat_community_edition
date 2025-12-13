@@ -30,7 +30,7 @@ def test_options_flow_description_content():
     # Catalan
     ca = load_translation("ca")
     desc_ca = ca["options"]["step"]["init"]["description"]
-    assert desc_ca == "Indica a quines hores vols que s'actualitzi la predicció.'"
+    assert desc_ca == "Indica a quines hores vols que s'actualitzi la predicció:"
     assert "opcions avançades" not in desc_ca
     
     # Spanish
@@ -52,7 +52,7 @@ def test_options_flow_title_content():
     # Catalan
     ca = load_translation("ca")
     title_ca = ca["options"]["step"]["init"]["title"]
-    assert title_ca == "Configuració de l'estació externa"
+    assert title_ca == "Configura la predicció de Meteocat"
     
     # Spanish
     es = load_translation("es")
@@ -72,8 +72,8 @@ def test_update_times_title_and_description():
     ca = load_translation("ca")
     title_ca = ca["config"]["step"]["update_times"]["title"]
     desc_ca = ca["config"]["step"]["update_times"]["description"]
-    assert title_ca == "Configuració de la predicció Meteocat"
-    assert desc_ca == "Indica a quines hores vols que s'actualitzi.'"
+    assert title_ca == "Configura la predicció de Meteocat"
+    assert desc_ca == "Indica a quines hores vols que s'actualitzi:"
     
     # Spanish
     es = load_translation("es")
@@ -100,7 +100,7 @@ def test_condition_mapping_custom_texts():
     entity_label_ca = ca["config"]["step"]["condition_mapping_custom"]["data"]["local_condition_entity"]
     mapping_label_ca = ca["config"]["step"]["condition_mapping_custom"]["data"]["custom_condition_mapping"]
     
-    assert title_ca == "Configuració del mapeig de la condició climàtica"
+    assert title_ca == "Configura el mapeig de la condició climàtica"
     assert desc_ca == ""
     assert entity_label_ca == "Sensor que indica la condició"
     assert mapping_label_ca == "Mapeig de valors"
