@@ -53,7 +53,7 @@ def test_options_flow_description_content():
     # English
     en = load_translation("en")
     desc_en = en["config"]["step"]["update_times"]["description"]
-    assert desc_en == "Configure data to download and update times.\n\n**Query Types**\n{measurements_info}"
+    assert desc_en == "Indicate at what times you want it to update:"
     assert "advanced options" not in desc_en
 
 def test_options_flow_sensors_labels():

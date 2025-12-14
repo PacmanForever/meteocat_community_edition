@@ -766,9 +766,6 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Optional(CONF_SENSOR_WIND_GUST): selector.EntitySelector(
                     selector.EntitySelectorConfig(domain="sensor", device_class="wind_speed")
                 ),
-                vol.Optional(CONF_SENSOR_RAIN): selector.EntitySelector(
-                    selector.EntitySelectorConfig(domain="sensor")
-                ),
                 vol.Optional(CONF_SENSOR_VISIBILITY): selector.EntitySelector(
                     selector.EntitySelectorConfig(domain="sensor")
                 ),
@@ -786,6 +783,9 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 ),
                 vol.Optional(CONF_SENSOR_APPARENT_TEMPERATURE): selector.EntitySelector(
                     selector.EntitySelectorConfig(domain="sensor", device_class="temperature")
+                ),
+                vol.Optional(CONF_SENSOR_RAIN): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain="sensor")
                 ),
             }),
             errors=errors,
@@ -1003,7 +1003,11 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                         CONF_SENSOR_DEW_POINT: get_entity_id(CONF_SENSOR_DEW_POINT),
                         CONF_SENSOR_APPARENT_TEMPERATURE: get_entity_id(CONF_SENSOR_APPARENT_TEMPERATURE),
                         CONF_SENSOR_RAIN: get_entity_id(CONF_SENSOR_RAIN),
-                    }
+                    },
+                    options={
+                        **self.config_entry.options,
+                        CONF_API_KEY: api_key,  # Also store in options for safety
+                    },
                 )
                 return await self.async_step_condition_mapping_type()
 
@@ -1076,7 +1080,11 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                 
                 self.hass.config_entries.async_update_entry(
                     entry=self.config_entry,
-                    data=updated_data
+                    data=updated_data,
+                    options={
+                        **self.config_entry.options,
+                        CONF_API_KEY: api_key,  # Also store in options for safety
+                    },
                 )
                 
                 # If sensors are already configured (local mode), close the flow
@@ -1097,7 +1105,11 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                 
                 self.hass.config_entries.async_update_entry(
                     entry=self.config_entry,
-                    data=updated_data
+                    data=updated_data,
+                    options={
+                        **self.config_entry.options,
+                        CONF_API_KEY: api_key,  # Also store in options for safety
+                    },
                 )
                 return await self.async_step_condition_mapping_custom()
 
@@ -1173,7 +1185,11 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                     
                     self.hass.config_entries.async_update_entry(
                         entry=self.config_entry,
-                        data=updated_data
+                        data=updated_data,
+                        options={
+                            **self.config_entry.options,
+                            CONF_API_KEY: api_key,  # Also store in options for safety
+                        },
                     )
                     
                     return self.async_create_entry(title="", data={})

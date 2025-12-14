@@ -64,7 +64,7 @@
           "sensor_cloud_coverage": "Cobertura de núvols",
           "sensor_dew_point": "Punt de rosada",
           "sensor_apparent_temperature": "Temperatura de sensació",
-          "sensor_rain": "Intensitat de pluja"
+          "sensor_rain": "Intensitat de pluja (només es fa servir si plou per canviar la condició climàtica en el mapeig Meteocat)"
         }
       },
       "condition_mapping_type": {
@@ -116,7 +116,7 @@
     "step": {
       "init": {
         "title": "Configura la predicció de Meteocat",
-        "description": "Indica a quines hores vols que s'actualitzi la predicció:",
+        "description": "Indica a quines hores vols que s'actualitzi:",
         "data": {
           "update_time_1": "Primera hora d'actualització (Format 24h: HH:MM)",
           "update_time_2": "Segona hora d'actualització (Format 24h: HH:MM)",
@@ -141,7 +141,7 @@
           "sensor_cloud_coverage": "Cobertura de núvols",
           "sensor_dew_point": "Punt de rosada",
           "sensor_apparent_temperature": "Temperatura de sensació",
-          "sensor_rain": "Intensitat de pluja (només es fa servir si plou i per canvia la condició climàtica en el mapeig Meteocat)"
+          "sensor_rain": "Intensitat de pluja (només es fa servir si plou per canviar la condició climàtica en el mapeig Meteocat)"
         }
       },
       "condition_mapping_type": {

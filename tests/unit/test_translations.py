@@ -32,7 +32,7 @@ def test_options_flow_description_content():
     # Catalan
     ca = load_translation("ca")
     desc_ca = ca["options"]["step"]["init"]["description"]
-    assert desc_ca == "Indica a quines hores vols que s'actualitzi la predicció:"
+    assert desc_ca == "Indica a quines hores vols que s'actualitzi:"
     assert "opcions avançades" not in desc_ca
     
     # Spanish
@@ -44,7 +44,7 @@ def test_options_flow_description_content():
     # English
     en = load_translation("en")
     desc_en = en["options"]["step"]["init"]["description"]
-    assert desc_en == ""
+    assert desc_en == "Indicate at what times you want it to update:"
     assert "advanced options" not in desc_en
 
 
@@ -64,7 +64,7 @@ def test_options_flow_title_content():
     # English
     en = load_translation("en")
     title_en = en["options"]["step"]["init"]["title"]
-    assert title_en == "Configuration"
+    assert title_en == "Configure Meteocat Forecast"
 
 
 def test_update_times_title_and_description():
@@ -88,8 +88,8 @@ def test_update_times_title_and_description():
     en = load_translation("en")
     title_en = en["config"]["step"]["update_times"]["title"]
     desc_en = en["config"]["step"]["update_times"]["description"]
-    assert title_en == "Data Updates"
-    assert desc_en == "Configure data to download and update times.\n\n**Query Types**\n{measurements_info}"
+    assert title_en == "Configure Meteocat Forecast"
+    assert desc_en == "Indicate at what times you want it to update:"
 
 
 def test_condition_mapping_custom_texts():
@@ -126,7 +126,7 @@ def test_condition_mapping_custom_texts():
     entity_label_en = en["config"]["step"]["condition_mapping_custom"]["data"]["local_condition_entity"]
     mapping_label_en = en["config"]["step"]["condition_mapping_custom"]["data"]["custom_condition_mapping"]
     
-    assert title_en == "Weather Condition Mapping Configuration"
+    assert title_en == "Configure Weather Condition Mapping"
     assert desc_en == "Select the sensor that contains the condition value and the mapping to be used."
     assert entity_label_en == "Sensor that indicates the condition (required)"
     assert mapping_label_en == "Value mapping (required)"

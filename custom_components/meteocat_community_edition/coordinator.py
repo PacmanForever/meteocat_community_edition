@@ -89,6 +89,10 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         if not self.municipality_code and self.mode == MODE_EXTERNAL:
             self.municipality_code = entry.data.get("station_municipality_code")
         
+        # Ensure options is a dict (should always be, but be safe)
+        if entry.options is None:
+            entry.options = {}
+        
         # Get update times from config or use defaults
         self.update_time_1 = entry.options.get(CONF_UPDATE_TIME_1, entry.data.get(CONF_UPDATE_TIME_1, DEFAULT_UPDATE_TIME_1)) or DEFAULT_UPDATE_TIME_1
         self.update_time_2 = entry.options.get(CONF_UPDATE_TIME_2, entry.data.get(CONF_UPDATE_TIME_2, DEFAULT_UPDATE_TIME_2)) or DEFAULT_UPDATE_TIME_2
@@ -106,7 +110,9 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         api_base_url = entry.options.get(CONF_API_BASE_URL, DEFAULT_API_BASE_URL)
         
         # Get API key - handle migration from old entries that don't have it
-        api_key = entry.data.get(CONF_API_KEY) or entry.options.get(CONF_API_KEY)
+        api_key = entry.data.get(CONF_API_KEY)
+        if not api_key and entry.options:
+            api_key = entry.options.get(CONF_API_KEY)
         if not api_key:
             _LOGGER.error(
                 "Entry '%s' is missing API key. Entry data keys: %s, Entry options keys: %s. "
