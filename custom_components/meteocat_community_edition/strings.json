@@ -144,6 +144,16 @@
           "sensor_rain": "Rain Intensity (only used when raining and to change weather condition in Meteocat mapping)"
         }
       },
+      "condition_mapping_type": {
+        "title": "Weather Condition",
+        "description": "Select which mapping you want for the 'Weather Condition' property (icon).",
+        "data": {
+          "mapping_type": "Mapping Type"
+        },
+        "data_description": {
+          "mapping_type": "Meteocat: The condition value will be taken automatically from the official Meteocat forecast (fixed mapping, not editable).\n\nCustom: The condition value will be taken from a local numeric sensor. You will need to define (on the next screen) a mapping between the local sensor values and the weather conditions supported by Home Assistant (ex: clear-night, sunny, partlycloudy, cloudy, rainy, pouring, lightning, snowy, fog, etc.)."
+        }
+      },
       "condition_mapping_custom": {
         "title": "Weather Condition Mapping Configuration",
         "description": "Select the sensor that contains the condition value and the mapping to be used.",

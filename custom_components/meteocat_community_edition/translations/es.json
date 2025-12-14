@@ -144,6 +144,16 @@
           "sensor_rain": "Intensidad de lluvia (solo se usa si llueve y para cambiar la condición climática en el mapeo Meteocat)"
         }
       },
+      "condition_mapping_type": {
+        "title": "Configuración de la condición climática",
+        "description": "",
+        "data": {
+          "mapping_type": "Selecciona qué mapeo quieres para la propiedad 'Condición climática' (Icono)."
+        },
+        "data_description": {
+          "mapping_type": "Meteocat\nEl valor de condición se tomará automáticamente de la predicción oficial de Meteocat (mapeo fijo, no editable).\n\nPersonalizado\nEl valor de la condición se tomará de un sensor numérico local. Será necesario definir (en la siguiente pantalla) un mapeo entre los valores del sensor local y las condiciones soportadas por Home Assistant (ej: clear-night, sunny, partlycloudy, cloudy, rainy, pouring, lightning, snowy, fog, etc.)."
+        }
+      },
       "condition_mapping_custom": {
         "title": "Configuración del mapeo de la condición climática",
         "description": "",

@@ -144,6 +144,16 @@
           "sensor_rain": "Intensitat de pluja (només es fa servir si plou i per canvia la condició climàtica en el mapeig Meteocat)"
         }
       },
+      "condition_mapping_type": {
+        "title": "Configura la condició climàtica",
+        "description": "",
+        "data": {
+          "mapping_type": "Selecciona quin mapeig vols per la propietat 'Condició climàtica' (Icona)."
+        },
+        "data_description": {
+          "mapping_type": "Meteocat\nEl valor de condició s'agafarà automàticament de la predicció oficial de Meteocat (mapeig fix, no editable).\n\nPersonalitzat\nEl valor de la condició s'agafarà d'un sensor numèric local. Caldrà definir (a la següent pantalla) un mapeig entre els valors del sensor local i les condicions suportades per Home Assistant (ex: clear-night, sunny, partlycloudy, cloudy, rainy, pouring, lightning, snowy, fog, etc.)."
+        }
+      },
       "condition_mapping_custom": {
         "title": "Configura el mapeig de la condició climàtica",
         "description": "",

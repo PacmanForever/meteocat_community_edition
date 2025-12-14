@@ -56,7 +56,7 @@ async def test_options_flow_local_sensors(hass: HomeAssistant):
 
     # Should redirect to sensors step
     assert result["type"] == FlowResultType.FORM
-    assert result["step_id"] == "sensors"
+    assert result["step_id"] == "local_sensors"
 
     # Submit sensors step with new values
     user_input_sensors = {
@@ -125,7 +125,7 @@ async def test_options_flow_local_switch_to_custom_mapping(hass: HomeAssistant):
 
     # Should redirect to sensors step
     assert result["type"] == FlowResultType.FORM
-    assert result["step_id"] == "sensors"
+    assert result["step_id"] == "local_sensors"
 
     # Submit sensors step
     user_input_sensors = {
@@ -209,7 +209,7 @@ async def test_options_flow_local_switch_to_meteocat_mapping(hass: HomeAssistant
 
     # Should redirect to sensors step
     assert result["type"] == FlowResultType.FORM
-    assert result["step_id"] == "sensors"
+    assert result["step_id"] == "local_sensors"
 
     # Submit sensors step
     user_input_sensors = {
@@ -280,7 +280,7 @@ async def test_options_flow_local_edit_custom_mapping(hass: HomeAssistant):
 
     # Should redirect to sensors step
     assert result["type"] == FlowResultType.FORM
-    assert result["step_id"] == "sensors"
+    assert result["step_id"] == "local_sensors"
 
     # Submit sensors step
     user_input_sensors = {
@@ -365,7 +365,7 @@ async def test_options_flow_local_edit_meteocat_mapping(hass: HomeAssistant):
 
     # Should redirect to sensors step
     assert result["type"] == FlowResultType.FORM
-    assert result["step_id"] == "sensors"
+    assert result["step_id"] == "local_sensors"
 
     # Submit sensors step
     user_input_sensors = {
@@ -436,7 +436,7 @@ async def test_options_flow_local_sensors_validation_errors(hass: HomeAssistant)
 
     # Should redirect to sensors step
     assert result["type"] == FlowResultType.FORM
-    assert result["step_id"] == "sensors"
+    assert result["step_id"] == "local_sensors"
 
     # Submit sensors step with valid changes
     user_input_sensors_valid = {
@@ -505,7 +505,7 @@ async def test_options_flow_local_no_changes(hass: HomeAssistant):
 
     # Should redirect to sensors step
     assert result["type"] == FlowResultType.FORM
-    assert result["step_id"] == "sensors"
+    assert result["step_id"] == "local_sensors"
 
     # Submit sensors step with same values (no changes)
     user_input_sensors = {

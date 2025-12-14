@@ -843,27 +843,39 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                 if not api_key:
                     errors["base"] = "invalid_auth"
                 else:
-                    # Update both options and data
-                    # Using kwargs for forward compatibility with future HA versions
-                    self.hass.config_entries.async_update_entry(
-                        entry=self.config_entry,
-                        data={
-                            **self.config_entry.data, 
-                            CONF_API_KEY: api_key,
-                        },
-                        options={
-                            **self.config_entry.options,
-                            CONF_API_KEY: api_key,  # Also store in options for safety
-                            CONF_UPDATE_TIME_1: time1, 
-                            CONF_UPDATE_TIME_2: time2,
-                            CONF_UPDATE_TIME_3: time3,
-                            CONF_ENABLE_FORECAST_DAILY: enable_daily,
-                            CONF_ENABLE_FORECAST_HOURLY: enable_hourly,
-                        },
+                    # Check if anything has changed
+                    current_options = self.config_entry.options or {}
+                    has_changes = (
+                        time1 != self.config_entry.data.get(CONF_UPDATE_TIME_1, DEFAULT_UPDATE_TIME_1) or
+                        time2 != self.config_entry.data.get(CONF_UPDATE_TIME_2, DEFAULT_UPDATE_TIME_2) or
+                        time3 != self.config_entry.data.get(CONF_UPDATE_TIME_3, "") or
+                        enable_daily != self.config_entry.data.get(CONF_ENABLE_FORECAST_DAILY, True) or
+                        enable_hourly != self.config_entry.data.get(CONF_ENABLE_FORECAST_HOURLY, False) or
+                        api_key != self.config_entry.data.get(CONF_API_KEY)
                     )
                     
+                    if has_changes:
+                        # Update both options and data
+                        # Using kwargs for forward compatibility with future HA versions
+                        self.hass.config_entries.async_update_entry(
+                            entry=self.config_entry,
+                            data={
+                                **self.config_entry.data, 
+                                CONF_API_KEY: api_key,
+                            },
+                            options={
+                                **self.config_entry.options,
+                                CONF_API_KEY: api_key,  # Also store in options for safety
+                                CONF_UPDATE_TIME_1: time1, 
+                                CONF_UPDATE_TIME_2: time2,
+                                CONF_UPDATE_TIME_3: time3,
+                                CONF_ENABLE_FORECAST_DAILY: enable_daily,
+                                CONF_ENABLE_FORECAST_HOURLY: enable_hourly,
+                            },
+                        )
+                    
                     if mode == MODE_LOCAL:
-                        return await self.async_step_sensors()
+                        return await self.async_step_local_sensors()
                     else:
                         return self.async_create_entry(title="", data={})
 
@@ -939,7 +951,7 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
             errors=errors,
         )
 
-    async def async_step_sensors(
+    async def async_step_local_sensors(
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
         """Manage the sensors options."""
@@ -996,7 +1008,7 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                 return await self.async_step_condition_mapping_type()
 
         return self.async_show_form(
-            step_id="sensors",
+            step_id="local_sensors",
             data_schema=vol.Schema({
                 vol.Required(CONF_SENSOR_TEMPERATURE, description={"suggested_value": data.get(CONF_SENSOR_TEMPERATURE)}): selector.EntitySelector(
                     selector.EntitySelectorConfig(domain="sensor", device_class="temperature", multiple=False)
@@ -1055,6 +1067,9 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                 # Update entry data with mapping type
                 updated_data = dict(self.config_entry.data)
                 updated_data["mapping_type"] = "meteocat"
+                # Ensure API key is preserved in data
+                api_key = self.config_entry.data.get(CONF_API_KEY) or self.config_entry.options.get(CONF_API_KEY)
+                updated_data[CONF_API_KEY] = api_key
                 # Remove custom mapping fields if they exist
                 updated_data.pop("custom_condition_mapping", None)
                 updated_data.pop("local_condition_entity", None)
@@ -1070,7 +1085,7 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                 if mode == MODE_LOCAL and CONF_SENSOR_TEMPERATURE in self.config_entry.data:
                     return self.async_create_entry(title="", data={})
                 else:
-                    return await self.async_step_sensors()
+                    return await self.async_step_local_sensors()
                 
             elif mapping_type == "custom":
                 # Ensure API key is preserved in data before going to custom mapping
