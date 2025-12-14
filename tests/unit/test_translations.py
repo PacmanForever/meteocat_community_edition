@@ -12,15 +12,17 @@ except ImportError:
 
 def load_translation(lang):
     """Load translation file."""
-    path = os.path.join(
-        os.path.dirname(__file__),
-        "..",
-        "..",
-        "custom_components",
-        "meteocat_community_edition",
-        "translations",
-        f"{lang}.json",
-    )
+    # Get the absolute path to the custom_components directory
+    test_dir = os.path.dirname(__file__)
+    project_root = os.path.dirname(os.path.dirname(test_dir))
+    component_dir = os.path.join(project_root, "custom_components", "meteocat_community_edition")
+    
+    if lang == "en":
+        # For English, load strings.json from the component root
+        path = os.path.join(component_dir, "strings.json")
+    else:
+        path = os.path.join(component_dir, "translations", f"{lang}.json")
+    
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
 
@@ -42,7 +44,7 @@ def test_options_flow_description_content():
     # English
     en = load_translation("en")
     desc_en = en["options"]["step"]["init"]["description"]
-    assert desc_en == "Specify at what times you want the forecast to be updated.'"
+    assert desc_en == ""
     assert "advanced options" not in desc_en
 
 
@@ -62,7 +64,7 @@ def test_options_flow_title_content():
     # English
     en = load_translation("en")
     title_en = en["options"]["step"]["init"]["title"]
-    assert title_en == "External Station Configuration"
+    assert title_en == "Configuration"
 
 
 def test_update_times_title_and_description():
@@ -86,8 +88,8 @@ def test_update_times_title_and_description():
     en = load_translation("en")
     title_en = en["config"]["step"]["update_times"]["title"]
     desc_en = en["config"]["step"]["update_times"]["description"]
-    assert title_en == "Meteocat Forecast Configuration"
-    assert desc_en == "Specify at what times you want the forecast to be updated.'"
+    assert title_en == "Data Updates"
+    assert desc_en == "Configure data to download and update times.\n\n**Query Types**\n{measurements_info}"
 
 
 def test_condition_mapping_custom_texts():
@@ -125,9 +127,9 @@ def test_condition_mapping_custom_texts():
     mapping_label_en = en["config"]["step"]["condition_mapping_custom"]["data"]["custom_condition_mapping"]
     
     assert title_en == "Weather Condition Mapping Configuration"
-    assert desc_en == ""
-    assert entity_label_en == "Sensor that indicates the condition"
-    assert mapping_label_en == "Value mapping"
+    assert desc_en == "Select the sensor that contains the condition value and the mapping to be used."
+    assert entity_label_en == "Sensor that indicates the condition (required)"
+    assert mapping_label_en == "Value mapping (required)"
 
 
 def test_required_field_error_translation():

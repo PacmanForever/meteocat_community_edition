@@ -115,7 +115,7 @@
     "step": {
       "init": {
         "title": "Configura la predicció de Meteocat",
-        "description": "Indica a quines hores vols que s'actualitzi:",
+        "description": "Indica a quines hores vols que s'actualitzi la predicció:",
         "data": {
           "update_time_1": "Primera hora d'actualització (Format 24h: HH:MM)",
           "update_time_2": "Segona hora d'actualització (Format 24h: HH:MM)",

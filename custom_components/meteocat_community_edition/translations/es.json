@@ -114,7 +114,7 @@
   "options": {
     "step": {
       "init": {
-        "title": "Configuración de la predicción Meteocat",
+        "title": "Configuración de la estación externa",
         "description": "Indica a qué horas quieres que se actualice.'",
         "data": {
           "update_time_1": "Primera hora de actualización (Formato 24h: HH:MM)",
