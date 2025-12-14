@@ -871,11 +871,11 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                     # Check if user settings have changed
                     current_options = self.config_entry.options or {}
                     user_changes = (
-                        time1 != self.config_entry.data.get(CONF_UPDATE_TIME_1, DEFAULT_UPDATE_TIME_1) or
-                        time2 != self.config_entry.data.get(CONF_UPDATE_TIME_2, DEFAULT_UPDATE_TIME_2) or
-                        time3 != self.config_entry.data.get(CONF_UPDATE_TIME_3, "") or
-                        enable_daily != self.config_entry.data.get(CONF_ENABLE_FORECAST_DAILY, True) or
-                        enable_hourly != self.config_entry.data.get(CONF_ENABLE_FORECAST_HOURLY, False)
+                        time1 != current_options.get(CONF_UPDATE_TIME_1, self.config_entry.data.get(CONF_UPDATE_TIME_1, DEFAULT_UPDATE_TIME_1)) or
+                        time2 != current_options.get(CONF_UPDATE_TIME_2, self.config_entry.data.get(CONF_UPDATE_TIME_2, DEFAULT_UPDATE_TIME_2)) or
+                        time3 != current_options.get(CONF_UPDATE_TIME_3, self.config_entry.data.get(CONF_UPDATE_TIME_3, "")) or
+                        enable_daily != current_options.get(CONF_ENABLE_FORECAST_DAILY, self.config_entry.data.get(CONF_ENABLE_FORECAST_DAILY, True)) or
+                        enable_hourly != current_options.get(CONF_ENABLE_FORECAST_HOURLY, self.config_entry.data.get(CONF_ENABLE_FORECAST_HOURLY, False))
                     )
                     
                     has_changes = api_key_migration_needed or user_changes
@@ -923,32 +923,42 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
         schema_dict = {
             vol.Required(
                 CONF_UPDATE_TIME_1,
-                default=self.config_entry.data.get(
-                    CONF_UPDATE_TIME_1, DEFAULT_UPDATE_TIME_1
+                default=self.config_entry.options.get(
+                    CONF_UPDATE_TIME_1, self.config_entry.data.get(
+                        CONF_UPDATE_TIME_1, DEFAULT_UPDATE_TIME_1
+                    )
                 ),
             ): str,
             vol.Optional(
                 CONF_UPDATE_TIME_2,
-                default=self.config_entry.data.get(
-                    CONF_UPDATE_TIME_2, DEFAULT_UPDATE_TIME_2
+                default=self.config_entry.options.get(
+                    CONF_UPDATE_TIME_2, self.config_entry.data.get(
+                        CONF_UPDATE_TIME_2, DEFAULT_UPDATE_TIME_2
+                    )
                 ),
             ): str,
             vol.Optional(
                 CONF_UPDATE_TIME_3,
-                default=self.config_entry.data.get(
-                    CONF_UPDATE_TIME_3
+                default=self.config_entry.options.get(
+                    CONF_UPDATE_TIME_3, self.config_entry.data.get(
+                        CONF_UPDATE_TIME_3
+                    )
                 ) or vol.UNDEFINED,
             ): str,
             vol.Required(
                 CONF_ENABLE_FORECAST_DAILY,
-                default=self.config_entry.data.get(
-                    CONF_ENABLE_FORECAST_DAILY, True
+                default=self.config_entry.options.get(
+                    CONF_ENABLE_FORECAST_DAILY, self.config_entry.data.get(
+                        CONF_ENABLE_FORECAST_DAILY, True
+                    )
                 ),
             ): bool,
             vol.Required(
                 CONF_ENABLE_FORECAST_HOURLY,
-                default=self.config_entry.data.get(
-                    CONF_ENABLE_FORECAST_HOURLY, False
+                default=self.config_entry.options.get(
+                    CONF_ENABLE_FORECAST_HOURLY, self.config_entry.data.get(
+                        CONF_ENABLE_FORECAST_HOURLY, False
+                    )
                 ),
             ): bool,
         }
@@ -1097,6 +1107,14 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
         if current_mapping_type not in ["meteocat", "custom"]:
             _LOGGER.warning("Invalid mapping_type '%s' found in entry data, resetting to 'meteocat'", current_mapping_type)
             current_mapping_type = "meteocat"  # Fallback to safe default
+            # Update entry data to fix the invalid value
+            updated_data = dict(self.config_entry.data)
+            updated_data["mapping_type"] = "meteocat"
+            self.hass.config_entries.async_update_entry(
+                entry=self.config_entry,
+                data=updated_data
+            )
+            current_mapping_type = "meteocat"  # Fallback to safe default
         
         if user_input is not None:
             mapping_type = user_input.get("mapping_type", current_mapping_type)
@@ -1125,7 +1143,7 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                 # Otherwise, go to sensors configuration
                 mode = self.config_entry.data.get(CONF_MODE)
                 if mode == MODE_LOCAL and CONF_SENSOR_TEMPERATURE in self.config_entry.data:
-                    return self.async_create_entry(title="", data={})
+                    return self.async_create_entry(title="", data=None)
                 else:
                     return await self.async_step_local_sensors()
                 
@@ -1220,7 +1238,7 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                         },
                     )
                     
-                    return self.async_create_entry(title="", data={})
+                    return self.async_create_entry(title="", data=None)
 
         schema = vol.Schema({
             vol.Required(

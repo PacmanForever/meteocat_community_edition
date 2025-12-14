@@ -755,3 +755,413 @@ async def test_options_flow_api_key_migration_from_options(hass: HomeAssistant):
 
     # API key should now be in data
     assert entry.data[CONF_API_KEY] == "api_key_in_options"
+
+
+@pytest.mark.asyncio
+async def test_options_flow_multiple_edits_preserve_data(hass: HomeAssistant):
+    """Test that multiple consecutive edits preserve all data correctly."""
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        data={
+            CONF_API_KEY: "original_api_key",
+            CONF_MODE: MODE_LOCAL,
+            CONF_MUNICIPALITY_CODE: "081131",
+            CONF_SENSOR_TEMPERATURE: "sensor.temp",
+            CONF_SENSOR_HUMIDITY: "sensor.hum",
+            "mapping_type": "meteocat",
+        },
+        options={
+            CONF_UPDATE_TIME_1: "06:00",
+            CONF_ENABLE_FORECAST_DAILY: True,
+            CONF_ENABLE_FORECAST_HOURLY: False,
+        }
+    )
+    entry.add_to_hass(hass)
+
+    # FIRST EDIT: Change update time
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "init"
+
+    user_input_init = {
+        CONF_UPDATE_TIME_1: "08:00",  # Change time
+        CONF_ENABLE_FORECAST_DAILY: True,
+        CONF_ENABLE_FORECAST_HOURLY: False,
+    }
+    
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input_init
+    )
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "local_sensors"
+
+    user_input_sensors = {
+        CONF_SENSOR_TEMPERATURE: "sensor.temp",
+        CONF_SENSOR_HUMIDITY: "sensor.hum",
+    }
+
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input_sensors
+    )
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "condition_mapping_type"
+
+    user_input_mapping = {
+        "mapping_type": "meteocat",
+    }
+    
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input_mapping
+    )
+    assert result["type"] == FlowResultType.CREATE_ENTRY
+
+    # Verify first edit results
+    assert entry.data[CONF_API_KEY] == "original_api_key"
+    assert entry.data["mapping_type"] == "meteocat"
+    assert entry.options[CONF_UPDATE_TIME_1] == "08:00"
+
+    # SECOND EDIT: Change sensors
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "init"
+
+    user_input_init2 = {
+        CONF_UPDATE_TIME_1: "08:00",  # Keep same
+        CONF_ENABLE_FORECAST_DAILY: True,
+        CONF_ENABLE_FORECAST_HOURLY: False,
+    }
+    
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input_init2
+    )
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "local_sensors"
+
+    user_input_sensors2 = {
+        CONF_SENSOR_TEMPERATURE: "sensor.new_temp",
+        CONF_SENSOR_HUMIDITY: "sensor.new_hum",
+    }
+
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input_sensors2
+    )
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "condition_mapping_type"
+
+    user_input_mapping2 = {
+        "mapping_type": "meteocat",
+    }
+    
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input_mapping2
+    )
+    assert result["type"] == FlowResultType.CREATE_ENTRY
+
+    # Verify second edit results - everything preserved
+    assert entry.data[CONF_API_KEY] == "original_api_key"
+    assert entry.data["mapping_type"] == "meteocat"
+    assert entry.data[CONF_SENSOR_TEMPERATURE] == "sensor.new_temp"
+    assert entry.data[CONF_SENSOR_HUMIDITY] == "sensor.new_hum"
+    assert entry.options[CONF_UPDATE_TIME_1] == "08:00"
+
+
+@pytest.mark.asyncio
+async def test_options_flow_change_mapping_type_then_edit_again(hass: HomeAssistant):
+    """Test changing mapping type in first edit, then editing again preserves data."""
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        data={
+            CONF_API_KEY: "original_api_key",
+            CONF_MODE: MODE_LOCAL,
+            CONF_MUNICIPALITY_CODE: "081131",
+            CONF_SENSOR_TEMPERATURE: "sensor.temp",
+            CONF_SENSOR_HUMIDITY: "sensor.hum",
+            "mapping_type": "meteocat",
+        },
+        options={
+            CONF_UPDATE_TIME_1: "06:00",
+            CONF_ENABLE_FORECAST_DAILY: True,
+            CONF_ENABLE_FORECAST_HOURLY: False,
+        }
+    )
+    entry.add_to_hass(hass)
+
+    # FIRST EDIT: Change mapping type to custom
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "init"
+
+    user_input_init = {
+        CONF_UPDATE_TIME_1: "06:00",
+        CONF_ENABLE_FORECAST_DAILY: True,
+        CONF_ENABLE_FORECAST_HOURLY: False,
+    }
+    
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input_init
+    )
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "local_sensors"
+
+    user_input_sensors = {
+        CONF_SENSOR_TEMPERATURE: "sensor.temp",
+        CONF_SENSOR_HUMIDITY: "sensor.hum",
+    }
+
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input_sensors
+    )
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "condition_mapping_type"
+
+    user_input_mapping = {
+        "mapping_type": "custom",
+    }
+    
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input_mapping
+    )
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "condition_mapping_custom"
+
+    user_input_custom = {
+        "local_condition_entity": "sensor.weather_condition",
+        "custom_condition_mapping": "0: clear-night\n1: sunny\n2: partlycloudy",
+    }
+
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input_custom
+    )
+    assert result["type"] == FlowResultType.CREATE_ENTRY
+
+    # Verify first edit results
+    assert entry.data[CONF_API_KEY] == "original_api_key"
+    assert entry.data["mapping_type"] == "custom"
+    assert entry.data["local_condition_entity"] == "sensor.weather_condition"
+    assert "custom_condition_mapping" in entry.data
+
+    # SECOND EDIT: Change update time after mapping type change
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "init"
+
+    user_input_init2 = {
+        CONF_UPDATE_TIME_1: "10:00",  # Change time
+        CONF_ENABLE_FORECAST_DAILY: True,
+        CONF_ENABLE_FORECAST_HOURLY: False,
+    }
+    
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input_init2
+    )
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "local_sensors"
+
+    user_input_sensors2 = {
+        CONF_SENSOR_TEMPERATURE: "sensor.temp",
+        CONF_SENSOR_HUMIDITY: "sensor.hum",
+    }
+
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input_sensors2
+    )
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "condition_mapping_type"
+
+    user_input_mapping2 = {
+        "mapping_type": "custom",  # Keep custom
+    }
+    
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input_mapping2
+    )
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "condition_mapping_custom"
+
+    user_input_custom2 = {
+        "local_condition_entity": "sensor.weather_condition",  # Keep same
+        "custom_condition_mapping": "0: clear-night\n1: sunny\n2: partlycloudy",  # Keep same
+    }
+
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input_custom2
+    )
+    assert result["type"] == FlowResultType.CREATE_ENTRY
+
+    # Verify second edit results - all data preserved including custom mapping
+    assert entry.data[CONF_API_KEY] == "original_api_key"
+    assert entry.data["mapping_type"] == "custom"
+    assert entry.data["local_condition_entity"] == "sensor.weather_condition"
+    assert entry.data["custom_condition_mapping"] == {"0": "clear-night", "1": "sunny", "2": "partlycloudy"}
+    assert entry.options[CONF_UPDATE_TIME_1] == "10:00"
+
+
+@pytest.mark.asyncio
+async def test_options_flow_switch_mapping_types_multiple_times(hass: HomeAssistant):
+    """Test switching between meteocat and custom mapping types multiple times."""
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        data={
+            CONF_API_KEY: "original_api_key",
+            CONF_MODE: MODE_LOCAL,
+            CONF_MUNICIPALITY_CODE: "081131",
+            CONF_SENSOR_TEMPERATURE: "sensor.temp",
+            CONF_SENSOR_HUMIDITY: "sensor.hum",
+            "mapping_type": "meteocat",
+        },
+        options={
+            CONF_UPDATE_TIME_1: "06:00",
+            CONF_ENABLE_FORECAST_DAILY: True,
+            CONF_ENABLE_FORECAST_HOURLY: False,
+        }
+    )
+    entry.add_to_hass(hass)
+
+    # EDIT 1: Switch to custom
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "init"
+
+    user_input_init = {
+        CONF_UPDATE_TIME_1: "06:00",
+        CONF_ENABLE_FORECAST_DAILY: True,
+        CONF_ENABLE_FORECAST_HOURLY: False,
+    }
+    
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input_init
+    )
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "local_sensors"
+
+    user_input_sensors = {
+        CONF_SENSOR_TEMPERATURE: "sensor.temp",
+        CONF_SENSOR_HUMIDITY: "sensor.hum",
+    }
+
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input_sensors
+    )
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "condition_mapping_type"
+
+    user_input_mapping = {
+        "mapping_type": "custom",
+    }
+    
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input_mapping
+    )
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "condition_mapping_custom"
+
+    user_input_custom = {
+        "local_condition_entity": "sensor.weather_condition",
+        "custom_condition_mapping": "0: clear-night\n1: sunny",
+    }
+
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input_custom
+    )
+    assert result["type"] == FlowResultType.CREATE_ENTRY
+
+    assert entry.data["mapping_type"] == "custom"
+    assert "local_condition_entity" in entry.data
+    assert "custom_condition_mapping" in entry.data
+
+    # EDIT 2: Switch back to meteocat
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "init"
+
+    user_input_init2 = {
+        CONF_UPDATE_TIME_1: "06:00",
+        CONF_ENABLE_FORECAST_DAILY: True,
+        CONF_ENABLE_FORECAST_HOURLY: False,
+    }
+    
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input_init2
+    )
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "local_sensors"
+
+    user_input_sensors2 = {
+        CONF_SENSOR_TEMPERATURE: "sensor.temp",
+        CONF_SENSOR_HUMIDITY: "sensor.hum",
+    }
+
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input_sensors2
+    )
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "condition_mapping_type"
+
+    user_input_mapping2 = {
+        "mapping_type": "meteocat",
+    }
+    
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input_mapping2
+    )
+    assert result["type"] == FlowResultType.CREATE_ENTRY
+
+    # Verify custom fields are removed
+    assert entry.data["mapping_type"] == "meteocat"
+    assert "local_condition_entity" not in entry.data
+    assert "custom_condition_mapping" not in entry.data
+    assert entry.data[CONF_API_KEY] == "original_api_key"
+
+    # EDIT 3: Switch to custom again
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "init"
+
+    user_input_init3 = {
+        CONF_UPDATE_TIME_1: "06:00",
+        CONF_ENABLE_FORECAST_DAILY: True,
+        CONF_ENABLE_FORECAST_HOURLY: False,
+    }
+    
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input_init3
+    )
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "local_sensors"
+
+    user_input_sensors3 = {
+        CONF_SENSOR_TEMPERATURE: "sensor.temp",
+        CONF_SENSOR_HUMIDITY: "sensor.hum",
+    }
+
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input_sensors3
+    )
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "condition_mapping_type"
+
+    user_input_mapping3 = {
+        "mapping_type": "custom",
+    }
+    
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input_mapping3
+    )
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "condition_mapping_custom"
+
+    user_input_custom3 = {
+        "local_condition_entity": "sensor.new_weather_condition",
+        "custom_condition_mapping": "0: clear-night\n1: sunny\n2: cloudy",
+    }
+
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input_custom3
+    )
+    assert result["type"] == FlowResultType.CREATE_ENTRY
+
+    # Verify final state
+    assert entry.data["mapping_type"] == "custom"
+    assert entry.data["local_condition_entity"] == "sensor.new_weather_condition"
+    assert entry.data["custom_condition_mapping"] == {"0": "clear-night", "1": "sunny", "2": "cloudy"}
+    assert entry.data[CONF_API_KEY] == "original_api_key"

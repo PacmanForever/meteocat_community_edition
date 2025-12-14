@@ -536,6 +536,9 @@ class MeteocatLocalWeather(MeteocatWeather):
         }
         # Read mapping config
         self._mapping_type = entry.data.get("mapping_type", "meteocat")
+        if self._mapping_type not in ["meteocat", "custom"]:
+            _LOGGER.warning("Invalid mapping_type '%s' found in weather entity, using 'meteocat'", self._mapping_type)
+            self._mapping_type = "meteocat"
         self._custom_condition_mapping = entry.data.get("custom_condition_mapping")
         self._local_condition_entity = entry.data.get("local_condition_entity")
 

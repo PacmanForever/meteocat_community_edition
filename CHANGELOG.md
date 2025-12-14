@@ -5,6 +5,18 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.31] - 2025-12-14
+
+### Corregit
+- **Separació Data/Options**: Corregida la separació entre `data` i `options` en el options flow. Ara les opcions editables es llegeixen i es guarden correctament, solucionant problemes de corrupció en edicions múltiples.
+- **Edició Múltiple d'Estacions Locals**: Solucionat el problema de corrupció de dades quan s'edita la mateixa estació local múltiples vegades consecutives.
+- **Canvi de Mapping Type**: Corregida la gestió de canvis de mapping type entre edicions, assegurant que les dades custom es preserven/netegen correctament.
+- **Validació de Mapping Type**: Millorada la validació i correcció automàtica de valors invàlids de mapping_type en entrades existents.
+
+### Millorat
+- **Tests de Seqüències**: Afegits tests integrals per a seqüències d'edició múltiple, incloent canvis de mapping type i edicions consecutives, cobrint escenaris que abans fallaven.
+- **Robustesa del Options Flow**: Millorada l'estabilitat general del flux d'opcions amb millor gestió d'estat entre edicions.
+
 ## [1.2.30] - 2025-12-14
 
 ### Corregit
