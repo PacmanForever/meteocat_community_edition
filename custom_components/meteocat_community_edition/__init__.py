@@ -51,6 +51,18 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     
     coordinator = MeteocatCoordinator(hass, entry)
     
+    # Migrate API key from options to data if necessary
+    from .const import CONF_API_KEY
+    if CONF_API_KEY in entry.options and CONF_API_KEY not in entry.data:
+        new_data = dict(entry.data)
+        new_data[CONF_API_KEY] = entry.options[CONF_API_KEY]
+        await hass.config_entries.async_update_entry(entry, data=new_data)
+        # Remove from options
+        new_options = dict(entry.options)
+        new_options.pop(CONF_API_KEY, None)
+        await hass.config_entries.async_update_entry(entry, options=new_options)
+        _LOGGER.info("Migrated API key from options to data for entry %s", entry.title)
+    
     # ⚠️ CRITICAL: First refresh - this is the ONLY manual update call
     # All future updates will be scheduled automatically
     await coordinator.async_config_entry_first_refresh()

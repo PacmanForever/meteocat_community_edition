@@ -5,12 +5,23 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
-## [1.2.25] - 2025-12-14
+## [1.2.28] - 2025-12-14
+
+### Corregit
+- **API Key Preservation**: S'ha corregit definitivament el problema de corrupció d'estacions durant l'edició fent l'API key immutable. Ara l'API key només s'emmagatzema a `entry.data` (immutable) i no a `entry.options` (mutable). S'ha afegit lògica de migració automàtica per entrades existents.
+- **Tests**: Afegits tests de migració per verificar que l'API key es mou correctament de `options` a `data` quan cal.
+
+## [1.2.27] - 2025-12-14
 
 ### Corregit
 - **Traduccions**: Afegit el step "condition_mapping_type_local" a strings.json per evitar que es mostri "Opcions" com a títol genèric.
 - **Labels**: Corregit el label del camp mapping_type per mostrar el text traduit correctament.
 - **API Key Preservation**: S'ha corregit un problema on l'API key es perdia quan s'editaven les opcions d'estacions locals i s'utilitzava mapping personalitzat de condició climàtica.
+
+## [1.2.26] - 2025-12-14
+
+### Corregit
+- **Corrupció d'estacions externes**: S'ha corregit un error crític on editar una estació externa o reiniciar Home Assistant provocava que l'estació quedés corrupta amb error d'autenticació 403. Ara es valida que la clau API existeixi abans de guardar els canvis.
 
 ## [1.2.25] - 2025-12-14
 

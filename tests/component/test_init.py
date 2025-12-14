@@ -291,3 +291,67 @@ async def test_async_setup_entry_multiple_entries(mock_hass, mock_entry_estacio,
         assert mock_entry_municipi.entry_id in mock_hass.data[DOMAIN]
         assert mock_hass.data[DOMAIN][mock_entry_estacio.entry_id] == mock_coordinator_1
         assert mock_hass.data[DOMAIN][mock_entry_municipi.entry_id] == mock_coordinator_2
+
+
+@pytest.mark.asyncio
+async def test_api_key_migration_from_options_to_data(mock_hass, mock_entry_estacio):
+    """Test that API key is migrated from options to data during setup."""
+    # Setup entry with API key in options (old format)
+    mock_entry_estacio.data = {CONF_MODE: MODE_EXTERNAL, CONF_STATION_CODE: "YM"}
+    mock_entry_estacio.options = {CONF_API_KEY: "migrated_api_key"}
+    
+    # Mock the coordinator and config entry update
+    mock_coordinator = MagicMock()
+    mock_coordinator.async_config_entry_first_refresh = AsyncMock()
+    mock_coordinator._schedule_next_update = MagicMock()
+    
+    with patch('custom_components.meteocat_community_edition.MeteocatCoordinator', return_value=mock_coordinator) as mock_coordinator_class, \
+         patch.object(mock_hass.config_entries, 'async_update_entry', new_callable=AsyncMock) as mock_update_entry:
+        
+        await async_setup_entry(mock_hass, mock_entry_estacio)
+        
+        # Verify migration happened
+        assert mock_update_entry.call_count == 2  # One for migration, one for removing from options
+        
+        # First call: migrate API key to data
+        first_call = mock_update_entry.call_args_list[0]
+        assert first_call[1]['data'][CONF_API_KEY] == "migrated_api_key"
+        
+        # Second call: remove from options
+        second_call = mock_update_entry.call_args_list[1]
+        assert CONF_API_KEY not in second_call[1]['options']
+        
+        # Verify coordinator was created and setup continued
+        mock_coordinator_class.assert_called_once()
+        mock_coordinator.async_config_entry_first_refresh.assert_called_once()
+        mock_coordinator._schedule_next_update.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_api_key_no_migration_when_already_in_data(mock_hass, mock_entry_estacio):
+    """Test that API key migration doesn't happen when it's already in data."""
+    # Setup entry with API key in data (new format)
+    mock_entry_estacio.data = {
+        CONF_API_KEY: "existing_api_key",
+        CONF_MODE: MODE_EXTERNAL,
+        CONF_STATION_CODE: "YM"
+    }
+    mock_entry_estacio.options = {CONF_API_KEY: "old_api_key"}  # This should be ignored
+    
+    # Mock the coordinator
+    mock_coordinator = MagicMock()
+    mock_coordinator.async_config_entry_first_refresh = AsyncMock()
+    mock_coordinator._schedule_next_update = MagicMock()
+    
+    with patch('custom_components.meteocat_community_edition.MeteocatCoordinator', return_value=mock_coordinator) as mock_coordinator_class, \
+         patch.object(mock_hass.config_entries, 'async_update_entry', new_callable=AsyncMock) as mock_update_entry:
+        
+        await async_setup_entry(mock_hass, mock_entry_estacio)
+        
+        # Verify no migration calls happened
+        mock_update_entry.assert_not_called()
+        
+        # Verify coordinator was created with data API key
+        mock_coordinator_class.assert_called_once()
+        call_args = mock_coordinator_class.call_args
+        assert call_args[0][1].data[CONF_API_KEY] == "existing_api_key"

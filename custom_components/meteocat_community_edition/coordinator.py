@@ -109,18 +109,14 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         # Get API base URL from options or use default
         api_base_url = entry.options.get(CONF_API_BASE_URL, DEFAULT_API_BASE_URL)
         
-        # Get API key - handle migration from old entries that don't have it
+        # Get API key - now only from data
         api_key = entry.data.get(CONF_API_KEY)
-        if not api_key and entry.options:
-            api_key = entry.options.get(CONF_API_KEY)
         if not api_key:
             _LOGGER.error(
-                "Entry '%s' is missing API key. Entry data keys: %s, Entry options keys: %s. "
-                "This entry was created with an older version or corrupted during editing. "
+                "Entry '%s' is missing API key in data. Entry data keys: %s. "
                 "Please delete and re-add this integration to fix the issue.",
                 entry.title,
-                list(entry.data.keys()),
-                list(entry.options.keys())
+                list(entry.data.keys())
             )
             raise ValueError(f"Entry '{entry.title}' is missing API key. Please reconfigure this integration.")
         if api_key:

@@ -81,8 +81,8 @@
         "title": "Configure Weather Condition Mapping",
         "description": "Select the sensor that contains the condition value and the mapping to be used.",
         "data": {
-          "local_condition_entity": "Sensor that indicates the condition (required)",
-          "custom_condition_mapping": "Value mapping (required)"
+          "local_condition_entity": "Sensor that indicates the condition",
+          "custom_condition_mapping": "Value mapping"
         }
       },
       "reauth_confirm": {

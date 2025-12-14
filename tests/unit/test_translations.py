@@ -128,8 +128,8 @@ def test_condition_mapping_custom_texts():
     
     assert title_en == "Configure Weather Condition Mapping"
     assert desc_en == "Select the sensor that contains the condition value and the mapping to be used."
-    assert entity_label_en == "Sensor that indicates the condition (required)"
-    assert mapping_label_en == "Value mapping (required)"
+    assert entity_label_en == "Sensor that indicates the condition"
+    assert mapping_label_en == "Value mapping"
 
 
 def test_required_field_error_translation():

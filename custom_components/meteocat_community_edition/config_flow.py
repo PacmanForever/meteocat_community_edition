@@ -162,7 +162,7 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         from homeassistant.helpers import selector
         schema = vol.Schema({
-            vol.Required(
+            vol.Optional(
                 "mapping_type",
                 default="meteocat",
                 description={"suggested_value": "mapping_type_label"}
@@ -981,15 +981,11 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                         return val[0] if val else None
                     return val
 
-                # Ensure API key is preserved in data
-                api_key = self.config_entry.data.get(CONF_API_KEY) or self.config_entry.options.get(CONF_API_KEY)
-
                 # Update entry with sensors
                 self.hass.config_entries.async_update_entry(
                     entry=self.config_entry,
                     data={
                         **self.config_entry.data,
-                        CONF_API_KEY: api_key,
                         CONF_SENSOR_TEMPERATURE: get_entity_id(CONF_SENSOR_TEMPERATURE),
                         CONF_SENSOR_HUMIDITY: get_entity_id(CONF_SENSOR_HUMIDITY),
                         CONF_SENSOR_PRESSURE: get_entity_id(CONF_SENSOR_PRESSURE),
@@ -1004,10 +1000,7 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                         CONF_SENSOR_APPARENT_TEMPERATURE: get_entity_id(CONF_SENSOR_APPARENT_TEMPERATURE),
                         CONF_SENSOR_RAIN: get_entity_id(CONF_SENSOR_RAIN),
                     },
-                    options={
-                        **self.config_entry.options,
-                        CONF_API_KEY: api_key,  # Also store in options for safety
-                    },
+                    options=self.config_entry.options,
                 )
                 return await self.async_step_condition_mapping_type()
 
@@ -1063,17 +1056,17 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
         import voluptuous as vol
         errors = {}
         
+        # Get current mapping type from entry data
+        current_mapping_type = self.config_entry.data.get("mapping_type", "meteocat")
+        
         if user_input is not None:
-            mapping_type = user_input.get("mapping_type", "meteocat")
+            mapping_type = user_input.get("mapping_type", current_mapping_type)
             if mapping_type not in ["meteocat", "custom"]:
                 errors["mapping_type"] = "value_not_allowed"
             elif mapping_type == "meteocat":
                 # Update entry data with mapping type
                 updated_data = dict(self.config_entry.data)
                 updated_data["mapping_type"] = "meteocat"
-                # Ensure API key is preserved in data
-                api_key = self.config_entry.data.get(CONF_API_KEY) or self.config_entry.options.get(CONF_API_KEY)
-                updated_data[CONF_API_KEY] = api_key
                 # Remove custom mapping fields if they exist
                 updated_data.pop("custom_condition_mapping", None)
                 updated_data.pop("local_condition_entity", None)
@@ -1081,10 +1074,7 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                 self.hass.config_entries.async_update_entry(
                     entry=self.config_entry,
                     data=updated_data,
-                    options={
-                        **self.config_entry.options,
-                        CONF_API_KEY: api_key,  # Also store in options for safety
-                    },
+                    options=self.config_entry.options,
                 )
                 
                 # If sensors are already configured (local mode), close the flow
@@ -1096,28 +1086,19 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                     return await self.async_step_local_sensors()
                 
             elif mapping_type == "custom":
-                # Ensure API key is preserved in data before going to custom mapping
-                api_key = self.config_entry.data.get(CONF_API_KEY) or self.config_entry.options.get(CONF_API_KEY)
-                
-                # Update entry data with API key preserved
+                # Update entry data with mapping type
                 updated_data = dict(self.config_entry.data)
-                updated_data[CONF_API_KEY] = api_key
+                updated_data["mapping_type"] = "custom"
                 
                 self.hass.config_entries.async_update_entry(
                     entry=self.config_entry,
                     data=updated_data,
-                    options={
-                        **self.config_entry.options,
-                        CONF_API_KEY: api_key,  # Also store in options for safety
-                    },
+                    options=self.config_entry.options,
                 )
                 return await self.async_step_condition_mapping_custom()
-
-        # Get current mapping type from entry data
-        current_mapping_type = self.config_entry.data.get("mapping_type", "meteocat")
         
         schema = vol.Schema({
-            vol.Required(
+            vol.Optional(
                 "mapping_type",
                 default=current_mapping_type
             ): selector.SelectSelector(
