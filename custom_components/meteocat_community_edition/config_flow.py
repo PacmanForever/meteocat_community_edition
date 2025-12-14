@@ -819,6 +819,9 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
         """Manage the options."""
         errors: dict[str, str] = {}
         
+        # Ensure API key is available for the flow
+        self.api_key = self.config_entry.data.get(CONF_API_KEY) or self.config_entry.options.get(CONF_API_KEY)
+        
         if user_input is not None:
             # Validate update times if they're being changed
             time1 = user_input.get(CONF_UPDATE_TIME_1, "").strip()
@@ -982,10 +985,14 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                     return val
 
                 # Update entry with sensors
+                updated_data = dict(self.config_entry.data)
+                # Ensure API key is preserved
+                if hasattr(self, 'api_key') and self.api_key:
+                    updated_data[CONF_API_KEY] = self.api_key
                 self.hass.config_entries.async_update_entry(
                     entry=self.config_entry,
                     data={
-                        **self.config_entry.data,
+                        **updated_data,
                         CONF_SENSOR_TEMPERATURE: get_entity_id(CONF_SENSOR_TEMPERATURE),
                         CONF_SENSOR_HUMIDITY: get_entity_id(CONF_SENSOR_HUMIDITY),
                         CONF_SENSOR_PRESSURE: get_entity_id(CONF_SENSOR_PRESSURE),
@@ -1056,17 +1063,25 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
         import voluptuous as vol
         errors = {}
         
-        # Get current mapping type from entry data
+        # Get current mapping type from entry data, ensure it's valid
         current_mapping_type = self.config_entry.data.get("mapping_type", "meteocat")
+        if current_mapping_type not in ["meteocat", "custom"]:
+            _LOGGER.warning("Invalid mapping_type '%s' found in entry data, resetting to 'meteocat'", current_mapping_type)
+            current_mapping_type = "meteocat"  # Fallback to safe default
         
         if user_input is not None:
             mapping_type = user_input.get("mapping_type", current_mapping_type)
+            _LOGGER.debug("Processing mapping_type: user_input=%s, current=%s, selected=%s", user_input, current_mapping_type, mapping_type)
             if mapping_type not in ["meteocat", "custom"]:
+                _LOGGER.error("Invalid mapping_type value: %s (type: %s)", mapping_type, type(mapping_type))
                 errors["mapping_type"] = "value_not_allowed"
             elif mapping_type == "meteocat":
                 # Update entry data with mapping type
                 updated_data = dict(self.config_entry.data)
                 updated_data["mapping_type"] = "meteocat"
+                # Ensure API key is preserved
+                if self.api_key:
+                    updated_data[CONF_API_KEY] = self.api_key
                 # Remove custom mapping fields if they exist
                 updated_data.pop("custom_condition_mapping", None)
                 updated_data.pop("local_condition_entity", None)
@@ -1089,6 +1104,9 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                 # Update entry data with mapping type
                 updated_data = dict(self.config_entry.data)
                 updated_data["mapping_type"] = "custom"
+                # Ensure API key is preserved
+                if self.api_key:
+                    updated_data[CONF_API_KEY] = self.api_key
                 
                 self.hass.config_entries.async_update_entry(
                     entry=self.config_entry,

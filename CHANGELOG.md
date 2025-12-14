@@ -5,6 +5,17 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.29] - 2025-12-14
+
+### Corregit
+- **Validació de Mapping Type**: Millorada la validació del tipus de mapping amb fallback segur per evitar errors "value must be one of ['custom', 'meteocat']" durant l'edició d'estacions.
+- **API Key Preservation**: Reforçada la preservació de l'API key durant tot el flux d'opcions editant, assegurant que es manté en tots els passos del procés.
+- **Logging de Debug**: Afegit logging detallat per diagnosticar problemes de validació de mapping_type.
+- **Tests Integrals**: Afegits tests integrals que verifiquen la seqüència completa d'edició d'estacions locals, incloent preservació d'API key i validació de mapping types.
+
+### Millorat
+- **Robustesa del Flux d'Opcions**: Millorada l'estabilitat del flux d'edició d'opcions amb validacions més robustes i preservació de dades crítica.
+
 ## [1.2.28] - 2025-12-14
 
 ### Corregit

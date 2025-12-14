@@ -543,3 +543,145 @@ async def test_options_flow_local_no_changes(hass: HomeAssistant):
 
     # Should finish
     assert result["type"] == FlowResultType.CREATE_ENTRY
+
+
+@pytest.mark.asyncio
+async def test_options_flow_api_key_preservation_full_sequence(hass: HomeAssistant):
+    """Test that API key is preserved throughout the entire options flow sequence."""
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        data={
+            CONF_API_KEY: "test_api_key_original",
+            CONF_MODE: MODE_LOCAL,
+            CONF_MUNICIPALITY_CODE: "081131",
+            CONF_UPDATE_TIME_1: "06:00",
+            CONF_SENSOR_TEMPERATURE: "sensor.temp",
+            CONF_SENSOR_HUMIDITY: "sensor.hum",
+            "mapping_type": "meteocat",
+        },
+        options={}
+    )
+    entry.add_to_hass(hass)
+
+    # Step 1: Initialize options flow
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "init"
+
+    # Step 2: Submit init step with time changes
+    user_input_init = {
+        CONF_UPDATE_TIME_1: "08:00",  # Change time
+        CONF_ENABLE_FORECAST_DAILY: True,
+        CONF_ENABLE_FORECAST_HOURLY: False,
+    }
+    
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input=user_input_init
+    )
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "local_sensors"
+
+    # Step 3: Submit sensors step
+    user_input_sensors = {
+        CONF_SENSOR_TEMPERATURE: "sensor.new_temp",
+        CONF_SENSOR_HUMIDITY: "sensor.new_hum",
+    }
+
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input=user_input_sensors
+    )
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "condition_mapping_type"
+
+    # Step 4: Submit mapping type step
+    user_input_mapping = {
+        "mapping_type": "custom",  # Change to custom
+    }
+    
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input=user_input_mapping
+    )
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "condition_mapping_custom"
+
+    # Step 5: Submit custom mapping
+    user_input_custom = {
+        "local_condition_entity": "sensor.weather_condition",
+        "custom_condition_mapping": "sunny:sunny\ncloudy:cloudy\nrainy:rainy",
+    }
+    
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input=user_input_custom
+    )
+
+    # Should finish and update entry
+    assert result["type"] == FlowResultType.CREATE_ENTRY
+    
+    # CRITICAL: Verify API key is still preserved in data
+    assert entry.data[CONF_API_KEY] == "test_api_key_original"
+    assert entry.data["mapping_type"] == "custom"
+    assert entry.data["local_condition_entity"] == "sensor.weather_condition"
+
+
+@pytest.mark.asyncio
+async def test_options_flow_no_initial_mapping_type(hass: HomeAssistant):
+    """Test options flow when entry has no initial mapping_type."""
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        data={
+            CONF_API_KEY: "test_api_key",
+            CONF_MODE: MODE_LOCAL,
+            CONF_MUNICIPALITY_CODE: "081131",
+            CONF_UPDATE_TIME_1: "06:00",
+            CONF_SENSOR_TEMPERATURE: "sensor.temp",
+            CONF_SENSOR_HUMIDITY: "sensor.hum",
+            # No mapping_type initially
+        },
+        options={}
+    )
+    entry.add_to_hass(hass)
+
+    # Initialize options flow
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "init"
+
+    # Submit init step
+    user_input_init = {
+        CONF_UPDATE_TIME_1: "06:00",
+        CONF_ENABLE_FORECAST_DAILY: True,
+        CONF_ENABLE_FORECAST_HOURLY: False,
+    }
+    
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input=user_input_init
+    )
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "local_sensors"
+
+    # Submit sensors step
+    user_input_sensors = {
+        CONF_SENSOR_TEMPERATURE: "sensor.temp",
+        CONF_SENSOR_HUMIDITY: "sensor.hum",
+    }
+
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input=user_input_sensors
+    )
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "condition_mapping_type"
+
+    # Submit mapping type step (should default to meteocat)
+    user_input_mapping = {
+        "mapping_type": "meteocat",
+    }
+    
+    with patch("custom_components.meteocat_community_edition.async_setup_entry", return_value=True):
+        result = await hass.config_entries.options.async_configure(
+            result["flow_id"], user_input=user_input_mapping
+        )
+
+    # Should finish successfully
+    assert result["type"] == FlowResultType.CREATE_ENTRY
+    assert entry.data[CONF_API_KEY] == "test_api_key"
+    assert entry.data.get("mapping_type") == "meteocat"
