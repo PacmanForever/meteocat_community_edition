@@ -819,6 +819,23 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
         """Manage the options."""
         errors: dict[str, str] = {}
         
+        # CRITICAL: Validate API key exists before allowing any options editing
+        api_key = self.config_entry.data.get(CONF_API_KEY) or self.config_entry.options.get(CONF_API_KEY)
+        
+        # Migrate API key from options to data if necessary (for backward compatibility)
+        if not self.config_entry.data.get(CONF_API_KEY) and self.config_entry.options.get(CONF_API_KEY):
+            _LOGGER.info("Migrating API key from options to data for entry '%s'", self.config_entry.title)
+            self.hass.config_entries.async_update_entry(
+                entry=self.config_entry,
+                data={**self.config_entry.data, CONF_API_KEY: self.config_entry.options[CONF_API_KEY]}
+            )
+            api_key = self.config_entry.options[CONF_API_KEY]
+        
+        if not api_key:
+            _LOGGER.error("Entry '%s' is missing API key during options editing. Data keys: %s, Options keys: %s", 
+                         self.config_entry.title, list(self.config_entry.data.keys()), list(self.config_entry.options.keys()))
+            errors["base"] = "invalid_auth"
+        
         # Ensure API key is available for the flow
         self.api_key = self.config_entry.data.get(CONF_API_KEY) or self.config_entry.options.get(CONF_API_KEY)
         
@@ -841,25 +858,35 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
             if not errors:
                 # Ensure API key is preserved in data (migration from old entries where it might be in options)
                 api_key = self.config_entry.data.get(CONF_API_KEY) or self.config_entry.options.get(CONF_API_KEY)
-                
-                # Validate that API key exists
+                _LOGGER.debug("Options flow init - API key found: %s, entry data keys: %s", 
+                             "YES" if api_key else "NO", list(self.config_entry.data.keys()))
                 if not api_key:
                     errors["base"] = "invalid_auth"
                 else:
-                    # Check if anything has changed
+                    # Check if API key needs migration (from options to data)
+                    api_key_in_data = self.config_entry.data.get(CONF_API_KEY)
+                    api_key_in_options = self.config_entry.options.get(CONF_API_KEY) if self.config_entry.options else None
+                    api_key_migration_needed = not api_key_in_data and api_key_in_options
+                    
+                    # Check if user settings have changed
                     current_options = self.config_entry.options or {}
-                    has_changes = (
+                    user_changes = (
                         time1 != self.config_entry.data.get(CONF_UPDATE_TIME_1, DEFAULT_UPDATE_TIME_1) or
                         time2 != self.config_entry.data.get(CONF_UPDATE_TIME_2, DEFAULT_UPDATE_TIME_2) or
                         time3 != self.config_entry.data.get(CONF_UPDATE_TIME_3, "") or
                         enable_daily != self.config_entry.data.get(CONF_ENABLE_FORECAST_DAILY, True) or
-                        enable_hourly != self.config_entry.data.get(CONF_ENABLE_FORECAST_HOURLY, False) or
-                        api_key != self.config_entry.data.get(CONF_API_KEY)
+                        enable_hourly != self.config_entry.data.get(CONF_ENABLE_FORECAST_HOURLY, False)
                     )
+                    
+                    has_changes = api_key_migration_needed or user_changes
                     
                     if has_changes:
                         # Update both options and data
                         # Using kwargs for forward compatibility with future HA versions
+                        _LOGGER.debug("Updating entry with API key: %s...%s (migration: %s)", 
+                                    api_key[:4] if api_key and len(api_key) > 4 else "***",
+                                    api_key[-4:] if api_key and len(api_key) > 4 else "***",
+                                    api_key_migration_needed)
                         self.hass.config_entries.async_update_entry(
                             entry=self.config_entry,
                             data={
@@ -880,7 +907,9 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                     if mode == MODE_LOCAL:
                         return await self.async_step_local_sensors()
                     else:
-                        return self.async_create_entry(title="", data={})
+                        _LOGGER.debug("Finishing options flow for external mode, entry data keys: %s", 
+                                    list(self.config_entry.data.keys()))
+                        return self.async_create_entry(title="", data=None)
 
         # Prepare description placeholders
         description_placeholders = {}

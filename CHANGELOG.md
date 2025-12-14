@@ -5,6 +5,16 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.30] - 2025-12-14
+
+### Corregit
+- **API Key Preservation per Estacions Externes**: Solucionat el problema de pèrdua d'API key durant l'edició d'opcions d'estacions externes. Ara l'API key es valida i migra automàticament des d'opcions a dades durant l'inici del flux d'opcions, independentment dels canvis d'usuari.
+- **Robustesa del Flux d'Opcions**: Millorada la lògica de migració d'API key per assegurar que sempre estigui disponible, amb logging detallat per depuració.
+- **Tests de Migració**: Afegits tests integrals per verificar la preservació i migració d'API key en estacions externes, amb verificacions intermèdies per assegurar la integritat en cada pas.
+
+### Millorat
+- **Separació de Lògica**: Refactoritzada la lògica d'opcions per separar la migració d'API key dels canvis de configuració d'usuari, fent el codi més mantenible i robust.
+
 ## [1.2.29] - 2025-12-14
 
 ### Corregit

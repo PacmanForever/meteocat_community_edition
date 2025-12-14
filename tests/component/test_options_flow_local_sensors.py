@@ -10,6 +10,8 @@ from custom_components.meteocat_community_edition.const import (
     CONF_API_KEY,
     CONF_MODE,
     MODE_LOCAL,
+    MODE_EXTERNAL,
+    CONF_STATION_CODE,
     CONF_MUNICIPALITY_CODE,
     CONF_UPDATE_TIME_1,
     CONF_ENABLE_FORECAST_DAILY,
@@ -685,3 +687,71 @@ async def test_options_flow_no_initial_mapping_type(hass: HomeAssistant):
     assert result["type"] == FlowResultType.CREATE_ENTRY
     assert entry.data[CONF_API_KEY] == "test_api_key"
     assert entry.data.get("mapping_type") == "meteocat"
+
+
+@pytest.mark.asyncio
+async def test_options_flow_external_station_api_key_preservation(hass: HomeAssistant):
+    """Test that API key is preserved when editing external station options."""
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        data={
+            CONF_API_KEY: "original_api_key",
+            CONF_MODE: MODE_EXTERNAL,
+            CONF_STATION_CODE: "VY",
+            CONF_UPDATE_TIME_1: "06:00",
+        },
+        options={}
+    )
+    entry.add_to_hass(hass)
+
+    # Initialize options flow
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "init"
+
+    # After init, API key should still be in data
+    assert entry.data[CONF_API_KEY] == "original_api_key"
+
+    # Submit init step with time changes
+    user_input_init = {
+        CONF_UPDATE_TIME_1: "08:00",  # Change time
+        CONF_ENABLE_FORECAST_DAILY: True,
+        CONF_ENABLE_FORECAST_HOURLY: False,
+    }
+    
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input=user_input_init
+    )
+
+    # For external mode, should finish immediately
+    assert result["type"] == FlowResultType.CREATE_ENTRY
+    
+    # CRITICAL: Verify API key is still preserved
+    assert entry.data[CONF_API_KEY] == "original_api_key"
+    assert entry.options[CONF_UPDATE_TIME_1] == "08:00"
+
+
+@pytest.mark.asyncio
+async def test_options_flow_api_key_migration_from_options(hass: HomeAssistant):
+    """Test that API key is migrated from options to data during options editing."""
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        data={
+            CONF_MODE: MODE_EXTERNAL,
+            CONF_STATION_CODE: "VY",
+            CONF_UPDATE_TIME_1: "06:00",
+            # No API key in data
+        },
+        options={
+            CONF_API_KEY: "api_key_in_options",  # API key in options (old format)
+        }
+    )
+    entry.add_to_hass(hass)
+
+    # Initialize options flow - should migrate API key
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "init"
+
+    # API key should now be in data
+    assert entry.data[CONF_API_KEY] == "api_key_in_options"
