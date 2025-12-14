@@ -704,7 +704,7 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         },
                     )
                 else:  # MODE_LOCAL
-                    return await self.async_step_sensors()
+                    return await self.async_step_local_sensors()
 
         return self.async_show_form(
             step_id="update_times",
