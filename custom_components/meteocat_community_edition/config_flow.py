@@ -125,6 +125,8 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             mapping_type = user_input.get("mapping_type")
             if not mapping_type:
                 errors["mapping_type"] = "required"
+            elif mapping_type not in ["meteocat", "custom"]:
+                errors["mapping_type"] = "value_not_allowed"
             elif mapping_type == "meteocat":
                 latest_input = getattr(self, '_local_sensors_input', None) or getattr(self, '_update_times_input', {})
                 entry_data = dict(latest_input)
@@ -243,8 +245,7 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             ),
             vol.Required(
                 "custom_condition_mapping",
-                default=example_mapping,
-                description=example_mapping
+                default=example_mapping
             ): selector.ObjectSelector(),
         })
         return self.async_show_form(
@@ -1015,9 +1016,6 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                 vol.Optional(CONF_SENSOR_WIND_GUST, description={"suggested_value": data.get(CONF_SENSOR_WIND_GUST)}): selector.EntitySelector(
                     selector.EntitySelectorConfig(domain="sensor", device_class="wind_speed", multiple=False)
                 ),
-                vol.Optional(CONF_SENSOR_RAIN, description={"suggested_value": data.get(CONF_SENSOR_RAIN)}): selector.EntitySelector(
-                    selector.EntitySelectorConfig(domain="sensor", multiple=False)
-                ),
                 vol.Optional(CONF_SENSOR_VISIBILITY, description={"suggested_value": data.get(CONF_SENSOR_VISIBILITY)}): selector.EntitySelector(
                     selector.EntitySelectorConfig(domain="sensor", multiple=False)
                 ),
@@ -1036,6 +1034,9 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                 vol.Optional(CONF_SENSOR_APPARENT_TEMPERATURE, description={"suggested_value": data.get(CONF_SENSOR_APPARENT_TEMPERATURE)}): selector.EntitySelector(
                     selector.EntitySelectorConfig(domain="sensor", multiple=False)
                 ),
+                vol.Optional(CONF_SENSOR_RAIN, description={"suggested_value": data.get(CONF_SENSOR_RAIN)}): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain="sensor", multiple=False)
+                ),
             }),
             errors=errors,
         )
@@ -1048,7 +1049,9 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
         
         if user_input is not None:
             mapping_type = user_input.get("mapping_type", "meteocat")
-            if mapping_type == "meteocat":
+            if mapping_type not in ["meteocat", "custom"]:
+                errors["mapping_type"] = "value_not_allowed"
+            elif mapping_type == "meteocat":
                 # Update entry data with mapping type
                 updated_data = dict(self.config_entry.data)
                 updated_data["mapping_type"] = "meteocat"

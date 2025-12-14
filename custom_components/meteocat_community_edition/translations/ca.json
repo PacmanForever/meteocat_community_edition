@@ -104,6 +104,7 @@
       "invalid_auth": "Clau API no vàlida. Si us plau, comprova que la clau API sigui correcta.",
       "invalid_format": "Format no vàlid. Utilitza el format 'valor: condició' en cada línia.",
       "invalid_condition": "Condició no vàlida. Les condicions vàlides són: sunny, partlycloudy, cloudy, rainy, pouring, lightning, lightning-rainy, hail, snowy, snowy-rainy, fog, windy, windy-variant, clear-night, exceptional.",
+      "value_not_allowed": "Valor no permès. Selecciona una opció de la llista.",
       "unknown": "Error desconegut"
     },
     "abort": {
@@ -140,7 +141,7 @@
           "sensor_cloud_coverage": "Cobertura de núvols",
           "sensor_dew_point": "Punt de rosada",
           "sensor_apparent_temperature": "Temperatura de sensació",
-          "sensor_rain": "Intensitat de pluja"
+          "sensor_rain": "Intensitat de pluja (només es fa servir si plou i per canvia la condició climàtica en el mapeig Meteocat)"
         }
       },
       "condition_mapping_custom": {

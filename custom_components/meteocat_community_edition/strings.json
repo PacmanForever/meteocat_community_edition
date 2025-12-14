@@ -104,6 +104,7 @@
       "invalid_auth": "Invalid API key. Please check that your API key is correct.",
       "invalid_format": "Invalid format. Use the format 'value: condition' on each line.",
       "invalid_condition": "Invalid condition. Valid conditions are: sunny, partlycloudy, cloudy, rainy, pouring, lightning, lightning-rainy, hail, snowy, snowy-rainy, fog, windy, windy-variant, clear-night, exceptional.",
+      "value_not_allowed": "Value not allowed. Select an option from the list.",
       "unknown": "Unknown error"
     },
     "abort": {
@@ -140,7 +141,7 @@
           "sensor_cloud_coverage": "Cloud Coverage",
           "sensor_dew_point": "Dew Point",
           "sensor_apparent_temperature": "Apparent Temperature",
-          "sensor_rain": "Rain Intensity"
+          "sensor_rain": "Rain Intensity (only used when raining and to change weather condition in Meteocat mapping)"
         }
       },
       "condition_mapping_custom": {
