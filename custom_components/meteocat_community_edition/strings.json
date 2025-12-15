@@ -113,6 +113,13 @@
     }
   },
   "options": {
+    "error": {
+      "must_select_one_forecast": "You must select at least one forecast type (daily or hourly)",
+      "invalid_auth": "Invalid API key. Please check that the API key is correct.",
+      "times_must_differ": "Update times must be different",
+      "invalid_time_format": "Invalid time format. Use 24h format: HH:MM (example: 06:00 or 14:30)",
+      "required": "This field is required"
+    },
     "step": {
       "init": {
         "title": "Configure Meteocat Forecast",

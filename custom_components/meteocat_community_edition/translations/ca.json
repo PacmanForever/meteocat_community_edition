@@ -113,6 +113,13 @@
     }
   },
   "options": {
+    "error": {
+      "must_select_one_forecast": "Has de seleccionar almenys un tipus de predicció (diària o horària)",
+      "invalid_auth": "Clau API invàlida. Si us plau, comprova que la clau API sigui correcta.",
+      "times_must_differ": "Els horaris d'actualització han de ser diferents",
+      "invalid_time_format": "Format d'hora invàlid. Utilitza el format 24h: HH:MM (exemple: 06:00 o 14:30)",
+      "required": "Aquest camp és obligatori"
+    },
     "step": {
       "init": {
         "title": "Configura la predicció de Meteocat",

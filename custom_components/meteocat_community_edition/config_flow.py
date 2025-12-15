@@ -677,8 +677,8 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             time_errors = validate_update_times(time1, time2, time3)
             errors.update(time_errors)
             
-            # Validate forecast selection (only for local mode)
-            if self.mode == MODE_LOCAL and enable_daily is False and enable_hourly is False:
+            # Validate forecast selection
+            if enable_daily is False and enable_hourly is False:
                 errors["base"] = "must_select_one_forecast"
             
             if not errors:
@@ -920,9 +920,9 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
             time_errors = validate_update_times(time1, time2, time3)
             errors.update(time_errors)
             
-            # Validate forecast selection (only for local mode)
+            # Validate forecast selection
             mode = self.config_entry.data.get(CONF_MODE)
-            if mode == MODE_LOCAL and enable_daily is False and enable_hourly is False:
+            if enable_daily is False and enable_hourly is False:
                 errors["base"] = "must_select_one_forecast"
             
             if not errors:

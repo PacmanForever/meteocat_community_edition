@@ -113,6 +113,13 @@
     }
   },
   "options": {
+    "error": {
+      "must_select_one_forecast": "Debes seleccionar al menos un tipo de predicción (diaria u horaria)",
+      "invalid_auth": "Clave API inválida. Por favor, verifica que la clave API sea correcta.",
+      "times_must_differ": "Los horarios de actualización deben ser diferentes",
+      "invalid_time_format": "Formato de hora inválido. Usa el formato 24h: HH:MM (ejemplo: 06:00 o 14:30)",
+      "required": "Este campo es obligatorio"
+    },
     "step": {
       "init": {
         "title": "Configuración de la estación externa",
