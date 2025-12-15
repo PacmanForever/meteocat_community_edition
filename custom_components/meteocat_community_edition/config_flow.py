@@ -164,8 +164,10 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         
         # Determine current mapping_type value for default
         current_mapping_type = "meteocat"  # Default fallback
-        if hasattr(self, 'config_entry') and self.config_entry:
-            # Options flow - get from entry data or options
+        if (hasattr(self, 'config_entry') and self.config_entry and 
+            hasattr(self.config_entry, 'data') and self.config_entry.data and
+            self.config_entry.entry_id):  # Only for real options flows, not during creation
+            # Options flow - get from entry data
             mapping_value = self.config_entry.data.get("mapping_type")
             if isinstance(mapping_value, str) and mapping_value in ["meteocat", "custom"]:
                 current_mapping_type = mapping_value
@@ -660,12 +662,23 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             enable_daily = user_input.get(CONF_ENABLE_FORECAST_DAILY, True)
             enable_hourly = user_input.get(CONF_ENABLE_FORECAST_HOURLY, False)
             
+            # Ensure forecast values are booleans (defensive programming)
+            # This prevents validation errors when user input contains invalid types
+            if enable_daily is None:
+                enable_daily = True
+            elif not isinstance(enable_daily, bool):
+                enable_daily = bool(enable_daily)
+            if enable_hourly is None:
+                enable_hourly = False
+            elif not isinstance(enable_hourly, bool):
+                enable_hourly = bool(enable_hourly)
+            
             # Validate times
             time_errors = validate_update_times(time1, time2, time3)
             errors.update(time_errors)
             
             # Validate forecast selection (only for local mode)
-            if self.mode == MODE_LOCAL and not enable_daily and not enable_hourly:
+            if self.mode == MODE_LOCAL and enable_daily is False and enable_hourly is False:
                 errors["base"] = "must_select_one_forecast"
             
             if not errors:
@@ -893,12 +906,23 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
             enable_daily = user_input.get(CONF_ENABLE_FORECAST_DAILY, True)
             enable_hourly = user_input.get(CONF_ENABLE_FORECAST_HOURLY, False)
             
+            # Ensure forecast values are booleans (defensive programming)
+            # This prevents validation errors when user input contains invalid types
+            if enable_daily is None:
+                enable_daily = True
+            elif not isinstance(enable_daily, bool):
+                enable_daily = bool(enable_daily)
+            if enable_hourly is None:
+                enable_hourly = False
+            elif not isinstance(enable_hourly, bool):
+                enable_hourly = bool(enable_hourly)
+            
             time_errors = validate_update_times(time1, time2, time3)
             errors.update(time_errors)
             
             # Validate forecast selection (only for local mode)
             mode = self.config_entry.data.get(CONF_MODE)
-            if mode == MODE_LOCAL and not enable_daily and not enable_hourly:
+            if mode == MODE_LOCAL and enable_daily is False and enable_hourly is False:
                 errors["base"] = "must_select_one_forecast"
             
             if not errors:

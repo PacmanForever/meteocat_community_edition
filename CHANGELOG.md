@@ -5,6 +5,16 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.33] - 2025-12-15
+
+### Corregit
+- **Errors de Validació No Traduïts**: Solucionats els missatges d'error no traduïts ("value must be one of ['custom', 'meteocat']" i "must_select_one_forecast") que apareixien en els fluxos de configuració durant la creació i edició d'estacions.
+- **Validació de Tipus Booleans**: Afegida validació defensiva per assegurar que els valors de forecast (enable_daily, enable_hourly) siguin sempre booleans vàlids, prevenint errors de validació.
+- **Controls de Validació Explícits**: Canviats els controls de validació de condicions ambigus (`not enable_daily`) a controls explícits (`enable_daily is False`) per evitar problemes amb valors `None`.
+
+### Millorat
+- **Robustesa del Flux d'Opcions**: Millorada l'estabilitat dels fluxos de configuració amb validacions més robustes i correcció automàtica de dades corruptes.
+
 ## [1.2.31] - 2025-12-14
 
 ### Corregit
