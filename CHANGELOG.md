@@ -5,6 +5,11 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.35] - 2025-12-15
+
+### Corregit
+- **Traduccions del Flux de Configuració**: Afegides traduccions completes per als errors de validació en el context de configuració, assegurant que tots els missatges d'error es mostrin correctament traduïts en la creació d'estacions.
+
 ## [1.2.34] - 2025-12-15
 
 ### Corregit
