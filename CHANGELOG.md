@@ -5,6 +5,15 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.34] - 2025-12-15
+
+### Corregit
+- **Traduccions Completes del Flux d'Opcions**: Afegides traduccions completes per als errors de validació en el context d'opcions, assegurant que tots els missatges d'error es mostrin correctament traduïts tant en la creació com en l'edició d'estacions.
+
+### Millorat
+- **Tests de Regressió**: Afegits tests integrals per validar el comportament de validació de prediccions en tots els modes d'estacions.
+- **Neteja de Codi**: Eliminat fitxer obsolet del sistema d'agents.
+
 ## [1.2.33] - 2025-12-15
 
 ### Corregit
