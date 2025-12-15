@@ -1164,4 +1164,94 @@ async def test_options_flow_switch_mapping_types_multiple_times(hass: HomeAssist
     assert entry.data["mapping_type"] == "custom"
     assert entry.data["local_condition_entity"] == "sensor.new_weather_condition"
     assert entry.data["custom_condition_mapping"] == {"0": "clear-night", "1": "sunny", "2": "cloudy"}
+
+
+@pytest.mark.asyncio
+async def test_options_flow_invalid_mapping_type_auto_correction(hass: HomeAssistant):
+    """Test that invalid mapping_type values are automatically corrected."""
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        data={
+            CONF_API_KEY: "original_api_key",
+            CONF_MODE: MODE_LOCAL,
+            CONF_MUNICIPALITY_CODE: "081131",
+            CONF_SENSOR_TEMPERATURE: "sensor.temp",
+            CONF_SENSOR_HUMIDITY: "sensor.hum",
+            "mapping_type": "invalid_value",  # Invalid mapping type
+        },
+        options={
+            CONF_UPDATE_TIME_1: "06:00",
+            CONF_ENABLE_FORECAST_DAILY: True,
+            CONF_ENABLE_FORECAST_HOURLY: False,
+        }
+    )
+    entry.add_to_hass(hass)
+
+    # Initialize options flow - should auto-correct invalid mapping_type
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "init"
+
+    # The invalid mapping_type should have been corrected to "meteocat"
+    assert entry.data["mapping_type"] == "meteocat"
+
+    # Submit init step
+    user_input_init = {
+        CONF_UPDATE_TIME_1: "06:00",
+        CONF_ENABLE_FORECAST_DAILY: True,
+        CONF_ENABLE_FORECAST_HOURLY: False,
+    }
+    
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input_init
+    )
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "local_sensors"
+
+    # Submit sensors step
+    user_input_sensors = {
+        CONF_SENSOR_TEMPERATURE: "sensor.temp",
+        CONF_SENSOR_HUMIDITY: "sensor.hum",
+    }
+
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input_sensors
+    )
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "condition_mapping_type"
+
+    # The form should show "meteocat" as current selection (corrected)
+    # This tests that the selector doesn't fail with invalid defaults
     assert entry.data[CONF_API_KEY] == "original_api_key"
+
+
+@pytest.mark.asyncio
+async def test_options_flow_invalid_forecast_booleans_auto_correction(hass: HomeAssistant):
+    """Test that invalid forecast boolean values in entry data are auto-corrected during options flow init."""
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        data={
+            CONF_API_KEY: "test_key",
+            CONF_MODE: MODE_LOCAL,
+            CONF_MUNICIPALITY_CODE: "081131",
+            CONF_UPDATE_TIME_1: "06:00",
+            CONF_ENABLE_FORECAST_DAILY: "invalid_string",  # Invalid: should be boolean
+            CONF_ENABLE_FORECAST_HOURLY: 123,  # Invalid: should be boolean
+            "mapping_type": "meteocat",
+        },
+        options={}
+    )
+    entry.add_to_hass(hass)
+
+    # Start options flow
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "init"
+
+    # Check that the invalid values were corrected
+    assert entry.data[CONF_ENABLE_FORECAST_DAILY] is True  # Corrected to default True
+    assert entry.data[CONF_ENABLE_FORECAST_HOURLY] is False  # Corrected to default False
+
+    # The form should render without validation errors
+    # This tests that the selector doesn't fail with invalid defaults
+    assert result["data_schema"] is not None

@@ -161,10 +161,20 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 return await self.async_step_condition_mapping_custom()
 
         from homeassistant.helpers import selector
+        
+        # Determine current mapping_type value for default
+        current_mapping_type = "meteocat"  # Default fallback
+        if hasattr(self, 'config_entry') and self.config_entry:
+            # Options flow - get from entry data or options
+            mapping_value = self.config_entry.data.get("mapping_type")
+            if isinstance(mapping_value, str) and mapping_value in ["meteocat", "custom"]:
+                current_mapping_type = mapping_value
+            # If invalid or missing, keep default "meteocat"
+        
         schema = vol.Schema({
             vol.Optional(
                 "mapping_type",
-                default="meteocat",
+                default=current_mapping_type,
                 description={"suggested_value": "mapping_type_label"}
             ): selector.SelectSelector(
                 selector.SelectSelectorConfig(
@@ -714,8 +724,8 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     vol.Required(CONF_UPDATE_TIME_1, default=DEFAULT_UPDATE_TIME_1): str,
                     vol.Optional(CONF_UPDATE_TIME_2, default=DEFAULT_UPDATE_TIME_2): str,
                     vol.Optional(CONF_UPDATE_TIME_3): str,
-                    vol.Required(CONF_ENABLE_FORECAST_DAILY, default=True): bool,
-                    vol.Required(CONF_ENABLE_FORECAST_HOURLY, default=False): bool,
+                    vol.Required(CONF_ENABLE_FORECAST_DAILY, default=True): vol.In([True, False]),
+                    vol.Required(CONF_ENABLE_FORECAST_HOURLY, default=False): vol.In([True, False]),
                 }
             ),
             errors=errors,
@@ -819,6 +829,42 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
         """Manage the options."""
         errors: dict[str, str] = {}
         
+        # Fix invalid mapping_type in entry data before any processing
+        current_mapping_type = self.config_entry.data.get("mapping_type")
+        if current_mapping_type is not None and (not isinstance(current_mapping_type, str) or current_mapping_type not in ["meteocat", "custom"]):
+            _LOGGER.warning("Invalid mapping_type '%s' (type: %s) found in entry data during init, resetting to 'meteocat'", 
+                          current_mapping_type, type(current_mapping_type))
+            updated_data = dict(self.config_entry.data)
+            updated_data["mapping_type"] = "meteocat"
+            self.hass.config_entries.async_update_entry(
+                entry=self.config_entry,
+                data=updated_data
+            )
+        
+        # Fix invalid forecast boolean values in entry data before any processing
+        current_enable_daily = self.config_entry.data.get(CONF_ENABLE_FORECAST_DAILY)
+        current_enable_hourly = self.config_entry.data.get(CONF_ENABLE_FORECAST_HOURLY)
+        forecast_data_needs_update = False
+        updated_data = dict(self.config_entry.data)
+        
+        if current_enable_daily is not None and not isinstance(current_enable_daily, bool):
+            _LOGGER.warning("Invalid enable_forecast_daily '%s' (type: %s) found in entry data during init, resetting to True", 
+                          current_enable_daily, type(current_enable_daily))
+            updated_data[CONF_ENABLE_FORECAST_DAILY] = True
+            forecast_data_needs_update = True
+            
+        if current_enable_hourly is not None and not isinstance(current_enable_hourly, bool):
+            _LOGGER.warning("Invalid enable_forecast_hourly '%s' (type: %s) found in entry data during init, resetting to False", 
+                          current_enable_hourly, type(current_enable_hourly))
+            updated_data[CONF_ENABLE_FORECAST_HOURLY] = False
+            forecast_data_needs_update = True
+            
+        if forecast_data_needs_update:
+            self.hass.config_entries.async_update_entry(
+                entry=self.config_entry,
+                data=updated_data
+            )
+        
         # CRITICAL: Validate API key exists before allowing any options editing
         api_key = self.config_entry.data.get(CONF_API_KEY) or self.config_entry.options.get(CONF_API_KEY)
         
@@ -919,6 +965,14 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
         # Ensure options is not None
         options = self.config_entry.options or {}
 
+        # Validate and fix forecast boolean values before building schema
+        current_enable_daily = self.config_entry.data.get(CONF_ENABLE_FORECAST_DAILY)
+        current_enable_hourly = self.config_entry.data.get(CONF_ENABLE_FORECAST_HOURLY)
+        if not isinstance(current_enable_daily, bool):
+            current_enable_daily = True  # Default
+        if not isinstance(current_enable_hourly, bool):
+            current_enable_hourly = False  # Default
+
         # Build schema
         schema_dict = {
             vol.Required(
@@ -948,19 +1002,15 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
             vol.Required(
                 CONF_ENABLE_FORECAST_DAILY,
                 default=self.config_entry.options.get(
-                    CONF_ENABLE_FORECAST_DAILY, self.config_entry.data.get(
-                        CONF_ENABLE_FORECAST_DAILY, True
-                    )
+                    CONF_ENABLE_FORECAST_DAILY, current_enable_daily
                 ),
-            ): bool,
+            ): vol.In([True, False]),
             vol.Required(
                 CONF_ENABLE_FORECAST_HOURLY,
                 default=self.config_entry.options.get(
-                    CONF_ENABLE_FORECAST_HOURLY, self.config_entry.data.get(
-                        CONF_ENABLE_FORECAST_HOURLY, False
-                    )
+                    CONF_ENABLE_FORECAST_HOURLY, current_enable_hourly
                 ),
-            ): bool,
+            ): vol.In([True, False]),
         }
 
         # Add mapping type selector for local mode
@@ -1104,8 +1154,9 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
         
         # Get current mapping type from entry data, ensure it's valid
         current_mapping_type = self.config_entry.data.get("mapping_type", "meteocat")
-        if current_mapping_type not in ["meteocat", "custom"]:
-            _LOGGER.warning("Invalid mapping_type '%s' found in entry data, resetting to 'meteocat'", current_mapping_type)
+        if not isinstance(current_mapping_type, str) or current_mapping_type not in ["meteocat", "custom"]:
+            _LOGGER.warning("Invalid mapping_type '%s' (type: %s) found in entry data, resetting to 'meteocat'", 
+                          current_mapping_type, type(current_mapping_type))
             current_mapping_type = "meteocat"  # Fallback to safe default
             # Update entry data to fix the invalid value
             updated_data = dict(self.config_entry.data)
@@ -1163,16 +1214,19 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                 return await self.async_step_condition_mapping_custom()
         
         schema = vol.Schema({
-            vol.Optional(
+            vol.Required(
                 "mapping_type",
                 default=current_mapping_type
-            ): selector.SelectSelector(
-                selector.SelectSelectorConfig(
-                    options=[
-                        {"value": "meteocat", "label": "Meteocat"},
-                        {"value": "custom", "label": "Personalitzat"}
-                    ]
-                )
+            ): vol.All(
+                selector.SelectSelector(
+                    selector.SelectSelectorConfig(
+                        options=[
+                            {"value": "meteocat", "label": "Meteocat"},
+                            {"value": "custom", "label": "Personalitzat"}
+                        ]
+                    )
+                ),
+                vol.In(["meteocat", "custom"])
             ),
         })
         return self.async_show_form(
