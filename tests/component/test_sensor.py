@@ -475,6 +475,7 @@ def test_altitude_sensor(mock_coordinator, mock_entry):
     assert sensor.unique_id == f"{mock_entry.entry_id}_altitude"
     assert sensor.name == "Altitud"
     assert sensor.entity_category == EntityCategory.CONFIG
+    assert sensor.entity_registry_enabled_default is True
 
 
 def test_altitude_sensor_no_data(mock_coordinator, mock_entry):
@@ -490,6 +491,7 @@ def test_altitude_sensor_no_data(mock_coordinator, mock_entry):
     )
     
     assert sensor.native_value is None
+    assert sensor.available is True  # Config sensors are always available
 
 
 def test_latitude_sensor(mock_coordinator, mock_entry):
@@ -533,6 +535,7 @@ def test_latitude_sensor_no_data(mock_coordinator, mock_entry):
     )
     
     assert sensor.native_value is None
+    assert sensor.available is True  # Config sensors are always available
 
 
 def test_longitude_sensor(mock_coordinator, mock_entry):
@@ -576,6 +579,7 @@ def test_longitude_sensor_no_data(mock_coordinator, mock_entry):
     )
     
     assert sensor.native_value is None
+    assert sensor.available is True  # Config sensors are always available
 
 
 def test_municipality_name_sensor(mock_coordinator, mock_entry):
@@ -650,6 +654,7 @@ def test_comarca_name_sensor(mock_coordinator, mock_entry):
     assert sensor.unique_id == f"{mock_entry.entry_id}_comarca_name"
     assert sensor.name == "Comarca"
     assert sensor.entity_category == EntityCategory.CONFIG
+    assert sensor.entity_registry_enabled_default is True
 
 
 def test_comarca_name_sensor_no_data(mock_coordinator, mock_entry):
@@ -670,6 +675,7 @@ def test_comarca_name_sensor_no_data(mock_coordinator, mock_entry):
     
     # Should return empty string when comarca_name is not in config
     assert sensor.native_value == ""
+    assert sensor.available is True  # Config sensors are always available
 
 
 # Tests for MODE_EXTERNAL geographic sensors
@@ -701,6 +707,34 @@ def test_station_comarca_name_sensor():
     assert sensor.icon == "mdi:map"
 
 
+def test_station_comarca_name_sensor_no_data():
+    """Test station comarca name sensor with no data."""
+    from custom_components.meteocat_community_edition.sensor import MeteocatStationComarcaNameSensor
+    from unittest.mock import MagicMock
+    
+    mock_coordinator = MagicMock()
+    mock_coordinator.data = {}  # No station data
+    mock_entry = MagicMock()
+    mock_entry.entry_id = "test_entry"
+    mock_entry.data = {
+        "mode": MODE_EXTERNAL,
+        "station_code": "YM",
+        # No comarca_name or _station_data
+    }
+    mock_entry.options = {}
+    
+    sensor = MeteocatStationComarcaNameSensor(
+        mock_coordinator,
+        mock_entry,
+        "Granollers",
+        "Granollers YM",
+        "YM"
+    )
+    
+    assert sensor.native_value == ""
+    assert sensor.available is True  # Config sensors are always available
+
+
 def test_station_municipality_name_sensor():
     """Test station municipality name sensor."""
     from custom_components.meteocat_community_edition.sensor import MeteocatStationMunicipalityNameSensor
@@ -728,6 +762,34 @@ def test_station_municipality_name_sensor():
     assert sensor.icon == "mdi:city"
 
 
+def test_station_municipality_name_sensor_no_data():
+    """Test station municipality name sensor with no data."""
+    from custom_components.meteocat_community_edition.sensor import MeteocatStationMunicipalityNameSensor
+    from unittest.mock import MagicMock
+    
+    mock_coordinator = MagicMock()
+    mock_coordinator.data = {}  # No station data
+    mock_entry = MagicMock()
+    mock_entry.entry_id = "test_entry"
+    mock_entry.data = {
+        "mode": MODE_EXTERNAL,
+        "station_code": "YM",
+        # No station_municipality_name or _station_data
+    }
+    mock_entry.options = {}
+    
+    sensor = MeteocatStationMunicipalityNameSensor(
+        mock_coordinator,
+        mock_entry,
+        "Granollers",
+        "Granollers YM",
+        "YM"
+    )
+    
+    assert sensor.native_value == ""
+    assert sensor.available is True  # Config sensors are always available
+
+
 def test_station_provincia_name_sensor():
     """Test station province name sensor."""
     from custom_components.meteocat_community_edition.sensor import MeteocatStationProvinciaNameSensor
@@ -753,6 +815,34 @@ def test_station_provincia_name_sensor():
     
     assert sensor.native_value == "Barcelona"
     assert sensor.icon == "mdi:map-marker-radius"
+
+
+def test_station_provincia_name_sensor_no_data():
+    """Test station province name sensor with no data."""
+    from custom_components.meteocat_community_edition.sensor import MeteocatStationProvinciaNameSensor
+    from unittest.mock import MagicMock
+    
+    mock_coordinator = MagicMock()
+    mock_coordinator.data = {}  # No station data
+    mock_entry = MagicMock()
+    mock_entry.entry_id = "test_entry"
+    mock_entry.data = {
+        "mode": MODE_EXTERNAL,
+        "station_code": "YM",
+        # No station_provincia_name or _station_data
+    }
+    mock_entry.options = {}
+    
+    sensor = MeteocatStationProvinciaNameSensor(
+        mock_coordinator,
+        mock_entry,
+        "Granollers",
+        "Granollers YM",
+        "YM"
+    )
+    
+    assert sensor.native_value == ""
+    assert sensor.available is True  # Config sensors are always available
 
 
 # Tests for MODE_LOCAL coordinate and province sensors
@@ -815,6 +905,60 @@ def test_municipality_longitude_sensor():
     assert sensor.icon == "mdi:longitude"
     assert sensor.translation_key == "longitude"
     assert sensor.entity_category == EntityCategory.CONFIG
+
+
+def test_municipality_latitude_sensor_no_data():
+    """Test municipality latitude sensor with no data."""
+    from custom_components.meteocat_community_edition.sensor import MeteocatMunicipalityLatitudeSensor
+    from unittest.mock import MagicMock
+    
+    mock_coordinator = MagicMock()
+    mock_entry = MagicMock()
+    mock_entry.entry_id = "test_entry"
+    mock_entry.data = {
+        "mode": MODE_LOCAL,
+        "municipality_code": "080193",
+        # No municipality_lat
+    }
+    mock_entry.options = {}
+    
+    sensor = MeteocatMunicipalityLatitudeSensor(
+        mock_coordinator,
+        mock_entry,
+        "Barcelona",
+        "Barcelona",
+        "080193"
+    )
+    
+    assert sensor.native_value is None
+    assert sensor.available is True  # Config sensors are always available
+
+
+def test_municipality_longitude_sensor_no_data():
+    """Test municipality longitude sensor with no data."""
+    from custom_components.meteocat_community_edition.sensor import MeteocatMunicipalityLongitudeSensor
+    from unittest.mock import MagicMock
+    
+    mock_coordinator = MagicMock()
+    mock_entry = MagicMock()
+    mock_entry.entry_id = "test_entry"
+    mock_entry.data = {
+        "mode": MODE_LOCAL,
+        "municipality_code": "080193",
+        # No municipality_lon
+    }
+    mock_entry.options = {}
+    
+    sensor = MeteocatMunicipalityLongitudeSensor(
+        mock_coordinator,
+        mock_entry,
+        "Barcelona",
+        "Barcelona",
+        "080193"
+    )
+    
+    assert sensor.native_value is None
+    assert sensor.available is True  # Config sensors are always available
 
 
 def test_municipality_provincia_name_sensor():

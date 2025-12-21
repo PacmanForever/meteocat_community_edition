@@ -8,7 +8,7 @@ i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 ## [1.2.37] - 2025-12-21
 
 ### Corregit
-- **Disponibilitat dels Sensors de Configuració**: Corregida la disponibilitat dels sensors de categoria "configuració" (Comarca, Municipi, Província, Latitud, Longitud, Altitud) perquè sempre retornin `True`, assegurant que es mostrin correctament a la interfície d'usuari encara que estiguin deshabilitats per defecte.
+- **Disponibilitat dels Sensors de Configuració**: Corregida la disponibilitat dels sensors de categoria "configuració" (Comarca, Municipi, Província, Latitud, Longitud, Altitud) perquè sempre retornin `True`, assegurant que es mostrin correctament a la interfície d'usuari. A més, aquests sensors ara s'activen per defecte per mostrar els seus valors immediatament.
 
 ## [1.2.36] - 2025-12-21
 

@@ -1043,6 +1043,7 @@ class MeteocatAltitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
         
         # Geographic sensors are configuration information
         self._attr_entity_category = EntityCategory.CONFIG
+        self._attr_entity_registry_enabled_default = True
 
     @property
     def native_value(self) -> float | None:
@@ -1116,6 +1117,7 @@ class MeteocatLatitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
         
         # Geographic sensors are configuration information
         self._attr_entity_category = EntityCategory.CONFIG
+        self._attr_entity_registry_enabled_default = True
 
     @property
     def native_value(self) -> float | None:
@@ -1192,6 +1194,7 @@ class MeteocatLongitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnti
         
         # Geographic sensors are configuration information
         self._attr_entity_category = EntityCategory.CONFIG
+        self._attr_entity_registry_enabled_default = True
 
     @property
     def native_value(self) -> float | None:
@@ -1264,6 +1267,7 @@ class MeteocatMunicipalityNameSensor(CoordinatorEntity[MeteocatCoordinator], Sen
         
         # Municipality name is configuration information
         self._attr_entity_category = EntityCategory.CONFIG
+        self._attr_entity_registry_enabled_default = True
 
     @property
     def native_value(self) -> str | None:
@@ -1322,6 +1326,7 @@ class MeteocatComarcaNameSensor(CoordinatorEntity[MeteocatCoordinator], SensorEn
         
         # Comarca name is configuration information
         self._attr_entity_category = EntityCategory.CONFIG
+        self._attr_entity_registry_enabled_default = True
 
     @property
     def native_value(self) -> str | None:
@@ -1383,6 +1388,7 @@ class MeteocatMunicipalityLatitudeSensor(CoordinatorEntity[MeteocatCoordinator],
         
         # Municipality latitude is configuration information
         self._attr_entity_category = EntityCategory.CONFIG
+        self._attr_entity_registry_enabled_default = True
 
     @property
     def native_value(self) -> float | None:
@@ -1444,6 +1450,7 @@ class MeteocatMunicipalityLongitudeSensor(CoordinatorEntity[MeteocatCoordinator]
         
         # Municipality longitude is configuration information
         self._attr_entity_category = EntityCategory.CONFIG
+        self._attr_entity_registry_enabled_default = True
 
     @property
     def native_value(self) -> float | None:
@@ -1503,6 +1510,7 @@ class MeteocatProvinciaNameSensor(CoordinatorEntity[MeteocatCoordinator], Sensor
         
         # Provincia name is configuration information
         self._attr_entity_category = EntityCategory.CONFIG
+        self._attr_entity_registry_enabled_default = True
 
     @property
     def native_value(self) -> str | None:
@@ -1563,6 +1571,7 @@ class MeteocatStationComarcaNameSensor(CoordinatorEntity[MeteocatCoordinator], S
         
         # Geographic sensors are configuration information
         self._attr_entity_category = EntityCategory.CONFIG
+        self._attr_entity_registry_enabled_default = True
 
     @property
     def native_value(self) -> str | None:
@@ -1623,6 +1632,7 @@ class MeteocatStationMunicipalityNameSensor(CoordinatorEntity[MeteocatCoordinato
         
         # Geographic sensors are configuration information
         self._attr_entity_category = EntityCategory.CONFIG
+        self._attr_entity_registry_enabled_default = True
 
     @property
     def native_value(self) -> str | None:
@@ -1683,6 +1693,7 @@ class MeteocatStationProvinciaNameSensor(CoordinatorEntity[MeteocatCoordinator],
         
         # Geographic sensors are configuration information
         self._attr_entity_category = EntityCategory.CONFIG
+        self._attr_entity_registry_enabled_default = True
 
     @property
     def native_value(self) -> str | None:
