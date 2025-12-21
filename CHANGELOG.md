@@ -5,6 +5,11 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.38] - 2025-01-02
+
+### Millorat
+- **Cobertura de Tests**: Afegida cobertura de tests completa per als sensors de configuració, assegurant que la disponibilitat i l'activació per defecte funcionin correctament.
+
 ## [1.2.37] - 2025-12-21
 
 ### Corregit
