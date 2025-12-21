@@ -5,6 +5,11 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.42] - 2025-01-02
+
+### Corregit
+- **Disponibilitat dels Sensors de Configuració**: Millorat el mètode `async_added_to_hass` per cridar primer al mètode pare i esperar les actualitzacions del registre d'entitats, assegurant una gestió més robusta de l'estat d'habilitació dels sensors de configuració quan es mouen entre grups.
+
 ## [1.2.41] - 2025-01-02
 
 ### Corregit

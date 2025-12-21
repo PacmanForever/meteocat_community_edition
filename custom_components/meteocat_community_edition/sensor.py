@@ -983,11 +983,11 @@ class MeteocatUpdateTimeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnt
 
     async def async_added_to_hass(self):
         # Ensure entity is enabled and available in registry after group/category change
+        await super().async_added_to_hass()
         registry = await self.hass.helpers.entity_registry.async_get_registry()
         entry = registry.async_get(self.entity_id)
         if entry and entry.disabled:
-            registry.async_update_entity(self.entity_id, disabled_by=None)
-        await super().async_added_to_hass()
+            await registry.async_update_entity(self.entity_id, disabled_by=None)
 
     @property
     def native_value(self):
@@ -1058,11 +1058,11 @@ class MeteocatAltitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
         self._attr_entity_registry_enabled_default = True
 
     async def async_added_to_hass(self):
+        await super().async_added_to_hass()
         registry = await self.hass.helpers.entity_registry.async_get_registry()
         entry = registry.async_get(self.entity_id)
         if entry and entry.disabled:
-            registry.async_update_entity(self.entity_id, disabled_by=None)
-        await super().async_added_to_hass()
+            await registry.async_update_entity(self.entity_id, disabled_by=None)
 
     @property
     def native_value(self) -> float | None:
@@ -1141,11 +1141,11 @@ class MeteocatLatitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
         self._attr_available = True
 
     async def async_added_to_hass(self):
+        await super().async_added_to_hass()
         registry = await self.hass.helpers.entity_registry.async_get_registry()
         entry = registry.async_get(self.entity_id)
         if entry and entry.disabled:
-            registry.async_update_entity(self.entity_id, disabled_by=None)
-        await super().async_added_to_hass()
+            await registry.async_update_entity(self.entity_id, disabled_by=None)
 
     @property
     def native_value(self) -> float | None:
@@ -1221,11 +1221,11 @@ class MeteocatLongitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnti
         self._attr_available = True
 
     async def async_added_to_hass(self):
+        await super().async_added_to_hass()
         registry = await self.hass.helpers.entity_registry.async_get_registry()
         entry = registry.async_get(self.entity_id)
         if entry and entry.disabled:
-            registry.async_update_entity(self.entity_id, disabled_by=None)
-        await super().async_added_to_hass()
+            await registry.async_update_entity(self.entity_id, disabled_by=None)
 
     @property
     def native_value(self) -> float | None:
@@ -1306,7 +1306,7 @@ class MeteocatMunicipalityNameSensor(CoordinatorEntity[MeteocatCoordinator], Sen
         registry = await self.hass.helpers.entity_registry.async_get_registry()
         entry = registry.async_get(self.entity_id)
         if entry and entry.disabled:
-            registry.async_update_entity(self.entity_id, disabled_by=None)
+            await registry.async_update_entity(self.entity_id, disabled_by=None)
         await super().async_added_to_hass()
 
     @property
@@ -1374,7 +1374,7 @@ class MeteocatComarcaNameSensor(CoordinatorEntity[MeteocatCoordinator], SensorEn
         registry = await self.hass.helpers.entity_registry.async_get_registry()
         entry = registry.async_get(self.entity_id)
         if entry and entry.disabled:
-            registry.async_update_entity(self.entity_id, disabled_by=None)
+            await registry.async_update_entity(self.entity_id, disabled_by=None)
         await super().async_added_to_hass()
 
     @property
@@ -1445,7 +1445,7 @@ class MeteocatMunicipalityLatitudeSensor(CoordinatorEntity[MeteocatCoordinator],
         registry = await self.hass.helpers.entity_registry.async_get_registry()
         entry = registry.async_get(self.entity_id)
         if entry and entry.disabled:
-            registry.async_update_entity(self.entity_id, disabled_by=None)
+            await registry.async_update_entity(self.entity_id, disabled_by=None)
         await super().async_added_to_hass()
 
     @property
@@ -1516,7 +1516,7 @@ class MeteocatMunicipalityLongitudeSensor(CoordinatorEntity[MeteocatCoordinator]
         registry = await self.hass.helpers.entity_registry.async_get_registry()
         entry = registry.async_get(self.entity_id)
         if entry and entry.disabled:
-            registry.async_update_entity(self.entity_id, disabled_by=None)
+            await registry.async_update_entity(self.entity_id, disabled_by=None)
         await super().async_added_to_hass()
 
     @property
@@ -1585,7 +1585,7 @@ class MeteocatProvinciaNameSensor(CoordinatorEntity[MeteocatCoordinator], Sensor
         registry = await self.hass.helpers.entity_registry.async_get_registry()
         entry = registry.async_get(self.entity_id)
         if entry and entry.disabled:
-            registry.async_update_entity(self.entity_id, disabled_by=None)
+            await registry.async_update_entity(self.entity_id, disabled_by=None)
         await super().async_added_to_hass()
 
     @property
@@ -1655,7 +1655,7 @@ class MeteocatStationComarcaNameSensor(CoordinatorEntity[MeteocatCoordinator], S
         registry = await self.hass.helpers.entity_registry.async_get_registry()
         entry = registry.async_get(self.entity_id)
         if entry and entry.disabled:
-            registry.async_update_entity(self.entity_id, disabled_by=None)
+            await registry.async_update_entity(self.entity_id, disabled_by=None)
         await super().async_added_to_hass()
 
     @property
@@ -1723,7 +1723,7 @@ class MeteocatStationMunicipalityNameSensor(CoordinatorEntity[MeteocatCoordinato
         registry = await self.hass.helpers.entity_registry.async_get_registry()
         entry = registry.async_get(self.entity_id)
         if entry and entry.disabled:
-            registry.async_update_entity(self.entity_id, disabled_by=None)
+            await registry.async_update_entity(self.entity_id, disabled_by=None)
         await super().async_added_to_hass()
 
     @property
@@ -1791,7 +1791,7 @@ class MeteocatStationProvinciaNameSensor(CoordinatorEntity[MeteocatCoordinator],
         registry = await self.hass.helpers.entity_registry.async_get_registry()
         entry = registry.async_get(self.entity_id)
         if entry and entry.disabled:
-            registry.async_update_entity(self.entity_id, disabled_by=None)
+            await registry.async_update_entity(self.entity_id, disabled_by=None)
         await super().async_added_to_hass()
 
     @property
