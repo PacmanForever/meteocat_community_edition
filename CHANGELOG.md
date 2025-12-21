@@ -5,6 +5,11 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.44] - 2025-01-02
+
+### Corregit
+- **Disponibilitat dels Sensors de Configuració**: Millorat el mètode `async_added_to_hass` per escoltar esdeveniments del registre d'entitats i re-habilitar automàticament els sensors de configuració quan es deshabilten en moure's entre grups a la interfície d'usuari de Home Assistant.
+
 ## [1.2.43] - 2025-01-02
 
 ### Corregit
