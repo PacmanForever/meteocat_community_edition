@@ -1063,8 +1063,8 @@ class MeteocatAltitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
     @property
     def available(self) -> bool:
         """Return True if entity is available."""
-        # Always available since data is cached in entry.data
-        return self.native_value is not None
+        # Configuration sensors are always available
+        return True
 
     @property
     def icon(self) -> str:
@@ -1139,8 +1139,8 @@ class MeteocatLatitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
     @property
     def available(self) -> bool:
         """Return True if entity is available."""
-        # Always available since data is cached in entry.data
-        return self.native_value is not None
+        # Configuration sensors are always available
+        return True
 
     @property
     def icon(self) -> str:
@@ -1215,8 +1215,8 @@ class MeteocatLongitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnti
     @property
     def available(self) -> bool:
         """Return True if entity is available."""
-        # Always available since data is cached in entry.data
-        return self.native_value is not None
+        # Configuration sensors are always available
+        return True
 
     @property
     def icon(self) -> str:
@@ -1273,8 +1273,8 @@ class MeteocatMunicipalityNameSensor(CoordinatorEntity[MeteocatCoordinator], Sen
     @property
     def available(self) -> bool:
         """Return True if entity is available."""
-        # Always available since data is cached in entry.data
-        return bool(self._municipality_name)
+        # Configuration sensors are always available
+        return True
 
     @property
     def icon(self) -> str:
@@ -1331,8 +1331,8 @@ class MeteocatComarcaNameSensor(CoordinatorEntity[MeteocatCoordinator], SensorEn
     @property
     def available(self) -> bool:
         """Return True if entity is available."""
-        # Always available since data is cached in entry.data
-        return bool(self._comarca_name)
+        # Configuration sensors are always available
+        return True
 
     @property
     def icon(self) -> str:
@@ -1392,8 +1392,8 @@ class MeteocatMunicipalityLatitudeSensor(CoordinatorEntity[MeteocatCoordinator],
     @property
     def available(self) -> bool:
         """Return True if entity is available."""
-        # Always available since data is cached in entry.data
-        return self._latitude is not None
+        # Configuration sensors are always available
+        return True
 
     @property
     def icon(self) -> str:
@@ -1453,8 +1453,8 @@ class MeteocatMunicipalityLongitudeSensor(CoordinatorEntity[MeteocatCoordinator]
     @property
     def available(self) -> bool:
         """Return True if entity is available."""
-        # Always available since data is cached in entry.data
-        return self._longitude is not None
+        # Configuration sensors are always available
+        return True
 
     @property
     def icon(self) -> str:
@@ -1512,8 +1512,8 @@ class MeteocatProvinciaNameSensor(CoordinatorEntity[MeteocatCoordinator], Sensor
     @property
     def available(self) -> bool:
         """Return True if entity is available."""
-        # Always available since data is cached in entry.data
-        return bool(self._provincia_name)
+        # Configuration sensors are always available
+        return True
 
     @property
     def icon(self) -> str:
@@ -1572,8 +1572,8 @@ class MeteocatStationComarcaNameSensor(CoordinatorEntity[MeteocatCoordinator], S
     @property
     def available(self) -> bool:
         """Return True if entity is available."""
-        # Always available since data is cached in entry.data
-        return bool(self._comarca_name)
+        # Configuration sensors are always available
+        return True
 
     @property
     def icon(self) -> str:
@@ -1632,8 +1632,8 @@ class MeteocatStationMunicipalityNameSensor(CoordinatorEntity[MeteocatCoordinato
     @property
     def available(self) -> bool:
         """Return True if entity is available."""
-        # Always available since data is cached in entry.data
-        return bool(self._municipality_name)
+        # Configuration sensors are always available
+        return True
 
     @property
     def icon(self) -> str:
@@ -1692,8 +1692,8 @@ class MeteocatStationProvinciaNameSensor(CoordinatorEntity[MeteocatCoordinator],
     @property
     def available(self) -> bool:
         """Return True if entity is available."""
-        # Always available since data is cached in entry.data
-        return bool(self._provincia_name)
+        # Configuration sensors are always available
+        return True
 
     @property
     def icon(self) -> str:

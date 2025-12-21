@@ -5,6 +5,11 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.37] - 2025-12-21
+
+### Corregit
+- **Disponibilitat dels Sensors de Configuració**: Corregida la disponibilitat dels sensors de categoria "configuració" (Comarca, Municipi, Província, Latitud, Longitud, Altitud) perquè sempre retornin `True`, assegurant que es mostrin correctament a la interfície d'usuari encara que estiguin deshabilitats per defecte.
+
 ## [1.2.36] - 2025-12-21
 
 ### Millorat
