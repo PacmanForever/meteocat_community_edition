@@ -5,6 +5,16 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.40] - 2025-01-02
+
+### Corregit
+- **Disponibilitat dels Sensors de Configuració**: Arreglada definitivament la disponibilitat dels sensors de categoria "configuració" configurant `_attr_available = True` abans de la inicialització del coordinador, assegurant que es mostrin sempre com a disponibles a la interfície d'usuari.
+
+## [1.2.39] - 2025-01-02
+
+### Corregit
+- **Disponibilitat dels Sensors de Configuració**: Reforçada la disponibilitat dels sensors de categoria "configuració" mitjançant múltiples mecanismes per assegurar que sempre retornin `True` i es mostrin correctament disponibles a la interfície d'usuari.
+
 ## [1.2.38] - 2025-01-02
 
 ### Millorat
