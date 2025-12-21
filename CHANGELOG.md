@@ -5,6 +5,11 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.43] - 2025-01-02
+
+### Corregit
+- **Sintaxi JSON**: Eliminada coma final no permesa al manifest.json que impedia la càrrega de la integració a HACS.
+
 ## [1.2.42] - 2025-01-02
 
 ### Corregit
