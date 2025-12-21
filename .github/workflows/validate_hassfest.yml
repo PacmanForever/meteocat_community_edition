@@ -19,5 +19,3 @@ jobs:
         uses: home-assistant/actions/hassfest@1.0.0
         with:
           args: custom_components/meteocat_community_edition
-        with:
-          args: --integration-path custom_components/meteocat_community_edition
