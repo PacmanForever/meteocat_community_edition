@@ -69,6 +69,7 @@ def mock_coordinator():
     coordinator.update_interval = timedelta(hours=8)
     coordinator.update_time_1 = "06:00"
     coordinator.update_time_2 = "14:00"
+    coordinator.last_update_success = True
     return coordinator
 
 
