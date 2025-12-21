@@ -737,8 +737,8 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     vol.Required(CONF_UPDATE_TIME_1, default=DEFAULT_UPDATE_TIME_1): str,
                     vol.Optional(CONF_UPDATE_TIME_2, default=DEFAULT_UPDATE_TIME_2): str,
                     vol.Optional(CONF_UPDATE_TIME_3): str,
-                    vol.Required(CONF_ENABLE_FORECAST_DAILY, default=True): vol.In([True, False]),
-                    vol.Required(CONF_ENABLE_FORECAST_HOURLY, default=False): vol.In([True, False]),
+                    vol.Required(CONF_ENABLE_FORECAST_DAILY, default=True): bool,
+                    vol.Required(CONF_ENABLE_FORECAST_HOURLY, default=False): bool,
                 }
             ),
             errors=errors,
@@ -1028,13 +1028,13 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                 default=self.config_entry.options.get(
                     CONF_ENABLE_FORECAST_DAILY, current_enable_daily
                 ),
-            ): vol.In([True, False]),
+            ): bool,
             vol.Required(
                 CONF_ENABLE_FORECAST_HOURLY,
                 default=self.config_entry.options.get(
                     CONF_ENABLE_FORECAST_HOURLY, current_enable_hourly
                 ),
-            ): vol.In([True, False]),
+            ): bool,
         }
 
         # Add mapping type selector for local mode

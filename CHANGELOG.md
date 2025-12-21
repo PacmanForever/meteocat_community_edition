@@ -5,6 +5,14 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.36] - 2025-12-21
+
+### Millorat
+- **Organització de Sensors per Categories**: Reorganitzats els sensors d'entitats per millorar la interfície d'usuari. Els sensors geogràfics (Comarca, Municipi, Província, Latitud, Longitud) i de temps d'actualització (Hora d'actualització 1, 2, 3) ara apareixen a la categoria "configuració" en lloc de barrejar-se amb sensors de mesura o diagnòstic, tant per estacions externes com locals.
+
+### Corregit
+- **Interfície de Configuració de Prediccions**: Corregida la visualització dels controls de predicció horària i diària per mostrar checkboxes en lloc de selectors True/False, millorant la usabilitat en la creació i edició d'estacions.
+
 ## [1.2.35] - 2025-12-15
 
 ### Corregit

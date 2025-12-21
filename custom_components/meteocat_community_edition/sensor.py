@@ -975,7 +975,8 @@ class MeteocatUpdateTimeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnt
 
         }
         
-        self._attr_entity_category = EntityCategory.DIAGNOSTIC
+        # Update time sensors are configuration information
+        self._attr_entity_category = EntityCategory.CONFIG
 
     @property
     def native_value(self):
@@ -1039,10 +1040,12 @@ class MeteocatAltitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
             "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
             "model": "Estaci\u00f3 XEMA",
         }
+        
+        # Geographic sensors are configuration information
+        self._attr_entity_category = EntityCategory.CONFIG
 
     @property
     def native_value(self) -> float | None:
-        """Return the station altitude in meters."""
         # Prefer fresh data from coordinator.data
         station_data = self.coordinator.data.get("station")
         if station_data and isinstance(station_data, dict):
@@ -1110,6 +1113,9 @@ class MeteocatLatitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
             "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
             "model": "Estaci\u00f3 XEMA",
         }
+        
+        # Geographic sensors are configuration information
+        self._attr_entity_category = EntityCategory.CONFIG
 
     @property
     def native_value(self) -> float | None:
@@ -1183,6 +1189,9 @@ class MeteocatLongitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnti
             "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
             "model": "Estaci\u00f3 XEMA",
         }
+        
+        # Geographic sensors are configuration information
+        self._attr_entity_category = EntityCategory.CONFIG
 
     @property
     def native_value(self) -> float | None:
@@ -1252,6 +1261,9 @@ class MeteocatMunicipalityNameSensor(CoordinatorEntity[MeteocatCoordinator], Sen
             "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
             "model": "Predicci\u00f3 Municipi",
         }
+        
+        # Municipality name is configuration information
+        self._attr_entity_category = EntityCategory.CONFIG
 
     @property
     def native_value(self) -> str | None:
@@ -1307,6 +1319,9 @@ class MeteocatComarcaNameSensor(CoordinatorEntity[MeteocatCoordinator], SensorEn
             "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
             "model": "Predicci\u00f3 Municipi",
         }
+        
+        # Comarca name is configuration information
+        self._attr_entity_category = EntityCategory.CONFIG
 
     @property
     def native_value(self) -> str | None:
@@ -1365,6 +1380,9 @@ class MeteocatMunicipalityLatitudeSensor(CoordinatorEntity[MeteocatCoordinator],
             "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
             "model": "Predicci\u00f3 Municipi",
         }
+        
+        # Municipality latitude is configuration information
+        self._attr_entity_category = EntityCategory.CONFIG
 
     @property
     def native_value(self) -> float | None:
@@ -1423,6 +1441,9 @@ class MeteocatMunicipalityLongitudeSensor(CoordinatorEntity[MeteocatCoordinator]
             "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
             "model": "Predicci\u00f3 Municipi",
         }
+        
+        # Municipality longitude is configuration information
+        self._attr_entity_category = EntityCategory.CONFIG
 
     @property
     def native_value(self) -> float | None:
@@ -1479,6 +1500,9 @@ class MeteocatProvinciaNameSensor(CoordinatorEntity[MeteocatCoordinator], Sensor
             "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
             "model": "Predicci\u00f3 Municipi",
         }
+        
+        # Provincia name is configuration information
+        self._attr_entity_category = EntityCategory.CONFIG
 
     @property
     def native_value(self) -> str | None:
@@ -1536,6 +1560,9 @@ class MeteocatStationComarcaNameSensor(CoordinatorEntity[MeteocatCoordinator], S
             "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
             "model": "Estaci\u00f3 XEMA",
         }
+        
+        # Geographic sensors are configuration information
+        self._attr_entity_category = EntityCategory.CONFIG
 
     @property
     def native_value(self) -> str | None:
@@ -1593,6 +1620,9 @@ class MeteocatStationMunicipalityNameSensor(CoordinatorEntity[MeteocatCoordinato
             "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
             "model": "Estaci\u00f3 XEMA",
         }
+        
+        # Geographic sensors are configuration information
+        self._attr_entity_category = EntityCategory.CONFIG
 
     @property
     def native_value(self) -> str | None:
@@ -1650,6 +1680,9 @@ class MeteocatStationProvinciaNameSensor(CoordinatorEntity[MeteocatCoordinator],
             "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
             "model": "Estaci\u00f3 XEMA",
         }
+        
+        # Geographic sensors are configuration information
+        self._attr_entity_category = EntityCategory.CONFIG
 
     @property
     def native_value(self) -> str | None:
