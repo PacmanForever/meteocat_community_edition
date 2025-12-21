@@ -475,7 +475,7 @@ def test_altitude_sensor(mock_coordinator, mock_entry):
     assert sensor.icon == "mdi:elevation-rise"
     assert sensor.unique_id == f"{mock_entry.entry_id}_altitude"
     assert sensor.name == "Altitud"
-    assert sensor.entity_category == EntityCategory.CONFIG
+    assert sensor.entity_category is None  # Changed from CONFIG to show in sensors group
     assert sensor.entity_registry_enabled_default is True
 
 
@@ -875,7 +875,7 @@ def test_municipality_latitude_sensor():
     assert sensor.native_value == 41.6
     assert sensor.icon == "mdi:latitude"
     assert sensor.translation_key == "latitude"
-    assert sensor.entity_category == EntityCategory.CONFIG
+    assert sensor.entity_category is None
 
 
 def test_municipality_longitude_sensor():
@@ -905,7 +905,7 @@ def test_municipality_longitude_sensor():
     assert sensor.native_value == 2.3
     assert sensor.icon == "mdi:longitude"
     assert sensor.translation_key == "longitude"
-    assert sensor.entity_category == EntityCategory.CONFIG
+    assert sensor.entity_category is None
 
 
 def test_municipality_latitude_sensor_no_data():

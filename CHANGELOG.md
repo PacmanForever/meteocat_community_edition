@@ -5,6 +5,11 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.45] - 2025-01-02
+
+### Canviat
+- **Sensors Geològics**: Els sensors d'altitud, latitud i longitud de les estacions externes ara són sensors regulars (sense categoria CONFIG) perquè apareguin al grup "sensors" per defecte a la interfície d'usuari de Home Assistant.
+
 ## [1.2.44] - 2025-01-02
 
 ### Corregit
