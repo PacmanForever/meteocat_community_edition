@@ -943,6 +943,7 @@ class MeteocatUpdateTimeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnt
         station_code: str | None = None,
     ) -> None:
         """Initialize the update time sensor."""
+        self._attr_available = True
         super().__init__(coordinator)
         
         self._entity_name = entity_name
@@ -977,6 +978,8 @@ class MeteocatUpdateTimeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnt
         
         # Update time sensors are configuration information
         self._attr_entity_category = EntityCategory.CONFIG
+        self._attr_entity_registry_enabled_default = True
+        self._attr_available = True
 
     @property
     def native_value(self):
@@ -1019,6 +1022,7 @@ class MeteocatAltitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
         station_code: str,
     ) -> None:
         """Initialize the altitude sensor."""
+        self._attr_available = True
         super().__init__(coordinator)
         
         self._entity_name = entity_name
@@ -1092,6 +1096,7 @@ class MeteocatLatitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
         station_code: str,
     ) -> None:
         """Initialize the latitude sensor."""
+        self._attr_available = True
         super().__init__(coordinator)
         
         self._entity_name = entity_name
@@ -1118,6 +1123,7 @@ class MeteocatLatitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
         # Geographic sensors are configuration information
         self._attr_entity_category = EntityCategory.CONFIG
         self._attr_entity_registry_enabled_default = True
+        self._attr_available = True
 
     @property
     def native_value(self) -> float | None:
@@ -1137,12 +1143,6 @@ class MeteocatLatitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
             return coordenades.get("latitud")
         
         return None
-
-    @property
-    def available(self) -> bool:
-        """Return True if entity is available."""
-        # Configuration sensors are always available
-        return True
 
     @property
     def icon(self) -> str:
@@ -1169,6 +1169,7 @@ class MeteocatLongitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnti
         station_code: str,
     ) -> None:
         """Initialize the longitude sensor."""
+        self._attr_available = True
         super().__init__(coordinator)
         
         self._entity_name = entity_name
@@ -1195,6 +1196,7 @@ class MeteocatLongitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnti
         # Geographic sensors are configuration information
         self._attr_entity_category = EntityCategory.CONFIG
         self._attr_entity_registry_enabled_default = True
+        self._attr_available = True
 
     @property
     def native_value(self) -> float | None:
@@ -1244,6 +1246,7 @@ class MeteocatMunicipalityNameSensor(CoordinatorEntity[MeteocatCoordinator], Sen
         municipality_code: str,
     ) -> None:
         """Initialize the municipality name sensor."""
+        self._attr_available = True
         super().__init__(coordinator)
         
         self._entity_name = entity_name
@@ -1268,6 +1271,7 @@ class MeteocatMunicipalityNameSensor(CoordinatorEntity[MeteocatCoordinator], Sen
         # Municipality name is configuration information
         self._attr_entity_category = EntityCategory.CONFIG
         self._attr_entity_registry_enabled_default = True
+        self._attr_available = True
 
     @property
     def native_value(self) -> str | None:
@@ -1303,6 +1307,7 @@ class MeteocatComarcaNameSensor(CoordinatorEntity[MeteocatCoordinator], SensorEn
         municipality_code: str,
     ) -> None:
         """Initialize the comarca name sensor."""
+        self._attr_available = True
         super().__init__(coordinator)
         
         self._entity_name = entity_name
@@ -1327,6 +1332,7 @@ class MeteocatComarcaNameSensor(CoordinatorEntity[MeteocatCoordinator], SensorEn
         # Comarca name is configuration information
         self._attr_entity_category = EntityCategory.CONFIG
         self._attr_entity_registry_enabled_default = True
+        self._attr_available = True
 
     @property
     def native_value(self) -> str | None:
@@ -1364,6 +1370,7 @@ class MeteocatMunicipalityLatitudeSensor(CoordinatorEntity[MeteocatCoordinator],
         municipality_code: str,
     ) -> None:
         """Initialize the municipality latitude sensor."""
+        self._attr_available = True
         super().__init__(coordinator)
         
         self._entity_name = entity_name
@@ -1389,6 +1396,7 @@ class MeteocatMunicipalityLatitudeSensor(CoordinatorEntity[MeteocatCoordinator],
         # Municipality latitude is configuration information
         self._attr_entity_category = EntityCategory.CONFIG
         self._attr_entity_registry_enabled_default = True
+        self._attr_available = True
 
     @property
     def native_value(self) -> float | None:
@@ -1426,6 +1434,7 @@ class MeteocatMunicipalityLongitudeSensor(CoordinatorEntity[MeteocatCoordinator]
         municipality_code: str,
     ) -> None:
         """Initialize the municipality longitude sensor."""
+        self._attr_available = True
         super().__init__(coordinator)
         
         self._entity_name = entity_name
@@ -1451,6 +1460,7 @@ class MeteocatMunicipalityLongitudeSensor(CoordinatorEntity[MeteocatCoordinator]
         # Municipality longitude is configuration information
         self._attr_entity_category = EntityCategory.CONFIG
         self._attr_entity_registry_enabled_default = True
+        self._attr_available = True
 
     @property
     def native_value(self) -> float | None:
@@ -1487,6 +1497,7 @@ class MeteocatProvinciaNameSensor(CoordinatorEntity[MeteocatCoordinator], Sensor
         municipality_code: str,
     ) -> None:
         """Initialize the provincia name sensor."""
+        self._attr_available = True
         super().__init__(coordinator)
         
         self._entity_name = entity_name
@@ -1511,6 +1522,7 @@ class MeteocatProvinciaNameSensor(CoordinatorEntity[MeteocatCoordinator], Sensor
         # Provincia name is configuration information
         self._attr_entity_category = EntityCategory.CONFIG
         self._attr_entity_registry_enabled_default = True
+        self._attr_available = True
 
     @property
     def native_value(self) -> str | None:
@@ -1547,6 +1559,7 @@ class MeteocatStationComarcaNameSensor(CoordinatorEntity[MeteocatCoordinator], S
         station_code: str,
     ) -> None:
         """Initialize the station comarca name sensor."""
+        self._attr_available = True
         super().__init__(coordinator)
         
         self._entity_name = entity_name
@@ -1572,6 +1585,7 @@ class MeteocatStationComarcaNameSensor(CoordinatorEntity[MeteocatCoordinator], S
         # Geographic sensors are configuration information
         self._attr_entity_category = EntityCategory.CONFIG
         self._attr_entity_registry_enabled_default = True
+        self._attr_available = True
 
     @property
     def native_value(self) -> str | None:
