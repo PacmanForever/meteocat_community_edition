@@ -8,7 +8,7 @@ i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 ## [1.2.45] - 2025-01-02
 
 ### Canviat
-- **Sensors Geològics**: Els sensors d'altitud, latitud i longitud de les estacions externes ara són sensors regulars (sense categoria CONFIG) perquè apareguin al grup "sensors" per defecte a la interfície d'usuari de Home Assistant.
+- **Sensors Geològics**: Revertit el canvi de categoria dels sensors d'altitud, latitud i longitud. Mantenen `EntityCategory.CONFIG` però amb el listener del registre d'entitats que evita que es deshabilten quan es mouen entre grups.
 
 ## [1.2.44] - 2025-01-02
 

@@ -1075,8 +1075,8 @@ class MeteocatAltitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
             "model": "Estaci\u00f3 XEMA",
         }
         
-        # Geographic sensors provide location information
-        # self._attr_entity_category = EntityCategory.CONFIG  # Removed to show in sensors group
+        # Geographic sensors are configuration information
+        self._attr_entity_category = EntityCategory.CONFIG
         self._attr_entity_registry_enabled_default = True
 
     async def async_added_to_hass(self):
@@ -1180,8 +1180,8 @@ class MeteocatLatitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
             "model": "Estaci\u00f3 XEMA",
         }
         
-        # Geographic sensors provide location information
-        # self._attr_entity_category = EntityCategory.CONFIG  # Removed to show in sensors group
+        # Geographic sensors are configuration information
+        self._attr_entity_category = EntityCategory.CONFIG
         self._attr_entity_registry_enabled_default = True
         self._attr_available = True
 
@@ -1283,8 +1283,8 @@ class MeteocatLongitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnti
             "model": "Estaci\u00f3 XEMA",
         }
         
-        # Geographic sensors provide location information
-        # self._attr_entity_category = EntityCategory.CONFIG  # Removed to show in sensors group
+        # Geographic sensors are configuration information
+        self._attr_entity_category = EntityCategory.CONFIG
         self._attr_entity_registry_enabled_default = True
         self._attr_available = True
 

@@ -475,7 +475,7 @@ def test_altitude_sensor(mock_coordinator, mock_entry):
     assert sensor.icon == "mdi:elevation-rise"
     assert sensor.unique_id == f"{mock_entry.entry_id}_altitude"
     assert sensor.name == "Altitud"
-    assert sensor.entity_category is None  # Changed from CONFIG to show in sensors group
+    assert sensor.entity_category == EntityCategory.CONFIG
     assert sensor.entity_registry_enabled_default is True
 
 
