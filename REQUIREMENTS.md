@@ -1,295 +1,436 @@
-# Requeriments de Software - Meteocat Community Edition
+# Project Requirements - Meteocat Community Edition
 
-## 1. Modes d'operació
+This document outlines the specific requirements for the Meteocat Community Edition Home Assistant integration.
 
-### 1.1. MODE_EXTERNAL (Mode Estació Externa)
-- Configuració basada en estacions meteorològiques XEMA
-- Selecció per comarca i estació
-- Accés a dades de mesures i prediccions en temps real de l'estació
-- **Entitat Weather**: Crea una entitat weather amb les dades de l'estació i prediccions
+## Integration Overview
 
-### 1.2. MODE_LOCAL (Mode Estació Local)
-- Configuració basada en municipis
-- Selecció per comarca i municipi
-- Accés a prediccions horàries i diàries
-- **Entitat Weather**: Crea una entitat weather combinant dades de sensors locals i prediccions del Meteocat
+- **Name**: Meteocat (Community Edition)
+- **Domain**: meteocat_community_edition
+- **Version**: 1.2.45
+- **Home Assistant**: 2024.1.0 (minimum)
 
-## 2. Sensors - MODE_EXTERNAL
+## Functional Requirements
 
-### 2.1. Sensors de localització
-- **Latitud de l'estació**: Coordenada geogràfica (graus)
-- **Longitud de l'estació**: Coordenada geogràfica (graus)
-- **Altitud de l'estació**: Altitud en metres
+### Core Features
+- Integration with Meteorological Service of Catalonia (Meteocat) API
+- Real-time weather data from XEMA weather stations
+- Hourly forecasts (72 hours) and daily forecasts (8 days)
+- API quota monitoring sensors
+- Multiple configurable weather stations
+- Local Station Mode combining local sensors with official forecasts
+- Manual refresh buttons for measurements and forecasts
+- Multi-language support (Catalan, Spanish, English)
 
-### 2.2. Sensors de context geogràfic
-- **Comarca**: Comarca on es troba l'estació (sempre disponible)
-- **Municipi**: Municipi de l'estació (si disponible a l'API)
-- **Província**: Província de l'estació (si disponible a l'API)
+### Operating Modes
+- **MODE_EXTERNAL (External Station Mode)**: Configuration based on XEMA weather stations with real-time measurements and forecasts
+- **MODE_LOCAL (Local Station Mode)**: Configuration based on municipalities with forecasts combined with local sensor data
 
-### 2.3. Sensors de quota API
-- **Peticions disponibles per cada pla**: Mostra consums restants
-  - Predicció
-  - Referència
+### API Integration
+- **API Endpoint**: https://api.meteo.cat/ (official Meteocat API)
+- **Authentication**: API key (citizen or enterprise plan)
+- **Rate Limits**: Different limits per plan (citizen: 1000 requests/day, enterprise: higher)
+- **Data Format**: JSON
+- **Error Handling**: 401/403 (authentication), 429 (rate limit), network errors
+
+### Data Collection
+- **Update Frequency**: Hourly for measurements, scheduled for forecasts (configurable times)
+- **Real-time Updates**: Measurements updated hourly, forecasts on schedule
+- **Historical Data**: Not supported (only current and forecast data)
+- **Caching**: Station data cached in entry.data, API quota data cached
+
+## Technical Requirements
+
+### Dependencies
+- **Required Packages**: aiohttp>=3.9.0
+- **Python Version**: 3.11+ (tested on 3.11, 3.12)
+- **Platform Requirements**: Linux (HA requirement)
+
+### Configuration
+- **Required Parameters**: API key, operation mode, region selection, station/municipality
+- **Optional Parameters**: Forecast times (up to 3 daily), API base URL for testing
+- **Validation**: API key verification, station/municipality existence
+- **Security**: API key stored encrypted in HA config
+
+### Entities and Platforms
+- **Sensors**: Location coordinates, geographic context, API quotas, timestamps, update hours
+- **Binary Sensors**: Update status (diagnostic), API quota monitoring
+- **Buttons**: Manual refresh buttons for measurements and forecasts
+- **Weather**: Main weather entity with current conditions and forecasts
+- **Device Classes**: Various HA device classes for sensors
+- **Events**: meteocat_community_edition_data_updated, meteocat_community_edition_next_update_changed
+- **Device Triggers**: data_updated, next_update_changed triggers for automations
+
+## Quality Requirements
+
+### Testing
+- **Coverage Target**: >95%
+- **Unit Tests**: API client, config flow, coordinator, sensors, error handling
+- **Component Tests**: Full integration tests with HA environment
+- **Edge Cases**: Quota exhausted, network errors, API authentication failures
+
+### Performance
+- **Memory Usage**: Minimal (API data caching)
+- **CPU Usage**: Low (scheduled updates, not continuous polling)
+- **Network Usage**: ~24-27 API calls per day depending on mode
+
+### Compatibility
+- **HA Versions**: 2024.1.0+
+- **Python Versions**: 3.11, 3.12
+- **Platforms**: Linux-based systems (HA compatible)
+
+## Security Requirements
+
+- **API Key Handling**: Encrypted storage in HA config, re-authentication flow for expired keys
+- **Data Privacy**: Only weather data stored, no personal user information
+- **Network Security**: HTTPS only, certificate validation
+- **Error Messages**: No sensitive information exposed in logs or UI
+
+## Deployment Requirements
+
+### HACS Integration
+- **Category**: integration
+- **Content Root**: false
+- **Supported Countries**: ES (Spain)
+- **README Rendering**: true
+
+### Release Process
+- **Versioning**: Semantic versioning (1.2.45)
+- **Changelog**: Detailed release notes in CHANGELOG.md
+- **Breaking Changes**: Documented in changelog with migration notes
+
+## Maintenance Requirements
+
+### Monitoring
+- **Health Checks**: Binary sensor for update status, API quota sensors
+- **Error Reporting**: Comprehensive logging, user-friendly error messages
+- **Performance Monitoring**: API call counters, update success rates
+
+### Updates
+- **API Changes**: Monitor Meteocat API documentation for changes
+- **HA Compatibility**: Test against new HA versions, update minimum version if needed
+- **Dependency Updates**: Regular updates of aiohttp and other dependencies
+
+### Internationalization
+- **Supported Languages**: Catalan (ca.json), Spanish (es.json), English (en.json)
+- **Translation Coverage**: Complete coverage of config flow, errors, sensor names, UI elements
+
+---
+
+**Last Updated**: December 2025
+**Maintained by**: Project maintainers
+**Related Documents**:
+- `.ai_instructions.md`: AI assistant guidelines
+- `docs/HA_HACS_Integration_Creation_Guide.md`: Setup guide
+
+## Detailed Functional Specifications
+
+### Operating Modes
+
+#### MODE_EXTERNAL (External Station Mode)
+- Configuration based on XEMA weather stations
+- Selection by region and station
+- Access to real-time measurements and forecasts from the station
+- **Weather Entity**: Creates a weather entity with station data and forecasts
+
+#### MODE_LOCAL (Local Station Mode)
+- Configuration based on municipalities
+- Selection by region and municipality
+- Access to hourly and daily forecasts
+- **Weather Entity**: Creates a weather entity combining local sensor data with Meteocat forecasts
+
+### Sensors - MODE_EXTERNAL
+
+#### Location Sensors
+- **Station Latitude**: Geographic coordinate (degrees)
+- **Station Longitude**: Geographic coordinate (degrees)
+- **Station Altitude**: Altitude in meters
+
+#### Geographic Context Sensors
+- **Region**: Region where the station is located (always available)
+- **Municipality**: Station municipality (if available in API)
+- **Province**: Station province (if available in API)
+
+#### API Quota Sensors
+- **Available requests per plan**: Shows remaining consumption
+  - Forecast
+  - Reference
   - XDDE
   - XEMA
 
-### 2.4. Sensors de timestamps (Mesures - Horàries)
-- **Última actualització**: Timestamp de la darrera actualització de mesures exitosa
-  - Font de dades: `coordinator.last_successful_update_time`
-- **Pròxima actualització**: Timestamp de la pròxima actualització de mesures programada
-  - Font de dades: `coordinator.next_scheduled_update`
-  - S'actualitza automàticament quan es programa la pròxima actualització
-- Tots els sensors de timestamps són de categoria Diagnostic
+#### Timestamp Sensors (Measurements - Hourly)
+- **Last Update**: Timestamp of last successful measurement update
+  - Data source: `coordinator.last_successful_update_time`
+- **Next Update**: Timestamp of next scheduled measurement update
+  - Data source: `coordinator.next_scheduled_update`
+  - Automatically updated when next update is scheduled
+- All timestamp sensors are Diagnostic category
 
-### 2.5. Sensors de timestamps (Predicció - Programades)
-- **Última actualització predicció**: Timestamp de la darrera actualització de predicció exitosa
-  - Font de dades: `coordinator.last_forecast_update`
-- **Pròxima actualització predicció**: Timestamp de la pròxima actualització de predicció programada
-  - Font de dades: `coordinator.next_forecast_update`
-  - S'actualitza automàticament quan es programa la pròxima actualització
-- Tots els sensors de timestamps de predicció són de categoria Diagnostic
+#### Timestamp Sensors (Forecast - Scheduled)
+- **Last Forecast Update**: Timestamp of last successful forecast update
+  - Data source: `coordinator.last_forecast_update`
+- **Next Forecast Update**: Timestamp of next scheduled forecast update
+  - Data source: `coordinator.next_forecast_update`
+  - Automatically updated when next update is scheduled
+- All forecast timestamp sensors are Diagnostic category
 
-### 2.6. Sensors d'hores d'actualització
-- **Hora actualització 1**: Hora configurada per la primera actualització de predicció
-- **Hora actualització 2**: Hora configurada per la segona actualització de predicció
-- Tots els sensors són de categoria Diagnostic
+#### Update Hours Sensors
+- **Update Hour 1**: First configured forecast update time
+- **Update Hour 2**: Second configured forecast update time
+- All sensors are Diagnostic category
 
-### 2.7. Sensor d'estat
-- **Última actualització correcte**: Binary sensor de diagnòstic que indica l'estat de l'actualització de dades
-  - Categoría: Diagnostic
+#### Status Sensor
+- **Last Successful Update**: Binary sensor for diagnostic update status
+  - Category: Diagnostic
   - Device class: Problem
-  - Lògica: ON = problema detectat (última actualització fallida o dades mancants), OFF = sense problemes (actualització exitosa amb dades)
-  - Detecció intel·ligent:
-    - Detecta quotes exhaurides (quan update_success=True però no hi ha dades)
-    - Detecta errors de xarxa/API
-    - Respecta la configuració granular (només alerta si falta una dada habilitada)
-    - Missatges d'error específics en atributs
-  - Sempre disponible (reporta errors fins i tot quan el coordinator falla)
+  - Logic: ON = problem detected (last update failed or missing data), OFF = no problems (successful update with data)
+  - Intelligent detection:
+    - Detects exhausted quotas (when update_success=True but no data)
+    - Detects network/API errors
+    - Respects granular configuration (only alerts if enabled data is missing)
+    - Specific error messages in attributes
+  - Always available (reports errors even when coordinator fails)
 
-## 3. Sensors - MODE_LOCAL
+### Buttons - Manual Refresh
 
-### 3.0. Entitat Weather
-- **Weather**: Entitat principal que combina dades de sensors locals (temperatura, humitat, etc.) amb la predicció del Meteocat.
+#### Refresh Measurements Button (MODE_EXTERNAL only)
+- **Purpose**: Manually trigger measurement data refresh outside scheduled updates
+- **Entity ID**: `button.{station_name}_{station_code}_refresh_measurements`
+- **Icon**: mdi:refresh
+- **Availability**: Always available (allows manual refresh even if API is down)
+- **Function**: Calls `coordinator.async_refresh_measurements()` to update real-time station data
 
-### 3.1. Sensors de predicció
-- **Predicció horària**: 72 hores de predicció amb dades completes als atributs (si habilitada)
-- **Predicció diària**: 8 dies de predicció amb dades completes als atributs (si habilitada)
+#### Refresh Forecast Button (MODE_EXTERNAL and MODE_LOCAL)
+- **Purpose**: Manually trigger forecast data refresh outside scheduled updates
+- **Entity ID**: 
+  - MODE_EXTERNAL: `button.{station_name}_{station_code}_refresh_forecast`
+  - MODE_LOCAL: `button.{municipality_name}_refresh_forecast`
+- **Icon**: mdi:refresh
+- **Availability**: Always available (allows manual refresh even if API is down)
+- **Function**: Calls `coordinator.async_refresh_forecast()` to update forecast data
 
-### 3.2. Sensors de context geogràfic
-- **Municipi**: Nom del municipi (sempre disponible)
-- **Comarca**: Comarca del municipi (sempre disponible)
-- **Latitud del municipi**: Coordenada geogràfica (si disponible a l'API)
-- **Longitud del municipi**: Coordenada geogràfica (si disponible a l'API)
-- **Província**: Província del municipi (si disponible a l'API)
+#### Button Behavior
+- **Quota Consumption**: Buttons consume API quota when pressed (same as scheduled updates)
+- **Error Handling**: Buttons work even when coordinator has errors
+- **Device Grouping**: Buttons are grouped with other entities under the same device
+- **Translation**: Buttons use translation keys for multi-language support
 
-### 3.3. Sensors de quota API
-- Igual que MODE_EXTERNAL
+### Sensors - MODE_LOCAL
 
-### 3.4. Sensors de timestamps
-- Igual que MODE_EXTERNAL
+#### Weather Entity
+- **Weather**: Main entity combining local sensor data (temperature, humidity, etc.) with Meteocat forecasts
 
-### 3.5. Sensor d'estat
-- **Última actualització correcte**: Binary sensor de diagnòstic que indica l'estat de l'actualització de dades
-  - Categoría: Diagnostic
+#### Forecast Sensors
+- **Hourly Forecast**: 72 hours forecast with complete data in attributes (if enabled)
+- **Daily Forecast**: 8 days forecast with complete data in attributes (if enabled)
+
+#### Geographic Context Sensors
+- **Municipality**: Municipality name (always available)
+- **Region**: Municipality region (always available)
+- **Municipality Latitude**: Geographic coordinate (if available in API)
+- **Municipality Longitude**: Geographic coordinate (if available in API)
+- **Province**: Municipality province (if available in API)
+
+#### API Quota Sensors
+- Same as MODE_EXTERNAL
+
+#### Timestamp Sensors
+- Same as MODE_EXTERNAL
+
+#### Status Sensor
+- **Last Successful Update**: Binary sensor for diagnostic update status
+  - Category: Diagnostic
   - Device class: Problem
-  - Lògica: ON = problema detectat (última actualització fallida o dades mancants), OFF = sense problemes (actualització exitosa amb dades)
-  - Detecció intel·ligent:
-    - Detecta quotes exhaurides (quan update_success=True però no hi ha dades)
-    - Detecta errors de xarxa/API
-    - Respecta la configuració granular (només alerta si falta una dada habilitada)
-    - Missatges d'error específics en atributs
-  - Sempre disponible (reporta errors fins i tot quan el coordinator falla)
+  - Logic: ON = problem detected (last update failed or missing data), OFF = no problems (successful update with data)
+  - Intelligent detection:
+    - Detects exhausted quotas (when update_success=True but no data)
+    - Detects network/API errors
+    - Respects granular configuration (only alerts if enabled data is missing)
+    - Specific error messages in attributes
+  - Always available (reports errors even when coordinator fails)
 
-## 4. Gestió de quota API
+### API Quota Management
 
-### 4.1. Sistema d'actualitzacions programades
-- **Dades d'estació (XEMA)**: Actualització horària (cada hora al minut 0).
-- **Prediccions i Quotes**: Actualització programada (per defecte 06:00 i 14:00).
-- **NO polling automàtic constant**: update_interval=None, gestió pròpia de la planificació.
+#### Scheduled Updates System
+- **Station Data (XEMA)**: Hourly update (every hour at minute 0)
+- **Forecasts and Quotas**: Scheduled update (default 06:00 and 14:00)
+- **NO continuous automatic polling**: update_interval=None, own scheduling management
 
-### 4.2. Consum estimat de quota
+#### Estimated Quota Consumption
 - **MODE_EXTERNAL**:
-  - 24 crides/dia per mesures (1 per hora).
-  - 3 crides addicionals per cada actualització programada (forecast + hourly + quotes).
+  - 24 calls/day for measurements (1 per hour)
+  - 3 additional calls per scheduled update (forecast + hourly + quotas)
 - **MODE_LOCAL**:
-  - 3 crides per cada actualització programada (forecast + hourly + quotes).
-  - No hi ha consum horari.
-- **Quotes separades** per cada pla API.
+  - 3 calls per scheduled update (forecast + hourly + quotas)
+  - No hourly consumption
+- **Separate quotas** per API plan
 
-### 4.3. Sistema de retry intel·ligent
-- Reintents automàtics en errors temporals (timeout, rate limit)
-- **NO** consumeix quota extra: quotes només es consulten en actualització programada
-- Retry a 60 segons després d'error temporal
-- Màxim 3 reintents per petició
+#### Intelligent Retry System
+- Automatic retries for temporary errors (timeout, rate limit)
+- **NO** extra quota consumption: quotas only checked during scheduled updates
+- Retry at 60 seconds after temporary error
+- Maximum 3 retries per request
 
-### 4.4. Optimització de quotes
-- **Persistència de dades d'estació**: station_data cached a entry.data
-  - Estalvia 1 crida get_stations() per cada reinici de HA
-  - **Optimització de persistència**: Actualització atòmica de `entry.data` per evitar condicions de carrera i garantir que les dades es guarden correctament, evitant crides innecessàries en actualitzacions posteriors.
-- **Dades de configuració**: Noms de municipi, comarca, província desats durant config_flow
-  - NO requereixen crides API durant execució
-- **Coordenades**: Desades durant configuració inicial
-  - MODE_EXTERNAL: coordenades de l'estació
-  - MODE_LOCAL: coordenades del municipi (si disponibles)
-- **Programació d'actualitzacions**: Propietat `next_scheduled_update` al coordinator
-  - Permet al sensor mostrar la pròxima actualització sense càlculs addicionals
-  - S'actualitza automàticament quan es programa cada actualització
-- **Setup tolerant a quotes exhaurides**: Durant la configuració inicial
-  - Si les quotes estan exhaurides, la integració es configura igualment
-  - Les dades s'obtindran en la propera actualització programada
-  - Evita errors de "Configuració fallida" per límits de quota temporals
+#### Quota Optimization
+- **Station Data Persistence**: station_data cached in entry.data
+  - Saves 1 get_stations() call per HA restart
+  - **Atomic persistence optimization**: Update entry.data atomically to avoid race conditions and ensure data is saved correctly, avoiding unnecessary calls in subsequent updates
+- **Configuration Data**: Municipality, region, province names saved during config_flow
+  - NO API calls required during execution
+- **Coordinates**: Saved during initial configuration
+  - MODE_EXTERNAL: station coordinates
+  - MODE_LOCAL: municipality coordinates (if available)
+- **Update Scheduling**: `next_scheduled_update` property in coordinator
+  - Allows sensor to show next update without additional calculations
+  - Automatically updated when each update is scheduled
+- **Quota-exhausted Setup Tolerance**: During initial configuration
+  - If quotas are exhausted, integration configures anyway
+  - Data will be obtained in next scheduled update
+  - Avoids "Configuration failed" errors for temporary quota limits
 
-## 5. Events personalitzats
+### Custom Events
 
-### 5.1. Event: meteocat_community_edition_data_updated
-Disparat quan s'actualitzen les dades correctament.
+#### Event: meteocat_community_edition_data_updated
+Fired when data is successfully updated.
 
-**Atributs**:
-- `mode`: MODE_EXTERNAL o MODE_LOCAL
-- `station_code`: Codi estació (si MODE_EXTERNAL)
-- `municipality_code`: Codi municipi
-- `timestamp`: Moment de l'actualització
-- `previous_update`: Timestamp actualització anterior
-- `next_update`: Timestamp propera actualització
+**Attributes**:
+- `mode`: MODE_EXTERNAL or MODE_LOCAL
+- `station_code`: Station code (if MODE_EXTERNAL)
+- `municipality_code`: Municipality code
+- `timestamp`: Update timestamp
+- `previous_update`: Previous update timestamp
+- `next_update`: Next update timestamp
 
-### 5.2. Event: meteocat_community_edition_next_update_changed
-Disparat quan canvia la pròxima actualització programada.
+#### Event: meteocat_community_edition_next_update_changed
+Fired when next scheduled update changes.
 
-**Atributs**:
-- Igual que event anterior
+**Attributes**:
+- Same as previous event
 
-## 6. Device Triggers
+### Device Triggers
 
-### 6.1. Trigger: data_updated
-- S'activa quan es reben dades noves
-- Permet automatitzacions basades en actualització de dades
+#### Trigger: data_updated
+- Activates when new data is received
+- Allows automations based on data updates
 
-## 7. Configuració
+#### Trigger: next_update_changed
+- Activates when the next scheduled update time changes
+- Allows automations to react to scheduling changes
 
-### 7.1. Flux de configuració (config_flow)
-1. **API Key**: Clau d'accés a Meteocat API
-2. **Tipus d'entrada**: Selecció MODE_EXTERNAL o MODE_LOCAL
-3. **Comarca**: Selecció de comarca
-4. **Estació/Municipi**: Selecció segons mode
-5. **Configuració de dades**: Selecció de predicció diària i/o horària
-6. **Hores actualització**: Configuració de fins a 3 hores diàries (format HH:MM)
+### Configuration
 
-### 7.2. Dades desades a entry.data
+#### Configuration Flow (config_flow)
+1. **API Key**: Access key for Meteocat API
+2. **Input Type**: Selection MODE_EXTERNAL or MODE_LOCAL
+3. **Region**: Region selection
+4. **Station/Municipality**: Selection according to mode
+5. **Data Configuration**: Selection of daily and/or hourly forecast
+6. **Update Hours**: Configuration of up to 3 daily hours (HH:MM format)
+
+#### Data Saved in entry.data
 **MODE_EXTERNAL**:
 - api_key, mode, station_code, station_name
-- comarca_code, comarca_name
+- region_code, region_name
 - update_time_1, update_time_2, update_time_3
 - enable_forecast_daily, enable_forecast_hourly
-- station_municipality_code, station_municipality_name (si disponible)
-- station_provincia_code, station_provincia_name (si disponible)
-- _station_data (cache de coordenades i altitud)
+- station_municipality_code, station_municipality_name (if available)
+- station_province_code, station_province_name (if available)
+- _station_data (coordinates and altitude cache)
 
 **MODE_LOCAL**:
 - api_key, mode, municipality_code, municipality_name
-- comarca_code, comarca_name
+- region_code, region_name
 - update_time_1, update_time_2, update_time_3
 - enable_forecast_daily, enable_forecast_hourly
-- municipality_lat, municipality_lon (si disponible)
-- provincia_code, provincia_name (si disponible)
+- municipality_lat, municipality_lon (if available)
+- province_code, province_name (if available)
 
-### 7.3. Opcions configurables
-- **API Base URL**: URL de l'API (opcional, per defecte producció)
+#### Configurable Options
+- **API Base URL**: API URL (optional, defaults to production)
 
-## 8. Re-autenticació
+### Re-authentication
 
-### 8.1. Gestió d'errors d'autenticació
-- Detecta errors 401/403 automàticament
-- Marca integració com "reauth required"
-- Flow de re-autenticació per actualitzar API key
-- Manté la resta de configuració intacta
+#### Authentication Error Management
+- Automatic detection of 401/403 errors
+- Marks integration as "reauth required"
+- Re-authentication flow to update API key
+- Keeps rest of configuration intact
 
-## 9. Validacions HACS i Home Assistant
+### HACS and Home Assistant Validations
 
-### 9.1. HACS
-- ✅ Validació hacs.json
-- ✅ Campos vàlids: name, content_in_root, country, render_readme, homeassistant
-- ✅ NO: iot_class (només a manifest.json)
+#### HACS
+- ✅ hacs.json validation
+- ✅ Valid fields: name, content_in_root, country, render_readme, homeassistant
+- ✅ NO: iot_class (only in manifest.json)
 
-### 9.2. Hassfest
-- ✅ Validació manifest.json
-- ✅ Camps vàlids per custom components
-- ✅ NO: homeassistant field (només per core integrations)
+#### Hassfest
+- ✅ manifest.json validation
+- ✅ Valid fields for custom components
+- ✅ NO: homeassistant field (only for core integrations)
 
-## 10. Tests
+### Testing
 
-### 10.1. Cobertura de tests
+#### Test Coverage
 - **Coverage**: >95%
-- **Total tests**: >195 tests (verificat amb pytest)
+- **Total tests**: >195 tests (verified with pytest)
 
-### 10.2. Àrees cobertes
+#### Covered Areas
 - API client (requests, errors, retry logic)
-- Config flow (tots els passos, validacions, errors)
-- Coordinator (actualitzacions programades, retry, quota, configuració granular)
-- Sensors (tots els tipus, valors, atributs)
-- Sensor setup (creació condicional de sensors)
-- Binary sensors (estat actualització, diagnostic, detecció ALL API calls)
-- Binary sensor: Comprovació de TOTES les crides API segons mode i configuració
-  - MODE_EXTERNAL: measurements (obligatori), forecast/forecast_hourly (si hi ha municipality_code i habilitat)
-  - MODE_LOCAL: forecast, forecast_hourly (si habilitats)
-- Coordinate sensors: Lectura de entry.data._station_data quan coordinator.data buit (quota exhausted)
-- Weather entity (MODE_EXTERNAL - totes les propietats)
-- Events personalitzats (data_updated, next_update_changed)
-- Device triggers (data_updated)
-- Re-autenticació (flow sense reinici)
-- Persistència de dades (station_data, entry.data)
-- Device grouping (identificadors compartits)
-- Setup amb quotes exhaurides (tolerància durant configuració inicial)
-- Next scheduled update (sensor mostra hora correcta)
-- Retry logic (errors temporals, preservació de quota)
+- Config flow (all steps, validations, errors)
+- Coordinator (scheduled updates, retry, quota, granular configuration)
+- Sensors (all types, values, attributes)
+- Sensor setup (conditional sensor creation)
+- Binary sensors (update status, diagnostic, ALL API calls detection)
+- Binary sensor: Verification of ALL API calls according to mode and configuration
+  - MODE_EXTERNAL: measurements (mandatory), forecast/forecast_hourly (if municipality_code exists and enabled)
+  - MODE_LOCAL: forecast, forecast_hourly (if enabled)
+- Coordinate sensors: Reading entry.data._station_data when coordinator.data empty (quota exhausted)
+- Weather entity (MODE_EXTERNAL - all properties)
+- Buttons (manual refresh for measurements and forecasts)
+- Custom events (data_updated, next_update_changed)
+- Device triggers (data_updated, next_update_changed)
+- Re-authentication (flow without restart)
+- Data persistence (station_data, entry.data)
+- Device grouping (shared identifiers)
+- Setup with exhausted quotas (tolerance during initial configuration)
+- Next scheduled update (sensor shows correct time)
+- Retry logic (temporary errors, quota preservation)
 
-### 10.3. GitHub Actions
-- **tests.yml**: Executa tots els tests en Python 3.11 i 3.12
-- **validate_hacs.yml**: Validació HACS
-- **validate_hassfest.yml**: Validació manifest.json
+#### GitHub Actions
+- **tests.yml**: Runs all tests on Python 3.11 and 3.12
+- **validate_hacs.yml**: HACS validation
+- **validate_hassfest.yml**: manifest.json validation
 
-## 11. Qualitat de codi
+### Code Quality
 
-### 11.1. Documentació
-- Docstrings en tots els mòduls, classes i funcions
-- Comentaris crítics per lògica complexa
-- README complet amb exemples
+#### Documentation
+- Docstrings in all modules, classes, and functions
+- Critical comments for complex logic
+- Complete README with examples
 
-### 11.2. Estructura
-- Separació clara de responsabilitats
-- API client separat del coordinator
-- Config flow modular
-- Constants centralitzades
+#### Structure
+- Clear separation of responsibilities
+- API client separate from coordinator
+- Modular config flow
+- Centralized constants
 
-### 11.3. Gestió d'errors
-- Try-except amb logging adequat
-- Errors específics (MeteocatAPIError, MeteocatAuthError)
-- Fallbacks per dades opcionals
-- Validacions d'entrada
+#### Error Management
+- Try-except with appropriate logging
+- Specific errors (MeteocatAPIError, MeteocatAuthError)
+- Fallbacks for optional data
+- Input validations
 
-## 12. Compatibilitat
+### Compatibility
 
-### 12.1. Home Assistant
-- Versió mínima: 2024.1.0 (especificat a hacs.json)
-- Compatible amb arquitectura moderna de HA
+#### Home Assistant
+- Minimum version: 2024.1.0 (specified in hacs.json)
+- Compatible with modern HA architecture
 
-### 12.2. Python
+#### Python
 - Python 3.11+
-- Python 3.12+ (testat)
+- Python 3.12+ (tested)
 
-### 12.3. HACS
-- Compatible amb estructura de repositori custom
-- Instal·lació via HACS custom repositories
-
-## 13. Internacionalització
-
-### 13.1. Idiomes suportats
-- **Català** (ca.json) - Idioma principal
-- **Castellà** (es.json)
-- **Anglès** (en.json)
-
-### 13.2. Traduccions completes
-- Config flow (tots els passos)
-- Errors i missatges
-- Noms de sensors i entitats
+#### HACS
+- Compatible with custom repository structure
+- Installation via HACS custom repositories
 
 
