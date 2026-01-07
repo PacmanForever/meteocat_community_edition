@@ -259,6 +259,39 @@ async def async_setup_entry(
                 MeteocatStationProvinciaNameSensor(coordinator, entry, entity_name, entity_name_with_code, station_code)
             )
     
+    
+    # Force enable configuration sensors that might be disabled in registry
+    # This prevents them from sticking in disabled state after category changes
+    registry = await hass.helpers.entity_registry.async_get_registry()
+    
+    # We use the public method to get entries if available, or access via .entities
+    # registry.entities is a dict of entity_id -> RegistryEntry, OR an object that has get_entries_for_config_entry_id
+    # To be safe and compatible with recent HA versions, we iterate over values if method doesn't exist,
+    # but strictly speaking, .entities.get_entries_for_config_entry_id is the standard internal way.
+    # However, let's just inspect the values to be safe from internal API changes, or use the iterator.
+    
+    # Accessing registry entries safely
+    entry_entities = [
+        entity for entity in registry.entities.values() 
+        if entity.config_entry_id == entry.entry_id
+    ]
+    
+    for reg_entity in entry_entities:
+        if reg_entity.disabled: 
+            uid = reg_entity.unique_id
+            should_enable = (
+                uid.endswith("_municipality_name") or
+                uid.endswith("_comarca_name") or
+                uid.endswith("_provincia_name") or
+                "_update_time_" in uid or
+                "_station_municipality_name" in uid or
+                "_station_comarca_name" in uid or
+                "_station_provincia_name" in uid
+            )
+            
+            if should_enable:
+                 registry.async_update_entity(reg_entity.entity_id, disabled_by=None)
+    
     async_add_entities(entities)
 
 
@@ -981,15 +1014,6 @@ class MeteocatUpdateTimeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnt
         self._attr_entity_registry_enabled_default = True
         self._attr_available = True
 
-    async def async_added_to_hass(self):
-        """Ensure entity is enabled."""
-        await super().async_added_to_hass()
-        registry = \
-            await self.hass.helpers.entity_registry.async_get_registry()
-        entry = registry.async_get(self.entity_id)
-        if entry and entry.disabled:
-             registry.async_update_entity(self.entity_id, disabled_by=None)
-
     @property
     def native_value(self):
         """Return the configured update time."""
@@ -1282,15 +1306,6 @@ class MeteocatMunicipalityNameSensor(CoordinatorEntity[MeteocatCoordinator], Sen
         self._attr_entity_registry_enabled_default = True
         self._attr_available = True
 
-    async def async_added_to_hass(self):
-        """Ensure entity is enabled."""
-        await super().async_added_to_hass()
-        registry = \
-            await self.hass.helpers.entity_registry.async_get_registry()
-        entry = registry.async_get(self.entity_id)
-        if entry and entry.disabled:
-             registry.async_update_entity(self.entity_id, disabled_by=None)
-
     @property
     def native_value(self) -> str | None:
         """Return the municipality name."""
@@ -1351,15 +1366,6 @@ class MeteocatComarcaNameSensor(CoordinatorEntity[MeteocatCoordinator], SensorEn
         self._attr_entity_category = EntityCategory.CONFIG
         self._attr_entity_registry_enabled_default = True
         self._attr_available = True
-
-    async def async_added_to_hass(self):
-        """Ensure entity is enabled."""
-        await super().async_added_to_hass()
-        registry = \
-            await self.hass.helpers.entity_registry.async_get_registry()
-        entry = registry.async_get(self.entity_id)
-        if entry and entry.disabled:
-             registry.async_update_entity(self.entity_id, disabled_by=None)
 
     @property
     def native_value(self) -> str | None:
@@ -1551,25 +1557,10 @@ class MeteocatProvinciaNameSensor(CoordinatorEntity[MeteocatCoordinator], Sensor
         self._attr_entity_registry_enabled_default = True
         self._attr_available = True
 
-    async def async_added_to_hass(self):
-        """Ensure entity is enabled."""
-        await super().async_added_to_hass()
-        registry = \
-            await self.hass.helpers.entity_registry.async_get_registry()
-        entry = registry.async_get(self.entity_id)
-        if entry and entry.disabled:
-             registry.async_update_entity(self.entity_id, disabled_by=None)
-
     @property
     def native_value(self) -> str | None:
         """Return the provincia name."""
         return self._provincia_name
-
-    @property
-    def available(self) -> bool:
-        """Return True if entity is available."""
-        # Configuration sensors are always available
-        return True
 
     @property
     def icon(self) -> str:
@@ -1622,15 +1613,6 @@ class MeteocatStationComarcaNameSensor(CoordinatorEntity[MeteocatCoordinator], S
         self._attr_entity_category = EntityCategory.CONFIG
         self._attr_entity_registry_enabled_default = True
         self._attr_available = True
-
-    async def async_added_to_hass(self):
-        """Ensure entity is enabled."""
-        await super().async_added_to_hass()
-        registry = \
-            await self.hass.helpers.entity_registry.async_get_registry()
-        entry = registry.async_get(self.entity_id)
-        if entry and entry.disabled:
-             registry.async_update_entity(self.entity_id, disabled_by=None)
 
     @property
     def native_value(self) -> str | None:
@@ -1694,15 +1676,6 @@ class MeteocatStationMunicipalityNameSensor(CoordinatorEntity[MeteocatCoordinato
         self._attr_entity_registry_enabled_default = True
         self._attr_available = True
 
-    async def async_added_to_hass(self):
-        """Ensure entity is enabled."""
-        await super().async_added_to_hass()
-        registry = \
-            await self.hass.helpers.entity_registry.async_get_registry()
-        entry = registry.async_get(self.entity_id)
-        if entry and entry.disabled:
-             registry.async_update_entity(self.entity_id, disabled_by=None)
-
     @property
     def native_value(self) -> str | None:
         """Return the municipality name."""
@@ -1764,15 +1737,6 @@ class MeteocatStationProvinciaNameSensor(CoordinatorEntity[MeteocatCoordinator],
         self._attr_entity_category = EntityCategory.CONFIG
         self._attr_available = True
         self._attr_entity_registry_enabled_default = True
-
-    async def async_added_to_hass(self):
-        """Ensure entity is enabled."""
-        await super().async_added_to_hass()
-        registry = \
-            await self.hass.helpers.entity_registry.async_get_registry()
-        entry = registry.async_get(self.entity_id)
-        if entry and entry.disabled:
-             registry.async_update_entity(self.entity_id, disabled_by=None)
 
     @property
     def native_value(self) -> str | None:
