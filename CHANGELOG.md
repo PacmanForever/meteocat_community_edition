@@ -5,6 +5,11 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.61] - 2026-01-07
+
+### Afegit
+- Logging de depuració addicional per al diagnòstic de valors de temperatura zero.
+
 ## [1.2.60] - 2026-01-07
 
 ### Corregit
