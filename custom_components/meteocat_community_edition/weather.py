@@ -125,11 +125,15 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
             CONF_ENABLE_FORECAST_HOURLY,
         )
         
-        # Determine supported features based on configuration
+        # Determine supported features based on configuration (check options first, then data)
         self._attr_supported_features = 0
-        if entry.data.get(CONF_ENABLE_FORECAST_DAILY, True):
+        
+        enable_daily = entry.options.get(CONF_ENABLE_FORECAST_DAILY, entry.data.get(CONF_ENABLE_FORECAST_DAILY, True))
+        if enable_daily:
             self._attr_supported_features |= WeatherEntityFeature.FORECAST_DAILY
-        if entry.data.get(CONF_ENABLE_FORECAST_HOURLY, False):
+            
+        enable_hourly = entry.options.get(CONF_ENABLE_FORECAST_HOURLY, entry.data.get(CONF_ENABLE_FORECAST_HOURLY, False))
+        if enable_hourly:
             self._attr_supported_features |= WeatherEntityFeature.FORECAST_HOURLY
         
         station_code = entry.data.get(CONF_STATION_CODE, "")
@@ -355,9 +359,9 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
             estat_cel_data = variables.get("estatCel", {}) or variables.get("estat", {})
             precip_data = variables.get("precipitacio", {}) or variables.get("precipitació", {})
             
-            temp_valors = temp_data.get("valors", [])
-            estat_valors = estat_cel_data.get("valors", [])
-            precip_valors = precip_data.get("valors", [])
+            temp_valors = temp_data.get("valors", temp_data.get("valor", []))
+            estat_valors = estat_cel_data.get("valors", estat_cel_data.get("valor", []))
+            precip_valors = precip_data.get("valors", precip_data.get("valor", []))
             
             # Build dictionaries by timestamp
             temp_dict = {h.get("data"): h.get("valor") for h in temp_valors}
@@ -499,9 +503,13 @@ class MeteocatLocalWeather(MeteocatWeather):
             CONF_ENABLE_FORECAST_HOURLY,
         )
         self._attr_supported_features = 0
-        if entry.data.get(CONF_ENABLE_FORECAST_DAILY, True):
+        
+        enable_daily = entry.options.get(CONF_ENABLE_FORECAST_DAILY, entry.data.get(CONF_ENABLE_FORECAST_DAILY, True))
+        if enable_daily:
             self._attr_supported_features |= WeatherEntityFeature.FORECAST_DAILY
-        if entry.data.get(CONF_ENABLE_FORECAST_HOURLY, False):
+            
+        enable_hourly = entry.options.get(CONF_ENABLE_FORECAST_HOURLY, entry.data.get(CONF_ENABLE_FORECAST_HOURLY, False))
+        if enable_hourly:
             self._attr_supported_features |= WeatherEntityFeature.FORECAST_HOURLY
         self._entry = entry
         municipality_name = entry.data.get(CONF_MUNICIPALITY_NAME, "Estació Local")

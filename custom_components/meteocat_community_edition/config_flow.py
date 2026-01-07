@@ -217,8 +217,12 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     else:
                         errors["custom_condition_mapping"] = "invalid_format"
                 else:
-                    latest_input = getattr(self, '_local_sensors_input', None) or getattr(self, '_update_times_input', {})
-                    entry_data = dict(latest_input)
+                    entry_data = {}
+                    if hasattr(self, '_update_times_input') and self._update_times_input:
+                        entry_data.update(self._update_times_input)
+                    if hasattr(self, '_local_sensors_input') and self._local_sensors_input:
+                        entry_data.update(self._local_sensors_input)
+                    
                     entry_data["mapping_type"] = "custom"
                     entry_data["custom_condition_mapping"] = parsed_mapping
                     entry_data["local_condition_entity"] = local_entity

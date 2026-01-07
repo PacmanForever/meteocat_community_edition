@@ -5,6 +5,12 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.59] - 2026-01-07
+
+### Corregit
+- **Weather** (Mode Local): Corregit comportament on la configuració de predicció horària/diària a les Opcions (`entry.options`) s'ignorava si no estava present a la configuració inicial (`entry.data`).
+- **Weather**: Corregit error de parseig de precipitació en la predicció horària quan l'API retorna un objecte singular ("valor") en lloc de llista ("valors").
+
 ## [1.2.58] - 2026-01-07
 
 ### Corregit

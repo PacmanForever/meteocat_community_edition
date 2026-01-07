@@ -172,3 +172,95 @@ async def test_async_forecast_hourly_alternative_keys(mock_coordinator, mock_ent
     assert len(forecast) == 1
     assert forecast[0]["native_temperature"] == 10
     assert forecast[0]["condition"] == "sunny"
+
+@pytest.mark.asyncio
+async def test_async_forecast_hourly_real_api_structure(mock_coordinator, mock_entry):
+    """Test hourly forecast parsing with real API structure (using 'valor' instead of 'valors')."""
+    mock_coordinator.data = {
+        "forecast_hourly": {
+            "dies": [
+                {
+                    "data": "2026-01-07Z",
+                    "variables": {
+                        "temp": {
+                            "unitat": "°C",
+                            "valors": [
+                                {"valor": "-0.3", "data": "2026-01-07T00:00Z"},
+                            ]
+                        },
+                        "precipitacio": {
+                            "unitat": "mm",
+                            "valor": [  # Singular 'valor' key as seen in real API
+                                {"valor": "1.5", "data": "2026-01-07T00:00Z"},
+                            ]
+                        },
+                        "estatCel": {
+                            "valors": [
+                                {"valor": 1, "data": "2026-01-07T00:00Z"},
+                            ]
+                        }
+                    }
+                }
+            ]
+        }
+    }
+    
+    weather = MeteocatWeather(mock_coordinator, mock_entry)
+    forecast = await weather.async_forecast_hourly()
+    
+    assert forecast is not None
+    assert len(forecast) == 1
+    assert forecast[0]["datetime"] == "2026-01-07T00:00Z"
+    assert forecast[0]["native_temperature"] == -0.3
+    assert forecast[0]["native_precipitation"] == 1.5  # This would fail without the fix
+
+@pytest.mark.asyncio
+async def test_async_forecast_daily_real_api_structure(mock_coordinator, mock_entry):
+    """Test daily forecast parsing with real API structure."""
+    mock_coordinator.data = {
+        "forecast": {
+            "codiMunicipi": "080885",
+            "dies": [
+                {
+                    "data": "2026-01-07Z",
+                    "variables": {
+                        "tmax": {"unitat": "°C", "valor": "11.0"},
+                        "tmin": {"unitat": "°C", "valor": "0.0"},
+                        "precipitacio": {"unitat": "%", "valor": "0.0"},
+                        "estatCel": {"valor": 1}
+                    }
+                },
+                {
+                    "data": "2026-01-08Z",
+                    "variables": {
+                        "tmax": {"unitat": "°C", "valor": "13.2"},
+                        "tmin": {"unitat": "°C", "valor": "3.2"},
+                        "precipitacio": {"unitat": "%", "valor": "4.5"},
+                        "estatCel": {"valor": 3}
+                    }
+                }
+            ]
+        }
+    }
+    
+    weather = MeteocatWeather(mock_coordinator, mock_entry)
+    forecast = await weather.async_forecast_daily()
+    
+    assert forecast is not None
+    assert len(forecast) == 2
+    
+    # Check first day
+    day0 = forecast[0]
+    assert day0["datetime"] == "2026-01-07Z"
+    assert day0["native_temperature"] == 11.0
+    assert day0["native_templow"] == 0.0
+    assert day0["precipitation_probability"] == 0.0
+    assert day0["condition"] == "sunny"
+    
+    # Check second day
+    day1 = forecast[1]
+    assert day1["datetime"] == "2026-01-08Z"
+    assert day1["native_temperature"] == 13.2
+    assert day1["native_templow"] == 3.2
+    assert day1["precipitation_probability"] == 4.5
+    assert day1["condition"] == "partlycloudy"
