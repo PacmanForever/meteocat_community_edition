@@ -5,6 +5,12 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.54] - 2026-01-07
+
+### Corregit
+- **Last Measurements Update**: El sensor "Última actualització mesures" en el mode d'estació externa ara només s'actualitza quan realment es descarreguen mesures, no quan s'actualitza només la predicció.
+- **Configuració**: Corregit l'ordre del llistat de mapeig de condicions personalitzat a les opcions. Ara es mostra ordenat numèricament (ex: 0, 1, 2, 10...) en lloc d'alfabèticament.
+
 ## [1.2.53] - 2026-01-07
 
 ### Corregit

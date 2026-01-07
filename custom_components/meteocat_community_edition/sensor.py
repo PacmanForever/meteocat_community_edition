@@ -762,6 +762,8 @@ class MeteocatLastUpdateSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnt
     @property
     def native_value(self):
         """Return the last update timestamp."""
+        if self._mode == MODE_EXTERNAL:
+            return self.coordinator.last_measurements_update
         return self.coordinator.last_successful_update_time
 
     @property

@@ -1273,7 +1273,14 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
         # Convert mapping dict back to string format for display
         current_mapping_str = ""
         if current_mapping:
-            current_mapping_str = "\n".join([f"{k}: {v}" for k, v in current_mapping.items()])
+            try:
+                # Try sorting as integers first to correctly order numeric keys (0, 1, 2, 10...)
+                sorted_items = sorted(current_mapping.items(), key=lambda item: int(item[0]))
+            except ValueError:
+                # Fallback to string sorting if keys are non-numeric
+                sorted_items = sorted(current_mapping.items())
+            
+            current_mapping_str = "\n".join([f"{k}: {v}" for k, v in sorted_items])
         
         example_mapping = self.hass.data.get(DOMAIN, {}).get("mapping_example", "0: clear-night\n1: sunny\n2: partlycloudy\n3: cloudy\n4: rainy\n5: pouring\n6: lightning\n7: lightning-rainy\n8: snowy\n9: snowy-rainy\n10: fog\n11: hail\n12: windy\n13: windy-variant\n14: exceptional")
         

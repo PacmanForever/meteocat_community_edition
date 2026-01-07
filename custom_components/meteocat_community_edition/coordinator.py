@@ -147,6 +147,7 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         # Station specific attributes
         self.station_data: dict[str, Any] = entry.data.get("_station_data", {})
         self.last_forecast_update: datetime | None = None
+        self.last_measurements_update: datetime | None = None
         self.next_forecast_update: datetime | None = None
         
         name = f"{DOMAIN}_{entry.entry_id}"
@@ -501,6 +502,8 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                         has_retryable_error = True
                 else:
                     data[key] = result
+                    if key == "measurements":
+                        self.last_measurements_update = dt_util.utcnow()
             
             if not self._is_retry_update:
                 # Only fetch quotes when fetching forecast to save quota
