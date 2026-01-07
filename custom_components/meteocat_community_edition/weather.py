@@ -426,6 +426,8 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
                         forecast_item["native_templow"] = float(valor)
                     except (ValueError, TypeError):
                         pass
+                else:
+                    _LOGGER.debug("Daily forecast: tmin valor is None for day %s", data)
             
             tmax = variables.get("tmax", {})
             if isinstance(tmax, dict):
@@ -435,6 +437,8 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
                         forecast_item["native_temperature"] = float(valor)
                     except (ValueError, TypeError):
                         pass
+                else:
+                    _LOGGER.debug("Daily forecast: tmax valor is None for day %s", data)
             
             # Condition (simple object with valor)
             estat_cel = variables.get("estatCel", {})

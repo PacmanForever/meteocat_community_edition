@@ -48,6 +48,14 @@ async def test_zero_temp_handling(hass: HomeAssistant, mock_coordinator):
     assert "native_temperature" in day
     assert day["native_temperature"] == 11.0
     
+    # Verify minimal temperature (0 degrees)
+    assert "native_templow" in day, "native_templow key is missing for 0 value"
+    assert day["native_templow"] == 0.0, "native_templow should be 0.0" 
+
+    # Verify precipitation (0 percent)
+    assert "precipitation_probability" in day
+    assert day["precipitation_probability"] == 0.0
+    
     # The bug implies this will fail if code uses 'if valor:'
     assert "native_templow" in day
     assert day["native_templow"] == 0.0
