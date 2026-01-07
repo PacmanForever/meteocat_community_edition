@@ -1563,6 +1563,11 @@ class MeteocatProvinciaNameSensor(CoordinatorEntity[MeteocatCoordinator], Sensor
         return self._provincia_name
 
     @property
+    def available(self) -> bool:
+        """Return True if entity is available."""
+        return True
+
+    @property
     def icon(self) -> str:
         """Return the icon."""
         return "mdi:map-marker-radius"

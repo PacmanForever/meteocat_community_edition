@@ -5,6 +5,17 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.52] - 2026-01-07
+
+### Corregit
+- **Sensors de Configuració**: Afegida la propietat `available` explícita als sensors de Província per evitar que apareguin com a "No disponibles".
+- **Estabilitat**: Reforçada la logica de disponibilitat en tots els sensors que depenen de dades estàtiques (Configuració).
+
+## [1.2.51] - 2026-01-07
+
+### Corregit
+- **Error Crític**: Corregit un error `NameError: name 'entity_registry' is not defined` que impedia la càrrega de la integració.
+
 ## [1.2.46] - 2026-01-07
 
 ### Corregit
