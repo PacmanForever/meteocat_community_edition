@@ -573,19 +573,17 @@ class MeteocatForecastSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
     def extra_state_attributes(self) -> dict[str, Any]:
         """Return forecast data as attributes."""
         if self._forecast_type == "hourly":
-            forecast_hourly = self.coordinator.data.get("forecast_hourly")
-            if not forecast_hourly:
+            if not self.coordinator.data.get("forecast_hourly"):
                 return {}
+            # Only return filtered HA format to avoid exceeding DB size limit (16KB)
             return {
-                "forecast": forecast_hourly,
                 "forecast_ha": self._get_forecast_hourly(),
             }
         else:
-            forecast = self.coordinator.data.get("forecast")
-            if not forecast:
+            if not self.coordinator.data.get("forecast"):
                 return {}
+            # Only return filtered HA format for consistency and DB optimization
             return {
-                "forecast": forecast,
                 "forecast_ha": self._get_forecast_daily(),
             }
 

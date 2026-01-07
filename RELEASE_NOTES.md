@@ -1,3 +1,13 @@
+# v1.2.55 - Millores en lògica de servei i gestió de quota
+
+## 🆕 Canvis
+- **Tipus d'Integració**: S'ha canviat la definició de la integració de "Hub" a "Service" per reflectir millor la seva naturalesa al núvol.
+- **Interfície**: Nous textos d'avís en la configuració del mapeig personalitzat per evitar errors en modificar literals.
+
+## 🐞 Correccions
+- **Gestió de Quota**: Solucionat un problema on el comptador de quota no s'actualitzava correctament en certes condicions.
+- **Tests**: Correccions en els tests unitaris per adaptar-se als nous textos.
+
 # v1.2.46 - Millores en la visibilitat de les entitats de configuració
 
 ## 🐞 Correccions

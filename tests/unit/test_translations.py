@@ -105,7 +105,7 @@ def test_condition_mapping_custom_texts():
     assert title_ca == "Configura el mapeig de la condició climàtica"
     assert desc_ca == ""
     assert entity_label_ca == "Sensor que indica la condició"
-    assert mapping_label_ca == "Mapeig de valors"
+    assert mapping_label_ca == "Mapeig de valors (no modifiquis els literals, només els números o la seva posició)"
     
     # Spanish
     es = load_translation("es")
@@ -117,7 +117,7 @@ def test_condition_mapping_custom_texts():
     assert title_es == "Configuración del mapeo de la condición climática"
     assert desc_es == ""
     assert entity_label_es == "Sensor que indica la condición"
-    assert mapping_label_es == "Mapeo de valores"
+    assert mapping_label_es == "Mapeo de valores (no modifiques los literales, solo los números o su posición)"
     
     # English
     en = load_translation("en")
@@ -129,7 +129,7 @@ def test_condition_mapping_custom_texts():
     assert title_en == "Configure Weather Condition Mapping"
     assert desc_en == "Select the sensor that contains the condition value and the mapping to be used."
     assert entity_label_en == "Sensor that indicates the condition"
-    assert mapping_label_en == "Value mapping"
+    assert mapping_label_en == "Value mapping (do not modify literals, only numbers or their position)"
 
 
 def test_required_field_error_translation():

@@ -5,6 +5,16 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.56] - 2026-01-07
+
+### Millores
+- **Optimització**: Eliminat l'atribut `forecast` (raw) dels sensors de predicció diària i horària per reduir la mida de l'objecte d'estat a la base de dades i evitar limitacions de Home Assistant (>16KB). Es manté `forecast_ha`.
+- **Qualitat**: Incrementada la cobertura de tests al 95%.
+
+### Corregit
+- **Config Flow**: Corregida la validació de banderes booleanes en el flux d'opcions per a entrades antigues.
+- **Config Flow**: Millora en la gestió de tipus de mapeig invàlids.
+
 ## [1.2.55] - 2026-01-07
 
 ### Canvis
