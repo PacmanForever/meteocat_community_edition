@@ -146,3 +146,29 @@ def test_is_night(mock_coordinator, mock_entry):
         ]
         with patch("homeassistant.util.dt.now", return_value=datetime(2025, 12, 8, 20, 0, 0)):
             assert weather._is_night() is True
+
+@pytest.mark.asyncio
+async def test_async_forecast_hourly_alternative_keys(mock_coordinator, mock_entry):
+    """Test hourly forecast retrieval with alternative keys (temperatura, estat)."""
+    mock_coordinator.data = {
+        "forecast_hourly": {
+            "dies": [
+                {
+                    "data": "2025-12-08",
+                    "variables": {
+                        "temperatura": {"valors": [{"data": "2025-12-08T10:00Z", "valor": 10}]},
+                        "estat": {"valors": [{"data": "2025-12-08T10:00Z", "valor": 1}]},
+                        "precipitacio": {"valors": [{"data": "2025-12-08T10:00Z", "valor": 0.0}]},
+                    }
+                }
+            ]
+        }
+    }
+    
+    weather = MeteocatWeather(mock_coordinator, mock_entry)
+    forecast = await weather.async_forecast_hourly()
+    
+    assert forecast is not None
+    assert len(forecast) == 1
+    assert forecast[0]["native_temperature"] == 10
+    assert forecast[0]["condition"] == "sunny"

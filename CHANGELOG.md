@@ -5,6 +5,12 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.58] - 2026-01-07
+
+### Corregit
+- **Weather**: Solucionat error "TypeError: get_astral_event_date()" eliminant arguments obsolets (lat/lon) en la crida a l'helper de Sun. Ara utilitza la configuració global de Home Assistant.
+- **Forecast**: Corregit problema amb la predicció horària que no es mostrava a causa de canvis en els noms de les claus de l'API (suport per a claus alternatives: 'temperatura', 'estat', 'precipitatció').
+
 ## [1.2.57] - 2026-01-07
 
 ### Qualitat

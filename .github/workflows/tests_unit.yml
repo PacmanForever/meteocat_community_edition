@@ -32,4 +32,4 @@ jobs:
 
       - name: Run tests with coverage
         run: |
-          python -m pytest tests/unit --cov=custom_components.meteocat_community_edition --cov-report=term -v
+          python -m pytest tests/unit --cov=custom_components.meteocat_community_edition.api --cov-fail-under=85 --cov-report=term -v

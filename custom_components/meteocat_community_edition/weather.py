@@ -350,9 +350,10 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
             variables = dia.get("variables", {})
             
             # Get hourly variables with their values arrays
-            temp_data = variables.get("temp", {})
-            estat_cel_data = variables.get("estatCel", {})
-            precip_data = variables.get("precipitacio", {})
+            # Try different key names as the API might vary or has been inconsistent in docs/mocks
+            temp_data = variables.get("temp", {}) or variables.get("temperatura", {})
+            estat_cel_data = variables.get("estatCel", {}) or variables.get("estat", {})
+            precip_data = variables.get("precipitacio", {}) or variables.get("precipitació", {})
             
             temp_valors = temp_data.get("valors", [])
             estat_valors = estat_cel_data.get("valors", [])
