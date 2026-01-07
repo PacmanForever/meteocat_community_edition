@@ -5,6 +5,11 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.57] - 2026-01-07
+
+### Qualitat
+- **Tests**: Afegits nous tests per garantir la cobertura del codi dels sensors per sobre del 95% (fixat al 97%).
+
 ## [1.2.56] - 2026-01-07
 
 ### Millores
