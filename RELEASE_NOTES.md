@@ -1,3 +1,9 @@
+# v1.2.46 - Millores en la visibilitat de les entitats de configuració
+
+## 🐞 Correccions
+- **Millora de visibilitat**: Les entitats de Latitud, Longitud i Altitud s'han mogut al grup principal de sensors per evitar que apareguin deshabilitades per defecte en algunes configuracions.
+- **Estabilitat del registre**: S'han eliminat les restriccions de categoria `CONFIG` i els mètodes de forçat d'habilitació que podien entrar en conflicte amb Home Assistant, assegurant que les entitats estiguin sempre disponibles i actives.
+
 # v1.1.10 - Millores en gestió d'API i camps requerits
 
 ## 🆕 Novetats

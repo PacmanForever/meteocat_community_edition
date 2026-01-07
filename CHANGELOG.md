@@ -5,9 +5,12 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
-## [1.2.45] - 2025-01-02
+## [1.2.46] - 2026-01-07
 
-### Canviat
+### Corregit
+- **Entitats de Configuració**: Mogudes les entitats de Latitud, Longitud i Altitud al grup de sensors per evitar que apareguin deshabilitades per defecte.
+- **Disponibilitat**: Eliminada la categoria `CONFIG` i els listeners de registre en sensors geogràfics i de temps d'actualització per millorar la compatibilitat i assegurar que les entitats estiguin sempre habilitades.
+
 - **Sensors Geològics**: Revertit el canvi de categoria dels sensors d'altitud, latitud i longitud. Mantenen `EntityCategory.CONFIG` però amb el listener del registre d'entitats que evita que es deshabilten quan es mouen entre grups.
 
 ## [1.2.44] - 2025-01-02

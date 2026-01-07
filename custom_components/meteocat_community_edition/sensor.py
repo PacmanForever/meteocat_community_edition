@@ -977,39 +977,9 @@ class MeteocatUpdateTimeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnt
         }
         
         # Update time sensors are configuration information
-        self._attr_entity_category = EntityCategory.CONFIG
+        # self._attr_entity_category = EntityCategory.CONFIG
         self._attr_entity_registry_enabled_default = True
         self._attr_available = True
-
-    async def async_added_to_hass(self):
-        """Ensure entity remains enabled when moved between groups."""
-        await super().async_added_to_hass()
-        
-        # Listener to re-enable entity if it gets disabled due to category changes
-        async def _handle_entity_registry_update(event):
-            """Handle entity registry updates to keep entity enabled."""
-            if event.data.get("entity_id") == self.entity_id:
-                registry = await self.hass.helpers.entity_registry.async_get_registry()
-                entry = registry.async_get(self.entity_id)
-                if entry and entry.disabled:
-                    await registry.async_update_entity(self.entity_id, disabled_by=None)
-        
-        # Listen for entity registry updates
-        self._entity_registry_listener = self.hass.bus.async_listen(
-            "entity_registry_updated", _handle_entity_registry_update
-        )
-        
-        # Also check immediately in case it was disabled before
-        registry = await self.hass.helpers.entity_registry.async_get_registry()
-        entry = registry.async_get(self.entity_id)
-        if entry and entry.disabled:
-            await registry.async_update_entity(self.entity_id, disabled_by=None)
-
-    async def async_will_remove_from_hass(self):
-        """Clean up the entity registry listener."""
-        await super().async_will_remove_from_hass()
-        if hasattr(self, "_entity_registry_listener"):
-            self._entity_registry_listener()
 
     @property
     def native_value(self):
@@ -1076,38 +1046,8 @@ class MeteocatAltitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
         }
         
         # Geographic sensors are configuration information
-        self._attr_entity_category = EntityCategory.CONFIG
+        # self._attr_entity_category = EntityCategory.CONFIG
         self._attr_entity_registry_enabled_default = True
-
-    async def async_added_to_hass(self):
-        """Ensure entity remains enabled when moved between groups."""
-        await super().async_added_to_hass()
-        
-        # Listener to re-enable entity if it gets disabled due to category changes
-        async def _handle_entity_registry_update(event):
-            """Handle entity registry updates to keep entity enabled."""
-            if event.data.get("entity_id") == self.entity_id:
-                registry = await self.hass.helpers.entity_registry.async_get_registry()
-                entry = registry.async_get(self.entity_id)
-                if entry and entry.disabled:
-                    await registry.async_update_entity(self.entity_id, disabled_by=None)
-        
-        # Listen for entity registry updates
-        self._entity_registry_listener = self.hass.bus.async_listen(
-            "entity_registry_updated", _handle_entity_registry_update
-        )
-        
-        # Also check immediately in case it was disabled before
-        registry = await self.hass.helpers.entity_registry.async_get_registry()
-        entry = registry.async_get(self.entity_id)
-        if entry and entry.disabled:
-            await registry.async_update_entity(self.entity_id, disabled_by=None)
-
-    async def async_will_remove_from_hass(self):
-        """Clean up the entity registry listener."""
-        await super().async_will_remove_from_hass()
-        if hasattr(self, "_entity_registry_listener"):
-            self._entity_registry_listener()
 
     @property
     def native_value(self) -> float | None:
@@ -1181,39 +1121,9 @@ class MeteocatLatitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
         }
         
         # Geographic sensors are configuration information
-        self._attr_entity_category = EntityCategory.CONFIG
+        # self._attr_entity_category = EntityCategory.CONFIG
         self._attr_entity_registry_enabled_default = True
         self._attr_available = True
-
-    async def async_added_to_hass(self):
-        """Ensure entity remains enabled when moved between groups."""
-        await super().async_added_to_hass()
-        
-        # Listener to re-enable entity if it gets disabled due to category changes
-        async def _handle_entity_registry_update(event):
-            """Handle entity registry updates to keep entity enabled."""
-            if event.data.get("entity_id") == self.entity_id:
-                registry = await self.hass.helpers.entity_registry.async_get_registry()
-                entry = registry.async_get(self.entity_id)
-                if entry and entry.disabled:
-                    await registry.async_update_entity(self.entity_id, disabled_by=None)
-        
-        # Listen for entity registry updates
-        self._entity_registry_listener = self.hass.bus.async_listen(
-            "entity_registry_updated", _handle_entity_registry_update
-        )
-        
-        # Also check immediately in case it was disabled before
-        registry = await self.hass.helpers.entity_registry.async_get_registry()
-        entry = registry.async_get(self.entity_id)
-        if entry and entry.disabled:
-            await registry.async_update_entity(self.entity_id, disabled_by=None)
-
-    async def async_will_remove_from_hass(self):
-        """Clean up the entity registry listener."""
-        await super().async_will_remove_from_hass()
-        if hasattr(self, "_entity_registry_listener"):
-            self._entity_registry_listener()
 
     @property
     def native_value(self) -> float | None:
@@ -1284,39 +1194,9 @@ class MeteocatLongitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnti
         }
         
         # Geographic sensors are configuration information
-        self._attr_entity_category = EntityCategory.CONFIG
+        # self._attr_entity_category = EntityCategory.CONFIG
         self._attr_entity_registry_enabled_default = True
         self._attr_available = True
-
-    async def async_added_to_hass(self):
-        """Ensure entity remains enabled when moved between groups."""
-        await super().async_added_to_hass()
-        
-        # Listener to re-enable entity if it gets disabled due to category changes
-        async def _handle_entity_registry_update(event):
-            """Handle entity registry updates to keep entity enabled."""
-            if event.data.get("entity_id") == self.entity_id:
-                registry = await self.hass.helpers.entity_registry.async_get_registry()
-                entry = registry.async_get(self.entity_id)
-                if entry and entry.disabled:
-                    await registry.async_update_entity(self.entity_id, disabled_by=None)
-        
-        # Listen for entity registry updates
-        self._entity_registry_listener = self.hass.bus.async_listen(
-            "entity_registry_updated", _handle_entity_registry_update
-        )
-        
-        # Also check immediately in case it was disabled before
-        registry = await self.hass.helpers.entity_registry.async_get_registry()
-        entry = registry.async_get(self.entity_id)
-        if entry and entry.disabled:
-            await registry.async_update_entity(self.entity_id, disabled_by=None)
-
-    async def async_will_remove_from_hass(self):
-        """Clean up the entity registry listener."""
-        await super().async_will_remove_from_hass()
-        if hasattr(self, "_entity_registry_listener"):
-            self._entity_registry_listener()
 
     @property
     def native_value(self) -> float | None:
@@ -1389,39 +1269,9 @@ class MeteocatMunicipalityNameSensor(CoordinatorEntity[MeteocatCoordinator], Sen
         }
         
         # Municipality name is configuration information
-        self._attr_entity_category = EntityCategory.CONFIG
+        # self._attr_entity_category = EntityCategory.CONFIG
         self._attr_entity_registry_enabled_default = True
         self._attr_available = True
-
-    async def async_added_to_hass(self):
-        """Ensure entity remains enabled when moved between groups."""
-        await super().async_added_to_hass()
-        
-        # Listener to re-enable entity if it gets disabled due to category changes
-        async def _handle_entity_registry_update(event):
-            """Handle entity registry updates to keep entity enabled."""
-            if event.data.get("entity_id") == self.entity_id:
-                registry = await self.hass.helpers.entity_registry.async_get_registry()
-                entry = registry.async_get(self.entity_id)
-                if entry and entry.disabled:
-                    await registry.async_update_entity(self.entity_id, disabled_by=None)
-        
-        # Listen for entity registry updates
-        self._entity_registry_listener = self.hass.bus.async_listen(
-            "entity_registry_updated", _handle_entity_registry_update
-        )
-        
-        # Also check immediately in case it was disabled before
-        registry = await self.hass.helpers.entity_registry.async_get_registry()
-        entry = registry.async_get(self.entity_id)
-        if entry and entry.disabled:
-            await registry.async_update_entity(self.entity_id, disabled_by=None)
-
-    async def async_will_remove_from_hass(self):
-        """Clean up the entity registry listener."""
-        await super().async_will_remove_from_hass()
-        if hasattr(self, "_entity_registry_listener"):
-            self._entity_registry_listener()
 
     @property
     def native_value(self) -> str | None:
@@ -1480,39 +1330,9 @@ class MeteocatComarcaNameSensor(CoordinatorEntity[MeteocatCoordinator], SensorEn
         }
         
         # Comarca name is configuration information
-        self._attr_entity_category = EntityCategory.CONFIG
+        # self._attr_entity_category = EntityCategory.CONFIG
         self._attr_entity_registry_enabled_default = True
         self._attr_available = True
-
-    async def async_added_to_hass(self):
-        """Ensure entity remains enabled when moved between groups."""
-        await super().async_added_to_hass()
-        
-        # Listener to re-enable entity if it gets disabled due to category changes
-        async def _handle_entity_registry_update(event):
-            """Handle entity registry updates to keep entity enabled."""
-            if event.data.get("entity_id") == self.entity_id:
-                registry = await self.hass.helpers.entity_registry.async_get_registry()
-                entry = registry.async_get(self.entity_id)
-                if entry and entry.disabled:
-                    await registry.async_update_entity(self.entity_id, disabled_by=None)
-        
-        # Listen for entity registry updates
-        self._entity_registry_listener = self.hass.bus.async_listen(
-            "entity_registry_updated", _handle_entity_registry_update
-        )
-        
-        # Also check immediately in case it was disabled before
-        registry = await self.hass.helpers.entity_registry.async_get_registry()
-        entry = registry.async_get(self.entity_id)
-        if entry and entry.disabled:
-            await registry.async_update_entity(self.entity_id, disabled_by=None)
-
-    async def async_will_remove_from_hass(self):
-        """Clean up the entity registry listener."""
-        await super().async_will_remove_from_hass()
-        if hasattr(self, "_entity_registry_listener"):
-            self._entity_registry_listener()
 
     @property
     def native_value(self) -> str | None:
@@ -1578,36 +1398,6 @@ class MeteocatMunicipalityLatitudeSensor(CoordinatorEntity[MeteocatCoordinator],
         self._attr_entity_registry_enabled_default = True
         self._attr_available = True
 
-    async def async_added_to_hass(self):
-        """Ensure entity remains enabled when moved between groups."""
-        await super().async_added_to_hass()
-        
-        # Listener to re-enable entity if it gets disabled due to category changes
-        async def _handle_entity_registry_update(event):
-            """Handle entity registry updates to keep entity enabled."""
-            if event.data.get("entity_id") == self.entity_id:
-                registry = await self.hass.helpers.entity_registry.async_get_registry()
-                entry = registry.async_get(self.entity_id)
-                if entry and entry.disabled:
-                    await registry.async_update_entity(self.entity_id, disabled_by=None)
-        
-        # Listen for entity registry updates
-        self._entity_registry_listener = self.hass.bus.async_listen(
-            "entity_registry_updated", _handle_entity_registry_update
-        )
-        
-        # Also check immediately in case it was disabled before
-        registry = await self.hass.helpers.entity_registry.async_get_registry()
-        entry = registry.async_get(self.entity_id)
-        if entry and entry.disabled:
-            await registry.async_update_entity(self.entity_id, disabled_by=None)
-
-    async def async_will_remove_from_hass(self):
-        """Clean up the entity registry listener."""
-        await super().async_will_remove_from_hass()
-        if hasattr(self, "_entity_registry_listener"):
-            self._entity_registry_listener()
-
     @property
     def native_value(self) -> float | None:
         """Return the municipality latitude."""
@@ -1672,36 +1462,6 @@ class MeteocatMunicipalityLongitudeSensor(CoordinatorEntity[MeteocatCoordinator]
         self._attr_entity_registry_enabled_default = True
         self._attr_available = True
 
-    async def async_added_to_hass(self):
-        """Ensure entity remains enabled when moved between groups."""
-        await super().async_added_to_hass()
-        
-        # Listener to re-enable entity if it gets disabled due to category changes
-        async def _handle_entity_registry_update(event):
-            """Handle entity registry updates to keep entity enabled."""
-            if event.data.get("entity_id") == self.entity_id:
-                registry = await self.hass.helpers.entity_registry.async_get_registry()
-                entry = registry.async_get(self.entity_id)
-                if entry and entry.disabled:
-                    await registry.async_update_entity(self.entity_id, disabled_by=None)
-        
-        # Listen for entity registry updates
-        self._entity_registry_listener = self.hass.bus.async_listen(
-            "entity_registry_updated", _handle_entity_registry_update
-        )
-        
-        # Also check immediately in case it was disabled before
-        registry = await self.hass.helpers.entity_registry.async_get_registry()
-        entry = registry.async_get(self.entity_id)
-        if entry and entry.disabled:
-            await registry.async_update_entity(self.entity_id, disabled_by=None)
-
-    async def async_will_remove_from_hass(self):
-        """Clean up the entity registry listener."""
-        await super().async_will_remove_from_hass()
-        if hasattr(self, "_entity_registry_listener"):
-            self._entity_registry_listener()
-
     @property
     def native_value(self) -> float | None:
         """Return the municipality longitude."""
@@ -1760,39 +1520,9 @@ class MeteocatProvinciaNameSensor(CoordinatorEntity[MeteocatCoordinator], Sensor
         }
         
         # Provincia name is configuration information
-        self._attr_entity_category = EntityCategory.CONFIG
+        # self._attr_entity_category = EntityCategory.CONFIG
         self._attr_entity_registry_enabled_default = True
         self._attr_available = True
-
-    async def async_added_to_hass(self):
-        """Ensure entity remains enabled when moved between groups."""
-        await super().async_added_to_hass()
-        
-        # Listener to re-enable entity if it gets disabled due to category changes
-        async def _handle_entity_registry_update(event):
-            """Handle entity registry updates to keep entity enabled."""
-            if event.data.get("entity_id") == self.entity_id:
-                registry = await self.hass.helpers.entity_registry.async_get_registry()
-                entry = registry.async_get(self.entity_id)
-                if entry and entry.disabled:
-                    await registry.async_update_entity(self.entity_id, disabled_by=None)
-        
-        # Listen for entity registry updates
-        self._entity_registry_listener = self.hass.bus.async_listen(
-            "entity_registry_updated", _handle_entity_registry_update
-        )
-        
-        # Also check immediately in case it was disabled before
-        registry = await self.hass.helpers.entity_registry.async_get_registry()
-        entry = registry.async_get(self.entity_id)
-        if entry and entry.disabled:
-            await registry.async_update_entity(self.entity_id, disabled_by=None)
-
-    async def async_will_remove_from_hass(self):
-        """Clean up the entity registry listener."""
-        await super().async_will_remove_from_hass()
-        if hasattr(self, "_entity_registry_listener"):
-            self._entity_registry_listener()
 
     @property
     def native_value(self) -> str | None:
@@ -1853,39 +1583,9 @@ class MeteocatStationComarcaNameSensor(CoordinatorEntity[MeteocatCoordinator], S
         }
         
         # Geographic sensors are configuration information
-        self._attr_entity_category = EntityCategory.CONFIG
+        # self._attr_entity_category = EntityCategory.CONFIG
         self._attr_entity_registry_enabled_default = True
         self._attr_available = True
-
-    async def async_added_to_hass(self):
-        """Ensure entity remains enabled when moved between groups."""
-        await super().async_added_to_hass()
-        
-        # Listener to re-enable entity if it gets disabled due to category changes
-        async def _handle_entity_registry_update(event):
-            """Handle entity registry updates to keep entity enabled."""
-            if event.data.get("entity_id") == self.entity_id:
-                registry = await self.hass.helpers.entity_registry.async_get_registry()
-                entry = registry.async_get(self.entity_id)
-                if entry and entry.disabled:
-                    await registry.async_update_entity(self.entity_id, disabled_by=None)
-        
-        # Listen for entity registry updates
-        self._entity_registry_listener = self.hass.bus.async_listen(
-            "entity_registry_updated", _handle_entity_registry_update
-        )
-        
-        # Also check immediately in case it was disabled before
-        registry = await self.hass.helpers.entity_registry.async_get_registry()
-        entry = registry.async_get(self.entity_id)
-        if entry and entry.disabled:
-            await registry.async_update_entity(self.entity_id, disabled_by=None)
-
-    async def async_will_remove_from_hass(self):
-        """Clean up the entity registry listener."""
-        await super().async_will_remove_from_hass()
-        if hasattr(self, "_entity_registry_listener"):
-            self._entity_registry_listener()
 
     @property
     def native_value(self) -> str | None:
@@ -1945,38 +1645,8 @@ class MeteocatStationMunicipalityNameSensor(CoordinatorEntity[MeteocatCoordinato
         }
         
         # Geographic sensors are configuration information
-        self._attr_entity_category = EntityCategory.CONFIG
+        # self._attr_entity_category = EntityCategory.CONFIG
         self._attr_entity_registry_enabled_default = True
-
-    async def async_added_to_hass(self):
-        """Ensure entity remains enabled when moved between groups."""
-        await super().async_added_to_hass()
-        
-        # Listener to re-enable entity if it gets disabled due to category changes
-        async def _handle_entity_registry_update(event):
-            """Handle entity registry updates to keep entity enabled."""
-            if event.data.get("entity_id") == self.entity_id:
-                registry = await self.hass.helpers.entity_registry.async_get_registry()
-                entry = registry.async_get(self.entity_id)
-                if entry and entry.disabled:
-                    await registry.async_update_entity(self.entity_id, disabled_by=None)
-        
-        # Listen for entity registry updates
-        self._entity_registry_listener = self.hass.bus.async_listen(
-            "entity_registry_updated", _handle_entity_registry_update
-        )
-        
-        # Also check immediately in case it was disabled before
-        registry = await self.hass.helpers.entity_registry.async_get_registry()
-        entry = registry.async_get(self.entity_id)
-        if entry and entry.disabled:
-            await registry.async_update_entity(self.entity_id, disabled_by=None)
-
-    async def async_will_remove_from_hass(self):
-        """Clean up the entity registry listener."""
-        await super().async_will_remove_from_hass()
-        if hasattr(self, "_entity_registry_listener"):
-            self._entity_registry_listener()
 
     @property
     def native_value(self) -> str | None:
@@ -2036,38 +1706,8 @@ class MeteocatStationProvinciaNameSensor(CoordinatorEntity[MeteocatCoordinator],
         }
         
         # Geographic sensors are configuration information
-        self._attr_entity_category = EntityCategory.CONFIG
+        # self._attr_entity_category = EntityCategory.CONFIG
         self._attr_entity_registry_enabled_default = True
-
-    async def async_added_to_hass(self):
-        """Ensure entity remains enabled when moved between groups."""
-        await super().async_added_to_hass()
-        
-        # Listener to re-enable entity if it gets disabled due to category changes
-        async def _handle_entity_registry_update(event):
-            """Handle entity registry updates to keep entity enabled."""
-            if event.data.get("entity_id") == self.entity_id:
-                registry = await self.hass.helpers.entity_registry.async_get_registry()
-                entry = registry.async_get(self.entity_id)
-                if entry and entry.disabled:
-                    await registry.async_update_entity(self.entity_id, disabled_by=None)
-        
-        # Listen for entity registry updates
-        self._entity_registry_listener = self.hass.bus.async_listen(
-            "entity_registry_updated", _handle_entity_registry_update
-        )
-        
-        # Also check immediately in case it was disabled before
-        registry = await self.hass.helpers.entity_registry.async_get_registry()
-        entry = registry.async_get(self.entity_id)
-        if entry and entry.disabled:
-            await registry.async_update_entity(self.entity_id, disabled_by=None)
-
-    async def async_will_remove_from_hass(self):
-        """Clean up the entity registry listener."""
-        await super().async_will_remove_from_hass()
-        if hasattr(self, "_entity_registry_listener"):
-            self._entity_registry_listener()
 
     @property
     def native_value(self) -> str | None:

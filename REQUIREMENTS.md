@@ -6,7 +6,7 @@ This document outlines the specific requirements for the Meteocat Community Edit
 
 - **Name**: Meteocat (Community Edition)
 - **Domain**: meteocat_community_edition
-- **Version**: 1.2.45
+- **Version**: 1.2.46
 - **Home Assistant**: 2024.1.0 (minimum)
 
 ## Functional Requirements
@@ -94,7 +94,7 @@ This document outlines the specific requirements for the Meteocat Community Edit
 - **README Rendering**: true
 
 ### Release Process
-- **Versioning**: Semantic versioning (1.2.45)
+- **Versioning**: Semantic versioning (1.2.46)
 - **Changelog**: Detailed release notes in CHANGELOG.md
 - **Breaking Changes**: Documented in changelog with migration notes
 
