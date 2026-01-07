@@ -506,9 +506,9 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                         self.last_measurements_update = dt_util.utcnow()
             
             if not self._is_retry_update:
-                # Only fetch quotes when fetching forecast to save quota
+                # Only fetch quotes when fetching forecast or measurements to save quota
                 # OR if quotes are missing (e.g. failed previously)
-                should_fetch_quotes = fetch_forecast or not data.get("quotes")
+                should_fetch_quotes = fetch_forecast or fetch_measurements or not data.get("quotes")
                 
                 if should_fetch_quotes:
                     try:

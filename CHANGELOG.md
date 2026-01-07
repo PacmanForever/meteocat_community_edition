@@ -5,6 +5,15 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.55] - 2026-01-07
+
+### Canvis
+- **Tipus d'Integració**: Canviat el tipus d'integració de `hub` a `service`. Això canviarà la classificació a la interfície de Home Assistant, mostrant les entrades com a serveis ("Services") o entrades genèriques, evitant la confusió de "Hub" (Concentrador) que no s'adiu amb un servei al núvol.
+- **Interfície**: Actualitzat el literal del formulari de mapeig personalitzat per avisar sobre la modificació de valors.
+
+### Corregit
+- **Gestió de Quota**: Corregit un error on el consum de quota no s'actualitzava si es realitzava una actualització que incloïa predicció o mesures forçades. Ara sempre que es faci una crida API que consumeixi quota, es refrescarà el comptador de peticions restants.
+
 ## [1.2.54] - 2026-01-07
 
 ### Corregit

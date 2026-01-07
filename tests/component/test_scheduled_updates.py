@@ -245,8 +245,8 @@ async def test_api_calls_external_mode(mock_hass, mock_entry_estacio, mock_api):
         # Forecasts should NOT increment
         assert mock_api.get_municipal_forecast.call_count == 1
         assert mock_api.get_hourly_forecast.call_count == 1
-        # Quotes should NOT increment (tied to forecast)
-        assert mock_api.get_quotes.call_count == 1
+        # Quotes SHOULD increment (tied to any API call that consumes quota)
+        assert mock_api.get_quotes.call_count == 2
         
         # 3. Perform third update at 14:00 (IS a forecast update time)
         mock_time = datetime(2025, 11, 26, 14, 0, 0)
@@ -260,7 +260,7 @@ async def test_api_calls_external_mode(mock_hass, mock_entry_estacio, mock_api):
         assert mock_api.get_municipal_forecast.call_count == 2
         assert mock_api.get_hourly_forecast.call_count == 2
         # Quotes SHOULD increment now
-        assert mock_api.get_quotes.call_count == 2
+        assert mock_api.get_quotes.call_count == 3
 
 
 @pytest.mark.asyncio

@@ -82,7 +82,7 @@
         "description": "",
         "data": {
           "local_condition_entity": "Sensor que indica la condició",
-          "custom_condition_mapping": "Mapeig de valors"
+          "custom_condition_mapping": "Mapeig de valors (no modifiquis els literals, només els números o la seva posició)"
         }
       },
       "reauth_confirm": {
@@ -166,7 +166,7 @@
         "description": "",
         "data": {
           "local_condition_entity": "Sensor que indica la condició",
-          "custom_condition_mapping": "Mapeig de valors"
+          "custom_condition_mapping": "Mapeig de valors (no modifiquis els literals, només els números o la seva posició)"
         }
       }
     }

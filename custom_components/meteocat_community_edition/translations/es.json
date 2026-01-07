@@ -82,7 +82,7 @@
         "description": "",
         "data": {
           "local_condition_entity": "Sensor que indica la condición",
-          "custom_condition_mapping": "Mapeo de valores"
+          "custom_condition_mapping": "Mapeo de valores (no modifiques los literales, solo los números o su posición)"
         }
       },
       "reauth_confirm": {
@@ -166,7 +166,7 @@
         "description": "",
         "data": {
           "local_condition_entity": "Sensor que indica la condición",
-          "custom_condition_mapping": "Mapeo de valores"
+          "custom_condition_mapping": "Mapeo de valores (no modifiques los literales, solo los números o su posición)"
         }
       }
     }
