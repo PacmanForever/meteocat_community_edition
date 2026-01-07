@@ -977,7 +977,7 @@ class MeteocatUpdateTimeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnt
         }
         
         # Update time sensors are configuration information
-        # self._attr_entity_category = EntityCategory.CONFIG
+        self._attr_entity_category = EntityCategory.CONFIG
         self._attr_entity_registry_enabled_default = True
         self._attr_available = True
 
@@ -1269,7 +1269,7 @@ class MeteocatMunicipalityNameSensor(CoordinatorEntity[MeteocatCoordinator], Sen
         }
         
         # Municipality name is configuration information
-        # self._attr_entity_category = EntityCategory.CONFIG
+        self._attr_entity_category = EntityCategory.CONFIG
         self._attr_entity_registry_enabled_default = True
         self._attr_available = True
 
@@ -1330,7 +1330,7 @@ class MeteocatComarcaNameSensor(CoordinatorEntity[MeteocatCoordinator], SensorEn
         }
         
         # Comarca name is configuration information
-        # self._attr_entity_category = EntityCategory.CONFIG
+        self._attr_entity_category = EntityCategory.CONFIG
         self._attr_entity_registry_enabled_default = True
         self._attr_available = True
 
@@ -1520,7 +1520,7 @@ class MeteocatProvinciaNameSensor(CoordinatorEntity[MeteocatCoordinator], Sensor
         }
         
         # Provincia name is configuration information
-        # self._attr_entity_category = EntityCategory.CONFIG
+        self._attr_entity_category = EntityCategory.CONFIG
         self._attr_entity_registry_enabled_default = True
         self._attr_available = True
 
@@ -1583,7 +1583,7 @@ class MeteocatStationComarcaNameSensor(CoordinatorEntity[MeteocatCoordinator], S
         }
         
         # Geographic sensors are configuration information
-        # self._attr_entity_category = EntityCategory.CONFIG
+        self._attr_entity_category = EntityCategory.CONFIG
         self._attr_entity_registry_enabled_default = True
         self._attr_available = True
 
@@ -1645,7 +1645,7 @@ class MeteocatStationMunicipalityNameSensor(CoordinatorEntity[MeteocatCoordinato
         }
         
         # Geographic sensors are configuration information
-        # self._attr_entity_category = EntityCategory.CONFIG
+        self._attr_entity_category = EntityCategory.CONFIG
         self._attr_entity_registry_enabled_default = True
 
     @property
@@ -1706,7 +1706,7 @@ class MeteocatStationProvinciaNameSensor(CoordinatorEntity[MeteocatCoordinator],
         }
         
         # Geographic sensors are configuration information
-        # self._attr_entity_category = EntityCategory.CONFIG
+        self._attr_entity_category = EntityCategory.CONFIG
         self._attr_entity_registry_enabled_default = True
 
     @property

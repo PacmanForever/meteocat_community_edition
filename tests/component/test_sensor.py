@@ -442,8 +442,8 @@ def test_diagnostic_sensors_entity_category(mock_coordinator, mock_entry):
         "YM"
     )
     
-    # Update time sensors are no longer configuration category
-    assert getattr(update_time_sensor, "_attr_entity_category", None) is None
+    # Update time sensors are configuration category
+    assert update_time_sensor._attr_entity_category == EntityCategory.CONFIG
     # Other sensors remain diagnostic
     assert last_sensor._attr_entity_category == EntityCategory.DIAGNOSTIC
     assert next_sensor._attr_entity_category == EntityCategory.DIAGNOSTIC
@@ -607,7 +607,7 @@ def test_municipality_name_sensor(mock_coordinator, mock_entry):
     assert sensor.icon == "mdi:city"
     assert sensor.unique_id == f"{mock_entry.entry_id}_municipality_name"
     assert sensor.name == "Municipi"
-    assert sensor.entity_category is None
+    assert sensor.entity_category == EntityCategory.CONFIG
 
 
 def test_municipality_name_sensor_no_data(mock_coordinator, mock_entry):
@@ -654,7 +654,7 @@ def test_comarca_name_sensor(mock_coordinator, mock_entry):
     assert sensor.icon == "mdi:map"
     assert sensor.unique_id == f"{mock_entry.entry_id}_comarca_name"
     assert sensor.name == "Comarca"
-    assert sensor.entity_category is None
+    assert sensor.entity_category == EntityCategory.CONFIG
     assert sensor.entity_registry_enabled_default is True
 
 
@@ -988,7 +988,7 @@ def test_municipality_provincia_name_sensor():
     
     assert sensor.native_value == "Barcelona"
     assert sensor.icon == "mdi:map-marker-radius"
-    assert sensor.entity_category is None
+    assert sensor.entity_category == EntityCategory.CONFIG
 
 
 def test_coordinate_sensors_read_from_entry_data_cache():
