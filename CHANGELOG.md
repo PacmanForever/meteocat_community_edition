@@ -5,6 +5,11 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.63] - 2026-01-07
+
+### Corregit
+- **Sensors**: Corregit el mateix error del tractament del valor '0' en les entitats sensor de predicció (`_forecast_daily` i `_forecast_hourly`), que provocava el mateix problema visual que a l'entitat weather principal.
+
 ## [1.2.62] - 2026-01-07
 
 ### Corregit

@@ -666,7 +666,7 @@ class MeteocatForecastSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
             tmin = variables.get("tmin", {})
             if isinstance(tmin, dict):
                 valor = tmin.get("valor")
-                if valor:
+                if valor is not None:
                     try:
                         forecast_item["templow"] = float(valor)
                     except (ValueError, TypeError):
@@ -675,7 +675,7 @@ class MeteocatForecastSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
             tmax = variables.get("tmax", {})
             if isinstance(tmax, dict):
                 valor = tmax.get("valor")
-                if valor:
+                if valor is not None:
                     try:
                         forecast_item["temperature"] = float(valor)
                     except (ValueError, TypeError):
@@ -693,7 +693,7 @@ class MeteocatForecastSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
             precip = variables.get("precipitacio", {})
             if isinstance(precip, dict):
                 valor = precip.get("valor")
-                if valor:
+                if valor is not None:
                     try:
                         forecast_item["precipitation"] = float(valor)
                     except (ValueError, TypeError):
