@@ -421,7 +421,7 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
             tmin = variables.get("tmin", {})
             if isinstance(tmin, dict):
                 valor = tmin.get("valor")
-                if valor:
+                if valor is not None:
                     try:
                         forecast_item["native_templow"] = float(valor)
                     except (ValueError, TypeError):
@@ -430,7 +430,7 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
             tmax = variables.get("tmax", {})
             if isinstance(tmax, dict):
                 valor = tmax.get("valor")
-                if valor:
+                if valor is not None:
                     try:
                         forecast_item["native_temperature"] = float(valor)
                     except (ValueError, TypeError):
@@ -448,7 +448,7 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
             precip = variables.get("precipitacio", {})
             if isinstance(precip, dict):
                 valor = precip.get("valor")
-                if valor:
+                if valor is not None:
                     try:
                         # Store as percentage (0-100)
                         forecast_item["precipitation_probability"] = float(valor)

@@ -5,6 +5,11 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.60] - 2026-01-07
+
+### Corregit
+- **Weather**: Corregit error on valors de '0' (ex. temperatura mínima 0ºC) s'interpretaven com a dades faltants i s'ignoraven.
+
 ## [1.2.59] - 2026-01-07
 
 ### Corregit

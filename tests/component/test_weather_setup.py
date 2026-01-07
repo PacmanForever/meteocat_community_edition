@@ -36,6 +36,7 @@ def mock_entry():
         CONF_MODE: MODE_EXTERNAL,
         CONF_STATION_NAME: "Test Station",
     }
+    entry.options = {}
     return entry
 
 @pytest.fixture
