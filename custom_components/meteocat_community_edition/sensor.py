@@ -32,7 +32,9 @@ from homeassistant.const import (
     PERCENTAGE,
     DEGREE,
 )
+from homeassistant.helpers import entity_registry
 from homeassistant.helpers.entity import EntityCategory
+from homeassistant.helpers import entity_registry as er
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -262,35 +264,33 @@ async def async_setup_entry(
     
     # Force enable configuration sensors that might be disabled in registry
     # This prevents them from sticking in disabled state after category changes
-    registry = await hass.helpers.entity_registry.async_get_registry()
-    
-    # We use the public method to get entries if available, or access via .entities
-    # registry.entities is a dict of entity_id -> RegistryEntry, OR an object that has get_entries_for_config_entry_id
-    # To be safe and compatible with recent HA versions, we iterate over values if method doesn't exist,
-    # but strictly speaking, .entities.get_entries_for_config_entry_id is the standard internal way.
-    # However, let's just inspect the values to be safe from internal API changes, or use the iterator.
-    
-    # Accessing registry entries safely
-    entry_entities = [
-        entity for entity in registry.entities.values() 
-        if entity.config_entry_id == entry.entry_id
-    ]
-    
-    for reg_entity in entry_entities:
-        if reg_entity.disabled: 
-            uid = reg_entity.unique_id
-            should_enable = (
-                uid.endswith("_municipality_name") or
-                uid.endswith("_comarca_name") or
-                uid.endswith("_provincia_name") or
-                "_update_time_" in uid or
-                "_station_municipality_name" in uid or
-                "_station_comarca_name" in uid or
-                "_station_provincia_name" in uid
-            )
-            
-            if should_enable:
-                 registry.async_update_entity(reg_entity.entity_id, disabled_by=None)
+    # Use a try-except block to ensure we never block setup if registry operations fail
+    try:
+        registry = er.async_get(hass)
+        
+        # Accessing registry entries safely
+        entry_entities = [
+            entity for entity in registry.entities.values() 
+            if entity.config_entry_id == entry.entry_id
+        ]
+        
+        for reg_entity in entry_entities:
+            if reg_entity.disabled: 
+                uid = reg_entity.unique_id
+                should_enable = (
+                    uid.endswith("_municipality_name") or
+                    uid.endswith("_comarca_name") or
+                    uid.endswith("_provincia_name") or
+                    "_update_time_" in uid or
+                    "_station_municipality_name" in uid or
+                    "_station_comarca_name" in uid or
+                    "_station_provincia_name" in uid
+                )
+                
+                if should_enable:
+                     registry.async_update_entity(reg_entity.entity_id, disabled_by=None)
+    except Exception as ex:
+        _LOGGER.warning("Could not force enable config sensors: %s", ex)
     
     async_add_entities(entities)
 
