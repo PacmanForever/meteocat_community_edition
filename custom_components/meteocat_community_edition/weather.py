@@ -412,6 +412,13 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
                 continue
             
             variables = dia.get("variables", {})
+            # Log keys for debugging forecast issues
+            if _LOGGER.isEnabledFor(logging.DEBUG):
+                _LOGGER.debug(
+                    "Daily forecast for %s - Variable keys: %s", 
+                    data, 
+                    list(variables.keys())
+                )
             
             forecast_item: Forecast = {
                 "datetime": data,
