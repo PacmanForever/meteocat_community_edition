@@ -5,6 +5,12 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.53] - 2026-01-07
+
+### Corregit
+- **Arquitectura de Sensors**: Desacoblats completament els sensors de configuració (Municipi, Comarca, Província, Temps d'Actualització) de la classe `CoordinatorEntity`. Ara hereten directament de `SensorEntity` per garantir que el seu estat mai estigui lligat a l'èxit o fracàs de les crides API. Això elimina definitivament el problema de "No disponible" en aquestes entitats estàtiques.
+- **Categoria d'Entitat**: Eliminada la categoria `CONFIG` per a aquests sensors. Ara es tracten com a sensors estàndard per evitar problemes de visibilitat o càrrega associats a categories restringides.
+
 ## [1.2.52] - 2026-01-07
 
 ### Corregit

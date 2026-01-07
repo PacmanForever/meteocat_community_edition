@@ -960,7 +960,7 @@ class MeteocatNextUpdateSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnt
         return "mdi:clock-outline"
 
 
-class MeteocatUpdateTimeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
+class MeteocatUpdateTimeSensor(SensorEntity):
     """Sensor showing configured update time."""
 
     _attr_attribution = ATTRIBUTION
@@ -977,8 +977,9 @@ class MeteocatUpdateTimeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnt
     ) -> None:
         """Initialize the update time sensor."""
         self._attr_available = True
-        super().__init__(coordinator)
+        # Do not inherit from CoordinatorEntity to keep it always available
         
+        self._coordinator = coordinator  # Keep reference for helper property
         self._entity_name = entity_name
         self._device_name = device_name
         self._mode = mode
@@ -1010,18 +1011,19 @@ class MeteocatUpdateTimeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnt
         }
         
         # Update time sensors are configuration information
-        self._attr_entity_category = EntityCategory.CONFIG
+        # self._attr_entity_category = EntityCategory.CONFIG
         self._attr_entity_registry_enabled_default = True
         self._attr_available = True
+        self._attr_should_poll = False
 
     @property
     def native_value(self):
         """Return the configured update time."""
         if self._time_number == 1:
-            return self.coordinator.update_time_1
+            return self._coordinator.update_time_1
         elif self._time_number == 2:
-            return self.coordinator.update_time_2
-        return self.coordinator.update_time_3
+            return self._coordinator.update_time_2
+        return self._coordinator.update_time_3
 
     @property
     def available(self) -> bool:
@@ -1262,7 +1264,7 @@ class MeteocatLongitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnti
         return "mdi:longitude"
 
 
-class MeteocatMunicipalityNameSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
+class MeteocatMunicipalityNameSensor(SensorEntity):
     """Sensor showing municipality name.
     
     Data obtained from configuration (entry.data) - no API calls needed.
@@ -1280,7 +1282,7 @@ class MeteocatMunicipalityNameSensor(CoordinatorEntity[MeteocatCoordinator], Sen
     ) -> None:
         """Initialize the municipality name sensor."""
         self._attr_available = True
-        super().__init__(coordinator)
+        # Do NOT call super().__init__(coordinator) to avoid linkage to API status
         
         self._entity_name = entity_name
         self._device_name = device_name
@@ -1302,9 +1304,10 @@ class MeteocatMunicipalityNameSensor(CoordinatorEntity[MeteocatCoordinator], Sen
         }
         
         # Municipality name is configuration information
-        self._attr_entity_category = EntityCategory.CONFIG
+        # self._attr_entity_category = EntityCategory.CONFIG
         self._attr_entity_registry_enabled_default = True
         self._attr_available = True
+        self._attr_should_poll = False
 
     @property
     def native_value(self) -> str | None:
@@ -1323,7 +1326,7 @@ class MeteocatMunicipalityNameSensor(CoordinatorEntity[MeteocatCoordinator], Sen
         return "mdi:city"
 
 
-class MeteocatComarcaNameSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
+class MeteocatComarcaNameSensor(SensorEntity):
     """Sensor showing comarca name.
     
     Data obtained from configuration (entry.data) - no API calls needed.
@@ -1341,7 +1344,7 @@ class MeteocatComarcaNameSensor(CoordinatorEntity[MeteocatCoordinator], SensorEn
     ) -> None:
         """Initialize the comarca name sensor."""
         self._attr_available = True
-        super().__init__(coordinator)
+        # Do NOT call super().__init__(coordinator) to avoid linkage to API status
         
         self._entity_name = entity_name
         self._device_name = device_name
@@ -1363,9 +1366,10 @@ class MeteocatComarcaNameSensor(CoordinatorEntity[MeteocatCoordinator], SensorEn
         }
         
         # Comarca name is configuration information
-        self._attr_entity_category = EntityCategory.CONFIG
+        # self._attr_entity_category = EntityCategory.CONFIG
         self._attr_entity_registry_enabled_default = True
         self._attr_available = True
+        self._attr_should_poll = False
 
     @property
     def native_value(self) -> str | None:
@@ -1384,7 +1388,7 @@ class MeteocatComarcaNameSensor(CoordinatorEntity[MeteocatCoordinator], SensorEn
         return "mdi:map"
 
 
-class MeteocatMunicipalityLatitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
+class MeteocatMunicipalityLatitudeSensor(SensorEntity):
     """Sensor showing municipality latitude.
     
     Data obtained from configuration (entry.data) - no API calls needed.
@@ -1404,7 +1408,7 @@ class MeteocatMunicipalityLatitudeSensor(CoordinatorEntity[MeteocatCoordinator],
     ) -> None:
         """Initialize the municipality latitude sensor."""
         self._attr_available = True
-        super().__init__(coordinator)
+        # Do NOT call super().__init__(coordinator) to avoid linkage to API status
         
         self._entity_name = entity_name
         self._device_name = device_name
@@ -1448,7 +1452,7 @@ class MeteocatMunicipalityLatitudeSensor(CoordinatorEntity[MeteocatCoordinator],
         return "mdi:latitude"
 
 
-class MeteocatMunicipalityLongitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
+class MeteocatMunicipalityLongitudeSensor(SensorEntity):
     """Sensor showing municipality longitude.
     
     Data obtained from configuration (entry.data) - no API calls needed.
@@ -1468,7 +1472,7 @@ class MeteocatMunicipalityLongitudeSensor(CoordinatorEntity[MeteocatCoordinator]
     ) -> None:
         """Initialize the municipality longitude sensor."""
         self._attr_available = True
-        super().__init__(coordinator)
+        # Do NOT call super().__init__(coordinator) to avoid linkage to API status
         
         self._entity_name = entity_name
         self._device_name = device_name
@@ -1512,7 +1516,7 @@ class MeteocatMunicipalityLongitudeSensor(CoordinatorEntity[MeteocatCoordinator]
         return "mdi:longitude"
 
 
-class MeteocatProvinciaNameSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
+class MeteocatProvinciaNameSensor(SensorEntity):
     """Sensor showing province name.
     
     Data obtained from configuration (entry.data) - no API calls needed.
@@ -1531,7 +1535,7 @@ class MeteocatProvinciaNameSensor(CoordinatorEntity[MeteocatCoordinator], Sensor
     ) -> None:
         """Initialize the provincia name sensor."""
         self._attr_available = True
-        super().__init__(coordinator)
+        # Do NOT call super().__init__(coordinator) to avoid linkage to API status
         
         self._entity_name = entity_name
         self._device_name = device_name
@@ -1553,9 +1557,10 @@ class MeteocatProvinciaNameSensor(CoordinatorEntity[MeteocatCoordinator], Sensor
         }
         
         # Provincia name is configuration information
-        self._attr_entity_category = EntityCategory.CONFIG
+        # self._attr_entity_category = EntityCategory.CONFIG
         self._attr_entity_registry_enabled_default = True
         self._attr_available = True
+        self._attr_should_poll = False
 
     @property
     def native_value(self) -> str | None:
@@ -1573,7 +1578,7 @@ class MeteocatProvinciaNameSensor(CoordinatorEntity[MeteocatCoordinator], Sensor
         return "mdi:map-marker-radius"
 
 
-class MeteocatStationComarcaNameSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
+class MeteocatStationComarcaNameSensor(SensorEntity):
     """Sensor showing comarca name for a station.
     
     Data obtained from configuration (entry.data) - no API calls needed.
@@ -1592,7 +1597,7 @@ class MeteocatStationComarcaNameSensor(CoordinatorEntity[MeteocatCoordinator], S
     ) -> None:
         """Initialize the station comarca name sensor."""
         self._attr_available = True
-        super().__init__(coordinator)
+        # Do NOT call super().__init__(coordinator) to avoid linkage to API status
         
         self._entity_name = entity_name
         self._device_name = device_name
@@ -1615,9 +1620,10 @@ class MeteocatStationComarcaNameSensor(CoordinatorEntity[MeteocatCoordinator], S
         }
         
         # Geographic sensors are configuration information
-        self._attr_entity_category = EntityCategory.CONFIG
+        # self._attr_entity_category = EntityCategory.CONFIG
         self._attr_entity_registry_enabled_default = True
         self._attr_available = True
+        self._attr_should_poll = False
 
     @property
     def native_value(self) -> str | None:
@@ -1636,7 +1642,7 @@ class MeteocatStationComarcaNameSensor(CoordinatorEntity[MeteocatCoordinator], S
         return "mdi:map"
 
 
-class MeteocatStationMunicipalityNameSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
+class MeteocatStationMunicipalityNameSensor(SensorEntity):
     """Sensor showing municipality name for a station.
     
     Data obtained from configuration (entry.data) - no API calls needed.
@@ -1654,7 +1660,7 @@ class MeteocatStationMunicipalityNameSensor(CoordinatorEntity[MeteocatCoordinato
         station_code: str,
     ) -> None:
         """Initialize the station municipality name sensor."""
-        super().__init__(coordinator)
+         # Do NOT call super().__init__(coordinator) to avoid linkage to API status
         
         self._entity_name = entity_name
         self._device_name = device_name
@@ -1677,9 +1683,10 @@ class MeteocatStationMunicipalityNameSensor(CoordinatorEntity[MeteocatCoordinato
         }
         
         # Geographic sensors are configuration information
-        self._attr_entity_category = EntityCategory.CONFIG
+        # self._attr_entity_category = EntityCategory.CONFIG
         self._attr_entity_registry_enabled_default = True
         self._attr_available = True
+        self._attr_should_poll = False
 
     @property
     def native_value(self) -> str | None:
@@ -1698,7 +1705,7 @@ class MeteocatStationMunicipalityNameSensor(CoordinatorEntity[MeteocatCoordinato
         return "mdi:city"
 
 
-class MeteocatStationProvinciaNameSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
+class MeteocatStationProvinciaNameSensor(SensorEntity):
     """Sensor showing province name for a station.
     
     Data obtained from configuration (entry.data) - no API calls needed.
@@ -1716,7 +1723,7 @@ class MeteocatStationProvinciaNameSensor(CoordinatorEntity[MeteocatCoordinator],
         station_code: str,
     ) -> None:
         """Initialize the station provincia name sensor."""
-        super().__init__(coordinator)
+         # Do NOT call super().__init__(coordinator) to avoid linkage to API status
         
         self._entity_name = entity_name
         self._device_name = device_name
@@ -1739,9 +1746,10 @@ class MeteocatStationProvinciaNameSensor(CoordinatorEntity[MeteocatCoordinator],
         }
         
         # Geographic sensors are configuration information
-        self._attr_entity_category = EntityCategory.CONFIG
+        # self._attr_entity_category = EntityCategory.CONFIG
         self._attr_available = True
         self._attr_entity_registry_enabled_default = True
+        self._attr_should_poll = False
 
     @property
     def native_value(self) -> str | None:
