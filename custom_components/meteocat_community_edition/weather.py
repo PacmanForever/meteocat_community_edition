@@ -324,10 +324,10 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
         
         try:
             sunset = get_astral_event_date(
-                self.hass, SUN_EVENT_SUNSET, today, latitude, longitude
+                self.hass, SUN_EVENT_SUNSET, today
             )
             sunrise = get_astral_event_date(
-                self.hass, SUN_EVENT_SUNRISE, today, latitude, longitude
+                self.hass, SUN_EVENT_SUNRISE, today
             )
             
             if sunset and sunrise:
@@ -732,16 +732,7 @@ class MeteocatLocalWeather(MeteocatWeather):
 
     def _is_night(self) -> bool:
         """Check if sun is below horizon."""
-        # Use municipality coordinates if available
-        latitude = self._entry.data.get("municipality_lat")
-        longitude = self._entry.data.get("municipality_lon")
-        
-        if not latitude or not longitude:
-            # Fallback to HA default location
-            latitude = self.hass.config.latitude
-            longitude = self.hass.config.longitude
-        
-        # Use Home Assistant's sun helper
+        # Use Home Assistant's sun helper (uses HA location)
         from homeassistant.helpers.sun import get_astral_event_date
         from homeassistant.const import SUN_EVENT_SUNSET, SUN_EVENT_SUNRISE
         
@@ -750,10 +741,10 @@ class MeteocatLocalWeather(MeteocatWeather):
         
         try:
             sunset = get_astral_event_date(
-                self.hass, SUN_EVENT_SUNSET, today, latitude, longitude
+                self.hass, SUN_EVENT_SUNSET, today
             )
             sunrise = get_astral_event_date(
-                self.hass, SUN_EVENT_SUNRISE, today, latitude, longitude
+                self.hass, SUN_EVENT_SUNRISE, today
             )
             
             if sunset and sunrise:

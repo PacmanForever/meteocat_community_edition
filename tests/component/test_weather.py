@@ -10,6 +10,7 @@ import pytest
 from unittest.mock import MagicMock, AsyncMock, patch
 
 from homeassistant.components.weather import WeatherEntityFeature
+from homeassistant.const import SUN_EVENT_SUNSET, SUN_EVENT_SUNRISE
 
 from custom_components.meteocat_community_edition.weather import MeteocatWeather, MeteocatLocalWeather
 from custom_components.meteocat_community_edition.const import DOMAIN, MODE_EXTERNAL, MODE_LOCAL
@@ -603,18 +604,79 @@ def test_local_weather_native_pressure_from_sensor(mock_coordinator, mock_local_
             assert pressure == 1013.25
 
 
-def test_local_weather_is_night_fallback_coords(mock_coordinator, mock_local_entry, mock_hass):
-    """Test _is_night method uses fallback coordinates."""
-    # Remove municipality coordinates
-    mock_local_entry.data.pop("municipality_lat", None)
-    mock_local_entry.data.pop("municipality_lon", None)
+def test_local_weather_is_night_calculations(mock_coordinator, mock_local_entry, mock_hass):
+    """Test _is_night method calls sun helper correctly."""
     
     with patch('homeassistant.helpers.event.async_track_state_change_event'):
         weather = MeteocatLocalWeather(mock_coordinator, mock_local_entry)
         weather.hass = mock_hass
         
-        # Should use hass.config coordinates
+        # Should use hass.config coordinates implied by signature (hass, event, date)
         with patch('homeassistant.helpers.sun.get_astral_event_date') as mock_get_event:
             mock_get_event.return_value = None  # Simulate missing sun data
             result = weather._is_night()
             assert result is False
+            
+            # Verify it was called with strictly 3 arguments: hass, event, date
+            # And called twice (sunset, sunrise)
+            assert mock_get_event.call_count == 2
+            
+            # Check calls
+            # We don't know exact date (today), so we check arguments structure
+            # args[0] are positional args
+            
+            args0 = mock_get_event.call_args_list[0]
+            args1 = mock_get_event.call_args_list[1]
+            
+            # Assert call 1 (Sunset)
+            assert args0[0][0] == mock_hass
+            assert args0[0][1] == SUN_EVENT_SUNSET
+            assert len(args0[0]) == 3 # Ensure no extra args like lat/lon passed
+            
+            # Assert call 2 (Sunrise)
+            assert args1[0][0] == mock_hass
+            assert args1[0][1] == SUN_EVENT_SUNRISE
+            assert len(args1[0]) == 3
+
+
+def test_weather_entity_is_night_calculations(mock_coordinator, mock_entry, mock_hass):
+    """Test _is_night method calls sun helper correctly for regular weather entity."""
+    
+    # Setup coordinates in the mock data (which would previously trigger the lat/lon path)
+    mock_coordinator.data = {
+        "station": {
+            "coordenades": {"latitud": 41.6, "longitud": 2.3}
+        },
+        "measurements": [
+            {
+                "variables": []
+            }
+        ]
+    }
+
+    weather = MeteocatWeather(mock_coordinator, mock_entry)
+    weather.hass = mock_hass
+    
+    # Should use hass.config coordinates implied by signature (hass, event, date)
+    # The fix removed usage of custom coordinates
+    with patch('homeassistant.helpers.sun.get_astral_event_date') as mock_get_event:
+        mock_get_event.return_value = None  # Simulate missing sun data
+        result = weather._is_night()
+        assert result is False
+        
+        # Verify it was called with strictly 3 arguments: hass, event, date
+        assert mock_get_event.call_count == 2
+        
+        args0 = mock_get_event.call_args_list[0]
+        args1 = mock_get_event.call_args_list[1]
+        
+        # Assert call 1 (Sunset)
+        assert args0[0][0] == mock_hass
+        assert args0[0][1] == SUN_EVENT_SUNSET
+        assert len(args0[0]) == 3 # Ensure lat/lon were NOT passed
+        
+        # Assert call 2 (Sunrise)
+        assert args1[0][0] == mock_hass
+        assert args1[0][1] == SUN_EVENT_SUNRISE
+        assert len(args1[0]) == 3
+

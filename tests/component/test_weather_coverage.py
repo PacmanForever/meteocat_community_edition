@@ -97,8 +97,9 @@ def test_local_weather_is_night_fallback_coords(mock_coordinator, mock_entry_loc
         
         # Verify it called with HA config coords
         args = mock_get_astral.call_args_list[0][0]
-        assert args[3] == 41.0  # latitude
-        assert args[4] == 2.0   # longitude
+        # It should now be called with just (hass, event, date)
+        assert len(args) == 3
+
 
 def test_local_weather_is_night_exception(mock_coordinator, mock_entry_local):
     """Test _is_night exception handling."""

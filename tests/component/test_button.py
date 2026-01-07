@@ -74,6 +74,52 @@ def test_button_entity_id_xema_mode(mock_coordinator, mock_entry_xema):
     assert button_forecast.entity_id == "button.granollers_ym_refresh_forecast"
 
 
+def test_measurements_button_fallback_entity_id_local_mode(mock_coordinator, mock_entry_local):
+    """Test measurements button gets correct entity_id fallback in local mode."""
+    # Although practically unused in local mode, we test the code path for coverage
+    button = MeteocatRefreshMeasurementsButton(
+        mock_coordinator,
+        mock_entry_local,
+        "Granollers",
+        "Granollers",
+        MODE_LOCAL
+    )
+    
+    assert button.entity_id == "button.granollers_refresh_measurements"
+
+
+@pytest.mark.asyncio
+async def test_button_press_fallback_refresh(mock_entry_xema):
+    """Test button press falls back to request_refresh if specialized method missing."""
+    # Create simple mock coordinator without extra methods
+    coordinator = MagicMock()
+    coordinator.async_request_refresh = AsyncMock()
+    # Ensure specialized methods are NOT present
+    # By default MagicMock will create attributes on access, but hasattr check might succeed.
+    # We need to ensure hasattr(coordinator, "async_refresh_measurements") is False.
+    # But MagicMock is tricky with hasattr.
+    
+    # We can rely on the fact that if we don't access it, it might not exist in __dict__,
+    # but the code uses hasattr().
+    # A cleaner way is using a spec that doesn't include it.
+    
+    class SimpleCoordinator:
+        async_request_refresh = AsyncMock()
+    
+    coordinator = SimpleCoordinator()
+    
+    button = MeteocatRefreshMeasurementsButton(
+        coordinator,
+        mock_entry_xema,
+        "Granollers",
+        "Granollers YM",
+        MODE_EXTERNAL
+    )
+    
+    await button.async_press()
+    coordinator.async_request_refresh.assert_called_once()
+
+
 def test_button_entity_id_local_mode(mock_coordinator, mock_entry_local):
     """Test button entity_id in Municipal mode without station code."""
     button = MeteocatRefreshForecastButton(
