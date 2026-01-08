@@ -384,32 +384,38 @@ async def test_flow_custom_mapping_requires_fields():
         CONF_SENSOR_HUMIDITY: "sensor.hum",
     }
     flow.api_base_url = "https://api.meteocat.cat/release/v1"
-    # Missing both fields
+    
+    # Missing all fields
     result = await flow.async_step_condition_mapping_custom({})
     assert result["type"] == "form"
     assert "local_condition_entity" in result["errors"]
-    assert "custom_condition_mapping" in result["errors"]
-    # Only one field
+    
+    # Only one field (entity) - fails due to empty mapping (invalid_format base error)
     result2 = await flow.async_step_condition_mapping_custom({"local_condition_entity": "sensor.mycond"})
-    assert "custom_condition_mapping" in result2["errors"]
-    result3 = await flow.async_step_condition_mapping_custom({"custom_condition_mapping": "0: sunny"})
+    assert result2["errors"]["base"] == "invalid_format"
+    
+    # Only one field (mapping) - fails due to missing entity
+    result3 = await flow.async_step_condition_mapping_custom({"condition_sunny": "0"})
     assert "local_condition_entity" in result3["errors"]
+    
     # Both fields present
-    result4 = await flow.async_step_condition_mapping_custom({"local_condition_entity": "sensor.mycond", "custom_condition_mapping": "0: sunny"})
+    result4 = await flow.async_step_condition_mapping_custom({"local_condition_entity": "sensor.mycond", "condition_sunny": "0"})
     assert result4["type"] == "create_entry"
     assert result4["data"]["mapping_type"] == "custom"
     assert result4["data"]["local_condition_entity"] == "sensor.mycond"
     assert "sunny" in result4["data"]["custom_condition_mapping"].values()
+    
     # Regression test: ensure API key is included in entry data
     assert result4["data"][CONF_API_KEY] == "test_api_key"
     assert result4["data"][CONF_API_BASE_URL] == "https://api.meteocat.cat/release/v1"
     # Regression test: ensure mode is included in entry data
     assert result4["data"][CONF_MODE] == MODE_LOCAL
+    
     # Test empty strings are treated as missing
-    result5 = await flow.async_step_condition_mapping_custom({"local_condition_entity": "", "custom_condition_mapping": ""})
+    result5 = await flow.async_step_condition_mapping_custom({"local_condition_entity": "", "condition_sunny": ""})
     assert result5["type"] == "form"
     assert "local_condition_entity" in result5["errors"]
-    assert "custom_condition_mapping" in result5["errors"]
+    
     # Regression test: ensure municipality and comarca data are included
     assert result4["data"][CONF_MUNICIPALITY_CODE] == "08001"
     assert result4["data"][CONF_MUNICIPALITY_NAME] == "Abrera"

@@ -119,23 +119,21 @@ async def test_comarca_step_generic_error(hass):
         assert result["type"] == "form"
         assert result["errors"] == {"base": "unknown"}
 
-async def test_custom_mapping_invalid_condition_error(hass, mock_config_entry):
-    """Test options flow handles invalid condition in custom mapping."""
+async def test_custom_mapping_duplicate_codes_error(hass, mock_config_entry):
+    """Test options flow handles duplicate codes in custom mapping."""
     flow = MeteocatOptionsFlow(mock_config_entry)
     flow.hass = hass
     
-    # Mocking _parse_condition_mapping to raise specific error
-    # We can't easily mock the method on the instance directly if it is used internally,
-    # unless we mock it before calling the step.
-    # But checking the code, _parse_condition_mapping is an instance method.
+    # Simulate duplicate codes 
+    # sunny -> 1
+    # cloudy -> 1
+    result = await flow.async_step_condition_mapping_custom({
+        "local_condition_entity": "sensor.test",
+        "condition_sunny": "1",
+        "condition_cloudy": "1" 
+    })
     
-    with patch.object(MeteocatOptionsFlow, "_parse_condition_mapping", side_effect=ValueError("Invalid condition: xyz")):
-        result = await flow.async_step_condition_mapping_custom({
-            "local_condition_entity": "sensor.test",
-            "custom_condition_mapping": "xyz: sunny"
-        })
-        
-        assert result["errors"]["custom_condition_mapping"] == "invalid_condition"
+    assert result["errors"]["base"] == "duplicate_codes"
 
 async def test_update_times_step_default(hass):
     """Test update times step returns form with defaults."""
@@ -380,13 +378,9 @@ async def test_options_custom_mapping_logic_valid(hass, mock_config_entry):
     with patch.object(flow, "async_create_entry", return_value={"type": "done"}):
         result = await flow.async_step_condition_mapping_custom({
             "local_condition_entity": "sensor.test",
-            "custom_condition_mapping": "1: sunny\n2: rainy"
+            "condition_sunny": "1",
+            "condition_rainy": "2"
         })
-        
-        # Should succeed
-        # Note: If async_step_condition_mapping_custom calls async_create_entry or updates entry directly
-        # We need to verify what it does.
-        # Usually it updates entry and finishes.
         
         mock_update = flow.hass.config_entries.async_update_entry
         assert mock_update.called
@@ -394,120 +388,21 @@ async def test_options_custom_mapping_logic_valid(hass, mock_config_entry):
         assert args["data"]["custom_condition_mapping"] == {"1": "sunny", "2": "rainy"}
         assert result["type"] == "done"
 
-async def test_options_custom_mapping_logic_invalid_condition(hass, mock_config_entry):
-    """Test options custom mapping logic with invalid condition."""
-    flow = MeteocatOptionsFlow(mock_config_entry)
-    flow.hass = MagicMock()
-    
-    result = await flow.async_step_condition_mapping_custom({
-        "local_condition_entity": "sensor.test",
-        "custom_condition_mapping": "1: invalid_weather_type"
-    })
-    
-    assert result["type"] == "form"
-    assert result["errors"]["custom_condition_mapping"] == "invalid_condition"
 
 async def test_options_custom_mapping_logic_empty(hass, mock_config_entry):
-    """Test options custom mapping logic with empty mapping (after parsing)."""
+    """Test options custom mapping logic with empty mapping."""
     flow = MeteocatOptionsFlow(mock_config_entry)
     flow.hass = MagicMock()
     
-    # Empty string or just spaces
+    # Empty inputs
     result = await flow.async_step_condition_mapping_custom({
         "local_condition_entity": "sensor.test",
-        "custom_condition_mapping": "   "
+        # No condition mapping fields provided
     })
     
     assert result["type"] == "form"
-    assert result["errors"]["custom_condition_mapping"] == "invalid_format"
-    
-async def test_options_custom_mapping_logic_no_colon(hass, mock_config_entry):
-    """Test options custom mapping logic with lines missing colons."""
-    flow = MeteocatOptionsFlow(mock_config_entry)
-    flow.hass = MagicMock()
-    
-    result = await flow.async_step_condition_mapping_custom({
-        "local_condition_entity": "sensor.test",
-        "custom_condition_mapping": "just arbitrary text"
-    })
-    
-    # "just arbitrary text" has no colon, so it is skipped.
-    # Result mapping is empty -> raises ValueError("Empty mapping")
-    # Exception handling catches ValueError -> invalid_format? 
-    # Let's verify the code for exception handling.
-    # It catches ValueError and returns different errors depending on message?
-    
-    assert result["type"] == "form"
-    # If code just catches ValueError generic, we check if it is handled.
-    assert "custom_condition_mapping" in result["errors"]
+    assert result["errors"]["base"] == "invalid_format"
 
-async def test_options_custom_mapping_logic_valid(hass, mock_config_entry):
-    """Test options custom mapping logic with valid input."""
-    flow = MeteocatOptionsFlow(mock_config_entry)
-    flow.hass = MagicMock()
-    flow.hass.config_entries = MagicMock()
-    
-    with patch.object(flow, "async_create_entry", return_value={"type": "done"}):
-        result = await flow.async_step_condition_mapping_custom({
-            "local_condition_entity": "sensor.test",
-            "custom_condition_mapping": "1: sunny\n2: rainy"
-        })
-        
-        # Should succeed
-        
-        mock_update = flow.hass.config_entries.async_update_entry
-        assert mock_update.called
-        args = mock_update.call_args[1]
-        assert args["data"]["custom_condition_mapping"] == {"1": "sunny", "2": "rainy"}
-        assert result["type"] == "done"
-
-async def test_options_custom_mapping_logic_invalid_condition(hass, mock_config_entry):
-    """Test options custom mapping logic with invalid condition."""
-    flow = MeteocatOptionsFlow(mock_config_entry)
-    flow.hass = MagicMock()
-    
-    result = await flow.async_step_condition_mapping_custom({
-        "local_condition_entity": "sensor.test",
-        "custom_condition_mapping": "1: invalid_weather_type"
-    })
-    
-    assert result["type"] == "form"
-    assert result["errors"]["custom_condition_mapping"] == "invalid_condition"
-
-async def test_options_custom_mapping_logic_empty(hass, mock_config_entry):
-    """Test options custom mapping logic with empty mapping (after parsing)."""
-    flow = MeteocatOptionsFlow(mock_config_entry)
-    flow.hass = MagicMock()
-    
-    # Empty string or just spaces
-    # Note: validation check for "required" at beginning of step might catch it if string is empty.
-    # But if string is "   ", validation might see it as provided if it doesn't strip first.
-    # Code: custom_mapping = user_input.get("custom_condition_mapping")
-    # if not custom_mapping or custom_mapping == "":
-    # It does NOT strip before "required" check. So "   " passes required check.
-    # Then _parse_condition_mapping strips lines.
-    
-    result = await flow.async_step_condition_mapping_custom({
-        "local_condition_entity": "sensor.test",
-        "custom_condition_mapping": "   "
-    })
-    
-    assert result["type"] == "form"
-    assert result["errors"]["custom_condition_mapping"] == "invalid_format"
-    
-async def test_options_custom_mapping_logic_no_colon(hass, mock_config_entry):
-    """Test options custom mapping logic with lines missing colons."""
-    flow = MeteocatOptionsFlow(mock_config_entry)
-    flow.hass = MagicMock()
-    
-    result = await flow.async_step_condition_mapping_custom({
-        "local_condition_entity": "sensor.test",
-        "custom_condition_mapping": "just arbitrary text"
-    })
-    
-    assert result["type"] == "form"
-    assert "custom_condition_mapping" in result["errors"]
-    assert result["errors"]["custom_condition_mapping"] == "invalid_format"
 
 async def test_custom_mapping_display_numeric_sort(hass, mock_config_entry):
     """Test displaying custom mapping with numeric keys."""
@@ -522,13 +417,19 @@ async def test_custom_mapping_display_numeric_sort(hass, mock_config_entry):
     result = await flow.async_step_condition_mapping_custom(None)
     
     assert result["type"] == "form"
-    # Inspect suggested_value in schema
-    # We can't easily inspect schema suggested_value property directly as it might be wrapped
-    # But checking if it ran without error covers the code.
-    # To be stronger, we might rely on the side effect that it didn't crash.
+    # Check that schema default values are populated correctly
+    # Since we can't easily inspect the schema object details in this test setup without internal knowledge
+    # we verify that it runs successfully.
+    # Ideally checking result["data_schema"]...
+    
+    # However, since we refactored to separate fields, the concept of "sorting" in display text is less relevant
+    # as the order of fields is determined by VALID_WEATHER_CONDITIONS or schema generation order.
+    # But pre-filling correct values is what matters.
+    pass
+
 
 async def test_custom_mapping_display_alpha_sort(hass, mock_config_entry):
-    """Test displaying custom mapping with non-numeric keys (fallback sort)."""
+    """Test displaying custom mapping with non-numeric keys."""
     mock_config_entry.data = {
         "custom_condition_mapping": {"b": "cloudy", "a": "sunny"}
     }
@@ -539,19 +440,23 @@ async def test_custom_mapping_display_alpha_sort(hass, mock_config_entry):
     result = await flow.async_step_condition_mapping_custom(None)
     assert result["type"] == "form"
 
+
 async def test_custom_mapping_validation_empty_strings(hass, mock_config_entry):
     """Test validation with empty strings explicitly."""
     flow = MeteocatOptionsFlow(mock_config_entry)
     flow.hass = MagicMock()
     
+    # Providing empty strings for condition fields should be ignored/treated as not mapped
+    # If all result in nothing -> empty_mapping
     result = await flow.async_step_condition_mapping_custom({
         "local_condition_entity": "",
-        "custom_condition_mapping": ""
+        "condition_sunny": ""
     })
     
     assert result["type"] == "form"
     assert result["errors"]["local_condition_entity"] == "required"
-    assert result["errors"]["custom_condition_mapping"] == "required"
+    # condition_sunny being empty is fine, but if result map is empty -> base error
+
 
 async def test_reauth_success(hass):
     """Test reauth flow success."""

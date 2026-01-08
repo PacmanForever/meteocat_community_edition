@@ -82,7 +82,21 @@
         "description": "Select the sensor that contains the condition value and the mapping to be used.",
         "data": {
           "local_condition_entity": "Sensor that indicates the condition",
-          "custom_condition_mapping": "Value mapping (do not modify literals, only numbers or their position)"
+          "condition_clear-night": "Clear night",
+          "condition_sunny": "Sunny",
+          "condition_partlycloudy": "Partly cloudy",
+          "condition_cloudy": "Cloudy",
+          "condition_rainy": "Rainy",
+          "condition_pouring": "Pouring",
+          "condition_lightning": "Lightning",
+          "condition_lightning-rainy": "Lightning rainy",
+          "condition_hail": "Hail",
+          "condition_snowy": "Snowy",
+          "condition_snowy-rainy": "Snowy rainy",
+          "condition_fog": "Fog",
+          "condition_windy": "Windy",
+          "condition_windy-variant": "Windy variant",
+          "condition_exceptional": "Exceptional"
         }
       },
       "reauth_confirm": {
@@ -163,10 +177,24 @@
       },
       "condition_mapping_custom": {
         "title": "Configure Weather Condition Mapping",
-        "description": "",
+        "description": "Select the sensor that contains the condition value and the mapping to be used.",
         "data": {
-          "local_condition_entity": "Sensor indicating condition",
-          "custom_condition_mapping": "Value mapping (do not modify literals, only numbers or their position)"
+          "local_condition_entity": "Sensor that indicates the condition",
+          "condition_clear-night": "Clear night",
+          "condition_sunny": "Sunny",
+          "condition_partlycloudy": "Partly cloudy",
+          "condition_cloudy": "Cloudy",
+          "condition_rainy": "Rainy",
+          "condition_pouring": "Pouring",
+          "condition_lightning": "Lightning",
+          "condition_lightning-rainy": "Lightning rainy",
+          "condition_hail": "Hail",
+          "condition_snowy": "Snowy",
+          "condition_snowy-rainy": "Snowy rainy",
+          "condition_fog": "Fog",
+          "condition_windy": "Windy",
+          "condition_windy-variant": "Windy variant",
+          "condition_exceptional": "Exceptional"
         }
       }
     }

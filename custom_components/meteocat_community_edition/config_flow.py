@@ -52,6 +52,32 @@ from .const import (
     MODE_EXTERNAL_LABEL,
 )
 
+from homeassistant.components.weather import (
+    ATTR_CONDITION_SUNNY, ATTR_CONDITION_PARTLYCLOUDY, ATTR_CONDITION_CLOUDY,
+    ATTR_CONDITION_RAINY, ATTR_CONDITION_POURING, ATTR_CONDITION_LIGHTNING,
+    ATTR_CONDITION_LIGHTNING_RAINY, ATTR_CONDITION_HAIL, ATTR_CONDITION_SNOWY,
+    ATTR_CONDITION_SNOWY_RAINY, ATTR_CONDITION_FOG, ATTR_CONDITION_WINDY,
+    ATTR_CONDITION_WINDY_VARIANT, ATTR_CONDITION_CLEAR_NIGHT, ATTR_CONDITION_EXCEPTIONAL
+)
+
+VALID_WEATHER_CONDITIONS = [
+    ATTR_CONDITION_CLEAR_NIGHT,
+    ATTR_CONDITION_SUNNY,
+    ATTR_CONDITION_PARTLYCLOUDY,
+    ATTR_CONDITION_CLOUDY,
+    ATTR_CONDITION_RAINY,
+    ATTR_CONDITION_POURING,
+    ATTR_CONDITION_LIGHTNING,
+    ATTR_CONDITION_LIGHTNING_RAINY,
+    ATTR_CONDITION_SNOWY,
+    ATTR_CONDITION_SNOWY_RAINY,
+    ATTR_CONDITION_HAIL,
+    ATTR_CONDITION_FOG,
+    ATTR_CONDITION_WINDY,
+    ATTR_CONDITION_WINDY_VARIANT,
+    ATTR_CONDITION_EXCEPTIONAL,
+]
+
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -97,6 +123,34 @@ def validate_update_times(time1: str, time2: str, time3: str) -> dict[str, str]:
     return errors
 
 
+def process_custom_mapping_form(user_input: dict[str, Any]) -> dict[str, str]:
+    """Process the custom mapping form input."""
+    mapping = {}
+    used_codes = set()
+    
+    # Process each condition field
+    for condition in VALID_WEATHER_CONDITIONS:
+        codes_str = user_input.get(f"condition_{condition}", "")
+        if not codes_str:
+            continue
+            
+        # Split by comma and clean up
+        codes = [c.strip() for c in codes_str.split(",") if c.strip()]
+        
+        for code in codes:
+            # Check for duplicates
+            if code in used_codes:
+                raise ValueError(f"Code {code} is assigned to multiple conditions")
+            
+            # Additional validation: codes must be strings but often users mean integers
+            # We treat them as strings for the mapping keys
+            mapping[code] = condition
+            used_codes.add(code)
+            
+    if not mapping:
+        raise ValueError("Empty mapping")
+        
+    return mapping
 
 
 class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -199,23 +253,23 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         from homeassistant.helpers import selector
         import voluptuous as vol
         errors = {}
-        example_mapping = self.hass.data.get(DOMAIN, {}).get("mapping_example", "0: clear-night\n1: sunny\n2: partlycloudy\n3: cloudy\n4: rainy\n5: pouring\n6: lightning\n7: lightning-rainy\n8: snowy\n9: snowy-rainy\n10: fog\n11: hail\n12: windy\n13: windy-variant\n14: exceptional")
+        
         if user_input is not None:
             local_entity = user_input.get("local_condition_entity")
-            custom_mapping = user_input.get("custom_condition_mapping")
+            # custom_mapping is not a single field anymore, handled by process_custom_mapping_form
+
             if not local_entity or local_entity == "":
                 errors["local_condition_entity"] = "required"
-            if not custom_mapping or custom_mapping == "":
-                errors["custom_condition_mapping"] = "required"
+            
             if not errors:
                 # Parse the mapping
                 try:
-                    parsed_mapping = self._parse_condition_mapping(custom_mapping)
+                    parsed_mapping = process_custom_mapping_form(user_input)
                 except ValueError as e:
-                    if "Invalid condition" in str(e):
-                        errors["custom_condition_mapping"] = "invalid_condition"
+                    if "multiple conditions" in str(e):
+                        errors["base"] = "duplicate_codes"
                     else:
-                        errors["custom_condition_mapping"] = "invalid_format"
+                        errors["base"] = "invalid_format"
                 else:
                     entry_data = {}
                     if hasattr(self, '_update_times_input') and self._update_times_input:
@@ -253,58 +307,25 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         options={CONF_API_BASE_URL: self.api_base_url},
                     )
 
-        schema = vol.Schema({
+        schema_dict = {
             vol.Required(
                 "local_condition_entity"
             ): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="sensor", multiple=False)
-            ),
-            vol.Required(
-                "custom_condition_mapping",
-                default=example_mapping
-            ): selector.ObjectSelector(),
-        })
+            )
+        }
+        
+        for condition in VALID_WEATHER_CONDITIONS:
+            schema_dict[vol.Optional(f"condition_{condition}")] = selector.TextSelector()
+
+        schema = vol.Schema(schema_dict)
         return self.async_show_form(
             step_id="condition_mapping_custom",
             data_schema=schema,
             errors=errors,
-            description_placeholders={"description": "mapping_description"},
+            description_placeholders={},
         )
 
-    def _parse_condition_mapping(self, text: str) -> dict[str, str]:
-        """Parse condition mapping from text format: key: value"""
-        from homeassistant.components.weather import (
-            ATTR_CONDITION_SUNNY, ATTR_CONDITION_PARTLYCLOUDY, ATTR_CONDITION_CLOUDY,
-            ATTR_CONDITION_RAINY, ATTR_CONDITION_POURING, ATTR_CONDITION_LIGHTNING,
-            ATTR_CONDITION_LIGHTNING_RAINY, ATTR_CONDITION_HAIL, ATTR_CONDITION_SNOWY,
-            ATTR_CONDITION_SNOWY_RAINY, ATTR_CONDITION_FOG, ATTR_CONDITION_WINDY,
-            ATTR_CONDITION_WINDY_VARIANT, ATTR_CONDITION_CLEAR_NIGHT, ATTR_CONDITION_EXCEPTIONAL
-        )
-        
-        valid_conditions = [
-            ATTR_CONDITION_SUNNY, ATTR_CONDITION_PARTLYCLOUDY, ATTR_CONDITION_CLOUDY,
-            ATTR_CONDITION_RAINY, ATTR_CONDITION_POURING, ATTR_CONDITION_LIGHTNING,
-            ATTR_CONDITION_LIGHTNING_RAINY, ATTR_CONDITION_HAIL, ATTR_CONDITION_SNOWY,
-            ATTR_CONDITION_SNOWY_RAINY, ATTR_CONDITION_FOG, ATTR_CONDITION_WINDY,
-            ATTR_CONDITION_WINDY_VARIANT, ATTR_CONDITION_CLEAR_NIGHT, ATTR_CONDITION_EXCEPTIONAL
-        ]
-        
-        lines = text.strip().split('\n')
-        mapping = {}
-        for line in lines:
-            line = line.strip()
-            if not line or not ':' in line:
-                continue
-            key, value = line.split(':', 1)
-            key = key.strip()
-            value = value.strip()
-            if key and value:
-                if value not in valid_conditions:
-                    raise ValueError(f"Invalid condition '{value}'. Must be one of: {', '.join(valid_conditions)}")
-                mapping[key] = value
-        if not mapping:
-            raise ValueError("Empty mapping")
-        return mapping
 
     async def async_step_reauth(
         self, entry_data: dict[str, Any]
@@ -1274,39 +1295,32 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
         current_entity = self.config_entry.data.get("local_condition_entity", "")
         current_mapping = self.config_entry.data.get("custom_condition_mapping", {})
         
-        # Convert mapping dict back to string format for display
-        current_mapping_str = ""
+        # Pre-process mapping for display (Invert: condition -> "1, 2, 3")
+        inverted_mapping = {}
         if current_mapping:
-            try:
-                # Try sorting as integers first to correctly order numeric keys (0, 1, 2, 10...)
-                sorted_items = sorted(current_mapping.items(), key=lambda item: int(item[0]))
-            except ValueError:
-                # Fallback to string sorting if keys are non-numeric
-                sorted_items = sorted(current_mapping.items())
-            
-            current_mapping_str = "\n".join([f"{k}: {v}" for k, v in sorted_items])
-        
-        example_mapping = self.hass.data.get(DOMAIN, {}).get("mapping_example", "0: clear-night\n1: sunny\n2: partlycloudy\n3: cloudy\n4: rainy\n5: pouring\n6: lightning\n7: lightning-rainy\n8: snowy\n9: snowy-rainy\n10: fog\n11: hail\n12: windy\n13: windy-variant\n14: exceptional")
+            for code, condition in current_mapping.items():
+                if condition in inverted_mapping:
+                    inverted_mapping[condition].append(str(code))
+                else:
+                    inverted_mapping[condition] = [str(code)]
         
         if user_input is not None:
             # Validate required fields
             local_entity = user_input.get("local_condition_entity")
-            custom_mapping = user_input.get("custom_condition_mapping")
+            # custom_mapping is processed by helper
             
             if not local_entity or local_entity == "":
                 errors["local_condition_entity"] = "required"
-            if not custom_mapping or custom_mapping == "":
-                errors["custom_condition_mapping"] = "required"
                 
             if not errors:
                 # Parse the mapping
                 try:
-                    parsed_mapping = self._parse_condition_mapping(custom_mapping)
+                    parsed_mapping = process_custom_mapping_form(user_input)
                 except ValueError as e:
-                    if "Invalid condition" in str(e):
-                        errors["custom_condition_mapping"] = "invalid_condition"
+                    if "multiple conditions" in str(e):
+                        errors["base"] = "duplicate_codes"
                     else:
-                        errors["custom_condition_mapping"] = "invalid_format"
+                        errors["base"] = "invalid_format"
                 else:
                     # Ensure API key is preserved in data
                     api_key = self.config_entry.data.get(CONF_API_KEY) or self.config_entry.options.get(CONF_API_KEY)
@@ -1329,18 +1343,31 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                     
                     return self.async_create_entry(title="", data=None)
 
-        schema = vol.Schema({
+        # Build schema with pre-fills
+        schema_dict = {
             vol.Required(
                 "local_condition_entity",
                 description={"suggested_value": current_entity}
             ): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="sensor", multiple=False)
-            ),
-            vol.Required(
-                "custom_condition_mapping",
-                description={"suggested_value": current_mapping_str or example_mapping}
-            ): selector.ObjectSelector(),
-        })
+            )
+        }
+        
+        for condition in VALID_WEATHER_CONDITIONS:
+            # Get existing codes for this condition
+            existing_codes = inverted_mapping.get(condition, [])
+            # Sort them numerically if possible for display
+            try:
+                existing_codes.sort(key=int)
+            except ValueError:
+                existing_codes.sort()
+                
+            schema_dict[vol.Optional(
+                f"condition_{condition}",
+                description={"suggested_value": ", ".join(existing_codes)}
+            )] = selector.TextSelector()
+
+        schema = vol.Schema(schema_dict)
         return self.async_show_form(
             step_id="condition_mapping_custom",
             data_schema=schema,
@@ -1348,37 +1375,4 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
             description_placeholders={"description": "custom_mapping_description"},
         )
 
-    def _parse_condition_mapping(self, text: str) -> dict[str, str]:
-        """Parse condition mapping from text format: key: value"""
-        from homeassistant.components.weather import (
-            ATTR_CONDITION_SUNNY, ATTR_CONDITION_PARTLYCLOUDY, ATTR_CONDITION_CLOUDY,
-            ATTR_CONDITION_RAINY, ATTR_CONDITION_POURING, ATTR_CONDITION_LIGHTNING,
-            ATTR_CONDITION_LIGHTNING_RAINY, ATTR_CONDITION_HAIL, ATTR_CONDITION_SNOWY,
-            ATTR_CONDITION_SNOWY_RAINY, ATTR_CONDITION_FOG, ATTR_CONDITION_WINDY,
-            ATTR_CONDITION_WINDY_VARIANT, ATTR_CONDITION_CLEAR_NIGHT, ATTR_CONDITION_EXCEPTIONAL
-        )
-        
-        valid_conditions = [
-            ATTR_CONDITION_SUNNY, ATTR_CONDITION_PARTLYCLOUDY, ATTR_CONDITION_CLOUDY,
-            ATTR_CONDITION_RAINY, ATTR_CONDITION_POURING, ATTR_CONDITION_LIGHTNING,
-            ATTR_CONDITION_LIGHTNING_RAINY, ATTR_CONDITION_HAIL, ATTR_CONDITION_SNOWY,
-            ATTR_CONDITION_SNOWY_RAINY, ATTR_CONDITION_FOG, ATTR_CONDITION_WINDY,
-            ATTR_CONDITION_WINDY_VARIANT, ATTR_CONDITION_CLEAR_NIGHT, ATTR_CONDITION_EXCEPTIONAL
-        ]
-        
-        lines = text.strip().split('\n')
-        mapping = {}
-        for line in lines:
-            line = line.strip()
-            if not line or not ':' in line:
-                continue
-            key, value = line.split(':', 1)
-            key = key.strip()
-            value = value.strip()
-            if key and value:
-                if value not in valid_conditions:
-                    raise ValueError(f"Invalid condition '{value}'. Must be one of: {', '.join(valid_conditions)}")
-                mapping[key] = value
-        if not mapping:
-            raise ValueError("Empty mapping")
-        return mapping
+

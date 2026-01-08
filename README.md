@@ -182,24 +182,13 @@ Quan configures una nova estació local:
 2. Selecciona la **comarca** i **municipi**
 3. A la pantalla **"Tipus de mapeig de la condició climàtica"**, selecciona **"Personalitzat"**
 4. **Selecciona el sensor** que conté el valor de condició (obligatori)
-5. **Defineix el mapeig** en format text (obligatori):
-   ```
-   0: clear-night
-   1: sunny
-   2: partlycloudy
-   3: cloudy
-   4: rainy
-   5: pouring
-   6: lightning
-   7: lightning-rainy
-   8: snowy
-   9: snowy-rainy
-   10: fog
-   11: hail
-   12: windy
-   13: windy-variant
-   14: exceptional
-   ```
+5. **Configura el mapeig** per a cada condició:
+   - Apareixerà un formulari amb totes les condicions meteorològiques suportades per Home Assistant (Sunny, Cloudy, Rainy, etc.).
+   - Per a cada condició, introdueix el valor (o valors) que retorna el teu sensor quan es dona aquesta condició.
+   - Si el teu sensor retorna diversos valors per a una mateixa condició, separa'ls per comes (exemple: `1, 2` o `soleado, despejado`).
+   - Els camps es poden deixar buits si el teu sensor no suporta algunes condicions.
+
+> ℹ️ Les condicions disponibles corresponen als [valors estàndard de Home Assistant](https://developers.home-assistant.io/docs/core/entity/weather/#weather-conditions).
 
 ##### Editar mapping existent
 

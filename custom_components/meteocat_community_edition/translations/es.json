@@ -79,10 +79,24 @@
       },
       "condition_mapping_custom": {
         "title": "Configuración del mapeo de la condición climática",
-        "description": "",
+        "description": "Selecciona el sensor que indica el valor de la condición y el mapeo a utilizar.",
         "data": {
           "local_condition_entity": "Sensor que indica la condición",
-          "custom_condition_mapping": "Mapeo de valores (no modifiques los literales, solo los números o su posición)"
+          "condition_clear-night": "Noche despejada",
+          "condition_sunny": "Soleado",
+          "condition_partlycloudy": "Parcialmente nublado",
+          "condition_cloudy": "Nublado",
+          "condition_rainy": "Lluvioso",
+          "condition_pouring": "Lluvia intensa",
+          "condition_lightning": "Rayos",
+          "condition_lightning-rainy": "Tormenta eléctrica",
+          "condition_hail": "Granizo",
+          "condition_snowy": "Nevado",
+          "condition_snowy-rainy": "Agua nieve",
+          "condition_fog": "Niebla",
+          "condition_windy": "Ventoso",
+          "condition_windy-variant": "Ventoso (variante)",
+          "condition_exceptional": "Excepcional"
         }
       },
       "reauth_confirm": {
@@ -163,10 +177,24 @@
       },
       "condition_mapping_custom": {
         "title": "Configuración del mapeo de la condición climática",
-        "description": "",
+        "description": "Selecciona el sensor que indica el valor de la condición y el mapeo a utilizar.",
         "data": {
           "local_condition_entity": "Sensor que indica la condición",
-          "custom_condition_mapping": "Mapeo de valores (no modifiques los literales, solo los números o su posición)"
+          "condition_clear-night": "Noche despejada",
+          "condition_sunny": "Soleado",
+          "condition_partlycloudy": "Parcialmente nublado",
+          "condition_cloudy": "Nublado",
+          "condition_rainy": "Lluvioso",
+          "condition_pouring": "Lluvia intensa",
+          "condition_lightning": "Rayos",
+          "condition_lightning-rainy": "Tormenta eléctrica",
+          "condition_hail": "Granizo",
+          "condition_snowy": "Nevado",
+          "condition_snowy-rainy": "Agua nieve",
+          "condition_fog": "Niebla",
+          "condition_windy": "Ventoso",
+          "condition_windy-variant": "Ventoso (variante)",
+          "condition_exceptional": "Excepcional"
         }
       }
     }

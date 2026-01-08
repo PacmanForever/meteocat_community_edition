@@ -17,6 +17,16 @@ Quan desenvolupis noves funcionalitats o facis canvis:
 2. Verifica que la cobertura es mantingui **>95%**
 3. Assegura't que **tots els tests passen**
 
+## 🧩 Filosofia de Tests: Component vs Unit
+
+Veuràs que **la majoria de tests (90%) són de Component**. Això és intencional i segueix les pràctiques de Home Assistant:
+
+*   **Tests de Component (`tests/component/`)**: Són tests d'integració que simulen una instància de Home Assistant (`hass`). Són necessaris perquè la majoria del codi (Sensors, Coordinadors, Config Flows) hereta de classes de HA i depèn del seu registre central.
+    *   *Exemple*: Provar que quan s'afegeix una entrada al Config Flow, es crea un dispositiu al registre.
+
+*   **Tests Unitaris (`tests/unit/`)**: Són per a lògica "pura" que no depèn de Home Assistant.
+    *   *Exemple*: Parsejar un JSON de l'API, calcular diferències de dates, o traduir claus.
+
 ---
 
 ## Instal·lació de dependències
@@ -151,15 +161,15 @@ pytest tests/ --cov=custom_components.meteocat_community_edition --cov-report=ht
 - `test_all_entities_share_same_device_name`: Verifica que totes les entitats usen el mateix nom de dispositiu ("Granollers YM" en Mode Estació)
 - `test_entity_ids_include_station_code`: Verifica que tots els entity_id inclouen el codi de l'estació
 
-### test_api.py
-- `test_get_comarques`: Verifica la crida a comarques
-- `test_get_stations`: Verifica la crida a estacions
-- `test_api_error_handling`: Verifica el maneig d'errors
-- `test_get_station_measurements`: Verifica la crida a mesures d'estació
-- `test_get_quotes`: Verifica la crida a quotes/consums
-- `test_get_municipal_forecast`: Verifica la crida a Predicció municipal
+### API Tests (Unit - `tests/unit/`)
 
-### test_coordinator.py
+Tests que verifiquen el client de l'API de manera aïllada:
+
+- `test_api_client.py`: Mètodes base del client API (endpoints, autenticació, gestió d'errors bàsica).
+- `test_api_search_logic.py`: Lògica de cerca avançada (municipalitat per coordenades, etc.).
+- `test_api_station_matching.py`: Lògica de correlació entre estació i municipi (matching de noms i comarques).
+
+### test_sensor_availability_on_error.py
 - `test_coordinator_xema_mode_update`: Verifica l'actualització en mode XEMA
 - `test_coordinator_local_mode_update`: Verifica l'actualització en mode Local
 - `test_coordinator_calculates_next_update`: Verifica el càlcul de la pròxima actualització
@@ -168,9 +178,18 @@ pytest tests/ --cov=custom_components.meteocat_community_edition --cov-report=ht
 - `test_coordinator_handles_missing_quotes`: Verifica que continua funcionant si quotes falla
 - `test_coordinator_finds_municipality_for_station`: Verifica que troba el codi de municipi per l'estació
 
-### test_config_flow.py
-- Tests bàsics de constants i configuració
-- **Nota**: Els tests complets del config flow requereixen Home Assistant instal·lat
+### Config Flow Tests (Organitzat)
+
+Els tests de configuració s'han dividit en fitxers específics per mantenir l'organització:
+
+- `test_config_flow_setup.py`: Validació del flux principal de configuració (Happy Path), incloent creació d'entrades en modes XEMA i Local.
+- `test_config_flow_options_advanced.py`: Tests complexos del flux d'opcions, incloent canvis de mapeig personalitzat i migracions.
+- `test_config_flow_input_validation.py`: Validació estricta de camps, comprovació de duplicats (Unique ID) i coercions de tipus.
+- `test_config_flow_error_paths.py`: Gestió d'errors, excepcions inesperades i casos límit en la configuració inicial.
+- `test_config_flow_reauth.py`: Flux de reautenticació (canvi d'API Key caducada).
+- `test_config_flow_province_logic.py`: Lògica específica d'extracció i deducció de províncies.
+- `test_config_flow_sorting.py`: Utilitats d'ordenació de llistes (municipalitats, comarques).
+- `test_config_flow_constants.py`: Verificació de constants bàsiques.
 
 ## Proves manuals recomanades
 

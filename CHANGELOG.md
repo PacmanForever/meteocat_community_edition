@@ -5,6 +5,17 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.67] - 2026-01-08
+
+### Afegit
+- **Config Flow V2**: Nova estructura de configuració.
+- **Tests**: Reestructuració completa dels tests.
+
+### Corregit
+- **Manifest**: Correcció de sintaxi JSON (coma final).
+- **Traduccions**: Adaptació al Config Flow V2.
+- **Opcions**: Correccions en la gestió de condicions personalitzades.
+
 ## [1.2.66] - 2026-01-08
 
 ### Millorat

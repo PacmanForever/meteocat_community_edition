@@ -1,3 +1,15 @@
+# v1.2.67 - Refactorització Config Flow V2 i correccions diverses
+
+## 🆕 Canvis
+- **Configuració**: Actualització al sistema Config Flow V2 per millorar l'experiència d'usuari i la validació de dades.
+- **Validació**: Validació més estricta en formularis i opcions.
+- **Tests**: Reestructuració completa de la suite de tests (>97% cobertura).
+
+## �� Correccions
+- **Errors sintaxi**: Correcció error JSON crític en manifest.json.
+- **Traduccions**: Textos actualitzats per coincidir amb els nous camps.
+- **Opcions**: Solucionats errors en el canvi de tipus de mapeig de condicions.
+
 # v1.2.55 - Millores en lògica de servei i gestió de quota
 
 ## 🆕 Canvis

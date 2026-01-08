@@ -98,8 +98,8 @@ def test_validate_update_times_coverage():
 
 
 @pytest.mark.asyncio
-async def test_flow_condition_mapping_custom_invalid_condition():
-    """Test custom condition mapping with invalid condition."""
+async def test_flow_condition_mapping_custom_duplicate_codes():
+    """Test custom condition mapping with duplicate codes."""
     flow = MeteocatConfigFlow()
     flow.hass = MagicMock()
     flow.mode = MODE_EXTERNAL
@@ -115,18 +115,19 @@ async def test_flow_condition_mapping_custom_invalid_condition():
 
     user_input = {
         "local_condition_entity": "sensor.test_condition",
-        "custom_condition_mapping": "0: invalid_condition"
+        "condition_sunny": "1",
+        "condition_cloudy": "1" # Duplicate code
     }
 
     result = await flow.async_step_condition_mapping_custom(user_input)
 
     assert result["type"] == "form"
-    assert result["errors"] == {"custom_condition_mapping": "invalid_condition"}
+    assert result["errors"] == {"base": "duplicate_codes"}
 
 
 @pytest.mark.asyncio
-async def test_flow_condition_mapping_custom_invalid_format():
-    """Test custom condition mapping with invalid format."""
+async def test_flow_condition_mapping_custom_empty_mapping():
+    """Test custom condition mapping with empty mapping."""
     flow = MeteocatConfigFlow()
     flow.hass = MagicMock()
     flow.mode = MODE_EXTERNAL
@@ -142,13 +143,18 @@ async def test_flow_condition_mapping_custom_invalid_format():
 
     user_input = {
         "local_condition_entity": "sensor.test_condition",
-        "custom_condition_mapping": "invalid_format_no_colon"
+        # No conditions provided
     }
 
+    # Since process_custom_mapping_form will raise "Empty mapping"
+    # And currently we map "Empty mapping" to "invalid_format" via generic fallback or add check
+    # Let's see implementation:
+    # except ValueError as e: ... else: errors["base"] = "invalid_format"
+    
     result = await flow.async_step_condition_mapping_custom(user_input)
 
     assert result["type"] == "form"
-    assert result["errors"] == {"custom_condition_mapping": "invalid_format"}
+    assert result["errors"] == {"base": "invalid_format"}
 
 
 @pytest.mark.asyncio
@@ -275,7 +281,8 @@ async def test_flow_condition_mapping_custom_with_location_data():
 
     user_input = {
         "local_condition_entity": "sensor.test_condition",
-        "custom_condition_mapping": "0: sunny\n1: cloudy"
+        "condition_sunny": "0",
+        "condition_cloudy": "1"
     }
 
     # Mock async_create_entry to capture the call
@@ -299,37 +306,6 @@ async def test_flow_condition_mapping_custom_with_location_data():
     assert entry_data["provincia_name"] == "Barcelona"
 
 
-@pytest.mark.asyncio
-async def test_parse_condition_mapping_empty_lines():
-    """Test parsing condition mapping with empty lines."""
-    flow = MeteocatConfigFlow()
-
-    # Test with empty lines and comments
-    mapping_text = """
-    0: sunny
-
-    1: cloudy
-    """
-    result = flow._parse_condition_mapping(mapping_text)
-    assert result == {"0": "sunny", "1": "cloudy"}
-
-
-@pytest.mark.asyncio
-async def test_parse_condition_mapping_invalid_condition():
-    """Test parsing condition mapping with invalid condition."""
-    flow = MeteocatConfigFlow()
-
-    with pytest.raises(ValueError, match="Invalid condition 'invalid_condition'"):
-        flow._parse_condition_mapping("0: invalid_condition")
-
-
-@pytest.mark.asyncio
-async def test_parse_condition_mapping_empty_mapping():
-    """Test parsing condition mapping with empty result."""
-    flow = MeteocatConfigFlow()
-
-    with pytest.raises(ValueError, match="Empty mapping"):
-        flow._parse_condition_mapping("")
 
 
 @pytest.mark.asyncio
