@@ -100,26 +100,6 @@ async def test_local_condition_entity_invalid_state_returns_none(hass: HomeAssis
     # Logic returns None when parsing fails for configured entity
     assert weather.condition is None
 
-async def test_rain_sensor_fallback_when_condition_entity_missing(hass: HomeAssistant, mock_coordinator, mock_config_entry):
-    """Test rain sensor logic when condition entity is not configured."""
-    # Remove condition entity
-    mock_config_entry.data["local_condition_entity"] = None
-    
-    # Add rain sensor
-    mock_config_entry.data["sensor_rain"] = "sensor.rain_gauge"
-    
-    weather = MeteocatLocalWeather(mock_coordinator, mock_config_entry)
-    weather.hass = hass
-    # Manually mimic setup
-    weather._local_condition_entity = None 
-    weather._sensors["rain"] = "sensor.rain_gauge"
-
-    # Rain sensor active > 0
-    hass.states.async_set("sensor.rain_gauge", "5.0")
-    
-    # Should fall through Step 1 and hit Step 2
-    assert weather.condition == "rainy"
-
 async def test_local_condition_entity_unknown_unavailable(hass: HomeAssistant, mock_coordinator, mock_config_entry):
     """Test local condition entity being unknown or unavailable."""
     weather = MeteocatLocalWeather(mock_coordinator, mock_config_entry)

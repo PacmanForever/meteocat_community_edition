@@ -41,7 +41,6 @@ from .const import (
     CONF_SENSOR_CLOUD_COVERAGE,
     CONF_SENSOR_DEW_POINT,
     CONF_SENSOR_APPARENT_TEMPERATURE,
-    CONF_SENSOR_RAIN,
     DEFAULT_API_BASE_URL,
     DEFAULT_UPDATE_TIME_1,
     DEFAULT_UPDATE_TIME_2,
@@ -832,9 +831,6 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Optional(CONF_SENSOR_APPARENT_TEMPERATURE): selector.EntitySelector(
                     selector.EntitySelectorConfig(domain="sensor", device_class="temperature")
                 ),
-                vol.Optional(CONF_SENSOR_RAIN): selector.EntitySelector(
-                    selector.EntitySelectorConfig(domain="sensor")
-                ),
             }),
             errors=errors,
         )
@@ -1143,7 +1139,6 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                         CONF_SENSOR_CLOUD_COVERAGE: get_entity_id(CONF_SENSOR_CLOUD_COVERAGE),
                         CONF_SENSOR_DEW_POINT: get_entity_id(CONF_SENSOR_DEW_POINT),
                         CONF_SENSOR_APPARENT_TEMPERATURE: get_entity_id(CONF_SENSOR_APPARENT_TEMPERATURE),
-                        CONF_SENSOR_RAIN: get_entity_id(CONF_SENSOR_RAIN),
                     },
                     options=self.config_entry.options,
                 )
@@ -1186,9 +1181,6 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                     selector.EntitySelectorConfig(domain="sensor", multiple=False)
                 ),
                 vol.Optional(CONF_SENSOR_APPARENT_TEMPERATURE, description={"suggested_value": data.get(CONF_SENSOR_APPARENT_TEMPERATURE)}): selector.EntitySelector(
-                    selector.EntitySelectorConfig(domain="sensor", multiple=False)
-                ),
-                vol.Optional(CONF_SENSOR_RAIN, description={"suggested_value": data.get(CONF_SENSOR_RAIN)}): selector.EntitySelector(
                     selector.EntitySelectorConfig(domain="sensor", multiple=False)
                 ),
             }),

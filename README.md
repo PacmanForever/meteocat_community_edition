@@ -77,6 +77,13 @@ Integració **comunitària** i **no oficial** per a Home Assistant del Servei Me
 
 - **Millores en les etiquetes de la interfície**: Les pantalles de configuració tenen etiquetes més clares i descripcions simplificades.
 
+### Notes sobre el comportament de la icona (Condició)
+
+- **Mode Estació Externa**: La condició (icona de l'entitat weather) s'obté de les dades en temps real (XEMA), concretament de la variable de "Estat del cel" (codi 35). Per tant, funciona independentment de si s'ha activat la predicció.
+- **Mode Estació Local**: La condició per defecte es basa en la **Predicció Diària** d'aquell municipi.
+  - Si **desactives la predicció diària**, l'entitat weather no podrà determinar la condició global i la icona pot sortir en blanc i negre (estat desconegut/generic), llevat que hagis configurat una entitat local per a la condició ("Condició del cel") a les opcions.
+  - Per garantir que la icona es mostri correctament en mode Local sense sensors personalitzats, es recomana mantenir activada la Predicció Diària.
+
 ## Entitats
 
 - **Botons d'actualització**: Els botons "Actualitzar Mesures" i "Actualitzar Predicció" ara sempre mostren una icona.

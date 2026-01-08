@@ -63,8 +63,7 @@
           "sensor_ozone": "Ozone",
           "sensor_cloud_coverage": "Cloud coverage",
           "sensor_dew_point": "Dew point",
-          "sensor_apparent_temperature": "Apparent temperature",
-          "sensor_rain": "Rain intensity (only used if raining to change weather condition in Meteocat mapping)"
+          "sensor_apparent_temperature": "Apparent temperature"
         }
       },
       "condition_mapping_type": {
@@ -161,8 +160,7 @@
           "sensor_ozone": "Ozone",
           "sensor_cloud_coverage": "Cloud coverage",
           "sensor_dew_point": "Dew point",
-          "sensor_apparent_temperature": "Apparent temperature",
-          "sensor_rain": "Rain intensity (only used if raining to change weather condition in Meteocat mapping)"
+          "sensor_apparent_temperature": "Apparent temperature"
         }
       },
       "condition_mapping_type": {

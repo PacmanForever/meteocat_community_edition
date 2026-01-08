@@ -21,7 +21,6 @@ from custom_components.meteocat_community_edition.const import (
     CONF_SENSOR_PRESSURE,
     CONF_SENSOR_WIND_SPEED,
     CONF_SENSOR_WIND_BEARING,
-    CONF_SENSOR_RAIN,
     CONF_SENSOR_VISIBILITY,
     CONF_SENSOR_UV_INDEX,
 )
@@ -60,7 +59,6 @@ def mock_entry_with_lists():
         CONF_SENSOR_PRESSURE: ["sensor.pressure_local"],
         CONF_SENSOR_WIND_SPEED: ["sensor.wind_speed_local"],
         CONF_SENSOR_WIND_BEARING: ["sensor.wind_bearing_local"],
-        CONF_SENSOR_RAIN: ["sensor.rain_local"],
     }
     return entry
 

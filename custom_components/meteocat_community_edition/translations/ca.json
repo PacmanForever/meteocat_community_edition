@@ -63,8 +63,7 @@
           "sensor_ozone": "Ozó",
           "sensor_cloud_coverage": "Cobertura de núvols",
           "sensor_dew_point": "Punt de rosada",
-          "sensor_apparent_temperature": "Temperatura de sensació",
-          "sensor_rain": "Intensitat de pluja (només es fa servir si plou per canviar la condició climàtica en el mapeig Meteocat)"
+          "sensor_apparent_temperature": "Temperatura de sensació"
         }
       },
       "condition_mapping_type": {
@@ -161,8 +160,7 @@
           "sensor_ozone": "Ozó",
           "sensor_cloud_coverage": "Cobertura de núvols",
           "sensor_dew_point": "Punt de rosada",
-          "sensor_apparent_temperature": "Temperatura de sensació",
-          "sensor_rain": "Intensitat de pluja (només es fa servir si plou per canviar la condició climàtica en el mapeig Meteocat)"
+          "sensor_apparent_temperature": "Temperatura de sensació"
         }
       },
       "condition_mapping_type": {

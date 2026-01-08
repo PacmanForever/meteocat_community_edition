@@ -28,7 +28,6 @@ from custom_components.meteocat_community_edition.const import (
     CONF_SENSOR_CLOUD_COVERAGE,
     CONF_SENSOR_DEW_POINT,
     CONF_SENSOR_APPARENT_TEMPERATURE,
-    CONF_SENSOR_RAIN,
 )
 
 @pytest.mark.asyncio
@@ -74,7 +73,6 @@ async def test_options_flow_local_sensors(hass: HomeAssistant):
     user_input_sensors = {
         CONF_SENSOR_TEMPERATURE: "sensor.new_temp",
         CONF_SENSOR_HUMIDITY: "sensor.new_hum",
-        CONF_SENSOR_RAIN: "sensor.new_rain",
     }
 
     result = await hass.config_entries.options.async_configure(
@@ -99,7 +97,6 @@ async def test_options_flow_local_sensors(hass: HomeAssistant):
     assert result["type"] == FlowResultType.CREATE_ENTRY
     assert entry.data[CONF_SENSOR_TEMPERATURE] == "sensor.new_temp"
     assert entry.data[CONF_SENSOR_HUMIDITY] == "sensor.new_hum"
-    assert entry.data[CONF_SENSOR_RAIN] == "sensor.new_rain"
 
 
 @pytest.mark.asyncio

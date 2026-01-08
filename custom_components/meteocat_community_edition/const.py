@@ -37,7 +37,6 @@ CONF_SENSOR_OZONE: Final = "sensor_ozone"
 CONF_SENSOR_CLOUD_COVERAGE: Final = "sensor_cloud_coverage"
 CONF_SENSOR_DEW_POINT: Final = "sensor_dew_point"
 CONF_SENSOR_APPARENT_TEMPERATURE: Final = "sensor_apparent_temperature"
-CONF_SENSOR_RAIN: Final = "sensor_rain"
 
 # Configuration modes
 MODE_EXTERNAL: Final = "external"

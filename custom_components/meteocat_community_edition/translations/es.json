@@ -63,8 +63,7 @@
           "sensor_ozone": "Ozono",
           "sensor_cloud_coverage": "Cobertura de nubes",
           "sensor_dew_point": "Punto de rocío",
-          "sensor_apparent_temperature": "Temperatura de sensación",
-          "sensor_rain": "Intensidad de lluvia"
+          "sensor_apparent_temperature": "Temperatura de sensación"
         }
       },
       "condition_mapping_type": {
@@ -161,8 +160,7 @@
           "sensor_ozone": "Ozono",
           "sensor_cloud_coverage": "Cobertura de nubes",
           "sensor_dew_point": "Punto de rocío",
-          "sensor_apparent_temperature": "Temperatura de sensación",
-          "sensor_rain": "Intensidad de lluvia (solo se usa si llueve y para cambiar la condición climática en el mapeo Meteocat)"
+          "sensor_apparent_temperature": "Temperatura de sensación"
         }
       },
       "condition_mapping_type": {

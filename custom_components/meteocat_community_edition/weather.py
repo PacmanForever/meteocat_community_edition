@@ -47,7 +47,6 @@ from .const import (
     CONF_SENSOR_CLOUD_COVERAGE,
     CONF_SENSOR_DEW_POINT,
     CONF_SENSOR_APPARENT_TEMPERATURE,
-    CONF_SENSOR_RAIN,
 )
 from .coordinator import MeteocatCoordinator
 
@@ -473,7 +472,6 @@ class MeteocatLocalWeather(MeteocatWeather):
             "cloud_coverage": get_conf(CONF_SENSOR_CLOUD_COVERAGE),
             "dew_point": get_conf(CONF_SENSOR_DEW_POINT),
             "apparent_temp": get_conf(CONF_SENSOR_APPARENT_TEMPERATURE),
-            "rain": get_conf(CONF_SENSOR_RAIN),
         }
         # Read mapping config
         self._mapping_type = entry.data.get("mapping_type", "meteocat")
@@ -531,11 +529,6 @@ class MeteocatLocalWeather(MeteocatWeather):
     def humidity(self) -> float | None:
         """Return the current humidity."""
         return self._get_sensor_value("humidity")
-
-    @property
-    def native_precipitation(self) -> float | None:
-        """Return the current precipitation."""
-        return self._get_sensor_value("rain")
 
     @property
     def native_precipitation_unit(self) -> str:
@@ -603,12 +596,43 @@ class MeteocatLocalWeather(MeteocatWeather):
                     _LOGGER.debug("Raw value is not a valid condition, returning None")
                     return None  # fallback
 
-        # 2. If a rain sensor is present and >0, return rainy
-        rain_value = self._get_sensor_value("rain")
-        if rain_value is not None and rain_value > 0:
-            return "rainy"
+        # 2. Try Hourly Forecast first (Best precision)
+        forecast_hourly = self.coordinator.data.get("forecast_hourly")
+        if forecast_hourly:
+            # Match current hour
+            current_hour_utc = dt_util.utcnow().replace(minute=0, second=0, microsecond=0)
+            
+            dies = forecast_hourly.get("dies", [])
+            for dia in dies:
+                variables = dia.get("variables", {})
+                estat_cel_data = variables.get("estatCel", {}) or variables.get("estat", {})
+                estat_valors = estat_cel_data.get("valors", estat_cel_data.get("valor", []))
+                
+                for entry in estat_valors:
+                    data_str = entry.get("data")
+                    if data_str:
+                        try:
+                            entry_dt = dt_util.parse_datetime(data_str)
+                            if entry_dt:
+                                entry_dt_utc = dt_util.as_utc(entry_dt)
+                                if entry_dt_utc.replace(minute=0, second=0, microsecond=0) == current_hour_utc:
+                                    estat_code = entry.get("valor")
+                                    if estat_code is not None:
+                                        if self._mapping_type == "custom" and self._custom_condition_mapping:
+                                            mapping = self._custom_condition_mapping
+                                            condition = mapping.get(str(estat_code), "cloudy")
+                                        else:
+                                            from .const import METEOCAT_CONDITION_MAP
+                                            mapping = METEOCAT_CONDITION_MAP
+                                            condition = mapping.get(estat_code, "cloudy")
+                                        
+                                        if condition == "sunny" and self._is_night():
+                                            return "clear-night"
+                                        return condition
+                        except (ValueError, TypeError):
+                            continue
 
-        # 3. Use forecast or default logic, but allow custom mapping
+        # 3. Use Daily forecast (Fallback)
         forecast = self.coordinator.data.get("forecast")
         if forecast:
             dies = forecast.get("dies", [])

@@ -519,21 +519,6 @@ def test_local_weather_condition_from_entity(mock_coordinator, mock_local_entry,
         assert condition == "sunny"
 
 
-def test_local_weather_condition_from_rain_sensor(mock_coordinator, mock_local_entry, mock_hass):
-    """Test local weather condition from rain sensor."""
-    # Mock unavailable entity state
-    mock_hass.states.get.return_value = MagicMock(state="unavailable")
-    
-    with patch('homeassistant.helpers.event.async_track_state_change_event'):
-        weather = MeteocatLocalWeather(mock_coordinator, mock_local_entry)
-        weather.hass = mock_hass
-        
-        # Mock rain sensor returning > 0
-        with patch.object(weather, '_get_sensor_value', return_value=1.5):
-            condition = weather.condition
-            assert condition == "rainy"
-
-
 def test_local_weather_condition_from_forecast(mock_coordinator, mock_local_entry, mock_hass):
     """Test local weather condition from forecast."""
     # Mock unavailable entity state
