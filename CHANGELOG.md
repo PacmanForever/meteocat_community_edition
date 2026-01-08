@@ -5,6 +5,11 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.72] - 2026-01-08
+
+### Corregit
+- **CI**: Correcció del workflow de tests component per incloure una cobertura completa.
+
 ## [1.2.71] - 2026-01-08
 
 ### Afegit
