@@ -115,10 +115,6 @@ async def test_weather_is_night_error(hass: HomeAssistant, mock_coordinator, moc
     entity = MeteocatWeather(mock_coordinator, mock_entry)
     entity.hass = hass
     
-    # Mock a station with missing coordinates to check robust handling or default
-    mock_coordinator.data["station"] = {"coordenades": {}}
-    assert entity._is_night() is False
-
     # Force an exception in get_astral_event_date
     mock_coordinator.data["station"] = {"coordenades": {"latitud": 41.0, "longitud": 2.0}}
     

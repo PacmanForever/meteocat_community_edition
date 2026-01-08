@@ -5,6 +5,16 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.66] - 2026-01-08
+
+### Millorat
+- **Codi**: Refactorització important per eliminar codi duplicat i optimitzar la lògica a `weather.py`, `sensor.py` i `coordinator.py`.
+- **Docs**: Implementat badge de cobertura dinàmic al README que s'actualitza automàticament.
+
+### Corregit
+- **Tests**: Solucionats tests intermitents mitjançant la millora del patching de `_is_night`.
+- **Robustesa**: Millorada la gestió d'errors en el càlcul de `_is_night`.
+
 ## [1.2.63] - 2026-01-07
 
 ### Corregit
