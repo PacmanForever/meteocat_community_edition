@@ -261,3 +261,36 @@ async def test_forecast_sensor_daily_edge_cases(hass, mock_coordinator_full):
     mock_coordinator_full.data["forecast"] = {"dies": [{"no_data": "here"}]}
     forecast = sensor.extra_state_attributes["forecast_ha"]
     assert len(forecast) == 0
+
+async def test_xema_sensor_precipitation_accumulation(hass, mock_coordinator_full):
+    """Test precipitation accumulation logic for MeteocatXemaSensor."""
+    entry = MagicMock()
+    entry.entry_id = "test_entry"
+    entry.data = {CONF_STATION_CODE: "UD"}
+    
+    # Variable code 35 is Precipitation
+    sensor = MeteocatXemaSensor(mock_coordinator_full, entry, "Precipitation", 35)
+    
+    # Mock data with multiple readings
+    mock_coordinator_full.data["measurements"] = [{
+        "codi": "UD", 
+        "variables": [{
+            "codi": 35, 
+            "lectures": [
+                {"valor": 1.5, "data": "T00:00Z"},
+                {"valor": 2.5, "data": "T00:30Z"},
+                {"valor": 0.0, "data": "T01:00Z"},
+                {"valor": "invalid", "data": "T01:30Z"} # Should be ignored
+            ]
+        }]
+    }]
+    
+    # Should sum 1.5 + 2.5 + 0.0 = 4.0
+    assert sensor.native_value == 4.0
+    
+    # Test with empty readings
+    mock_coordinator_full.data["measurements"] = [{
+        "codi": "UD", 
+        "variables": [{"codi": 35, "lectures": []}]
+    }]
+    assert sensor.native_value is None 

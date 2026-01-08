@@ -49,6 +49,7 @@ from .const import (
     MODE_LOCAL_LABEL,
     MODE_EXTERNAL,
     MODE_EXTERNAL_LABEL,
+    METEOCAT_CONDITION_MAP,
 )
 
 from homeassistant.components.weather import (
@@ -1289,8 +1290,12 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
         
         # Pre-process mapping for display (Invert: condition -> "1, 2, 3")
         inverted_mapping = {}
-        if current_mapping:
-            for code, condition in current_mapping.items():
+        
+        # Use existing custom mapping if available, otherwise use default Meteocat mapping
+        source_mapping = current_mapping if current_mapping else METEOCAT_CONDITION_MAP
+        
+        if source_mapping:
+            for code, condition in source_mapping.items():
                 if condition in inverted_mapping:
                     inverted_mapping[condition].append(str(code))
                 else:

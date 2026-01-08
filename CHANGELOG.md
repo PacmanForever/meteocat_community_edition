@@ -5,6 +5,14 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.70] - 2026-01-08
+
+### Afegit
+- **Documentació**: Nova documentació sobre variables XEMA.
+- **Sensor**: Càlcul d'acumulació diària per a precipitació (variable 35).
+- **Traduccions**: Correcció de termes per condicions climàtiques (ca).
+- **Config Flow**: Recuperació automàtica del mapeig per defecte.
+
 ## [1.2.67] - 2026-01-08
 
 ### Afegit

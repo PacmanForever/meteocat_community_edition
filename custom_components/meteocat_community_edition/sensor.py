@@ -518,6 +518,20 @@ class MeteocatXemaSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
             if variable.get("codi") == self._variable_code:
                 lectures = variable.get("lectures", [])
                 if lectures:
+                     # Special handling for Precipitation (35): Daily accumulation
+                    if self._variable_code == 35:
+                        total_precip = 0.0
+                        for reading in lectures:
+                            valor = reading.get("valor")
+                            if valor is not None:
+                                try:
+                                    total_precip += float(valor)
+                                except (ValueError, TypeError):
+                                    continue
+                        # Round to 1 decimal place as per convention
+                        return round(total_precip, 1)
+                    
+                    # Default behavior for other sensors: return last value
                     return lectures[-1].get("valor")
         
         return None

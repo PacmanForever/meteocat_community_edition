@@ -86,13 +86,13 @@
           "partlycloudy": "Parcialment ennuvolat",
           "cloudy": "Ennuvolat",
           "rainy": "Plujós",
-          "pouring": "Aiguat",
-          "lightning": "Llampecs",
-          "lightning-rainy": "Tempesta elèctrica",
-          "hail": "Calamarsa",
-          "snowy": "Nevant",
-          "snowy-rainy": "Aiguaneu",
-          "fog": "Boira",
+          "pouring": "Molt plujós",
+          "lightning": "Amb Llamps",
+          "lightning-rainy": "Tempestuós amb llamps",
+          "hail": "Tempestuós amb calamarsa",
+          "snowy": "Nevós",
+          "snowy-rainy": "Aiguanevós",
+          "fog": "Emboirat",
           "windy": "Ventós",
           "windy-variant": "Ventós (variant)",
           "exceptional": "Excepcional"
@@ -183,13 +183,13 @@
           "partlycloudy": "Parcialment ennuvolat",
           "cloudy": "Ennuvolat",
           "rainy": "Plujós",
-          "pouring": "Aiguat",
-          "lightning": "Llampecs",
-          "lightning-rainy": "Tempesta elèctrica",
-          "hail": "Calamarsa",
-          "snowy": "Nevant",
-          "snowy-rainy": "Aiguaneu",
-          "fog": "Boira",
+          "pouring": "Molt plujós",
+          "lightning": "Amb Llamps",
+          "lightning-rainy": "Tempestuós amb llamps",
+          "hail": "Tempestuós amb calamarsa",
+          "snowy": "Nevós",
+          "snowy-rainy": "Aiguanevós",
+          "fog": "Emboirat",
           "windy": "Ventós",
           "windy-variant": "Ventós (variant)",
           "exceptional": "Excepcional"
@@ -221,7 +221,7 @@
         "name": "Direcció del vent"
       },
       "precipitation": {
-        "name": "Precipitació"
+        "name": "Precipitació Diària"
       },
       "solar_radiation": {
         "name": "Radiació solar (UV)"
