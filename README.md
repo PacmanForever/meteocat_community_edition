@@ -4,7 +4,7 @@
 [![Version](https://img.shields.io/github/v/tag/PacmanForever/meteocat_community_edition?label=version)](https://github.com/PacmanForever/meteocat_community_edition/tags)
 [![Stars](https://img.shields.io/github/stars/PacmanForever/meteocat_community_edition?style=social)](https://github.com/PacmanForever/meteocat_community_edition/stargazers)
 [![License](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
-![Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)
+![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/PacmanForever/meteocat_community_edition/main/coverage.json)
 
 [![Unit Tests](https://github.com/PacmanForever/meteocat_community_edition/actions/workflows/tests_unit.yml/badge.svg)](https://github.com/PacmanForever/meteocat_community_edition/actions/workflows/tests_unit.yml)
 [![Component Tests](https://github.com/PacmanForever/meteocat_community_edition/actions/workflows/tests_component.yml/badge.svg)](https://github.com/PacmanForever/meteocat_community_edition/actions/workflows/tests_component.yml)
