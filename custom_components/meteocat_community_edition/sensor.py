@@ -144,6 +144,21 @@ async def async_setup_entry(
         entity_name = entry.data.get(CONF_MUNICIPALITY_NAME, f"Municipi {municipality_code}")
         entity_name_with_code = entity_name  # For device grouping
     
+    # Clean up forecast sensors if disabled or not supported in current mode
+    registry = er.async_get(hass)
+    for forecast_type in ["hourly", "daily"]:
+        # Check if enabled config
+        is_enabled = getattr(coordinator, f"enable_forecast_{forecast_type}", False)
+        
+        # Sensors are only supported in LOCAL mode currently
+        should_exist = (mode == MODE_LOCAL) and is_enabled
+        
+        if not should_exist:
+            unique_id = f"{entry.entry_id}_forecast_{forecast_type}"
+            if entity_id := registry.async_get_entity_id("sensor", DOMAIN, unique_id):
+                _LOGGER.debug("Removing disabled/unsupported forecast sensor: %s", entity_id)
+                registry.async_remove(entity_id)
+
     # Add forecast sensors for local mode
     if mode == MODE_LOCAL:
         if coordinator.enable_forecast_hourly:
