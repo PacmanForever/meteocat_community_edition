@@ -5,6 +5,11 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.71] - 2026-01-08
+
+### Afegit
+- **Coverage**: Actualització de l'script de càlcul de cobertura.
+
 ## [1.2.70] - 2026-01-08
 
 ### Afegit
