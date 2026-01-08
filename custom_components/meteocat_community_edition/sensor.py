@@ -32,7 +32,6 @@ from homeassistant.const import (
     PERCENTAGE,
     DEGREE,
 )
-from homeassistant.helpers import entity_registry
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers import entity_registry as er
 from homeassistant.config_entries import ConfigEntry

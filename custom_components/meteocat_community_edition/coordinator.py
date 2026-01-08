@@ -178,36 +178,10 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             next_update = now.replace(minute=0, second=0, microsecond=0) + timedelta(hours=1)
             
             # Calculate next forecast update for display/logic
-            self._calculate_next_forecast_update(now)
+            self.next_forecast_update = self._get_next_scheduled_time(now)
         else:
             # Local Mode: Scheduled times only
-            today = now.date()
-            
-            update_times_list = [self.update_time_1, self.update_time_2]
-            if self.update_time_3:
-                update_times_list.append(self.update_time_3)
-                
-            update_datetimes = [
-                dt_util.as_local(
-                    datetime.combine(today, time.fromisoformat(update_time))
-                )
-                for update_time in update_times_list
-                if update_time and update_time.strip()
-            ]
-            
-            next_update = None
-            for update_dt in sorted(update_datetimes):
-                if update_dt > now:
-                    next_update = update_dt
-                    break
-            
-            if next_update is None:
-                tomorrow = today + timedelta(days=1)
-                sorted_times = sorted([t for t in update_times_list if t and t.strip()])
-                if sorted_times:
-                    next_update = dt_util.as_local(
-                        datetime.combine(tomorrow, time.fromisoformat(sorted_times[0]))
-                    )
+            next_update = self._get_next_scheduled_time(now)
         
         if not next_update:
             _LOGGER.warning("Could not calculate next update time. Automatic updates disabled.")
@@ -228,8 +202,8 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             next_update - now,
         )
 
-    def _calculate_next_forecast_update(self, now: datetime) -> None:
-        """Calculate the next scheduled forecast update (External Mode)."""
+    def _get_next_scheduled_time(self, now: datetime) -> datetime | None:
+        """Calculate the next scheduled time based on config."""
         today = now.date()
         
         update_times_list = [self.update_time_1, self.update_time_2]
@@ -244,21 +218,21 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             if update_time and update_time.strip()
         ]
         
-        next_forecast = None
+        next_time = None
         for update_dt in sorted(update_datetimes):
             if update_dt > now:
-                next_forecast = update_dt
+                next_time = update_dt
                 break
         
-        if next_forecast is None:
+        if next_time is None:
             tomorrow = today + timedelta(days=1)
             sorted_times = sorted([t for t in update_times_list if t and t.strip()])
             if sorted_times:
-                next_forecast = dt_util.as_local(
+                next_time = dt_util.as_local(
                     datetime.combine(tomorrow, time.fromisoformat(sorted_times[0]))
                 )
         
-        self.next_forecast_update = next_forecast
+        return next_time
 
     async def _async_scheduled_update(self, now: datetime) -> None:
         """Handle scheduled update."""

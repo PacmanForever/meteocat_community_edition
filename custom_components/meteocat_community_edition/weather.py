@@ -90,20 +90,9 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
     @property
     def native_wind_speed(self) -> float | None:
         """Return the current wind speed in km/h from API data (variable code 30)."""
-        measurements = self.coordinator.data.get("measurements")
-        if not measurements or not isinstance(measurements, list) or not measurements:
-            return None
-        station_data = measurements[0]
-        variables = station_data.get("variables", [])
-        for variable in variables:
-            if variable.get("codi") == 30:  # Wind speed
-                lectures = variable.get("lectures", [])
-                if lectures:
-                    valor = lectures[-1].get("valor")
-                    try:
-                        return round(float(valor) * 3.6, 1)  # Convert m/s to km/h
-                    except (TypeError, ValueError):
-                        return None
+        value = self._get_measurement_value(30)
+        if value is not None:
+             return round(value * 3.6, 1)  # Convert m/s to km/h
         return None
 
     _attr_native_precipitation_unit = UnitOfPrecipitationDepth.MILLIMETERS
@@ -156,9 +145,8 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
             "model": "Estació Externa",
         }
 
-    @property
-    def native_temperature(self) -> float | None:
-        """Return the current temperature."""
+    def _get_measurement_value(self, code: int) -> float | None:
+        """Get measurement value from coordinator data by variable code."""
         measurements = self.coordinator.data.get("measurements")
         if not measurements or not isinstance(measurements, list) or not measurements:
             return None
@@ -167,9 +155,8 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
         station_data = measurements[0]
         variables = station_data.get("variables", [])
         
-        # Find temperature measurement (variable code 32)
         for variable in variables:
-            if variable.get("codi") == 32:  # Temperature
+            if variable.get("codi") == code:
                 lectures = variable.get("lectures", [])
                 if lectures:
                     valor = lectures[-1].get("valor")
@@ -177,81 +164,27 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
                         return float(valor)
                     except (TypeError, ValueError):
                         return None
-        
         return None
+
+    @property
+    def native_temperature(self) -> float | None:
+        """Return the current temperature."""
+        return self._get_measurement_value(32)
 
     @property
     def humidity(self) -> float | None:
         """Return the current humidity."""
-        measurements = self.coordinator.data.get("measurements")
-        if not measurements or not isinstance(measurements, list) or not measurements:
-            return None
-        
-        # API returns list of stations, get first one
-        station_data = measurements[0]
-        variables = station_data.get("variables", [])
-        
-        # Find humidity measurement (variable code 33)
-        for variable in variables:
-            if variable.get("codi") == 33:  # Humidity
-                lectures = variable.get("lectures", [])
-                if lectures:
-                    valor = lectures[-1].get("valor")
-                    try:
-                        return float(valor)
-                    except (TypeError, ValueError):
-                        return None
-        
-        return None
+        return self._get_measurement_value(33)
 
     @property
     def native_pressure(self) -> float | None:
         """Return the current pressure."""
-        measurements = self.coordinator.data.get("measurements")
-        if not measurements or not isinstance(measurements, list) or not measurements:
-            return None
-        
-        # API returns list of stations, get first one
-        station_data = measurements[0]
-        variables = station_data.get("variables", [])
-        
-        # Find pressure measurement (variable code 34)
-        for variable in variables:
-            if variable.get("codi") == 34:  # Pressure
-                lectures = variable.get("lectures", [])
-                if lectures:
-                    valor = lectures[-1].get("valor")
-                    try:
-                        return float(valor)
-                    except (TypeError, ValueError):
-                        return None
-        
-        return None
-
+        return self._get_measurement_value(34)
 
     @property
     def wind_bearing(self) -> float | None:
         """Return the current wind bearing."""
-        measurements = self.coordinator.data.get("measurements")
-        if not measurements or not isinstance(measurements, list) or not measurements:
-            return None
-        
-        # API returns list of stations, get first one
-        station_data = measurements[0]
-        variables = station_data.get("variables", [])
-        
-        # Find wind direction measurement (variable code 31)
-        for variable in variables:
-            if variable.get("codi") == 31:  # Wind direction
-                lectures = variable.get("lectures", [])
-                if lectures:
-                    valor = lectures[-1].get("valor")
-                    try:
-                        return float(valor)
-                    except (TypeError, ValueError):
-                        return None
-        
-        return None
+        return self._get_measurement_value(31)
 
     @property
     def condition(self) -> str | None:
@@ -307,19 +240,7 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
         return None
 
     def _is_night(self) -> bool:
-        """Check if sun is below horizon."""
-        station = self.coordinator.data.get("station")
-        if not station:
-            return False
-        
-        coords = station.get("coordenades", {})
-        latitude = coords.get("latitud")
-        longitude = coords.get("longitud")
-        
-        if not latitude or not longitude:
-            return False
-        
-        # Use Home Assistant's sun helper
+        """Check if sun is below horizon using HA location."""
         from homeassistant.helpers.sun import get_astral_event_date
         from homeassistant.const import SUN_EVENT_SUNSET, SUN_EVENT_SUNRISE
         
@@ -749,27 +670,3 @@ class MeteocatLocalWeather(MeteocatWeather):
     def native_apparent_temperature(self) -> float | None:
         """Return the current apparent temperature."""
         return self._get_sensor_value("apparent_temp")
-
-    def _is_night(self) -> bool:
-        """Check if sun is below horizon."""
-        # Use Home Assistant's sun helper (uses HA location)
-        from homeassistant.helpers.sun import get_astral_event_date
-        from homeassistant.const import SUN_EVENT_SUNSET, SUN_EVENT_SUNRISE
-        
-        now = dt_util.now()
-        today = now.date()
-        
-        try:
-            sunset = get_astral_event_date(
-                self.hass, SUN_EVENT_SUNSET, today
-            )
-            sunrise = get_astral_event_date(
-                self.hass, SUN_EVENT_SUNRISE, today
-            )
-            
-            if sunset and sunrise:
-                return now < sunrise or now > sunset
-        except Exception as err:
-            _LOGGER.warning("Error calculating sun position: %s", err)
-        
-        return False
