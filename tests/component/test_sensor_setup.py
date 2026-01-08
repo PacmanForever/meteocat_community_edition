@@ -66,7 +66,9 @@ async def test_external_mode_creates_all_geographic_sensors_when_data_available(
     def mock_add_entities(entities):
         entities_added.extend(entities)
     
-    await async_setup_entry(mock_hass, entry, mock_add_entities)
+    # Patch registry to avoid interaction errors with MagicMock hass
+    with patch("custom_components.meteocat_community_edition.sensor.er.async_get", return_value=MagicMock()):
+        await async_setup_entry(mock_hass, entry, mock_add_entities)
     
     # Verify all geographic sensors were created
     sensor_classes = [type(entity).__name__ for entity in entities_added]
@@ -104,7 +106,9 @@ async def test_external_mode_skips_municipality_when_not_available(mock_hass, mo
     def mock_add_entities(entities):
         entities_added.extend(entities)
     
-    await async_setup_entry(mock_hass, entry, mock_add_entities)
+    # Patch registry
+    with patch("custom_components.meteocat_community_edition.sensor.er.async_get", return_value=MagicMock()):
+        await async_setup_entry(mock_hass, entry, mock_add_entities)
     
     sensor_classes = [type(entity).__name__ for entity in entities_added]
     

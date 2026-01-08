@@ -52,10 +52,12 @@ async def test_local_condition_entity_numeric_state(hass: HomeAssistant, mock_co
     weather = MeteocatLocalWeather(mock_coordinator, mock_config_entry)
     weather.hass = hass
 
-    # Mock sensor state "1" (Sunny in default mapping)
-    hass.states.async_set("sensor.local_condition", "1")
-    
-    assert weather.condition == "sunny"
+    # Patch _is_night to return False to ensure we get "sunny" and not "clear-night"
+    with patch.object(weather, "_is_night", return_value=False):
+        # Mock sensor state "1" (Sunny in default mapping)
+        hass.states.async_set("sensor.local_condition", "1")
+        
+        assert weather.condition == "sunny"
 
 async def test_local_condition_entity_valid_string_state(hass: HomeAssistant, mock_coordinator, mock_config_entry):
     """Test local condition entity returning a valid condition string."""
@@ -123,10 +125,11 @@ async def test_local_condition_entity_unknown_unavailable(hass: HomeAssistant, m
     weather = MeteocatLocalWeather(mock_coordinator, mock_config_entry)
     weather.hass = hass
 
-    hass.states.async_set("sensor.local_condition", STATE_UNKNOWN)
-    
-    # Should fall back to forecast (sunny/cloudy from mock_coordinator)
-    assert weather.condition == "sunny" 
+    with patch.object(weather, "_is_night", return_value=False):
+        hass.states.async_set("sensor.local_condition", STATE_UNKNOWN)
+        
+        # Should fall back to forecast (sunny/cloudy from mock_coordinator)
+        assert weather.condition == "sunny" 
 
 async def test_local_condition_entity_mapping_miss(hass: HomeAssistant, mock_coordinator, mock_config_entry):
     """Test local condition entity value not found in mapping."""
