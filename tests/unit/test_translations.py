@@ -101,11 +101,11 @@ def test_condition_mapping_custom_texts():
     desc_ca = ca["config"]["step"]["condition_mapping_custom"]["description"]
     entity_label_ca = ca["config"]["step"]["condition_mapping_custom"]["data"]["local_condition_entity"]
     # Check one of the condition fields instead of custom_condition_mapping
-    condition_sunny_ca = ca["config"]["step"]["condition_mapping_custom"]["data"]["condition_sunny"]
+    condition_sunny_ca = ca["config"]["step"]["condition_mapping_custom"]["data"]["sunny"]
     
     assert title_ca == "Configura el mapeig de la condició climàtica"
     # description might be empty or specific, checking logical equivalence
-    assert desc_ca == "Selecciona el sensor que indica el valor de la condició i el mapeig a utilitzar."
+    assert desc_ca == "Selecciona el sensor que indica el valor de la condició i el mapeig a utilitzar. Pots especificar múltiples valors separats per comes."
     assert entity_label_ca == "Sensor que indica la condició"
     assert condition_sunny_ca == "Assolellat"
     
@@ -114,10 +114,10 @@ def test_condition_mapping_custom_texts():
     title_es = es["config"]["step"]["condition_mapping_custom"]["title"]
     desc_es = es["config"]["step"]["condition_mapping_custom"]["description"]
     entity_label_es = es["config"]["step"]["condition_mapping_custom"]["data"]["local_condition_entity"]
-    condition_sunny_es = es["config"]["step"]["condition_mapping_custom"]["data"]["condition_sunny"]
+    condition_sunny_es = es["config"]["step"]["condition_mapping_custom"]["data"]["sunny"]
     
     assert title_es == "Configuración del mapeo de la condición climática"
-    assert desc_es == "Selecciona el sensor que indica el valor de la condición y el mapeo a utilizar."
+    assert desc_es == "Selecciona el sensor que indica el valor de la condición y el mapeo a utilizar. Puedes especificar múltiples valores separados por comas."
     assert entity_label_es == "Sensor que indica la condición"
     assert condition_sunny_es == "Soleado"
     
@@ -126,10 +126,10 @@ def test_condition_mapping_custom_texts():
     title_en = en["config"]["step"]["condition_mapping_custom"]["title"]
     desc_en = en["config"]["step"]["condition_mapping_custom"]["description"]
     entity_label_en = en["config"]["step"]["condition_mapping_custom"]["data"]["local_condition_entity"]
-    condition_sunny_en = en["config"]["step"]["condition_mapping_custom"]["data"]["condition_sunny"]
+    condition_sunny_en = en["config"]["step"]["condition_mapping_custom"]["data"]["sunny"]
     
     assert title_en == "Configure Weather Condition Mapping"
-    assert desc_en == "Select the sensor that contains the condition value and the mapping to be used."
+    assert desc_en == "Select the sensor that contains the condition value and the mapping to be used. You can enter multiple values separated by commas."
     assert entity_label_en == "Sensor that indicates the condition"
     assert condition_sunny_en == "Sunny"
 

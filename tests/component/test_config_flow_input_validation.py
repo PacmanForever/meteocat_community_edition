@@ -37,7 +37,7 @@ async def test_creation_flow_custom_mapping_full_attributes():
     with patch.object(flow, "async_create_entry", return_value={"type": "create_entry"}) as mock_create:
         result = await flow.async_step_condition_mapping_custom({
             "local_condition_entity": "sensor.cond",
-            "condition_sunny": "1"
+            "sunny": "1"
         })
         
         assert result["type"] == "create_entry"

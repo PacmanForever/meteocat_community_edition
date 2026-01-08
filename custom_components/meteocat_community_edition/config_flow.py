@@ -129,7 +129,7 @@ def process_custom_mapping_form(user_input: dict[str, Any]) -> dict[str, str]:
     
     # Process each condition field
     for condition in VALID_WEATHER_CONDITIONS:
-        codes_str = user_input.get(f"condition_{condition}", "")
+        codes_str = user_input.get(condition, "")
         if not codes_str:
             continue
             
@@ -315,7 +315,7 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         }
         
         for condition in VALID_WEATHER_CONDITIONS:
-            schema_dict[vol.Optional(f"condition_{condition}")] = selector.TextSelector()
+            schema_dict[vol.Optional(condition)] = selector.TextSelector()
 
         schema = vol.Schema(schema_dict)
         return self.async_show_form(
@@ -1355,7 +1355,7 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                 existing_codes.sort()
                 
             schema_dict[vol.Optional(
-                f"condition_{condition}",
+                condition,
                 description={"suggested_value": ", ".join(existing_codes)}
             )] = selector.TextSelector()
 

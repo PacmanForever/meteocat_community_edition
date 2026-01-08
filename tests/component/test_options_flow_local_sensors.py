@@ -166,9 +166,9 @@ async def test_options_flow_local_switch_to_custom_mapping(hass: HomeAssistant):
     # Submit custom mapping configuration
     user_input_custom = {
         "local_condition_entity": "sensor.weather_condition",
-        "condition_clear-night": "0",
-        "condition_sunny": "1",
-        "condition_partlycloudy": "2",
+        "clear-night": "0",
+        "sunny": "1",
+        "partlycloudy": "2",
     }
 
     with patch("custom_components.meteocat_community_edition.async_setup_entry", return_value=True):
@@ -323,9 +323,9 @@ async def test_options_flow_local_edit_custom_mapping(hass: HomeAssistant):
     # Submit custom mapping configuration (editing existing)
     user_input_custom = {
         "local_condition_entity": "sensor.new_condition",
-        "condition_clear-night": "0",
-        "condition_sunny": "1",
-        "condition_partlycloudy": "2",
+        "clear-night": "0",
+        "sunny": "1",
+        "partlycloudy": "2",
     }
 
     with patch("custom_components.meteocat_community_edition.async_setup_entry", return_value=True):
@@ -610,9 +610,9 @@ async def test_options_flow_api_key_preservation_full_sequence(hass: HomeAssista
     # Step 5: Submit custom mapping
     user_input_custom = {
         "local_condition_entity": "sensor.weather_condition",
-        "condition_sunny": "sunny",
-        "condition_cloudy": "cloudy",
-        "condition_rainy": "rainy",
+        "sunny": "sunny",
+        "cloudy": "cloudy",
+        "rainy": "rainy",
     }
     
     result = await hass.config_entries.options.async_configure(
@@ -929,9 +929,9 @@ async def test_options_flow_change_mapping_type_then_edit_again(hass: HomeAssist
 
     user_input_custom = {
         "local_condition_entity": "sensor.weather_condition",
-        "condition_clear-night": "0",
-        "condition_sunny": "1",
-        "condition_partlycloudy": "2",
+        "clear-night": "0",
+        "sunny": "1",
+        "partlycloudy": "2",
     }
 
     result = await hass.config_entries.options.async_configure(
@@ -985,9 +985,9 @@ async def test_options_flow_change_mapping_type_then_edit_again(hass: HomeAssist
 
     user_input_custom2 = {
         "local_condition_entity": "sensor.weather_condition",  # Keep same
-        "condition_clear-night": "0",
-        "condition_sunny": "1",
-        "condition_partlycloudy": "2",
+        "clear-night": "0",
+        "sunny": "1",
+        "partlycloudy": "2",
     }
 
     result = await hass.config_entries.options.async_configure(
@@ -1064,8 +1064,8 @@ async def test_options_flow_switch_mapping_types_multiple_times(hass: HomeAssist
 
     user_input_custom = {
         "local_condition_entity": "sensor.weather_condition",
-        "condition_clear-night": "0",
-        "condition_sunny": "1",
+        "clear-night": "0",
+        "sunny": "1",
     }
 
     result = await hass.config_entries.options.async_configure(
@@ -1160,9 +1160,9 @@ async def test_options_flow_switch_mapping_types_multiple_times(hass: HomeAssist
 
     user_input_custom3 = {
         "local_condition_entity": "sensor.new_weather_condition",
-        "condition_clear-night": "0",
-        "condition_sunny": "1",
-        "condition_cloudy": "2",
+        "clear-night": "0",
+        "sunny": "1",
+        "cloudy": "2",
     }
 
     result = await hass.config_entries.options.async_configure(

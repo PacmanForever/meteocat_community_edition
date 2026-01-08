@@ -115,8 +115,8 @@ async def test_flow_condition_mapping_custom_duplicate_codes():
 
     user_input = {
         "local_condition_entity": "sensor.test_condition",
-        "condition_sunny": "1",
-        "condition_cloudy": "1" # Duplicate code
+        "sunny": "1",
+        "cloudy": "1" # Duplicate code
     }
 
     result = await flow.async_step_condition_mapping_custom(user_input)
@@ -281,8 +281,8 @@ async def test_flow_condition_mapping_custom_with_location_data():
 
     user_input = {
         "local_condition_entity": "sensor.test_condition",
-        "condition_sunny": "0",
-        "condition_cloudy": "1"
+        "sunny": "0",
+        "cloudy": "1"
     }
 
     # Mock async_create_entry to capture the call

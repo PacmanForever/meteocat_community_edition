@@ -395,11 +395,11 @@ async def test_flow_custom_mapping_requires_fields():
     assert result2["errors"]["base"] == "invalid_format"
     
     # Only one field (mapping) - fails due to missing entity
-    result3 = await flow.async_step_condition_mapping_custom({"condition_sunny": "0"})
+    result3 = await flow.async_step_condition_mapping_custom({"sunny": "0"})
     assert "local_condition_entity" in result3["errors"]
     
     # Both fields present
-    result4 = await flow.async_step_condition_mapping_custom({"local_condition_entity": "sensor.mycond", "condition_sunny": "0"})
+    result4 = await flow.async_step_condition_mapping_custom({"local_condition_entity": "sensor.mycond", "sunny": "0"})
     assert result4["type"] == "create_entry"
     assert result4["data"]["mapping_type"] == "custom"
     assert result4["data"]["local_condition_entity"] == "sensor.mycond"
@@ -412,7 +412,7 @@ async def test_flow_custom_mapping_requires_fields():
     assert result4["data"][CONF_MODE] == MODE_LOCAL
     
     # Test empty strings are treated as missing
-    result5 = await flow.async_step_condition_mapping_custom({"local_condition_entity": "", "condition_sunny": ""})
+    result5 = await flow.async_step_condition_mapping_custom({"local_condition_entity": "", "sunny": ""})
     assert result5["type"] == "form"
     assert "local_condition_entity" in result5["errors"]
     

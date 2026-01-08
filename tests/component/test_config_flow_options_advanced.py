@@ -129,8 +129,8 @@ async def test_custom_mapping_duplicate_codes_error(hass, mock_config_entry):
     # cloudy -> 1
     result = await flow.async_step_condition_mapping_custom({
         "local_condition_entity": "sensor.test",
-        "condition_sunny": "1",
-        "condition_cloudy": "1" 
+        "sunny": "1",
+        "cloudy": "1" 
     })
     
     assert result["errors"]["base"] == "duplicate_codes"
@@ -378,8 +378,8 @@ async def test_options_custom_mapping_logic_valid(hass, mock_config_entry):
     with patch.object(flow, "async_create_entry", return_value={"type": "done"}):
         result = await flow.async_step_condition_mapping_custom({
             "local_condition_entity": "sensor.test",
-            "condition_sunny": "1",
-            "condition_rainy": "2"
+            "sunny": "1",
+            "rainy": "2"
         })
         
         mock_update = flow.hass.config_entries.async_update_entry
@@ -450,7 +450,7 @@ async def test_custom_mapping_validation_empty_strings(hass, mock_config_entry):
     # If all result in nothing -> empty_mapping
     result = await flow.async_step_condition_mapping_custom({
         "local_condition_entity": "",
-        "condition_sunny": ""
+        "sunny": ""
     })
     
     assert result["type"] == "form"
