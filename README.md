@@ -212,27 +212,22 @@ Per modificar el mapping d'una estació ja configurada:
 
 #### Format del mapeig personalitzat
 
-- **Format**: `valor_sensor: condicio_home_assistant`
-- **Separador**: Una condició per línia
-- **Condicions vàlides**: Les mateixes que suporta Home Assistant (veure llista completa a la documentació)
-- **Exemple complet**:
-  ```
-  0: clear-night
-  1: sunny
-  2: partlycloudy
-  3: cloudy
-  4: rainy
-  5: pouring
-  6: lightning
-  7: lightning-rainy
-  8: snowy
-  9: snowy-rainy
-  10: fog
-  11: hail
-  12: windy
-  13: windy-variant
-  14: exceptional
-  ```
+A la pantalla de configuració, apareixerà un formulari amb un camp per a cada condició climàtica suportada per Home Assistant.
+
+- **Camps**: Cada camp correspon a una condició (ex: assolellat, plujós, etc.).
+- **Valors**: Introdueix el valor numèric (o text) que el teu sensor local envia per a aquella condició.
+- **Múltiples valors**: Si el teu sensor envia diferents valors per a una mateixa condició, separa'ls per comes (ex: `1, 2`).
+- **Valors buits**: Deixa el camp buit si el teu sensor no suporta aquella condició.
+
+**Exemple de configuració**:
+Si el teu sensor retorna `0` per a "Clar (nit)" i `1` per a "Assolellat":
+- Camp **clear-night**: `0`
+- Camp **sunny**: `1`
+- Camp **partlycloudy**: `2`
+- Camp **cloudy**: `3`
+- Camp **rainy**: `4`
+- ...
+
 
 #### Comportament quan no es pot determinar la condició
 
@@ -262,6 +257,7 @@ Aquest mode està pensat per obtenir dades d'una estació meteorològica oficial
 | Tipus | Entitat | Descripció |
 |-------|---------|------------|
 | **Weather** | `weather.{estacio}_{codi}` | Entitat principal. Mostra l'estat actual (temperatura, humitat, vent, pressió, pluja) obtingut de l'estació XEMA i la predicció (horària i diària) del municipi on es troba l'estació. |
+| **Sensor** | `sensor.{estacio}_{codi}_precipitation` | Precipitació diària acumulada (mm) (Si l'estació en disposa). |
 | **Sensor** | `sensor.{estacio}_{codi}_quota_disponible_{pla}` | Un sensor per a cada pla de quotes rellevant (Predicció, XEMA). Mostra les peticions restants. |
 | **Binary Sensor** | `binary_sensor.{estacio}_{codi}_update_state` | Indica l'estat de l'última actualització (`OFF` = Correcte, `ON` = Error). |
 | **Sensor** | `sensor.{estacio}_{codi}_last_update` | Timestamp de l'última actualització de mesures (horària). |
@@ -325,7 +321,7 @@ Les dades s'actualitzen de la següent manera:
 #### Consum de quota per actualització
 
 **Mode Estació (XEMA)**:
-- **Cada hora**: 1 crida (measurements)
+- **Cada hora**: 1 crida (measurements + quotes)
 - **A les hores de predicció**: 3 crides addicionals (forecast + hourly + quotes)
 - **Mitjana diària**: ~30 crides (24 hores × 1 + 2 prediccions × 3)
 
@@ -434,6 +430,7 @@ Tant en el **Mode Estació XEMA** com en el **Mode Estació Local**, es creen se
 - **`sensor.{municipi}_prediccio_horaria`**: Predicció de les pròximes 72 hores
 - **`sensor.{municipi}_prediccio_diaria`**: Predicció dels pròxims 8 dies  
 - **`sensor.{municipi}_quota_{pla}`**: Consums API (Predicció)
+- **`binary_sensor.{municipi}_update_state`**: Estat de l'última actualització predicció (OFF=OK, ON=Error)
 - **`sensor.{municipi}_last_update`**: Darrera actualització
 - **`sensor.{municipi}_next_update`**: Pròxima actualització programada
 - **`button.{municipi}_refresh`**: Botó per actualitzar manualment

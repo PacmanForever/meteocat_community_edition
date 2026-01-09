@@ -151,6 +151,86 @@ To configure a custom endpoint or modify update times:
    - **API Base URL** (leave empty for production)
    - **Update times** (24h format: HH:MM)
 
+### Weather Condition Mapping Configuration (Local Station Mode)
+
+In **Local Station Mode**, you can customize how the **weather condition** (the icon shown in the weather card) of the `weather` entity is determined.
+
+#### Available Mapping Types
+
+1. **Automatic (Meteocat)** *(default)*
+   - The condition is taken directly from the official Meteocat forecast
+   - Requires no additional configuration
+   - Always shows a valid condition based on official data
+
+2. **Custom**
+   - Define your own mapping between your local sensor values and Home Assistant conditions
+   - Useful when you have sensors reporting numeric values (0, 1, 2...) representing conditions
+   - Allows integrating custom sensors (ESPHome, etc.) with custom logic
+
+#### How to Configure Custom Mapping
+
+##### Initial Configuration (during creation)
+
+When configuring a new local station:
+
+1. Select **"Municipality Forecast"**
+2. Select **county** (comarca) and **municipality**
+3. On the **"Weather Condition Mapping Type"** screen, select **"Custom"**
+4. **Select the sensor** containing the condition value (required)
+5. **Configure the mapping** for each condition:
+   - A form will appear with all weather conditions supported by Home Assistant (Sunny, Cloudy, Rainy, etc.).
+   - For each condition, enter the value (or values) your sensor returns when that condition occurs.
+   - If your sensor returns multiple values for the same condition, separate them with commas (example: `1, 2` or `sunny, clear`).
+   - Fields can be left empty if your sensor does not support certain conditions.
+
+> ℹ️ Available conditions correspond to [Home Assistant standard values](https://developers.home-assistant.io/docs/core/entity/weather/#weather-conditions).
+
+##### Editing Existing Mapping
+
+To modify the mapping of an already configured station:
+
+1. Go to **Settings** → **Devices & Services**
+2. Find your **Meteocat (Community Edition)** integration
+3. Click the 3 dots → **Options**
+4. Under **"Weather Condition Mapping Type"**, switch between **"Meteocat"** or **"Custom"**
+5. If you select **"Custom"**, the mapping configuration screen will appear
+6. Modify the **sensor** and/or **mapping** as needed
+
+> **💡 Tip**: When editing an existing mapping, the workflow ends directly without going back to sensor selection, as everything is already configured.
+
+#### Custom Mapping Format
+
+On the configuration screen, a form with a field for each Home Assistant supported weather condition will appear.
+
+- **Fields**: Each field corresponds to a condition (e.g., sunny, rainy, etc.).
+- **Values**: Enter the numeric value (or text) your local sensor sends for that condition.
+- **Multiple Values**: If your sensor sends different values for the same condition, separate them with commas (e.g., `1, 2`).
+- **Empty Values**: Leave the field empty if your sensor does not support that condition.
+
+**Configuration Example**:
+If your sensor returns `0` for "Clear (night)" and `1` for "Sunny":
+- **clear-night** field: `0`
+- **sunny** field: `1`
+- **partlycloudy** field: `2`
+- **cloudy** field: `3`
+- **rainy** field: `4`
+- ...
+
+#### Behavior When Condition Cannot Be Determined
+
+If the sensor value has no correspondence in the mapping, or if there is an error:
+
+- **The weather card shows**: "unknown" with a generic icon (black and white)
+- **This is correct behavior** and indicates that the mapping configuration needs review
+- **No colored icon is shown** to avoid displaying incorrect information
+
+#### Switching Between Mapping Types
+
+You can freely switch between **"Meteocat"** and **"Custom"** at any time:
+
+- **From Meteocat to Custom**: The mapping configuration screen appears
+- **From Custom to Meteocat**: Custom mapping data is removed and behavior reverts to default
+
 ## Entities
 
 ### External Station Mode (Meteocat measurements and forecast)
@@ -160,6 +240,10 @@ For each configured station, these entities are created:
 #### Weather Entity
 - `weather.{station}_{code}`: Main entity with current data and forecasts
 - Example: `weather.Barcelona_ym`
+
+#### Precipitation Sensor
+- **Daily precipitation**: Accumulated daily precipitation (mm) (If available at the station)
+- Entity ID: `sensor.{station}_{code}_precipitation`
 
 #### Quota Sensors
 - **Available Requests Forecast**: Remaining requests for Forecast plan
@@ -212,13 +296,13 @@ For each configured municipality, these entities are created:
 - `weather.{municipality}`: Main entity. Shows current state (from your sensors) and forecast (from Meteocat).
 
 #### Hourly Forecast Sensor
-- **Name**: {Municipality} Hourly Forecast
+- **Name**: {Municipality} Hourly forecast
 - **Entity ID**: `sensor.{municipality}_previsio_horaria`
 - State: Number of available forecast hours (e.g., "72 hours")
 - Attributes: Complete hourly forecast data (72h)
 
 #### Daily Forecast Sensor
-- **Name**: {Municipality} Daily Forecast
+- **Name**: {Municipality} Daily forecast
 - **Entity ID**: `sensor.{municipality}_previsio_diaria`
 - State: Number of available forecast days (e.g., "8 days")
 - Attributes: Complete daily forecast data (8 days)
@@ -269,7 +353,7 @@ Data is updated as follows:
 #### Quota Consumption per Update
 
 **Station Mode (XEMA)**:
-- **Every hour**: 1 call (measurements)
+- **Every hour**: 1 call (measurements + quotes)
 - **At forecast times**: 3 additional calls (forecast + hourly + quotes)
 - **Daily average**: ~30 calls (24 hours × 1 + 2 forecasts × 3)
 
@@ -380,6 +464,7 @@ Municipality Mode creates these sensors:
 - **`sensor.{municipality}_hourly_forecast`**: Forecast for the next 72 hours
 - **`sensor.{municipality}_daily_forecast`**: Forecast for the next 8 days
 - **`sensor.{municipality}_quota_{plan}`**: API consumption (Forecast)
+- **`binary_sensor.{municipality}_update_state`**: Update state (OFF=OK, ON=Error)
 - **`sensor.{municipality}_last_update`**: Last update timestamp
 - **`sensor.{municipality}_next_update`**: Next scheduled update
 - **`button.{municipality}_refresh`**: Button to manually refresh
@@ -388,7 +473,7 @@ Municipality Mode creates these sensors:
 
 Sensors store complete forecasts in their **attributes**:
 
-#### Hourly Forecast (`sensor.{municipality}_hourly_forecast`)
+#### Hourly forecast (`sensor.{municipality}_hourly_forecast`)
 
 The sensor state shows the number of available hours (e.g., "72 hours").
 
@@ -412,7 +497,7 @@ Available attributes:
 {{ state_attr('sensor.barcelona_hourly_forecast', 'forecast').dies[0].variables.temp.valors }}
 ```
 
-#### Daily Forecast (`sensor.{municipality}_daily_forecast`)
+#### Daily forecast (`sensor.{municipality}_daily_forecast`)
 
 The sensor state shows the number of available days (e.g., "8 days").
 
@@ -448,7 +533,7 @@ type: vertical-stack
 cards:
   - type: markdown
     content: |
-      ## Hourly Forecast - {{ state_attr('sensor.barcelona_hourly_forecast', 'forecast').nom }}
+      ## Hourly forecast - {{ state_attr('sensor.barcelona_hourly_forecast', 'forecast').nom }}
       
       **Available:** {{ states('sensor.barcelona_hourly_forecast') }}
       
@@ -462,7 +547,7 @@ cards:
 
   - type: markdown
     content: |
-      ## Daily Forecast - Next days
+      ## Daily forecast - Next days
       
       **Available:** {{ states('sensor.barcelona_daily_forecast') }}
       

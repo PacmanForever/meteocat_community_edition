@@ -151,6 +151,86 @@ Para configurar un endpoint personalizado o modificar las horas de actualizació
    - **URL base de la API** (deja el valor por defecto o vacío para producción)
    - **Horas de actualización** (formato 24h: HH:MM)
 
+### Configuración del mapeo de condiciones climáticas (Modo Estación Local)
+
+En **Modo Estación Local**, puedes personalizar cómo se determina la **condición climática** (el icono que se muestra en la tarjeta del tiempo) de la entidad `weather`.
+
+#### Tipos de mapeo disponibles
+
+1. **Automático (Meteocat)** *(por defecto)*
+   - La condición se toma directamente de la predicción oficial de Meteocat
+   - No requiere configuración adicional
+   - Siempre muestra una condición válida basada en datos oficiales
+
+2. **Personalizado**
+   - Define tu propio mapeo entre valores de tu sensor local y condiciones de Home Assistant
+   - Útil cuando tienes sensores que reportan valores numéricos (0, 1, 2...) que representan condiciones
+   - Permite integrar sensores personalizados (ESPHome, etc.) con lógica propia
+
+#### Cómo configurar el mapeo personalizado
+
+##### Primera configuración (durante la creación)
+
+Cuando configuras una nueva estación local:
+
+1. Selecciona **"Predicción municipal"**
+2. Selecciona la **comarca** y **municipio**
+3. En la pantalla **"Tipo de mapeo de la condición climática"**, selecciona **"Personalizado"**
+4. **Selecciona el sensor** que contiene el valor de condición (obligatorio)
+5. **Configura el mapeo** para cada condición:
+   - Aparecerá un formulario con todas las condiciones meteorológicas soportadas por Home Assistant (Sunny, Cloudy, Rainy, etc.).
+   - Para cada condición, introduce el valor (o valores) que devuelve tu sensor cuando se da esta condición.
+   - Si tu sensor devuelve varios valores para una misma condición, sepáralos por comas (ejemplo: `1, 2` o `soleado, despejado`).
+   - Los campos se pueden dejar vacíos si tu sensor no soporta algunas condiciones.
+
+> ℹ️ Las condiciones disponibles corresponden a los [valores estándar de Home Assistant](https://developers.home-assistant.io/docs/core/entity/weather/#weather-conditions).
+
+##### Editar mapeo existente
+
+Para modificar el mapeo de una estación ya configurada:
+
+1. Ve a **Configuración** → **Dispositivos y Servicios**
+2. Encuentra tu integración **Meteocat (Community Edition)**
+3. Haz clic en los 3 puntos → **Opciones**
+4. En **"Tipo de mapeo de la condición climática"**, cambia entre **"Meteocat"** o **"Personalizado"**
+5. Si seleccionas **"Personalizado"**, aparecerá la pantalla de configuración del mapeo
+6. Modifica el **sensor** y/o el **mapeo** según sea necesario
+
+> **💡 Consejo**: Cuando editas un mapeo existente, la edición termina directamente sin volver a los sensores, ya que ya está todo configurado.
+
+#### Formato del mapeo personalizado
+
+En la pantalla de configuración, aparecerá un formulario con un campo para cada condición climática soportada por Home Assistant.
+
+- **Campos**: Cada campo corresponde a una condición (ej: soleado, lluvioso, etc.).
+- **Valores**: Introduce el valor numérico (o texto) que tu sensor local envía para esa condición.
+- **Múltiples valores**: Si tu sensor envía diferentes valores para una misma condición, sepáralos por comas (ej: `1, 2`).
+- **Valores vacíos**: Deja el campo vacío si tu sensor no soporta esa condición.
+
+**Ejemplo de configuración**:
+Si tu sensor devuelve `0` para "Claro (noche)" y `1` para "Soleado":
+- Campo **clear-night**: `0`
+- Campo **sunny**: `1`
+- Campo **partlycloudy**: `2`
+- Campo **cloudy**: `3`
+- Campo **rainy**: `4`
+- ...
+
+#### Comportamiento cuando no se puede determinar la condición
+
+Si el valor del sensor no tiene una correspondencia en el mapeo, o si hay algún error:
+
+- **La tarjeta del tiempo muestra**: "unknown" con icono genérico (blanco y negro)
+- **Esto es el comportamiento correcto** e indica que hay que revisar la configuración del mapeo
+- **No se muestra ningún icono de color** para evitar mostrar información incorrecta
+
+#### Cambiar entre tipos de mapeo
+
+Puedes cambiar libremente entre **"Meteocat"** y **"Personalizado"** en cualquier momento:
+
+- **De Meteocat a Personalizado**: Aparece la pantalla de configuración del mapeo
+- **De Personalizado a Meteocat**: Se eliminan los datos de mapeo personalizado y se vuelve al comportamiento por defecto
+
 ## Entidades
 
 ### Modo Estación Externa (Medidas y predicción de Meteocat)
@@ -160,6 +240,10 @@ Para cada estación configurada se crean:
 #### Weather Entity
 - `weather.{estacion}_{codigo}`: Entidad principal con datos actuales y predicciones
 - Ejemplo: `weather.Barcelona_ym`
+
+#### Sensor de Precipitación
+- **Precipitación diaria**: Precipitación diaria acumulada (mm) (Si la estación dispone de ella)
+- Entity ID: `sensor.{estacion}_{codigo}_precipitation`
 
 #### Sensores de Cuotas
 - **Peticiones disponibles Predicción**: Consumos restantes del plan Predicción
@@ -218,7 +302,7 @@ Para cada municipio configurado se crean:
 - Atributos: Datos completos de predicción horaria (72h)
 
 #### Sensor Predicción diaria
-- **Nombre**: {Municipio} Predicción Diaria
+- **Nombre**: {Municipio} Predicción diaria
 - **Entity ID**: `sensor.{municipio}_prediccio_diaria`
 - Estado: Número de días de predicción disponibles (ej: "8 días")
 - Atributos: Datos completos de predicción diaria (8 días)
@@ -269,7 +353,7 @@ Los datos se actualizan de la siguiente manera:
 #### Consumo de cuota por actualización
 
 **Modo Estación (XEMA)**:
-- **Cada hora**: 1 llamada (measurements)
+- **Cada hora**: 1 llamada (measurements + cuotas)
 - **A las horas de predicción**: 3 llamadas adicionales (forecast + hourly + quotes)
 - **Media diaria**: ~30 llamadas (24 horas × 1 + 2 predicciones × 3)
 
@@ -377,9 +461,15 @@ Tanto en el **Modo Estación XEMA** como en el **Modo Estación Local**, se crea
 
 El Modo Municipio crea estos sensores:
 
+### Sensores disponibles
+
 - **`sensor.{municipio}_prediccion_horaria`**: Predicción de las próximas 72 horas
 - **`sensor.{municipio}_prediccion_diaria`**: Predicción de los próximos 8 días  
 - **`sensor.{municipio}_quota_{plan}`**: Consumos API (Predicción)
+- **`binary_sensor.{municipio}_update_state`**: Estado de la última actualización (OFF=OK, ON=Error)
+- **`sensor.{municipio}_last_update`**: Última actualización
+- **`sensor.{municipio}_next_update`**: Próxima actualización programada
+- **`button.{municipio}_refresh`**: Botón para actualizar manualmente
 - **`sensor.{municipio}_last_update`**: Última actualización
 - **`sensor.{municipio}_next_update`**: Próxima actualización programada
 - **`button.{municipio}_refresh`**: Botón para actualizar manualmente
@@ -412,7 +502,7 @@ Atributos disponibles:
 {{ state_attr('sensor.barcelona_prediccio_horaria', 'forecast').dies[0].variables.temp.valors }}
 ```
 
-#### Predicción Diaria (`sensor.{municipio}_prediccion_diaria`)
+#### Predicción diaria (`sensor.{municipio}_prediccion_diaria`)
 
 El estado del sensor muestra el número de días disponibles (ej: "8 días").
 
@@ -464,7 +554,7 @@ cards:
 
   - type: markdown
     content: |
-      ## Predicción Diaria - Próximos días
+      ## Predicción diaria - Próximos días
       
       **Disponibles:** {{ states('sensor.Barcelona_prediccio_diaria') }}
       
