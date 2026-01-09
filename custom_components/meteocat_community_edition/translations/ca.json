@@ -227,10 +227,10 @@
         "name": "Radiació solar (UV)"
       },
       "forecast_hourly": {
-        "name": "Predicció Horària"
+        "name": "Predicció horària"
       },
       "forecast_daily": {
-        "name": "Predicció Diària"
+        "name": "Predicció diària"
       },
       "last_update": {
         "name": "Última actualització mesures"

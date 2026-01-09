@@ -221,16 +221,16 @@
         "name": "Wind direction"
       },
       "precipitation": {
-        "name": "Daily Precipitation"
+        "name": "Daily precipitation"
       },
       "solar_radiation": {
         "name": "Solar radiation (UV)"
       },
       "forecast_hourly": {
-        "name": "Hourly Forecast"
+        "name": "Hourly forecast"
       },
       "forecast_daily": {
-        "name": "Daily Forecast"
+        "name": "Daily forecast"
       },
       "last_update": {
         "name": "Last measurements update"

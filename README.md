@@ -442,7 +442,7 @@ Tant en el **Mode Estació XEMA** com en el **Mode Estació Local**, es creen se
 
 Els sensors emmagatzemen les prediccions completes als seus **atributs**:
 
-#### Predicció Horària (`sensor.{municipi}_prediccio_horaria`)
+#### Predicció horària (`sensor.{municipi}_prediccio_horaria`)
 
 L'estat del sensor mostra el nombre d'hores disponibles (ex: "72 hores").
 
@@ -458,7 +458,7 @@ Atributs disponibles:
 {{ state_attr('sensor.barcelona_prediccio_horaria', 'forecast').dies[0].variables.temp.valors }}
 ```
 
-#### Predicció Diària (`sensor.{municipi}_prediccio_diaria`)
+#### Predicció diària (`sensor.{municipi}_prediccio_diaria`)
 
 L'estat del sensor mostra el nombre de dies disponibles (ex: "8 dies").
 
@@ -483,7 +483,7 @@ type: vertical-stack
 cards:
   - type: markdown
     content: |
-      ## Predicció Horària - {{ state_attr('sensor.barcelona_prediccio_horaria', 'forecast').nom }}
+      ## Predicció horària - {{ state_attr('sensor.barcelona_prediccio_horaria', 'forecast').nom }}
       
       **Available:** {{ states('sensor.barcelona_prediccio_horaria') }}
       
@@ -497,7 +497,7 @@ cards:
 
   - type: markdown
     content: |
-      ## Predicció Diària - Next days
+      ## Predicció diària - Next days
       
       **Available:** {{ states('sensor.barcelona_prediccio_diaria') }}
       

@@ -30,7 +30,7 @@ show_forecast: true
 # Predicció horària amb markdown
 type: markdown
 content: |
-  ## 📊 Predicció Horària - Pròximes 24h
+  ## 📊 Predicció horària - Pròximes 24h
   
   {% set forecast = state_attr('sensor.granollers_prediccio_horaria', 'forecast') %}
   {% if forecast and forecast.dies %}
@@ -45,12 +45,12 @@ content: |
   {% else %}
     _Dades no disponibles_
   {% endif %}
-title: Predicció Horària
+title: Predicció horària
 
 # Predicció diària amb markdown
 type: markdown
 content: |
-  ## 📅 Predicció Diària - Pròxims 7 dies
+  ## 📅 Predicció diària - Pròxims 7 dies
   
   {% set forecast = state_attr('sensor.granollers_prediccio_diaria', 'forecast') %}
   {% if forecast and forecast.dies %}

@@ -211,13 +211,13 @@ Para cada municipio configurado se crean:
 #### Weather Entity
 - `weather.{municipio}`: Entidad principal. Muestra el estado actual (de tus sensores) y la predicción (del Meteocat).
 
-#### Sensor Predicción Horaria
-- **Nombre**: {Municipio} Predicción Horaria
+#### Sensor Predicción horaria
+- **Nombre**: {Municipio} Predicción horaria
 - **Entity ID**: `sensor.{municipio}_prediccio_horaria`
 - Estado: Número de horas de predicción disponibles (ej: "72 horas")
 - Atributos: Datos completos de predicción horaria (72h)
 
-#### Sensor Predicción Diaria
+#### Sensor Predicción diaria
 - **Nombre**: {Municipio} Predicción Diaria
 - **Entity ID**: `sensor.{municipio}_prediccio_diaria`
 - Estado: Número de días de predicción disponibles (ej: "8 días")
