@@ -128,7 +128,7 @@ Això crearà:
 - **Sensors de quotes** API
 - **Sensors d'hores d'actualització** configurades
 
-#### Mode Municipi (només prediccions)
+#### Mode Estació Local (Mesures locals i predicció de Meteocat)
 
 > ⚠️ **Important:** Aquest mode està pensat **exclusivament** per a usuaris que tenen una **estació meteorològica local** (Davis, Netatmo, Ecowitt, etc.) i volen complementar-la amb les **prediccions horàries i diàries oficials** de Meteocat. Si no tens cap estació meteorològica local a Home Assistant, fes servir el **Mode Estació** que et proporcionarà tant dades de monitorització com de prediccions.
 
@@ -611,7 +611,7 @@ Degut a que el **pla domèstic** permet poques consultes al mes, el sistema perm
 ### Altres limitacions
 
 - Les prediccions municipals depenen de la disponibilitat a l'API de Meteocat
-- En Mode Estació, algunes estacions poden no tenir municipi associat per a prediccions
+- En **Mode Estació Externa**, algunes estacions poden no tenir municipi associat per a prediccions
 - Requereix connexió a Internet
 
 ## Troubleshooting

@@ -39,7 +39,7 @@
 - 📊 **Hourly forecasts** (72 hours) and **daily forecasts** (8 days)
 - 📈 **API quota sensors** to monitor usage
 - 🏢 **Multiple stations** configurable
-- 🏙️ **Municipality Mode** to get only forecasts (without station)
+- 🏙️ **Local Station Mode** to combine local data with official forecasts
 - 🌍 Translations in **Catalan**, **Spanish**, and **English**
 
 ## Installation
@@ -117,7 +117,7 @@ This will create:
 - **API Quota sensors**
 - **Update time sensors** configured
 
-#### Municipality Mode (without station)
+#### Local Station Mode (Local measurements and Meteocat forecast)
 
 > ⚠️ **Important:** This mode is designed **exclusively** for users who have a **local weather station** (Davis, Netatmo, Ecowitt, etc.) and want to complement it with **official hourly and daily forecasts** from Meteocat. If you do not have any local weather station in Home Assistant, use the **Station Mode** which will provide you with both monitoring data and forecasts.
 
@@ -136,7 +136,7 @@ This will create:
 - **API Quota sensors**
 - **Update time sensors** configured
 
-> **Note:** Municipality Mode is ideal if you have a local weather station and only want to add official Meteocat forecasts.
+> **Note:** Local Station Mode is ideal if you have a local weather station and only want to add official Meteocat forecasts.
 
 **You can configure multiple stations and municipalities** (with different API keys to increase limits).
 
@@ -459,7 +459,7 @@ Both in **Station XEMA Mode** and **Local Station Mode**, additional sensors are
 
 ### Available sensors
 
-Municipality Mode creates these sensors:
+Local Station Mode creates these sensors:
 
 - **`sensor.{municipality}_hourly_forecast`**: Forecast for the next 72 hours
 - **`sensor.{municipality}_daily_forecast`**: Forecast for the next 8 days
@@ -664,7 +664,7 @@ Since the **domestic plan** allows few queries per month, the system allows crea
 ### Other limitations
 
 - Municipality forecasts depend on availability in the Meteocat API
-- In Station Mode, some stations may not have an associated municipality for forecasts
+- In **External Station Mode**, some stations may not have an associated municipality for forecasts
 - Requires Internet connection
 
 ## Troubleshooting

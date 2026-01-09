@@ -39,7 +39,7 @@ Integración **comunitaria** y **no oficial** para Home Assistant del Servicio M
 - 📊 **Predicciones horarias** (72 horas) y **diarias** (8 días)
 - 📈 **Sensores de cuotas API** para controlar el uso
 - 🏢 **Múltiples estaciones** configurables
-- 🏙️ **Modo Municipio** para obtener solo predicciones (sin estación)
+- 🏙️ **Modo Estación Local** para combinar datos locales con predicciones oficiales
 - 🌍 Traducciones en **catalán**, **castellano** e **inglés**
 
 ## Instalación
@@ -117,7 +117,7 @@ Esto creará:
 - **Sensores de cuotas** API
 - **Sensores de horas de actualización** configuradas
 
-#### Modo Municipio (solo predicciones)
+#### Modo Estación Local (Medidas locales y predicción de Meteocat)
 
 > ⚠️ **Importante:** Este modo está pensado **exclusivamente** para usuarios que tienen una **estación meteorológica local** (Davis, Netatmo, Ecowitt, etc.) y quieren complementarla con las **predicciones horarias y diarias oficiales** de Meteocat. Si no tienes ninguna estación meteorológica local en Home Assistant, usa el **Modo Estación** que te proporcionará tanto datos de monitorización como de predicciones.
 
@@ -459,7 +459,7 @@ Tanto en el **Modo Estación XEMA** como en el **Modo Estación Local**, se crea
 
 ### Sensores disponibles
 
-El Modo Municipio crea estos sensores:
+El Modo Estación Local crea estos sensores:
 
 ### Sensores disponibles
 
@@ -671,7 +671,7 @@ Debido a que el **plan doméstico** permite pocas consultas al mes, el sistema p
 ### Otras limitaciones
 
 - Las predicciones municipales dependen de la disponibilidad en la API de Meteocat
-- En Modo Estación, algunas estaciones pueden no tener municipio asociado para predicciones
+- En **Modo Estación Externa**, algunas estaciones pueden no tener municipio asociado para predicciones
 - Requiere conexión a Internet
 
 ## Troubleshooting
