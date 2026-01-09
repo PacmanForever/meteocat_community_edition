@@ -5,6 +5,14 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.76] - 2026-01-09
+
+### Corregit
+- **Càlcul UTCI**: Corregida la fórmula de càlcul de l'índex UTCI.
+  - S'ha implementat l'ús de la llibreria `pythermalcomfort` per a una major precisió.
+  - S'ha afegit un mètode de fallada (Australian Apparent Temperature) robust per quan la llibreria no està disponible.
+  - Solucionat l'error on el vent augmentava la temperatura en lloc de reduir-la.
+
 ## [1.2.75] - 2026-01-09
 
 ### Corregit

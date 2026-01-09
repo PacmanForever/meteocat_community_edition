@@ -14,14 +14,22 @@ from custom_components.meteocat_community_edition.utils import (
 def test_calculate_utci():
     """Test UTCI calculation."""
     # Test case 1: Normal conditions
-    # T=20, H=50, V=10
-    # UTCI approx = 20 + (0.049*20 + 0.455)*(9) + (0.001*20 + 0.015)*(0) = 20 + 1.435*9 = 20 + 12.915 = 32.9
-    assert calculate_utci(20, 50, 10) == 32.9
+    # T=20, H=50, V=10 km/h
+    # Fallback (Apparent Temp) estimate: ~17.9 C
+    # Wind provides cooling (20 -> 17.9).
+    result = calculate_utci(20, 50, 10)
+    # Allow for some variation if library is present vs fallback, but generally < 20
+    assert 15 < result < 21
     
-    # Test case 2: Zero wind (clamped to 0.5)
-    # T=20, H=50, V=0 -> V=0.5
-    # UTCI = 20 + (1.435)*(-0.5) = 20 - 0.7175 = 19.3
-    assert calculate_utci(20, 50, 0) == 19.3
+    # Test case 2: Zero wind
+    # T=20, H=50, V=0
+    # Fallback: ~19.8 C
+    result_calm = calculate_utci(20, 50, 0)
+    assert 19 < result_calm < 21
+    
+    # Verify wind cooling effect
+    # With wind (10km/h) should be cooler than no wind
+    assert result < result_calm
 
 def test_get_utci_category_key_ranges():
     """Test all UTCI category ranges."""

@@ -3,27 +3,44 @@ from __future__ import annotations
 
 import logging
 
+
+try:
+    from pythermalcomfort.models import utci as calc_utci_func
+    HAS_PYTHERMALCOMFORT = True
+except ImportError:
+    HAS_PYTHERMALCOMFORT = False
+
 _LOGGER = logging.getLogger(__name__)
 
 def calculate_utci(temp_c: float, humidity_percent: float, wind_speed_kmh: float) -> float:
-    """Calculate UTCI (Universal Thermal Climate Index) using a simplified linear approximation.
+    """Calculate UTCI (Universal Thermal Climate Index).
     
-    Formula provided by user:
-    UTCI = Ta + (0.049 * Ta + 0.455) * (Va - 1) + (0.001 * Ta + 0.015) * (Rh - 50)
-    
-    Where:
-    - Ta: Temperature in Celsius
-    - Va: Wind speed in km/h (floored at 0.5)
-    - Rh: Relative Humidity in %
+    Uses pythermalcomfort library if available.
+    Otherwise uses Australian Apparent Temperature as a safe fallback approximation.
     """
     
-    # Floor wind speed to 0.5 km/h
-    va = max(0.5, wind_speed_kmh)
+    # Convert wind to m/s
+    wind_ms = wind_speed_kmh / 3.6
     
-    # Calculate UTCI
-    utci = temp_c + (0.049 * temp_c + 0.455) * (va - 1) + (0.001 * temp_c + 0.015) * (humidity_percent - 50)
+    if HAS_PYTHERMALCOMFORT:
+        try:
+            # utci(tdb, tr, v, rh)
+            # tr = temp_c (Approximation where Mean Radiant Temp = Air Temp)
+            val = calc_utci_func(tdb=temp_c, tr=temp_c, v=wind_ms, rh=humidity_percent)
+            return round(val, 1)
+        except Exception as e:
+            _LOGGER.warning("Error calculating UTCI with library: %s", e)
     
-    return round(utci, 1)
+    # Fallback: Australian Apparent Temperature (Physically consistent approximation)
+    # AT = Ta + 0.33*e - 0.70*ws - 4.00
+    # e (hPa)
+    import math
+    try:
+        e = (humidity_percent / 100.0) * 6.105 * math.exp((17.27 * temp_c) / (237.7 + temp_c))
+        at = temp_c + 0.33 * e - 0.70 * wind_ms - 4.00
+        return round(at, 1)
+    except Exception:
+        return temp_c
 
 def get_utci_category_key(utci_value: float) -> str:
     """Return the translation key suffix for the UTCI category."""
