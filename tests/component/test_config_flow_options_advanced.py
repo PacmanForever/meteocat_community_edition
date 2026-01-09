@@ -67,9 +67,8 @@ async def test_options_flow_invalid_mapping_type_recovery(hass, mock_config_entr
     result = await flow.async_step_condition_mapping_type()
     
     # Check if entry was updated to fix the corruption
-    hass.config_entries.async_update_entry.assert_called()
-    call_args = hass.config_entries.async_update_entry.call_args
-    assert call_args.kwargs["data"]["mapping_type"] == "meteocat"
+    assert not hass.config_entries.async_update_entry.called
+    assert flow.updated_data["mapping_type"] == "meteocat"
     
     assert result["type"] == "form"
 
@@ -171,11 +170,11 @@ async def test_options_init_fixes_invalid_mapping_type(hass, mock_config_entry):
     # Run step init with no input to trigger the fix logic
     await flow.async_step_init()
     
-    # Verify it was called to fix mapping_type
+    # Verify it was corrected internally
+    assert flow.updated_data["mapping_type"] == "meteocat"
+    # Ensure update was NOT called immediately
     mock_update = flow.hass.config_entries.async_update_entry
-    assert mock_update.called
-    args = mock_update.call_args[1]
-    assert args["data"]["mapping_type"] == "meteocat"
+    assert not mock_update.called
 
 async def test_options_init_fixes_invalid_forecast_flags(hass, mock_config_entry):
     """Test options init fixes invalid forecast flags."""
@@ -192,11 +191,10 @@ async def test_options_init_fixes_invalid_forecast_flags(hass, mock_config_entry
     
     await flow.async_step_init()
     
-    mock_update = flow.hass.config_entries.async_update_entry
-    assert mock_update.called
-    args = mock_update.call_args[1]
-    assert args["data"]["enable_forecast_daily"] is True
-    assert args["data"]["enable_forecast_hourly"] is False
+    # Verify it was corrected internally
+    assert flow.updated_data["enable_forecast_daily"] is True
+    assert flow.updated_data["enable_forecast_hourly"] is False
+    assert not flow.hass.config_entries.async_update_entry.called
 
 async def test_options_init_migrates_api_key(hass, mock_config_entry):
     """Test options init examines options for API key if missing in data."""
@@ -214,10 +212,9 @@ async def test_options_init_migrates_api_key(hass, mock_config_entry):
     
     await flow.async_step_init()
     
-    mock_update = flow.hass.config_entries.async_update_entry
-    assert mock_update.called
-    args = mock_update.call_args[1]
-    assert args["data"]["api_key"] == "migrated_key"
+    # Verify it was migrated internally
+    assert flow.updated_data["api_key"] == "migrated_key"
+    assert not flow.hass.config_entries.async_update_entry.called
 
 async def test_options_init_missing_api_key_error(hass, mock_config_entry):
     """Test options init reports error if API key is missing everywhere."""
@@ -277,11 +274,13 @@ async def test_options_init_saves_changes(hass, mock_config_entry):
         
         await flow.async_step_init(user_input)
         
+        # Verify changes happened internally
+        assert flow.updated_options["update_time_1"] == "09:00"
+        assert flow.updated_options["enable_forecast_daily"] is False
+        
+        # Verify NO save yet (local mode)
         mock_update = flow.hass.config_entries.async_update_entry
-        assert mock_update.called
-        args = mock_update.call_args[1]
-        assert args["options"]["update_time_1"] == "09:00"
-        assert args["options"]["enable_forecast_daily"] is False
+        assert not mock_update.called
 
 async def test_local_sensors_validation_error(hass, mock_config_entry):
     """Test local sensors step validation."""
@@ -315,12 +314,12 @@ async def test_local_sensors_step_success(hass, mock_config_entry):
         
         assert result["type"] == "done"
         
-        # Verify update call
+        # Verify internal update but NO save yet
+        assert flow.updated_data["sensor_temperature"] == "sensor.temp"
+        assert flow.updated_data["sensor_humidity"] == "sensor.hum"
+        
         mock_update = flow.hass.config_entries.async_update_entry
-        assert mock_update.called
-        args = mock_update.call_args[1]
-        assert args["data"]["sensor_temperature"] == "sensor.temp"
-        assert args["data"]["sensor_humidity"] == "sensor.hum"
+        assert not mock_update.called
 
 async def test_mapping_type_step_meteocat_branch(hass, mock_config_entry):
     """Test mapping type step selecting meteocat."""
@@ -339,17 +338,14 @@ async def test_mapping_type_step_meteocat_branch(hass, mock_config_entry):
     with patch.object(flow, "async_step_local_sensors", return_value={"type": "done_sensors"}):
         result = await flow.async_step_condition_mapping_type({"mapping_type": "meteocat"})
         
-        # Verify update: custom fields popped
-        mock_update = flow.hass.config_entries.async_update_entry
-        assert mock_update.called
-        args = mock_update.call_args[1]
-        assert args["data"]["mapping_type"] == "meteocat"
-        assert "custom_condition_mapping" not in args["data"]
+        # Verify internal update: custom fields popped
+        assert flow.updated_data["mapping_type"] == "meteocat"
+        assert "custom_condition_mapping" not in flow.updated_data
         
-        # Since mode != local, it goes to async_step_local_sensors (per line 1222 logic logic seems inverted in my memory?)
-        # Let's check logic: if mode == LOCAL and temp sensor exists -> create_entry
-        # else -> async_step_local_sensors.
-        # Here mode is external, so it calls local_sensors.
+        # No save yet
+        mock_update = flow.hass.config_entries.async_update_entry
+        assert not mock_update.called
+        
         assert result["type"] == "done_sensors"
 
 async def test_mapping_type_step_custom_branch(hass, mock_config_entry):
@@ -362,10 +358,12 @@ async def test_mapping_type_step_custom_branch(hass, mock_config_entry):
     with patch.object(flow, "async_step_condition_mapping_custom", return_value={"type": "done_custom"}):
         result = await flow.async_step_condition_mapping_type({"mapping_type": "custom"})
         
+        # Verify internal update
+        assert flow.updated_data["mapping_type"] == "custom"
+        
+        # No save yet
         mock_update = flow.hass.config_entries.async_update_entry
-        assert mock_update.called
-        args = mock_update.call_args[1]
-        assert args["data"]["mapping_type"] == "custom"
+        assert not mock_update.called
         
         assert result["type"] == "done_custom"
 
@@ -697,5 +695,6 @@ async def test_options_init_invalid_existing_mapping(hass, mock_config_entry):
     key = list(schema.schema.keys())[0]
     assert key.default() == "meteocat"
     
-    # Verify update was called
-    assert hass.config_entries.async_update_entry.called
+    # Verify internal update but NO database update
+    assert flow.updated_data["mapping_type"] == "meteocat"
+    assert not hass.config_entries.async_update_entry.called

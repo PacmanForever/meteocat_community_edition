@@ -105,8 +105,8 @@ def test_condition_mapping_custom_texts():
     
     assert title_ca == "Configura el mapeig de la condició climàtica"
     # description might be empty or specific, checking logical equivalence
-    assert desc_ca == "Selecciona el sensor que indica el valor de la condició i el mapeig a utilitzar. Pots especificar múltiples valors separats per comes."
-    assert entity_label_ca == "Sensor que indica la condició"
+    assert desc_ca == "Selecciona el sensor que té la condició climàtica numèrica i configura el mapeig a utilitzar.\n\nEl mapeig defineix quins valors numèrics del sensor corresponen a cada condició. Pots especificar múltiples valors separats per comes (ex: 1, 3, 5) o rangs (ex: 10-20)."
+    assert entity_label_ca == "Sensor que indica la condició climàtica"
     assert condition_sunny_ca == "Assolellat"
     
     # Spanish

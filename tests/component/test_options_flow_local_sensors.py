@@ -756,6 +756,21 @@ async def test_options_flow_api_key_migration_from_options(hass: HomeAssistant):
     assert result["type"] == FlowResultType.FORM
     assert result["step_id"] == "init"
 
+    # NOTE: Migration happens in memory, not immediately to entry.
+    # Must complete flow to verify.
+
+    # Submit init step (External mode finishes here)
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], 
+        user_input={
+            CONF_UPDATE_TIME_1: "06:00",
+            CONF_ENABLE_FORECAST_DAILY: True,
+            CONF_ENABLE_FORECAST_HOURLY: False,
+        }
+    )
+    
+    assert result["type"] == FlowResultType.CREATE_ENTRY
+    
     # API key should now be in data
     assert entry.data[CONF_API_KEY] == "api_key_in_options"
 
@@ -1202,8 +1217,8 @@ async def test_options_flow_invalid_mapping_type_auto_correction(hass: HomeAssis
     assert result["type"] == FlowResultType.FORM
     assert result["step_id"] == "init"
 
-    # The invalid mapping_type should have been corrected to "meteocat"
-    assert entry.data["mapping_type"] == "meteocat"
+    # NOTE: Entry is NOT updated immediately anymore. 
+    # We must proceed through the flow to verify the correction is saved at the end.
 
     # Submit init step
     user_input_init = {
@@ -1213,27 +1228,35 @@ async def test_options_flow_invalid_mapping_type_auto_correction(hass: HomeAssis
     }
     
     result = await hass.config_entries.options.async_configure(
-        result["flow_id"], user_input_init
+        result["flow_id"], user_input=user_input_init
     )
     assert result["type"] == FlowResultType.FORM
-    assert result["step_id"] == "local_sensors"
 
-    # Submit sensors step
+    # Submit sensor step
     user_input_sensors = {
         CONF_SENSOR_TEMPERATURE: "sensor.temp",
         CONF_SENSOR_HUMIDITY: "sensor.hum",
     }
-
     result = await hass.config_entries.options.async_configure(
-        result["flow_id"], user_input_sensors
+        result["flow_id"], user_input=user_input_sensors
     )
-    assert result["type"] == FlowResultType.FORM
-    assert result["step_id"] == "condition_mapping_type"
+    
+    # Finish mapping step (defaults to 'meteocat', which matches correction)
+    with patch("custom_components.meteocat_community_edition.config_flow.MeteocatOptionsFlow.async_create_entry") as mock_create_entry: 
+        # We need to successfully exit the flow to trigger save
+        # Actually standard flow logic saves before create_entry, let's just let it run naturally
+        pass
 
-    # The form should show "meteocat" as current selection (corrected)
-    # This tests that the selector doesn't fail with invalid defaults
-    assert entry.data[CONF_API_KEY] == "original_api_key"
+    # Actually, simpler: just finish the flow normally
+    with patch("custom_components.meteocat_community_edition.async_setup_entry", return_value=True):
+        result = await hass.config_entries.options.async_configure(
+            result["flow_id"], user_input={"mapping_type": "meteocat"}
+        )
 
+    assert result["type"] == FlowResultType.CREATE_ENTRY
+    
+    # NOW check that the entry was updated
+    assert entry.data["mapping_type"] == "meteocat"
 
 @pytest.mark.asyncio
 async def test_options_flow_invalid_forecast_booleans_auto_correction(hass: HomeAssistant):
@@ -1258,10 +1281,36 @@ async def test_options_flow_invalid_forecast_booleans_auto_correction(hass: Home
     assert result["type"] == FlowResultType.FORM
     assert result["step_id"] == "init"
 
+    # NOTE: Entry is NOT updated immediately anymore. 
+    # We must proceed through the flow to verify the correction is saved at the end.
+
+    # Submit init step
+    user_input_init = {
+        CONF_UPDATE_TIME_1: "06:00",
+        CONF_ENABLE_FORECAST_DAILY: True,
+        CONF_ENABLE_FORECAST_HOURLY: False,
+    }
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input=user_input_init
+    )
+
+    # Submit sensors step
+    user_input_sensors = {
+        CONF_SENSOR_TEMPERATURE: "sensor.temp",
+        CONF_SENSOR_HUMIDITY: "sensor.hum",
+    }
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input=user_input_sensors
+    )
+
+    # Finish mapping step
+    with patch("custom_components.meteocat_community_edition.async_setup_entry", return_value=True):
+        result = await hass.config_entries.options.async_configure(
+            result["flow_id"], user_input={"mapping_type": "meteocat"}
+        )
+
+    assert result["type"] == FlowResultType.CREATE_ENTRY
+    
     # Check that the invalid values were corrected
     assert entry.data[CONF_ENABLE_FORECAST_DAILY] is True  # Corrected to default True
     assert entry.data[CONF_ENABLE_FORECAST_HOURLY] is False  # Corrected to default False
-
-    # The form should render without validation errors
-    # This tests that the selector doesn't fail with invalid defaults
-    assert result["data_schema"] is not None

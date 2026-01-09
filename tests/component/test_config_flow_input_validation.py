@@ -147,10 +147,11 @@ async def test_options_init_boolean_input_validation():
         
         # Verify call to update_entry has booleans
         update_call = flow.hass.config_entries.async_update_entry
-        assert update_call.called
-        options_arg = update_call.call_args[1]["options"]
-        assert options_arg["enable_forecast_daily"] is True
-        assert options_arg["enable_forecast_hourly"] is False
+        assert not update_call.called
+        
+        # Check internal state has booleans
+        assert flow.updated_options["enable_forecast_daily"] is True
+        assert flow.updated_options["enable_forecast_hourly"] is False
 
 @pytest.mark.asyncio
 async def test_update_times_must_select_one_forecast_error():

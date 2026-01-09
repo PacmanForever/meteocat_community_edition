@@ -5,6 +5,15 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.73] - 2026-01-09
+
+### Corregit
+- **Config Flow**: Corregit error de validació en `MeteocatOptionsFlow` que impedia visualitzar correctament les opcions editables.
+- **Traduccions**: (ca) Canviat el text "Sensor que indica la condició" per "Sensor que indica la condició climàtica" per major claredat.
+
+### Afegit
+- **Tests**: Incrementada la cobertura de tests al 95.3% amb nous tests per a l'API i gestió de codificació.
+
 ## [1.2.72] - 2026-01-08
 
 ### Corregit

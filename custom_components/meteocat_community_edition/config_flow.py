@@ -851,12 +851,22 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
         """Initialize options flow."""
         self._config_entry = config_entry
+        self.updated_data = dict(config_entry.data)
+        self.updated_options = dict(config_entry.options)
         super().__init__()
 
     @property
     def config_entry(self):
         """Return the config entry."""
         return self._config_entry
+
+    def _save_changes(self):
+        """Save the accumulated changes to the config entry."""
+        self.hass.config_entries.async_update_entry(
+            entry=self.config_entry,
+            data=self.updated_data,
+            options=self.updated_options,
+        )
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
@@ -865,60 +875,42 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
         errors: dict[str, str] = {}
         
         # Fix invalid mapping_type in entry data before any processing
-        current_mapping_type = self.config_entry.data.get("mapping_type")
+        current_mapping_type = self.updated_data.get("mapping_type")
         if current_mapping_type is not None and (not isinstance(current_mapping_type, str) or current_mapping_type not in ["meteocat", "custom"]):
             _LOGGER.warning("Invalid mapping_type '%s' (type: %s) found in entry data during init, resetting to 'meteocat'", 
                           current_mapping_type, type(current_mapping_type))
-            updated_data = dict(self.config_entry.data)
-            updated_data["mapping_type"] = "meteocat"
-            self.hass.config_entries.async_update_entry(
-                entry=self.config_entry,
-                data=updated_data
-            )
+            self.updated_data["mapping_type"] = "meteocat"
         
         # Fix invalid forecast boolean values in entry data before any processing
-        current_enable_daily = self.config_entry.data.get(CONF_ENABLE_FORECAST_DAILY)
-        current_enable_hourly = self.config_entry.data.get(CONF_ENABLE_FORECAST_HOURLY)
-        forecast_data_needs_update = False
-        updated_data = dict(self.config_entry.data)
+        current_enable_daily = self.updated_data.get(CONF_ENABLE_FORECAST_DAILY)
+        current_enable_hourly = self.updated_data.get(CONF_ENABLE_FORECAST_HOURLY)
         
         if current_enable_daily is not None and not isinstance(current_enable_daily, bool):
             _LOGGER.warning("Invalid enable_forecast_daily '%s' (type: %s) found in entry data during init, resetting to True", 
                           current_enable_daily, type(current_enable_daily))
-            updated_data[CONF_ENABLE_FORECAST_DAILY] = True
-            forecast_data_needs_update = True
+            self.updated_data[CONF_ENABLE_FORECAST_DAILY] = True
             
         if current_enable_hourly is not None and not isinstance(current_enable_hourly, bool):
             _LOGGER.warning("Invalid enable_forecast_hourly '%s' (type: %s) found in entry data during init, resetting to False", 
                           current_enable_hourly, type(current_enable_hourly))
-            updated_data[CONF_ENABLE_FORECAST_HOURLY] = False
-            forecast_data_needs_update = True
-            
-        if forecast_data_needs_update:
-            self.hass.config_entries.async_update_entry(
-                entry=self.config_entry,
-                data=updated_data
-            )
+            self.updated_data[CONF_ENABLE_FORECAST_HOURLY] = False
         
         # CRITICAL: Validate API key exists before allowing any options editing
-        api_key = self.config_entry.data.get(CONF_API_KEY) or self.config_entry.options.get(CONF_API_KEY)
+        api_key = self.updated_data.get(CONF_API_KEY) or self.updated_options.get(CONF_API_KEY)
         
         # Migrate API key from options to data if necessary (for backward compatibility)
-        if not self.config_entry.data.get(CONF_API_KEY) and self.config_entry.options.get(CONF_API_KEY):
+        if not self.updated_data.get(CONF_API_KEY) and self.updated_options.get(CONF_API_KEY):
             _LOGGER.info("Migrating API key from options to data for entry '%s'", self.config_entry.title)
-            self.hass.config_entries.async_update_entry(
-                entry=self.config_entry,
-                data={**self.config_entry.data, CONF_API_KEY: self.config_entry.options[CONF_API_KEY]}
-            )
-            api_key = self.config_entry.options[CONF_API_KEY]
+            self.updated_data[CONF_API_KEY] = self.updated_options[CONF_API_KEY]
+            api_key = self.updated_options[CONF_API_KEY]
         
         if not api_key:
             _LOGGER.error("Entry '%s' is missing API key during options editing. Data keys: %s, Options keys: %s", 
-                         self.config_entry.title, list(self.config_entry.data.keys()), list(self.config_entry.options.keys()))
+                         self.config_entry.title, list(self.updated_data.keys()), list(self.updated_options.keys()))
             errors["base"] = "invalid_auth"
         
         # Ensure API key is available for the flow
-        self.api_key = self.config_entry.data.get(CONF_API_KEY) or self.config_entry.options.get(CONF_API_KEY)
+        self.api_key = self.updated_data.get(CONF_API_KEY) or self.updated_options.get(CONF_API_KEY)
         
         if user_input is not None:
             # Validate update times if they're being changed
@@ -929,7 +921,6 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
             enable_hourly = user_input.get(CONF_ENABLE_FORECAST_HOURLY, False)
             
             # Ensure forecast values are booleans (defensive programming)
-            # This prevents validation errors when user input contains invalid types
             if enable_daily is None:
                 enable_daily = True
             elif not isinstance(enable_daily, bool):
@@ -943,77 +934,42 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
             errors.update(time_errors)
             
             # Validate forecast selection
-            mode = self.config_entry.data.get(CONF_MODE)
+            mode = self.updated_data.get(CONF_MODE)
             if enable_daily is False and enable_hourly is False:
                 errors["base"] = "must_select_one_forecast"
             
             if not errors:
-                # Ensure API key is preserved in data (migration from old entries where it might be in options)
-                api_key = self.config_entry.data.get(CONF_API_KEY) or self.config_entry.options.get(CONF_API_KEY)
-                _LOGGER.debug("Options flow init - API key found: %s, entry data keys: %s", 
-                             "YES" if api_key else "NO", list(self.config_entry.data.keys()))
+                # Ensure API key is preserved in data
+                api_key = self.updated_data.get(CONF_API_KEY) or self.updated_options.get(CONF_API_KEY)
+                
                 if not api_key:
                     errors["base"] = "invalid_auth"
                 else:
-                    # Check if API key needs migration (from options to data)
-                    api_key_in_data = self.config_entry.data.get(CONF_API_KEY)
-                    api_key_in_options = self.config_entry.options.get(CONF_API_KEY) if self.config_entry.options else None
-                    api_key_migration_needed = not api_key_in_data and api_key_in_options
-                    
-                    # Check if user settings have changed
-                    current_options = self.config_entry.options or {}
-                    user_changes = (
-                        time1 != current_options.get(CONF_UPDATE_TIME_1, self.config_entry.data.get(CONF_UPDATE_TIME_1, DEFAULT_UPDATE_TIME_1)) or
-                        time2 != current_options.get(CONF_UPDATE_TIME_2, self.config_entry.data.get(CONF_UPDATE_TIME_2, DEFAULT_UPDATE_TIME_2)) or
-                        time3 != current_options.get(CONF_UPDATE_TIME_3, self.config_entry.data.get(CONF_UPDATE_TIME_3, "")) or
-                        enable_daily != current_options.get(CONF_ENABLE_FORECAST_DAILY, self.config_entry.data.get(CONF_ENABLE_FORECAST_DAILY, True)) or
-                        enable_hourly != current_options.get(CONF_ENABLE_FORECAST_HOURLY, self.config_entry.data.get(CONF_ENABLE_FORECAST_HOURLY, False))
-                    )
-                    
-                    has_changes = api_key_migration_needed or user_changes
-                    
-                    if has_changes:
-                        # Update both options and data
-                        # Using kwargs for forward compatibility with future HA versions
-                        _LOGGER.debug("Updating entry with API key: %s...%s (migration: %s)", 
-                                    api_key[:4] if api_key and len(api_key) > 4 else "***",
-                                    api_key[-4:] if api_key and len(api_key) > 4 else "***",
-                                    api_key_migration_needed)
-                        self.hass.config_entries.async_update_entry(
-                            entry=self.config_entry,
-                            data={
-                                **self.config_entry.data, 
-                                CONF_API_KEY: api_key,
-                            },
-                            options={
-                                **self.config_entry.options,
-                                CONF_API_KEY: api_key,  # Also store in options for safety
-                                CONF_UPDATE_TIME_1: time1, 
-                                CONF_UPDATE_TIME_2: time2,
-                                CONF_UPDATE_TIME_3: time3,
-                                CONF_ENABLE_FORECAST_DAILY: enable_daily,
-                                CONF_ENABLE_FORECAST_HOURLY: enable_hourly,
-                            },
-                        )
+                    # Update local state
+                    self.updated_data[CONF_API_KEY] = api_key
+                    self.updated_options[CONF_API_KEY] = api_key
+                    self.updated_options[CONF_UPDATE_TIME_1] = time1
+                    self.updated_options[CONF_UPDATE_TIME_2] = time2
+                    self.updated_options[CONF_UPDATE_TIME_3] = time3
+                    self.updated_options[CONF_ENABLE_FORECAST_DAILY] = enable_daily
+                    self.updated_options[CONF_ENABLE_FORECAST_HOURLY] = enable_hourly
                     
                     if mode == MODE_LOCAL:
                         return await self.async_step_local_sensors()
                     else:
                         _LOGGER.debug("Finishing options flow for external mode, entry data keys: %s", 
-                                    list(self.config_entry.data.keys()))
+                                    list(self.updated_data.keys()))
+                        self._save_changes()
                         return self.async_create_entry(title="", data=None)
 
         # Prepare description placeholders
         description_placeholders = {}
-        mode = self.config_entry.data.get(CONF_MODE)
+        mode = self.updated_data.get(CONF_MODE)
         description_placeholders["measurements_info"] = ""
 
-        # Ensure options is not None
-        options = self.config_entry.options or {}
-
         # Validate and fix forecast boolean values before building schema
-        current_enable_daily = self.config_entry.data.get(CONF_ENABLE_FORECAST_DAILY)
-        current_enable_hourly = self.config_entry.data.get(CONF_ENABLE_FORECAST_HOURLY)
+        current_enable_daily = self.updated_data.get(CONF_ENABLE_FORECAST_DAILY)
+        current_enable_hourly = self.updated_data.get(CONF_ENABLE_FORECAST_HOURLY)
         if not isinstance(current_enable_daily, bool):
             current_enable_daily = True  # Default
         if not isinstance(current_enable_hourly, bool):
@@ -1023,37 +979,37 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
         schema_dict = {
             vol.Required(
                 CONF_UPDATE_TIME_1,
-                default=self.config_entry.options.get(
-                    CONF_UPDATE_TIME_1, self.config_entry.data.get(
+                default=self.updated_options.get(
+                    CONF_UPDATE_TIME_1, self.updated_data.get(
                         CONF_UPDATE_TIME_1, DEFAULT_UPDATE_TIME_1
                     )
                 ),
             ): str,
             vol.Optional(
                 CONF_UPDATE_TIME_2,
-                default=self.config_entry.options.get(
-                    CONF_UPDATE_TIME_2, self.config_entry.data.get(
+                default=self.updated_options.get(
+                    CONF_UPDATE_TIME_2, self.updated_data.get(
                         CONF_UPDATE_TIME_2, DEFAULT_UPDATE_TIME_2
                     )
                 ),
             ): str,
             vol.Optional(
                 CONF_UPDATE_TIME_3,
-                default=self.config_entry.options.get(
-                    CONF_UPDATE_TIME_3, self.config_entry.data.get(
+                default=self.updated_options.get(
+                    CONF_UPDATE_TIME_3, self.updated_data.get(
                         CONF_UPDATE_TIME_3
                     )
                 ) or vol.UNDEFINED,
             ): str,
             vol.Required(
                 CONF_ENABLE_FORECAST_DAILY,
-                default=self.config_entry.options.get(
+                default=self.updated_options.get(
                     CONF_ENABLE_FORECAST_DAILY, current_enable_daily
                 ),
             ): bool,
             vol.Required(
                 CONF_ENABLE_FORECAST_HOURLY,
-                default=self.config_entry.options.get(
+                default=self.updated_options.get(
                     CONF_ENABLE_FORECAST_HOURLY, current_enable_hourly
                 ),
             ): bool,
@@ -1068,18 +1024,17 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
         if mode == MODE_LOCAL:
             title_placeholders["name"] = "estació local"
         else:
-            station_name = self.config_entry.data.get(CONF_STATION_NAME, "")
-            station_code = self.config_entry.data.get(CONF_STATION_CODE, "")
+            station_name = self.updated_data.get(CONF_STATION_NAME, "")
+            station_code = self.updated_data.get(CONF_STATION_CODE, "")
             if station_name and station_code:
                 title_placeholders["name"] = f"{station_name} {station_code}"
             else:
                 title_placeholders["name"] = station_name or station_code or ""
 
-        # Set title placeholders in context for the flow (if context is mutable)
+        # Set title placeholders
         try:
             self.context["title_placeholders"] = title_placeholders
         except (TypeError, AttributeError):
-            # Context is immutable in some cases (like tests), skip setting placeholders
             pass
 
         return self.async_show_form(
@@ -1099,7 +1054,7 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
         errors = {}
         
         # Get current values
-        data = self.config_entry.data
+        data = self.updated_data
         
         if user_input is not None:
             # Validate required fields
@@ -1119,30 +1074,20 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                         return val[0] if val else None
                     return val
 
-                # Update entry with sensors
-                updated_data = dict(self.config_entry.data)
-                # Ensure API key is preserved
-                if hasattr(self, 'api_key') and self.api_key:
-                    updated_data[CONF_API_KEY] = self.api_key
-                self.hass.config_entries.async_update_entry(
-                    entry=self.config_entry,
-                    data={
-                        **updated_data,
-                        CONF_SENSOR_TEMPERATURE: get_entity_id(CONF_SENSOR_TEMPERATURE),
-                        CONF_SENSOR_HUMIDITY: get_entity_id(CONF_SENSOR_HUMIDITY),
-                        CONF_SENSOR_PRESSURE: get_entity_id(CONF_SENSOR_PRESSURE),
-                        CONF_SENSOR_WIND_SPEED: get_entity_id(CONF_SENSOR_WIND_SPEED),
-                        CONF_SENSOR_WIND_BEARING: get_entity_id(CONF_SENSOR_WIND_BEARING),
-                        CONF_SENSOR_WIND_GUST: get_entity_id(CONF_SENSOR_WIND_GUST),
-                        CONF_SENSOR_VISIBILITY: get_entity_id(CONF_SENSOR_VISIBILITY),
-                        CONF_SENSOR_UV_INDEX: get_entity_id(CONF_SENSOR_UV_INDEX),
-                        CONF_SENSOR_OZONE: get_entity_id(CONF_SENSOR_OZONE),
-                        CONF_SENSOR_CLOUD_COVERAGE: get_entity_id(CONF_SENSOR_CLOUD_COVERAGE),
-                        CONF_SENSOR_DEW_POINT: get_entity_id(CONF_SENSOR_DEW_POINT),
-                        CONF_SENSOR_APPARENT_TEMPERATURE: get_entity_id(CONF_SENSOR_APPARENT_TEMPERATURE),
-                    },
-                    options=self.config_entry.options,
-                )
+                # Update local state with sensors
+                self.updated_data[CONF_SENSOR_TEMPERATURE] = get_entity_id(CONF_SENSOR_TEMPERATURE)
+                self.updated_data[CONF_SENSOR_HUMIDITY] = get_entity_id(CONF_SENSOR_HUMIDITY)
+                self.updated_data[CONF_SENSOR_PRESSURE] = get_entity_id(CONF_SENSOR_PRESSURE)
+                self.updated_data[CONF_SENSOR_WIND_SPEED] = get_entity_id(CONF_SENSOR_WIND_SPEED)
+                self.updated_data[CONF_SENSOR_WIND_BEARING] = get_entity_id(CONF_SENSOR_WIND_BEARING)
+                self.updated_data[CONF_SENSOR_WIND_GUST] = get_entity_id(CONF_SENSOR_WIND_GUST)
+                self.updated_data[CONF_SENSOR_VISIBILITY] = get_entity_id(CONF_SENSOR_VISIBILITY)
+                self.updated_data[CONF_SENSOR_UV_INDEX] = get_entity_id(CONF_SENSOR_UV_INDEX)
+                self.updated_data[CONF_SENSOR_OZONE] = get_entity_id(CONF_SENSOR_OZONE)
+                self.updated_data[CONF_SENSOR_CLOUD_COVERAGE] = get_entity_id(CONF_SENSOR_CLOUD_COVERAGE)
+                self.updated_data[CONF_SENSOR_DEW_POINT] = get_entity_id(CONF_SENSOR_DEW_POINT)
+                self.updated_data[CONF_SENSOR_APPARENT_TEMPERATURE] = get_entity_id(CONF_SENSOR_APPARENT_TEMPERATURE)
+                
                 return await self.async_step_condition_mapping_type()
 
         return self.async_show_form(
@@ -1194,20 +1139,13 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
         import voluptuous as vol
         errors = {}
         
-        # Get current mapping type from entry data, ensure it's valid
-        current_mapping_type = self.config_entry.data.get("mapping_type", "meteocat")
+        # Get current mapping type from updated data
+        current_mapping_type = self.updated_data.get("mapping_type", "meteocat")
         if not isinstance(current_mapping_type, str) or current_mapping_type not in ["meteocat", "custom"]:
             _LOGGER.warning("Invalid mapping_type '%s' (type: %s) found in entry data, resetting to 'meteocat'", 
                           current_mapping_type, type(current_mapping_type))
-            current_mapping_type = "meteocat"  # Fallback to safe default
-            # Update entry data to fix the invalid value
-            updated_data = dict(self.config_entry.data)
-            updated_data["mapping_type"] = "meteocat"
-            self.hass.config_entries.async_update_entry(
-                entry=self.config_entry,
-                data=updated_data
-            )
-            current_mapping_type = "meteocat"  # Fallback to safe default
+            current_mapping_type = "meteocat"
+            self.updated_data["mapping_type"] = "meteocat"
         
         if user_input is not None:
             mapping_type = user_input.get("mapping_type", current_mapping_type)
@@ -1216,43 +1154,24 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                 _LOGGER.error("Invalid mapping_type value: %s (type: %s)", mapping_type, type(mapping_type))
                 errors["mapping_type"] = "value_not_allowed"
             elif mapping_type == "meteocat":
-                # Update entry data with mapping type
-                updated_data = dict(self.config_entry.data)
-                updated_data["mapping_type"] = "meteocat"
-                # Ensure API key is preserved
-                if self.api_key:
-                    updated_data[CONF_API_KEY] = self.api_key
+                # Update local state
+                self.updated_data["mapping_type"] = "meteocat"
                 # Remove custom mapping fields if they exist
-                updated_data.pop("custom_condition_mapping", None)
-                updated_data.pop("local_condition_entity", None)
-                
-                self.hass.config_entries.async_update_entry(
-                    entry=self.config_entry,
-                    data=updated_data,
-                    options=self.config_entry.options,
-                )
+                self.updated_data.pop("custom_condition_mapping", None)
+                self.updated_data.pop("local_condition_entity", None)
                 
                 # If sensors are already configured (local mode), close the flow
                 # Otherwise, go to sensors configuration
-                mode = self.config_entry.data.get(CONF_MODE)
-                if mode == MODE_LOCAL and CONF_SENSOR_TEMPERATURE in self.config_entry.data:
+                mode = self.updated_data.get(CONF_MODE)
+                if mode == MODE_LOCAL and CONF_SENSOR_TEMPERATURE in self.updated_data:
+                    self._save_changes()
                     return self.async_create_entry(title="", data=None)
                 else:
                     return await self.async_step_local_sensors()
                 
             elif mapping_type == "custom":
-                # Update entry data with mapping type
-                updated_data = dict(self.config_entry.data)
-                updated_data["mapping_type"] = "custom"
-                # Ensure API key is preserved
-                if self.api_key:
-                    updated_data[CONF_API_KEY] = self.api_key
-                
-                self.hass.config_entries.async_update_entry(
-                    entry=self.config_entry,
-                    data=updated_data,
-                    options=self.config_entry.options,
-                )
+                # Update local state
+                self.updated_data["mapping_type"] = "custom"
                 return await self.async_step_condition_mapping_custom()
         
         schema = vol.Schema({
@@ -1284,9 +1203,9 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
         import voluptuous as vol
         errors = {}
         
-        # Get current custom mapping data
-        current_entity = self.config_entry.data.get("local_condition_entity", "")
-        current_mapping = self.config_entry.data.get("custom_condition_mapping", {})
+        # Get current custom mapping data from updated data
+        current_entity = self.updated_data.get("local_condition_entity", "")
+        current_mapping = self.updated_data.get("custom_condition_mapping", {})
         
         # Pre-process mapping for display (Invert: condition -> "1, 2, 3")
         inverted_mapping = {}
@@ -1319,24 +1238,12 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                     else:
                         errors["base"] = "invalid_format"
                 else:
-                    # Ensure API key is preserved in data
-                    api_key = self.config_entry.data.get(CONF_API_KEY) or self.config_entry.options.get(CONF_API_KEY)
+                    # Update local state
+                    self.updated_data["mapping_type"] = "custom"
+                    self.updated_data["custom_condition_mapping"] = parsed_mapping
+                    self.updated_data["local_condition_entity"] = local_entity
                     
-                    # Update entry data with custom mapping
-                    updated_data = dict(self.config_entry.data)
-                    updated_data[CONF_API_KEY] = api_key
-                    updated_data["mapping_type"] = "custom"
-                    updated_data["custom_condition_mapping"] = parsed_mapping
-                    updated_data["local_condition_entity"] = local_entity
-                    
-                    self.hass.config_entries.async_update_entry(
-                        entry=self.config_entry,
-                        data=updated_data,
-                        options={
-                            **self.config_entry.options,
-                            CONF_API_KEY: api_key,  # Also store in options for safety
-                        },
-                    )
+                    self._save_changes()
                     
                     return self.async_create_entry(title="", data=None)
 
