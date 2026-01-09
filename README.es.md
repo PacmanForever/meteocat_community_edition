@@ -245,6 +245,10 @@ Para cada estación configurada se crean:
 - **Precipitación diaria**: Precipitación diaria acumulada (mm) (Si la estación dispone de ella)
 - Entity ID: `sensor.{estacion}_{codigo}_precipitation`
 
+#### Sensor UTCI (Sensación térmica)
+- **Índice UTCI**: Calcula la sensación térmica basada en temperatura, humedad y viento (si están disponibles).
+- Entity ID: `sensor.{estacion}_{codigo}_utci_index`
+
 #### Sensores de Cuotas
 - **Peticiones disponibles Predicción**: Consumos restantes del plan Predicción
 - **Peticiones disponibles XEMA**: Consumos restantes del plan XEMA
@@ -294,6 +298,11 @@ Para cada municipio configurado se crean:
 
 #### Weather Entity
 - `weather.{municipio}`: Entidad principal. Muestra el estado actual (de tus sensores) y la predicción (del Meteocat).
+
+#### Sensor UTCI
+- **Nombre**: {Municipio} Índice UTCI
+- **Entity ID**: `sensor.{municipio}_utci_index`
+- Estado: Sensación térmica calculada (si se han configurado los sensores necesarios)
 
 #### Sensor Predicción horaria
 - **Nombre**: {Municipio} Predicción horaria

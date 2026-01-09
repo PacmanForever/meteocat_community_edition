@@ -35,10 +35,13 @@ from homeassistant.const import (
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers import entity_registry as er
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback, State
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.helpers.event import async_track_state_change_event
+from homeassistant.helpers.typing import EventType
 
+from .utils import calculate_utci
 from .const import (
     ATTRIBUTION,
     METEOCAT_CONDITION_MAP,
@@ -48,6 +51,9 @@ from .const import (
     CONF_MUNICIPALITY_NAME,
     CONF_STATION_CODE,
     CONF_STATION_NAME,
+    CONF_SENSOR_TEMPERATURE,
+    CONF_SENSOR_HUMIDITY,
+    CONF_SENSOR_WIND_SPEED,
     DOMAIN,
     MODE_LOCAL,
     MODE_EXTERNAL,
@@ -139,9 +145,18 @@ async def async_setup_entry(
             entities.append(
                 MeteocatXemaSensor(coordinator, entry, entity_name, variable_code)
             )
+        
+        # Add UTCI Sensor (External)
+        entities.append(MeteocatUTCISensor(coordinator, entry, entity_name_with_code))
     else:
         entity_name = entry.data.get(CONF_MUNICIPALITY_NAME, f"Municipi {municipality_code}")
         entity_name_with_code = entity_name  # For device grouping
+
+        # Add UTCI Sensor (Local)
+        if (entry.data.get(CONF_SENSOR_TEMPERATURE) and 
+            entry.data.get(CONF_SENSOR_HUMIDITY) and 
+            entry.data.get(CONF_SENSOR_WIND_SPEED)):
+            entities.append(MeteocatUTCISensor(coordinator, entry, entity_name_with_code))
     
     # Clean up forecast sensors if disabled or not supported in current mode
     try:
@@ -1894,3 +1909,140 @@ class MeteocatEstimatedDaysRemainingSensor(MeteocatQuotaSensor):
         """Return the icon."""
         return "mdi:calendar-clock"
 
+
+class MeteocatUTCISensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
+    """UTCI Sensor (Universal Thermal Climate Index)."""
+    
+    _attr_has_entity_name = True
+    _attr_translation_key = "utci_index"
+    _attr_device_class = SensorDeviceClass.TEMPERATURE
+    _attr_native_unit_of_measurement = UnitOfTemperature.CELSIUS
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    # Icon for UTCI / Thermal sensation
+    _attr_icon = "mdi:thermometer-alert"
+
+    def __init__(
+        self,
+        coordinator: MeteocatCoordinator,
+        entry: ConfigEntry,
+        device_name: str,
+    ) -> None:
+        """Initialize the UTCI sensor."""
+        super().__init__(coordinator)
+        
+        self._entry = entry
+        self._mode = entry.data.get(CONF_MODE)
+        self._device_name = device_name
+        self._attr_unique_id = f"{entry.entry_id}_utci"
+        
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, entry.entry_id)},
+            "name": device_name,
+            "manufacturer": ATTRIBUTION,
+        }
+
+        # Local mode input entities
+        self._source_temp = entry.data.get(CONF_SENSOR_TEMPERATURE)
+        self._source_hum = entry.data.get(CONF_SENSOR_HUMIDITY)
+        self._source_wind = entry.data.get(CONF_SENSOR_WIND_SPEED)
+
+    async def async_added_to_hass(self) -> None:
+        """Register callbacks."""
+        await super().async_added_to_hass()
+        
+        # In local mode, we want to update instantly when source sensors change
+        if self._mode == MODE_LOCAL and self._source_temp and self._source_hum and self._source_wind:
+            self.async_on_remove(
+                async_track_state_change_event(
+                    self.hass,
+                    [self._source_temp, self._source_hum, self._source_wind],
+                    self._handle_local_update
+                )
+            )
+            # Initial calculation
+            self._update_local_value()
+
+    @callback
+    def _handle_local_update(self, event: EventType) -> None:
+        """Handle updates from local sensors."""
+        self._update_local_value()
+        self.async_write_ha_state()
+
+    def _update_local_value(self) -> None:
+        """Calculate UTCI from local sensors."""
+        try:
+            temp_state = self.hass.states.get(self._source_temp)
+            hum_state = self.hass.states.get(self._source_hum)
+            wind_state = self.hass.states.get(self._source_wind)
+
+            if not temp_state or not hum_state or not wind_state:
+                self._attr_native_value = None
+                self._attr_available = False
+                return
+
+            # Check for unavailable states
+            if (temp_state.state in ["unknown", "unavailable"] or 
+                hum_state.state in ["unknown", "unavailable"] or 
+                wind_state.state in ["unknown", "unavailable"]):
+                self._attr_native_value = None
+                self._attr_available = False
+                return
+
+            temp = float(temp_state.state)
+            hum = float(hum_state.state)
+            wind_kmh = float(wind_state.state) # Assuming km/h as requested by user
+
+            self._attr_native_value = calculate_utci(temp, hum, wind_kmh)
+            self._attr_available = True
+            
+        except (ValueError, TypeError):
+            self._attr_native_value = None
+            self._attr_available = False
+
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        """Handle updated data from the coordinator."""
+        # Only relevant for XEMA stations
+        if self._mode == MODE_EXTERNAL:
+            self._update_external_value()
+            self.async_write_ha_state()
+
+    def _update_external_value(self) -> None:
+        """Calculate UTCI from Meteocat data."""
+        if not self.coordinator.data or "mesures" not in self.coordinator.data:
+            self._attr_native_value = None
+            self._attr_available = False
+            return
+
+        mesures = self.coordinator.data["mesures"]
+        
+        # Check if we have required variables (32: Temp, 33: Hum, 30: Wind)
+        if 32 not in mesures or 33 not in mesures or 30 not in mesures:
+            self._attr_native_value = None
+            self._attr_available = False
+            return
+
+        try:
+            temp = float(mesures[32]["valor"])
+            hum = float(mesures[33]["valor"])
+            wind_ms = float(mesures[30]["valor"])
+            
+            # Convert m/s to km/h
+            wind_kmh = wind_ms * 3.6
+            
+            self._attr_native_value = calculate_utci(temp, hum, wind_kmh)
+            self._attr_available = True
+        except (ValueError, KeyError, TypeError):
+            self._attr_native_value = None
+            self._attr_available = False
+
+    @property
+    def available(self) -> bool:
+        """Return if entity is available."""
+        # Custom logic for availability
+        if self._mode == MODE_LOCAL:
+            # Managed by _update_local_value setting _attr_available
+            return self._attr_available
+        else:
+            # Managed by coordinator + data check
+            return super().available and self._attr_available

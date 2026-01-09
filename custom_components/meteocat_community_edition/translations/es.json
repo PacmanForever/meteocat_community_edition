@@ -225,8 +225,9 @@
       },
       "solar_radiation": {
         "name": "Radiación solar (UV)"
-      },
-      "forecast_hourly": {
+      },      "utci_index": {
+        "name": "Índice UTCI"
+      },      "forecast_hourly": {
         "name": "Predicción horaria"
       },
       "forecast_daily": {

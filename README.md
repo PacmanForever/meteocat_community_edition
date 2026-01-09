@@ -258,6 +258,7 @@ Aquest mode està pensat per obtenir dades d'una estació meteorològica oficial
 |-------|---------|------------|
 | **Weather** | `weather.{estacio}_{codi}` | Entitat principal. Mostra l'estat actual (temperatura, humitat, vent, pressió, pluja) obtingut de l'estació XEMA i la predicció (horària i diària) del municipi on es troba l'estació. |
 | **Sensor** | `sensor.{estacio}_{codi}_precipitation` | Precipitació diària acumulada (mm) (Si l'estació en disposa). |
+| **Sensor** | `sensor.{estacio}_{codi}_utci_index` | Índex UTCI (Sensació tèrmica). Només disponible si l'estació té Temperatura, Humitat i Vent. |
 | **Sensor** | `sensor.{estacio}_{codi}_quota_disponible_{pla}` | Un sensor per a cada pla de quotes rellevant (Predicció, XEMA). Mostra les peticions restants. |
 | **Binary Sensor** | `binary_sensor.{estacio}_{codi}_update_state` | Indica l'estat de l'última actualització (`OFF` = Correcte, `ON` = Error). |
 | **Sensor** | `sensor.{estacio}_{codi}_last_update` | Timestamp de l'última actualització de mesures (horària). |
@@ -288,6 +289,7 @@ Permet crear una entitat `weather` que combina:
 | Tipus | Entitat | Descripció |
 |-------|---------|------------|
 | **Weather** | `weather.{municipi}` | Entitat principal. Mostra l'estat actual (dels teus sensors) i la predicció (del Meteocat). Si la condició climàtica no es pot determinar, mostra "unknown" amb icona genèrica. |
+| **Sensor** | `sensor.{municipi}_utci_index` | Índex UTCI (Sensació tèrmica). Només disponible si has configurat Temperatura, Humitat i Vent locals. |
 | **Sensor** | `sensor.{municipi}_prediccio_horaria` | L'estat mostra les hores disponibles. Els atributs contenen la predicció completa per a 72h. |
 | **Sensor** | `sensor.{municipi}_prediccio_diaria` | L'estat mostra els dies disponibles. Els atributs contenen la predicció completa per a 8 dies. |
 | **Sensor** | `sensor.{municipi}_quota_disponible_{pla}` | Un sensor per a cada pla de quotes rellevant (Predicció). Mostra les peticions restants. |

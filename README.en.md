@@ -245,6 +245,10 @@ For each configured station, these entities are created:
 - **Daily precipitation**: Accumulated daily precipitation (mm) (If available at the station)
 - Entity ID: `sensor.{station}_{code}_precipitation`
 
+#### UTCI Sensor (Heat Index)
+- **UTCI Index**: Calculates thermal sensation based on temp, humidity, and wind (if available on station).
+- Entity ID: `sensor.{station}_{code}_utci_index`
+
 #### Quota Sensors
 - **Available Requests Forecast**: Remaining requests for Forecast plan
 - **Available Requests XEMA**: Remaining requests for XEMA plan
@@ -294,6 +298,11 @@ For each configured municipality, these entities are created:
 
 #### Weather Entity
 - `weather.{municipality}`: Main entity. Shows current state (from your sensors) and forecast (from Meteocat).
+
+#### UTCI Sensor
+- **Name**: {Municipality} UTCI Index
+- **Entity ID**: `sensor.{municipality}_utci_index`
+- State: Calculated thermal sensation (if required sensors are configured)
 
 #### Hourly Forecast Sensor
 - **Name**: {Municipality} Hourly forecast
