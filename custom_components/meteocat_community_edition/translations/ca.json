@@ -221,7 +221,7 @@
         "name": "Direcció del vent"
       },
       "precipitation": {
-        "name": "Precipitació Diària"
+        "name": "Precipitació diària"
       },
       "solar_radiation": {
         "name": "Radiació solar (UV)"
