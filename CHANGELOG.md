@@ -5,6 +5,11 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.75] - 2026-01-09
+
+### Corregit
+- **Manifest**: Corregit error de sintaxi (coma final) en `manifest.json` que provocava error en la validació.
+
 ## [1.2.74] - 2026-01-09
 
 ### Afegit
