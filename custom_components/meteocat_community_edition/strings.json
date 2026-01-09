@@ -229,6 +229,20 @@
       "utci_index": {
         "name": "UTCI Index"
       },
+      "utci_category": {
+        "name": "Thermal Comfort Status",
+        "state": {
+          "stress_extreme_heat": "Extreme heat stress",
+          "stress_very_strong_heat": "Very strong heat stress",
+          "stress_strong_heat": "Strong heat stress",
+          "stress_moderate_heat": "Moderate heat stress",
+          "comfort_no_stress": "Comfort (No thermal stress)",
+          "stress_moderate_cold": "Moderate cold stress",
+          "stress_strong_cold": "Strong cold stress",
+          "stress_very_strong_cold": "Very strong cold stress",
+          "stress_extreme_cold": "Extreme cold stress"
+        }
+      },
       "forecast_hourly": {
         "name": "Hourly forecast"
       },

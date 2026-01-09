@@ -259,6 +259,7 @@ Aquest mode està pensat per obtenir dades d'una estació meteorològica oficial
 | **Weather** | `weather.{estacio}_{codi}` | Entitat principal. Mostra l'estat actual (temperatura, humitat, vent, pressió, pluja) obtingut de l'estació XEMA i la predicció (horària i diària) del municipi on es troba l'estació. |
 | **Sensor** | `sensor.{estacio}_{codi}_precipitation` | Precipitació diària acumulada (mm) (Si l'estació en disposa). |
 | **Sensor** | `sensor.{estacio}_{codi}_utci_index` | Índex UTCI (Sensació tèrmica). Només disponible si l'estació té Temperatura, Humitat i Vent. |
+| **Sensor** | `sensor.{estacio}_{codi}_utci_literal` | Estat de Confort Tèrmic. Text i icona que indica el nivell d'estrès tèrmic basat en l'UTCI. |
 | **Sensor** | `sensor.{estacio}_{codi}_quota_disponible_{pla}` | Un sensor per a cada pla de quotes rellevant (Predicció, XEMA). Mostra les peticions restants. |
 | **Binary Sensor** | `binary_sensor.{estacio}_{codi}_update_state` | Indica l'estat de l'última actualització (`OFF` = Correcte, `ON` = Error). |
 | **Sensor** | `sensor.{estacio}_{codi}_last_update` | Timestamp de l'última actualització de mesures (horària). |
@@ -290,6 +291,7 @@ Permet crear una entitat `weather` que combina:
 |-------|---------|------------|
 | **Weather** | `weather.{municipi}` | Entitat principal. Mostra l'estat actual (dels teus sensors) i la predicció (del Meteocat). Si la condició climàtica no es pot determinar, mostra "unknown" amb icona genèrica. |
 | **Sensor** | `sensor.{municipi}_utci_index` | Índex UTCI (Sensació tèrmica). Només disponible si has configurat Temperatura, Humitat i Vent locals. |
+| **Sensor** | `sensor.{municipi}_utci_literal` | Estat de Confort Tèrmic. Text i icona que indica el nivell d'estrès tèrmic basat en l'UTCI. |
 | **Sensor** | `sensor.{municipi}_prediccio_horaria` | L'estat mostra les hores disponibles. Els atributs contenen la predicció completa per a 72h. |
 | **Sensor** | `sensor.{municipi}_prediccio_diaria` | L'estat mostra els dies disponibles. Els atributs contenen la predicció completa per a 8 dies. |
 | **Sensor** | `sensor.{municipi}_quota_disponible_{pla}` | Un sensor per a cada pla de quotes rellevant (Predicció). Mostra les peticions restants. |
@@ -305,6 +307,22 @@ Permet crear una entitat `weather` que combina:
 | **Button** | `button.{municipi}_refresh` | Botó per forçar una actualització manual immediata. |
 
 > **Nota:** Durant la configuració, se't demanarà que seleccionis els sensors de la teva estació local per alimentar l'entitat `weather`.
+
+### Valors de l'Índex UTCI (Confort Tèrmic)
+
+El sensor "Estat de Confort Tèrmic" mostra un text i una icona segons el valor de l'índex UTCI:
+
+| Rang UTCI (ºC) | Estat | Icona |
+|-----------|-------|-------|
+| > 46 | Estrès extrem per calor | `thermometer-alert` |
+| 38 a 46 | Estrès molt fort per calor | `thermometer-alert` |
+| 32 a 38 | Estrès fort per calor | `thermometer-alert` |
+| 26 a 32 | Estrès moderat per calor | `thermometer-alert` |
+| 9 a 26 | Confort (Sense estrès) | `check-circle-outline` |
+| 0 a 9 | Estrès moderat per fred | `snowflake-alert` |
+| -13 a 0 | Estrès fort per fred | `snowflake-alert` |
+| -27 a -13 | Estrès molt fort per fred | `snowflake-alert` |
+| < -27 | Estrès extrem per fred | `snowflake-alert` |
 
 ## Actualització de dades
 

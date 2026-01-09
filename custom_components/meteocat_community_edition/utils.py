@@ -24,3 +24,33 @@ def calculate_utci(temp_c: float, humidity_percent: float, wind_speed_kmh: float
     utci = temp_c + (0.049 * temp_c + 0.455) * (va - 1) + (0.001 * temp_c + 0.015) * (humidity_percent - 50)
     
     return round(utci, 1)
+
+def get_utci_category_key(utci_value: float) -> str:
+    """Return the translation key suffix for the UTCI category."""
+    if utci_value > 46:
+        return "stress_extreme_heat"
+    elif utci_value > 38:
+        return "stress_very_strong_heat"
+    elif utci_value > 32:
+        return "stress_strong_heat"
+    elif utci_value > 26:
+        return "stress_moderate_heat"
+    elif utci_value >= 9:
+        return "comfort_no_stress"
+    elif utci_value >= 0:
+        return "stress_moderate_cold"
+    elif utci_value >= -13:
+        return "stress_strong_cold"
+    elif utci_value >= -27:
+        return "stress_very_strong_cold"
+    else:
+        return "stress_extreme_cold"
+
+def get_utci_icon(utci_value: float) -> str:
+    """Return the icon based on UTCI value."""
+    if utci_value > 26:
+        return "mdi:thermometer-alert"
+    elif utci_value < 9:
+        return "mdi:snowflake-alert"
+    else:
+        return "mdi:check-circle-outline"

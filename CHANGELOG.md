@@ -5,7 +5,14 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
-## [1.2.73] - 2026-01-09
+## [1.2.74] - 2026-01-09
+
+### Afegit
+- **Sensors UTCI**: Nous sensors per a l'Índex Climàtic Tèrmic Universal (UTCI).
+  - Sensor numèric (ºC) calculat en base a temperatura, humitat i vent.
+  - Sensor literal (Estat de Confort Tèrmic) amb text descriptiu i icona dinàmica.
+  - Disponibles tant en mode Estació Externa (XEMA) com Local (si tenen sensors).
+- **Tests**: Incrementada la cobertura de tests al 96% amb nous tests per a UTCI.
 
 ### Corregit
 - **Config Flow**: Corregit error de validació en `MeteocatOptionsFlow` que impedia visualitzar correctament les opcions editables.

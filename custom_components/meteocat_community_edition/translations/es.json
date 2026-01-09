@@ -227,7 +227,22 @@
         "name": "Radiación solar (UV)"
       },      "utci_index": {
         "name": "Índice UTCI"
-      },      "forecast_hourly": {
+      },
+      "utci_category": {
+        "name": "Estado del Confort Térmico",
+        "state": {
+          "stress_extreme_heat": "Estrés extremo por calor",
+          "stress_very_strong_heat": "Estrés muy fuerte por calor",
+          "stress_strong_heat": "Estrés fuerte por calor",
+          "stress_moderate_heat": "Estrés moderado por calor",
+          "comfort_no_stress": "Confort (Sin estrés térmico)",
+          "stress_moderate_cold": "Estrés moderado por frío",
+          "stress_strong_cold": "Estrés fuerte por frío",
+          "stress_very_strong_cold": "Estrés muy fuerte por frío",
+          "stress_extreme_cold": "Estrés extremo por frío"
+        }
+      },
+      "forecast_hourly": {
         "name": "Predicción horaria"
       },
       "forecast_daily": {

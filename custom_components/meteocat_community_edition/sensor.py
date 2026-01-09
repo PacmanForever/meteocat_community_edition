@@ -35,13 +35,12 @@ from homeassistant.const import (
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers import entity_registry as er
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant, callback, State
+from homeassistant.core import HomeAssistant, callback, State, Event
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.helpers.event import async_track_state_change_event
-from homeassistant.helpers.typing import EventType
 
-from .utils import calculate_utci
+from .utils import calculate_utci, get_utci_category_key, get_utci_icon
 from .const import (
     ATTRIBUTION,
     METEOCAT_CONDITION_MAP,
@@ -148,6 +147,8 @@ async def async_setup_entry(
         
         # Add UTCI Sensor (External)
         entities.append(MeteocatUTCISensor(coordinator, entry, entity_name_with_code))
+        # Add UTCI Literal Sensor (External)
+        entities.append(MeteocatUTCILiteralSensor(coordinator, entry, entity_name_with_code))
     else:
         entity_name = entry.data.get(CONF_MUNICIPALITY_NAME, f"Municipi {municipality_code}")
         entity_name_with_code = entity_name  # For device grouping
@@ -157,6 +158,7 @@ async def async_setup_entry(
             entry.data.get(CONF_SENSOR_HUMIDITY) and 
             entry.data.get(CONF_SENSOR_WIND_SPEED)):
             entities.append(MeteocatUTCISensor(coordinator, entry, entity_name_with_code))
+            entities.append(MeteocatUTCILiteralSensor(coordinator, entry, entity_name_with_code))
     
     # Clean up forecast sensors if disabled or not supported in current mode
     try:
@@ -1963,7 +1965,7 @@ class MeteocatUTCISensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
             self._update_local_value()
 
     @callback
-    def _handle_local_update(self, event: EventType) -> None:
+    def _handle_local_update(self, event: Event) -> None:
         """Handle updates from local sensors."""
         self._update_local_value()
         self.async_write_ha_state()
@@ -2046,3 +2048,69 @@ class MeteocatUTCISensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
         else:
             # Managed by coordinator + data check
             return super().available and self._attr_available
+
+
+class MeteocatUTCILiteralSensor(MeteocatUTCISensor):
+    """UTCI Literal Sensor (Thermal Comfort Status)."""
+
+    _attr_translation_key = "utci_category"
+    _attr_device_class = SensorDeviceClass.ENUM
+    _attr_native_unit_of_measurement = None
+    _attr_state_class = None
+    _attr_options = [
+        "stress_extreme_heat",
+        "stress_very_strong_heat",
+        "stress_strong_heat",
+        "stress_moderate_heat",
+        "comfort_no_stress",
+        "stress_moderate_cold",
+        "stress_strong_cold",
+        "stress_very_strong_cold",
+        "stress_extreme_cold",
+    ]
+
+    def __init__(
+        self,
+        coordinator: MeteocatCoordinator,
+        entry: ConfigEntry,
+        device_name: str,
+    ) -> None:
+        """Initialize the UTCI literal sensor."""
+        super().__init__(coordinator, entry, device_name)
+        
+        self._attr_unique_id = f"{entry.entry_id}_utci_literal"
+        # We need to ensure we don't have unit
+        self._attr_native_unit_of_measurement = None
+        self._attr_state_class = None
+        
+        # Default icon
+        self._attr_icon = "mdi:check-circle-outline"
+
+    def _update_status_from_utci(self, utci: float | None) -> None:
+        """Update status and icon based on UTCI value."""
+        if utci is None:
+            self._attr_native_value = None
+            self._attr_available = False
+            self._attr_icon = "mdi:help-circle-outline"
+            return
+            
+        self._attr_native_value = get_utci_category_key(utci)
+        self._attr_available = True
+        self._attr_icon = get_utci_icon(utci)
+
+    def _update_local_value(self) -> None:
+        """Calculate UTCI from local sensors and set status."""
+        super()._update_local_value() # This sets self._attr_native_value to float (or None)
+        utci = self._attr_native_value
+        self._update_status_from_utci(utci)
+
+    def _update_external_value(self) -> None:
+        """Calculate UTCI from Meteocat data and set status."""
+        super()._update_external_value() # This sets self._attr_native_value to float (or None)
+        utci = self._attr_native_value
+        self._update_status_from_utci(utci)
+        
+    @property
+    def icon(self) -> str:
+        """Return the icon."""
+        return self._attr_icon

@@ -230,6 +230,14 @@ This document outlines the specific requirements for the Meteocat Community Edit
 - **Municipality Longitude**: Geographic coordinate (if available in API)
 - **Province**: Municipality province (if available in API)
 
+#### UTCI Sensors (Universal Thermal Climate Index)
+- **Numeric UTCI Index**: Calculates thermal sensation based on temp, humidity, and wind.
+  - Formula: Linear approximation
+  - Input: Temp (°C), Humidity (%), Wind (km/h)
+- **Literal UTCI Status**: Text description and icon based on UTCI value.
+  - Categories: 9 ranges from Extreme Heat to Extreme Cold
+  - Visual indicators: Check icon for comfort, Alert/Snowflake/Thermometer for stress.
+
 #### API Quota Sensors
 - Same as MODE_EXTERNAL
 

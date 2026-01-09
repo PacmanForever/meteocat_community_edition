@@ -248,6 +248,8 @@ For each configured station, these entities are created:
 #### UTCI Sensor (Heat Index)
 - **UTCI Index**: Calculates thermal sensation based on temp, humidity, and wind (if available on station).
 - Entity ID: `sensor.{station}_{code}_utci_index`
+- **Thermal Comfort Status**: Text and icon indicating the heat/cold stress level based on UTCI.
+- Entity ID: `sensor.{station}_{code}_utci_literal`
 
 #### Quota Sensors
 - **Available Requests Forecast**: Remaining requests for Forecast plan
@@ -304,6 +306,11 @@ For each configured municipality, these entities are created:
 - **Entity ID**: `sensor.{municipality}_utci_index`
 - State: Calculated thermal sensation (if required sensors are configured)
 
+#### UTCI Literal Sensor
+- **Name**: {Municipality} Thermal Comfort Status
+- **Entity ID**: `sensor.{municipality}_utci_literal`
+- State: Description of thermal stress and corresponding icon
+
 #### Hourly Forecast Sensor
 - **Name**: {Municipality} Hourly forecast
 - **Entity ID**: `sensor.{municipality}_previsio_horaria`
@@ -344,6 +351,22 @@ For each configured municipality, these entities are created:
 - Example: `button.Barcelona_refresh`
 
 > **Note:** All entities are grouped under a single device named "{Municipality}" (e.g., "Barcelona")
+
+### UTCI Index Values (Thermal Comfort)
+
+The "Thermal Comfort Status" sensor shows a text and an icon depending on the UTCI index value:
+
+| UTCI Range (ºC) | Status | Icon |
+|-----------|-------|-------|
+| > 46 | Extreme heat stress | `thermometer-alert` |
+| 38 to 46 | Very strong heat stress | `thermometer-alert` |
+| 32 to 38 | Strong heat stress | `thermometer-alert` |
+| 26 to 32 | Moderate heat stress | `thermometer-alert` |
+| 9 to 26 | Comfort (No stress) | `check-circle-outline` |
+| 0 to 9 | Moderate cold stress | `snowflake-alert` |
+| -13 to 0 | Strong cold stress | `snowflake-alert` |
+| -27 to -13 | Very strong cold stress | `snowflake-alert` |
+| < -27 | Extreme cold stress | `snowflake-alert` |
 
 ## Data Updates
 

@@ -248,6 +248,8 @@ Para cada estación configurada se crean:
 #### Sensor UTCI (Sensación térmica)
 - **Índice UTCI**: Calcula la sensación térmica basada en temperatura, humedad y viento (si están disponibles).
 - Entity ID: `sensor.{estacion}_{codigo}_utci_index`
+- **Estado de Confort Térmico**: Texto e icono que indica el nivel de estrés térmico basado en el UTCI.
+- Entity ID: `sensor.{estacion}_{codigo}_utci_literal`
 
 #### Sensores de Cuotas
 - **Peticiones disponibles Predicción**: Consumos restantes del plan Predicción
@@ -304,6 +306,11 @@ Para cada municipio configurado se crean:
 - **Entity ID**: `sensor.{municipio}_utci_index`
 - Estado: Sensación térmica calculada (si se han configurado los sensores necesarios)
 
+#### Sensor UTCI Literal
+- **Nombre**: {Municipio} Estado de Confort Térmico
+- **Entity ID**: `sensor.{municipio}_utci_literal`
+- Estado: Descripción del estrés térmico e icono correspondiente
+
 #### Sensor Predicción horaria
 - **Nombre**: {Municipio} Predicción horaria
 - **Entity ID**: `sensor.{municipio}_prediccio_horaria`
@@ -344,6 +351,22 @@ Para cada municipio configurado se crean:
 - Ejemplo: `button.Barcelona_refresh`
 
 > **Nota:** Todas las entidades se agrupan bajo un único dispositivo con nombre "{Municipio}" (ej: "Barcelona")
+
+### Valores del Índice UTCI (Confort Térmico)
+
+El sensor "Estado de Confort Térmico" muestra un texto y un icono según el valor del índice UTCI:
+
+| Rango UTCI (ºC) | Estado | Icono |
+|-----------|-------|-------|
+| > 46 | Estrés extremo por calor | `thermometer-alert` |
+| 38 a 46 | Estrés muy fuerte por calor | `thermometer-alert` |
+| 32 a 38 | Estrés fuerte por calor | `thermometer-alert` |
+| 26 a 32 | Estrés moderado por calor | `thermometer-alert` |
+| 9 a 26 | Confort (Sin estrés) | `check-circle-outline` |
+| 0 a 9 | Estrés moderado por frío | `snowflake-alert` |
+| -13 a 0 | Estrés fuerte por frío | `snowflake-alert` |
+| -27 a -13 | Estrés muy fuerte por frío | `snowflake-alert` |
+| < -27 | Estrés extremo por frío | `snowflake-alert` |
 
 ## Actualización de datos
 

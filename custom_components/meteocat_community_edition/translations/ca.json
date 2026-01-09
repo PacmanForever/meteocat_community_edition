@@ -227,7 +227,22 @@
         "name": "Radiació solar (UV)"
       },      "utci_index": {
         "name": "Índex UTCI"
-      },      "forecast_hourly": {
+      },
+      "utci_category": {
+        "name": "Estat de Confort Tèrmic",
+        "state": {
+          "stress_extreme_heat": "Estrès extrem per calor",
+          "stress_very_strong_heat": "Estrès molt fort per calor",
+          "stress_strong_heat": "Estrès fort per calor",
+          "stress_moderate_heat": "Estrès moderat per calor",
+          "comfort_no_stress": "Confort (Sense estrès tèrmic)",
+          "stress_moderate_cold": "Estrès moderat per fred",
+          "stress_strong_cold": "Estrès fort per fred",
+          "stress_very_strong_cold": "Estrès molt fort per fred",
+          "stress_extreme_cold": "Estrès extrem per fred"
+        }
+      },
+      "forecast_hourly": {
         "name": "Predicció horària"
       },
       "forecast_daily": {
