@@ -1,3 +1,9 @@
+# v1.2.86 - Correcció Inicialització Sensors UTCI/Beaufort
+
+## 🐛 Correccions
+- **Inicialització**: Solucionat un problema on els sensors UTCI i Beaufort apareixien com a "Desconeguts" en reiniciar Home Assistant fins a la següent actualització programada (en mode Estació XEMA). Ara s'inicialitzen immediatament si ja hi ha dades disponibles.
+- **Mode Local**: Millorada la robustesa del sensor Beaufort en mode local quan només es configura el sensor de vent (sense temperatura/humitat).
+
 # v1.2.85 - Correcció Càlcul Beaufort
 
 ## 🐛 Correccions

@@ -5,6 +5,12 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.86] - 2026-01-10
+
+### Arreglat
+- **Inicialització**: Forçada l'actualització inicial dels sensors UTCI i Beaufort en mode extern si el coordinador ja té dades. Evita l'estat "Desconegut" a l'inici.
+- **Mode Local**: Assegurat que el sensor Beaufort funcioni encara que faltin sensors de temperatura/humitat (necessaris per UTCI però no per Beaufort).
+
 ## [1.2.85] - 2026-01-10
 
 ### Arreglat

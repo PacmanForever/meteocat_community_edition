@@ -1982,6 +1982,10 @@ class MeteocatUTCISensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
     async def async_added_to_hass(self) -> None:
         """Register callbacks."""
         await super().async_added_to_hass()
+
+        # Update from coordinator data if already available (External Mode)
+        if self._mode == MODE_EXTERNAL and self.coordinator.data:
+            self._update_external_value()
         
         # In local mode, we want to update instantly when source sensors change
         if self._mode == MODE_LOCAL and self._source_temp and self._source_hum and self._source_wind:
@@ -2180,6 +2184,24 @@ class MeteocatBeaufortSensor(MeteocatUTCISensor):
         """Initialize."""
         super().__init__(coordinator, entry, device_name)
         self._attr_unique_id = f"{entry.entry_id}_beaufort_index"
+
+    async def async_added_to_hass(self) -> None:
+        """Register callbacks."""
+        await super().async_added_to_hass()
+
+        # In local mode, ensure we track wind even if temp/hum are missing
+        # (Parent class only registers if ALL 3 are present)
+        if self._mode == MODE_LOCAL and self._source_wind:
+            # If parent didn't register (missing temp or hum), we do it here
+            if not (self._source_temp and self._source_hum):
+                self.async_on_remove(
+                    async_track_state_change_event(
+                        self.hass,
+                        [self._source_wind],
+                        self._handle_local_update
+                    )
+                )
+                self._update_local_value()
 
     def _update_from_wind(self, wind_kmh: float | None) -> None:
         if wind_kmh is None:
