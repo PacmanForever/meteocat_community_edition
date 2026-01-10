@@ -677,8 +677,9 @@ class MeteocatForecastSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
                             pass
                     
                     if time_str in estat_dict:
-                        condition = METEOCAT_CONDITION_MAP.get(estat_dict[time_str], "exceptional")
-                        forecast_item["condition"] = condition
+                        condition = METEOCAT_CONDITION_MAP.get(estat_dict[time_str])
+                        if condition:
+                            forecast_item["condition"] = condition
                     
                     if time_str in precip_dict:
                         try:
@@ -734,8 +735,9 @@ class MeteocatForecastSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
             if isinstance(estat_cel, dict):
                 estat_code = estat_cel.get("valor")
                 if estat_code is not None:
-                    condition = METEOCAT_CONDITION_MAP.get(estat_code, "exceptional")
-                    forecast_item["condition"] = condition
+                    condition = METEOCAT_CONDITION_MAP.get(estat_code)
+                    if condition:
+                        forecast_item["condition"] = condition
             
             # Precipitation (simple object with valor, percentage)
             precip = variables.get("precipitacio", {})

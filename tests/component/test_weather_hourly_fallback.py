@@ -80,4 +80,4 @@ async def test_condition_from_hourly_forecast_exceptional(mock_coordinator, mock
         }
         
         weather = MeteocatLocalWeather(mock_coordinator, mock_entry)
-        assert weather.condition == "exceptional"
+        assert weather.condition is None

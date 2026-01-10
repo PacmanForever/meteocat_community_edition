@@ -47,11 +47,11 @@ def test_weather_condition_fallback_exceptional(mock_coordinator, mock_entry):
     weather = MeteocatWeather(mock_coordinator, mock_entry)
     
     # Before the change this would be "cloudy"
-    # Now it should be "exceptional"
-    assert weather.condition == "exceptional"
+    # Now it should be None (Unknown)
+    assert weather.condition is None
 
 def test_sensor_forecast_fallback_exceptional(mock_coordinator, mock_entry):
-    """Test that forecast sensor falls back to 'exceptional' for unknown codes."""
+    """Test that forecast sensor falls back to None for unknown codes."""
     # Setup forecast data with unknown code
     mock_coordinator.data = {
         "forecast_hourly": {
@@ -84,7 +84,8 @@ def test_sensor_forecast_fallback_exceptional(mock_coordinator, mock_entry):
     assert len(forecasts) > 0
     item = forecasts[0]
     
-    assert item["condition"] == "exceptional"
+    # Condition key should be missing or None
+    assert "condition" not in item or item["condition"] is None
 
 @pytest.mark.asyncio
 async def test_weather_forecast_fallback_exceptional_async(mock_coordinator, mock_entry):
@@ -107,4 +108,8 @@ async def test_weather_forecast_fallback_exceptional_async(mock_coordinator, moc
     forecasts = await weather.async_forecast_hourly()
     
     assert len(forecasts) > 0
-    assert forecasts[0]["condition"] == "exceptional"
+    # Condition key should be missing or None (Forecast type usually has all keys but typed dict allows optional)
+    # The implementation returns what it puts in.
+    # In my implementation: "condition": condition. If logic skipped key or assigned none?
+    # Logic: if condition: forecast_item["condition"] = condition. So key is missing.
+    assert "condition" not in forecasts[0] or forecasts[0]["condition"] is None

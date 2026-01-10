@@ -202,7 +202,7 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
                         last_reading = lectures[-1]
                         estat_code = last_reading.get("valor")
                         if estat_code is not None:
-                            condition = METEOCAT_CONDITION_MAP.get(estat_code, "exceptional")
+                            condition = METEOCAT_CONDITION_MAP.get(estat_code)
                             
                             # Convert sunny to clear-night if sun is below horizon
                             if condition == "sunny" and self._is_night():
@@ -228,7 +228,7 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
         if isinstance(estat_cel, dict):
             estat_code = estat_cel.get("valor")
             if estat_code is not None:
-                condition = METEOCAT_CONDITION_MAP.get(estat_code, "exceptional")
+                condition = METEOCAT_CONDITION_MAP.get(estat_code)
                 
                 # Convert sunny to clear-night if sun is below horizon
                 if condition == "sunny" and self._is_night():
@@ -304,8 +304,9 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
                             pass
                     
                     if time_str in estat_dict:
-                        condition = METEOCAT_CONDITION_MAP.get(estat_dict[time_str], "exceptional")
-                        forecast_item["condition"] = condition
+                        condition = METEOCAT_CONDITION_MAP.get(estat_dict[time_str])
+                        if condition:
+                            forecast_item["condition"] = condition
                     
                     if time_str in precip_dict:
                         try:
@@ -372,8 +373,9 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
             if isinstance(estat_cel, dict):
                 estat_code = estat_cel.get("valor")
                 if estat_code is not None:
-                    condition = METEOCAT_CONDITION_MAP.get(estat_code, "exceptional")
-                    forecast_item["condition"] = condition
+                    condition = METEOCAT_CONDITION_MAP.get(estat_code)
+                    if condition:
+                        forecast_item["condition"] = condition
             
             # Precipitation (simple object with valor, percentage)
             precip = variables.get("precipitacio", {})
@@ -620,11 +622,11 @@ class MeteocatLocalWeather(MeteocatWeather):
                                     if estat_code is not None:
                                         if self._mapping_type == "custom" and self._custom_condition_mapping:
                                             mapping = self._custom_condition_mapping
-                                            condition = mapping.get(str(estat_code), "exceptional")
+                                            condition = mapping.get(str(estat_code))
                                         else:
                                             from .const import METEOCAT_CONDITION_MAP
                                             mapping = METEOCAT_CONDITION_MAP
-                                            condition = mapping.get(estat_code, "exceptional")
+                                            condition = mapping.get(estat_code)
                                         
                                         if condition == "sunny" and self._is_night():
                                             return "clear-night"
@@ -646,12 +648,12 @@ class MeteocatLocalWeather(MeteocatWeather):
                         if self._mapping_type == "custom" and self._custom_condition_mapping:
                             mapping = self._custom_condition_mapping
                             # Custom mapping uses string keys
-                            condition = mapping.get(str(estat_code), "exceptional")
+                            condition = mapping.get(str(estat_code))
                         else:
                             from .const import METEOCAT_CONDITION_MAP
                             mapping = METEOCAT_CONDITION_MAP
                             # Default mapping uses integer keys
-                            condition = mapping.get(estat_code, "exceptional")
+                            condition = mapping.get(estat_code)
                         if condition == "sunny" and self._is_night():
                             return "clear-night"
                         return condition

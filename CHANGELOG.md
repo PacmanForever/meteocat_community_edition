@@ -5,6 +5,14 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.80] - 2026-01-10
+
+### Canviat
+- **Mapeig Condicions**: Canviat el comportament quan no es troba un codi de condició climàtica.
+  - Abans: `exceptional` (Excepcional)
+  - Ara: `Unknown` (Desconegut)
+  - Això evita que condicions com boira o altres fenòmens no mapejats apareguin com a excepcionals (icona d'alerta) quan simplement no tenim una icona específica assignada o el codi és nou. Ara es mostrarà com a desconegut, que és el comportament estàndard de Home Assistant.
+
 ## [1.2.79] - 2026-01-10
 
 ### Canviat
