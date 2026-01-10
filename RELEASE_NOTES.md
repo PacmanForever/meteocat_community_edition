@@ -1,3 +1,9 @@
+# v1.2.83 - Correccions i Traduccions Beaufort Oficials
+
+## ⚡ Canvis
+- **Traduccions Beaufort (Català)**: Actualitzades les descripcions de l'escala Beaufort per coincidir exactament amb la terminologia oficial del Pla Alfa (Generalitat de Catalunya).
+- **Documentació**: Taula Beaufort actualitzada al README amb els nous noms.
+
 # v1.2.82 - Millora UTCI i Nous Sensors de Vent (Beaufort)
 
 ## 🆕 Novetats

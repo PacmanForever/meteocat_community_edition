@@ -346,16 +346,16 @@ A més de la velocitat del vent en km/h, la integració ofereix l'escala Beaufor
 |-------|------------|--------------|
 | 0 | Calma | < 1 |
 | 1 | Ventolina | 1 - 5 |
-| 2 | Fluixet (Brisa molt feble) | 6 - 11 |
-| 3 | Fluix (Brisa feble) | 12 - 19 |
-| 4 | Bonancible (Brisa moderada) | 20 - 28 |
-| 5 | Fresquet (Brisa fresca) | 29 - 38 |
-| 6 | Fresc (Brisa forta) | 39 - 49 |
-| 7 | Frescàs (Vent fort) | 50 - 61 |
-| 8 | Temporal (Vent molt fort) | 62 - 74 |
+| 2 | Vent fluixet (brisa molt feble) | 6 - 11 |
+| 3 | Vent fluix (brisa feble) | 12 - 19 |
+| 4 | Vent moderat (brisa moderada) | 20 - 28 |
+| 5 | Vent fresquet (brisa fresca) | 29 - 38 |
+| 6 | Vent fresc (brisa forta) | 39 - 49 |
+| 7 | Vent fort | 50 - 61 |
+| 8 | Temporal | 62 - 74 |
 | 9 | Temporal fort | 75 - 88 |
 | 10 | Temporal molt fort | 89 - 102 |
-| 11 | Temporal violent | 103 - 117 |
+| 11 | Temporal violent (borrasca) | 103 - 117 |
 | 12+ | Huracà | > 117 |
 
 ## Actualització de dades
