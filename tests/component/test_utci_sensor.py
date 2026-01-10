@@ -42,12 +42,17 @@ def test_external_calc_valid(mock_coordinator, mock_entry):
     sensor = MeteocatUTCISensor(mock_coordinator, mock_entry, "Test Device")
     
     # 32: Temp, 33: Hum, 30: Wind (m/s)
+    # Correct structure: measurements -> list of stations -> variables list
     mock_coordinator.data = {
-        "mesures": {
-            32: {"valor": 30.0},
-            33: {"valor": 50.0},
-            30: {"valor": 5.0}  # 5 m/s = 18 km/h
-        }
+        "measurements": [
+            {
+                "variables": [
+                    {"codi": 32, "lectures": [{"valor": 30.0}]},
+                    {"codi": 33, "lectures": [{"valor": 50.0}]},
+                    {"codi": 30, "lectures": [{"valor": 5.0}]}, # 5 m/s = 18 km/h
+                ]
+            }
+        ]
     }
     
     sensor._update_external_value()
@@ -62,10 +67,14 @@ def test_external_calc_missing_temps(mock_coordinator, mock_entry):
     sensor = MeteocatUTCISensor(mock_coordinator, mock_entry, "Test Device")
 
     mock_coordinator.data = {
-        "mesures": {
-            33: {"valor": 50.0},
-            30: {"valor": 5.0} 
-        }
+        "measurements": [
+            {
+                "variables": [
+                    {"codi": 33, "lectures": [{"valor": 50.0}]},
+                    {"codi": 30, "lectures": [{"valor": 5.0}]},
+                ]
+            }
+        ]
     }
     sensor._update_external_value()
     assert sensor.native_value is None
@@ -75,11 +84,15 @@ def test_external_calc_error_values(mock_coordinator, mock_entry):
     sensor = MeteocatUTCISensor(mock_coordinator, mock_entry, "Test Device")
     
     mock_coordinator.data = {
-        "mesures": {
-            32: {"valor": "invalid"},
-            33: {"valor": 50.0},
-            30: {"valor": 5.0} 
-        }
+        "measurements": [
+            {
+                "variables": [
+                    {"codi": 32, "lectures": [{"valor": "invalid"}]},
+                    {"codi": 33, "lectures": [{"valor": 50.0}]},
+                    {"codi": 30, "lectures": [{"valor": 5.0}]},
+                ]
+            }
+        ]
     }
     sensor._update_external_value()
     assert sensor.native_value is None

@@ -677,7 +677,7 @@ class MeteocatForecastSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
                             pass
                     
                     if time_str in estat_dict:
-                        condition = METEOCAT_CONDITION_MAP.get(estat_dict[time_str], "cloudy")
+                        condition = METEOCAT_CONDITION_MAP.get(estat_dict[time_str], "exceptional")
                         forecast_item["condition"] = condition
                     
                     if time_str in precip_dict:
@@ -734,7 +734,7 @@ class MeteocatForecastSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
             if isinstance(estat_cel, dict):
                 estat_code = estat_cel.get("valor")
                 if estat_code is not None:
-                    condition = METEOCAT_CONDITION_MAP.get(estat_code, "cloudy")
+                    condition = METEOCAT_CONDITION_MAP.get(estat_code, "exceptional")
                     forecast_item["condition"] = condition
             
             # Precipitation (simple object with valor, percentage)
@@ -2011,30 +2011,45 @@ class MeteocatUTCISensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
 
     def _update_external_value(self) -> None:
         """Calculate UTCI from Meteocat data."""
-        if not self.coordinator.data or "mesures" not in self.coordinator.data:
-            self._attr_native_value = None
-            self._attr_available = False
-            return
-
-        mesures = self.coordinator.data["mesures"]
+        measurements = self.coordinator.data.get("measurements") if self.coordinator.data else None
         
-        # Check if we have required variables (32: Temp, 33: Hum, 30: Wind)
-        if 32 not in mesures or 33 not in mesures or 30 not in mesures:
+        if not measurements or not isinstance(measurements, list) or not measurements:
             self._attr_native_value = None
             self._attr_available = False
             return
 
-        try:
-            temp = float(mesures[32]["valor"])
-            hum = float(mesures[33]["valor"])
-            wind_ms = float(mesures[30]["valor"])
-            
-            # Convert m/s to km/h
+        # Parse variables from the first station
+        variables_list = measurements[0].get("variables", [])
+        
+        temp = None
+        hum = None
+        wind_ms = None
+        
+        for variable in variables_list:
+            code = variable.get("codi")
+            lectures = variable.get("lectures", [])
+            if not lectures:
+                continue
+                
+            value_obj = lectures[-1] # Get latest value
+            try:
+                val = float(value_obj.get("valor", 0))
+            except (ValueError, TypeError):
+                continue
+                
+            if code == 32: # Temperature
+                temp = val
+            elif code == 33: # Relative Humidity
+                hum = val
+            elif code == 30: # Wind Speed (10m)
+                wind_ms = val
+
+        if temp is not None and hum is not None and wind_ms is not None:
+            # Convert m/s to km/h as expected by calculate_utci (which now converts back, but let's keep interface)
             wind_kmh = wind_ms * 3.6
-            
             self._attr_native_value = calculate_utci(temp, hum, wind_kmh)
             self._attr_available = True
-        except (ValueError, KeyError, TypeError):
+        else:
             self._attr_native_value = None
             self._attr_available = False
 

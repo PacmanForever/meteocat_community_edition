@@ -37,6 +37,9 @@ This document outlines the specific requirements for the Meteocat Community Edit
 - **Real-time Updates**: Measurements updated hourly, forecasts on schedule
 - **Historical Data**: Not supported (only current and forecast data)
 - **Caching**: Station data cached in entry.data, API quota data cached
+- **Data Mapping**:
+  - Meteorological conditions are mapped from Meteocat numeric codes to Home Assistant string states.
+  - Unknown or unmapped condition codes default to `exceptional` to alert the user of an unusual state.
 
 ## Technical Requirements
 

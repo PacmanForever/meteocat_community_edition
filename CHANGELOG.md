@@ -5,6 +5,21 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.79] - 2026-01-10
+
+### Canviat
+- **Mapeig Condicions**: Canviat el valor per defecte quan no es troba un codi de condició climàtica.
+  - Abans: `cloudy` (Ennuvolat)
+  - Ara: `exceptional` (Excepcional)
+  - Això permet identificar més fàcilment quan l'API retorna un codi nou o desconegut que no està contemplat en el mapeig actual.
+
+## [1.2.78] - 2026-01-10
+
+### Corregit
+- **UTCI Externa**: Corregit error on el sensor UTCI en mode estació externa mostrava "Desconegut".
+  - El sensor intentava llegir les dades de l'API en un format incorrecte ("mesures").
+  - S'ha actualitzat per llegir l'estructura correcta ("measurements" -> llista d'estacions -> variables).
+
 ## [1.2.77] - 2026-01-09
 
 ### Canviat

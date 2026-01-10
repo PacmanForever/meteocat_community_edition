@@ -1,6 +1,8 @@
 """Tests for utility functions."""
 import sys
 import os
+from unittest.mock import patch
+import math
 
 # Add parent directory to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
@@ -30,6 +32,13 @@ def test_calculate_utci():
     # Verify wind cooling effect
     # With wind (10km/h) should be cooler than no wind
     assert result < result_calm
+
+def test_calculate_utci_exception():
+    """Test UTCI calculation exception handling."""
+    # Force an exception (OverflowError for instance)
+    with patch("custom_components.meteocat_community_edition.utils.math.exp", side_effect=OverflowError):
+        # Should return temperature input on error
+        assert calculate_utci(20, 50, 10) == 20
 
 def test_get_utci_category_key_ranges():
     """Test all UTCI category ranges."""
