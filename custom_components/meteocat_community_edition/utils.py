@@ -2,44 +2,41 @@
 from __future__ import annotations
 
 import logging
-
-
-try:
-    from pythermalcomfort.models import utci as calc_utci_func
-    HAS_PYTHERMALCOMFORT = True
-except ImportError:
-    HAS_PYTHERMALCOMFORT = False
+import math
 
 _LOGGER = logging.getLogger(__name__)
 
 def calculate_utci(temp_c: float, humidity_percent: float, wind_speed_kmh: float) -> float:
-    """Calculate UTCI (Universal Thermal Climate Index).
+    """Calculate an approximation of the Thermal Comfort Index.
     
-    Uses pythermalcomfort library if available.
-    Otherwise uses Australian Apparent Temperature as a safe fallback approximation.
+    Since we want to avoid heavy external dependencies (pythermalcomfort) or 
+    massive polynomial regression code (200+ lines), we use the:
+    Australian Apparent Temperature (AAT).
+    
+    AT = Ta + 0.33*e - 0.70*ws - 4.00
+    Where:
+    - Ta: Dry bulb temperature (C)
+    - e: Water vapour pressure (hPa)
+    - ws: Wind speed (m/s) at 10m
+    
+    This provides a physically consistent "Feels Like" value that accounts for
+    humidity (adds heat) and wind (removes heat), without the complexity of full UTCI.
     """
     
     # Convert wind to m/s
     wind_ms = wind_speed_kmh / 3.6
     
-    if HAS_PYTHERMALCOMFORT:
-        try:
-            # utci(tdb, tr, v, rh)
-            # tr = temp_c (Approximation where Mean Radiant Temp = Air Temp)
-            val = calc_utci_func(tdb=temp_c, tr=temp_c, v=wind_ms, rh=humidity_percent)
-            return round(val, 1)
-        except Exception as e:
-            _LOGGER.warning("Error calculating UTCI with library: %s", e)
-    
-    # Fallback: Australian Apparent Temperature (Physically consistent approximation)
-    # AT = Ta + 0.33*e - 0.70*ws - 4.00
-    # e (hPa)
-    import math
     try:
+        # Calculate Vapour Pressure (e) in hPa
+        # e = (rh / 100) * 6.105 * exp( (17.27 * Ta) / (237.7 + Ta) )
         e = (humidity_percent / 100.0) * 6.105 * math.exp((17.27 * temp_c) / (237.7 + temp_c))
+        
+        # Calculate AAT
         at = temp_c + 0.33 * e - 0.70 * wind_ms - 4.00
+        
         return round(at, 1)
     except Exception:
+        # Fallback to just temperature if calculation fails
         return temp_c
 
 def get_utci_category_key(utci_value: float) -> str:

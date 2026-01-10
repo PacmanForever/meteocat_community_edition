@@ -5,6 +5,14 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.77] - 2026-01-09
+
+### Canviat
+- **Eliminades dependències externes**: S'ha eliminat la dependència de `pythermalcomfort` per evitar errors d'instal·lació.
+- **Càlcul Tèrmic (AAT)**: S'utilitza l'índex "Australian Apparent Temperature" (AAT) com a mètode robust per calcular la sensació tèrmica (Vent/Humitat) sense dependències pesades.
+  - Això corregeix l'error d'instal·lació "Requirements not found".
+  - Manté l'efecte de refredament del vent (Wind Chill) correcte.
+
 ## [1.2.76] - 2026-01-09
 
 ### Corregit

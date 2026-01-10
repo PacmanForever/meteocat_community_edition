@@ -7,6 +7,6 @@
   "integration_type": "service",
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/PacmanForever/meteocat_community_edition/issues",
-  "requirements": ["aiohttp>=3.9.0", "pythermalcomfort>=3.0.0"],
-  "version": "1.2.76"
+  "requirements": ["aiohttp>=3.9.0"],
+  "version": "1.2.77"
 }
