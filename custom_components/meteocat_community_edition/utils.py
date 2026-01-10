@@ -335,35 +335,36 @@ def get_utci_icon(utci_value: float) -> str:
         return "mdi:check-circle-outline"
 
 def get_beaufort_value(wind_speed_kmh: float) -> int:
-    """Calculate Beaufort scale (0-17) from wind speed in km/h.
+    """Calculate Beaufort scale (0-12) from wind speed in km/h.
     
-    Based on the extended scale provided by Meteocat/User:
-    Knots: 0(<1), 1(1-3), 2(4-6), 3(7-10), 4(11-16), 5(17-21), 6(22-27),
-           7(28-33), 8(34-40), 9(41-47), 10(48-55), 11(56-63), 12(64-72),
-           13(73-85), 14(86-89), 15(90-99), 16(100-106), 17(>=107).
-    
-    1 knot = 1.852 km/h
+    Based on the official Meteocat table (km/h):
+    0: < 1
+    1: 1 - 5
+    2: 6 - 11
+    3: 12 - 19
+    4: 20 - 28
+    5: 29 - 38
+    6: 39 - 49
+    7: 50 - 61
+    8: 62 - 74
+    9: 75 - 88
+    10: 89 - 102
+    11: 103 - 117
+    12: >= 118
     """
-    knots = wind_speed_kmh / 1.852
-    
-    if knots < 1: return 0
-    if knots < 4: return 1
-    if knots < 7: return 2
-    if knots < 11: return 3
-    if knots < 17: return 4
-    if knots < 22: return 5
-    if knots < 28: return 6
-    if knots < 34: return 7
-    if knots < 41: return 8
-    if knots < 48: return 9
-    if knots < 56: return 10
-    if knots < 64: return 11
-    if knots < 73: return 12
-    if knots < 86: return 13
-    if knots < 90: return 14
-    if knots < 100: return 15
-    if knots < 107: return 16
-    return 17
+    if wind_speed_kmh < 1: return 0
+    if wind_speed_kmh <= 5: return 1
+    if wind_speed_kmh <= 11: return 2
+    if wind_speed_kmh <= 19: return 3
+    if wind_speed_kmh <= 28: return 4
+    if wind_speed_kmh <= 38: return 5
+    if wind_speed_kmh <= 49: return 6
+    if wind_speed_kmh <= 61: return 7
+    if wind_speed_kmh <= 74: return 8
+    if wind_speed_kmh <= 88: return 9
+    if wind_speed_kmh <= 102: return 10
+    if wind_speed_kmh <= 117: return 11
+    return 12
 
 def get_beaufort_description_key(beaufort_value: int) -> str:
     """Return the translation key for the Beaufort description."""

@@ -5,6 +5,11 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.85] - 2026-01-10
+
+### Arreglat
+- **Càlcul Beaufort**: Ajustats els rangs de velocitat (km/h) per coincidir exactament amb la taula oficial. Corregeix la classificació de vents en els límits dels rangs (ex: 6.44 km/h ara és grau 2).
+
 ## [1.2.84] - 2026-01-10
 
 ### Arreglat

@@ -1,3 +1,8 @@
+# v1.2.85 - Correcció Càlcul Beaufort
+
+## 🐛 Correccions
+- **Càlcul Beaufort**: S'ha ajustat la fórmula de càlcul de l'escala Beaufort per coincidir exactament amb els rangs de velocitat (km/h) oficials de Meteocat. Això soluciona casos on velocitats com 6.44 km/h es classificaven incorrectament com a 1 (Ventolina) en lloc de 2 (Vent fluixet).
+
 # v1.2.84 - Neteja Literals Beaufort
 
 ## ⚡ Canvis
