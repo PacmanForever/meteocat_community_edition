@@ -226,10 +226,10 @@
       "solar_radiation": {
         "name": "Radiació solar (UV)"
       },      "utci_index": {
-        "name": "Índex UTCI"
+        "name": "Temperatura UTCI"
       },
       "utci_category": {
-        "name": "Estat de Confort Tèrmic",
+        "name": "Estrès tèrmic",
         "state": {
           "stress_extreme_heat": "Estrès extrem per calor",
           "stress_very_strong_heat": "Estrès molt fort per calor",
@@ -240,8 +240,27 @@
           "stress_strong_cold": "Estrès fort per fred",
           "stress_very_strong_cold": "Estrès molt fort per fred",
           "stress_extreme_cold": "Estrès extrem per fred"
-        }
+        }      },
+      "beaufort_index": {
+        "name": "Vent (Grau Beaufort)"
       },
+      "beaufort_description": {
+        "name": "Vent (Denominació)",
+        "state": {
+          "beaufort_0": "Calma",
+          "beaufort_1": "Ventolina",
+          "beaufort_2": "Vent fluixet",
+          "beaufort_3": "Vent fluix",
+          "beaufort_4": "Vent moderat",
+          "beaufort_5": "Vent fresquet",
+          "beaufort_6": "Vent fresc",
+          "beaufort_7": "Vent fort",
+          "beaufort_8": "Temporal",
+          "beaufort_9": "Temporal fort",
+          "beaufort_10": "Temporal molt fort",
+          "beaufort_11": "Tempesta",
+          "beaufort_hurricane": "Huracà"
+        }      },
       "forecast_hourly": {
         "name": "Predicció horària"
       },

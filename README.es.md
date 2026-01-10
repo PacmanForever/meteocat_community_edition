@@ -246,10 +246,17 @@ Para cada estación configurada se crean:
 - Entity ID: `sensor.{estacion}_{codigo}_precipitation`
 
 #### Sensor UTCI (Sensación térmica)
-- **Índice UTCI**: Calcula la sensación térmica basada en temperatura, humedad y viento (si están disponibles).
+- **Temperatura UTCI**: Calcula la sensación térmica basada en temperatura, humedad y viento (si están disponibles).
 - Entity ID: `sensor.{estacion}_{codigo}_utci_index`
 - **Estado de Confort Térmico**: Texto e icono que indica el nivel de estrés térmico basado en el UTCI.
 - Entity ID: `sensor.{estacion}_{codigo}_utci_literal`
+
+#### Sensores Beaufort (Nuevo v1.2.82)
+- **Índice Beaufort**: Número (0-17) que indica la fuerza del viento.
+- Entity ID: `sensor.{estacion}_{codigo}_beaufort_index`
+- **Descripción Beaufort**: Texto descriptivo de la fuerza del viento.
+- Entity ID: `sensor.{estacion}_{codigo}_beaufort_description`
+- *Nota: Solo aparecen si la estación tiene datos de viento.*
 
 #### Sensores de Cuotas
 - **Peticiones disponibles Predicción**: Consumos restantes del plan Predicción
@@ -302,14 +309,21 @@ Para cada municipio configurado se crean:
 - `weather.{municipio}`: Entidad principal. Muestra el estado actual (de tus sensores) y la predicción (del Meteocat).
 
 #### Sensor UTCI
-- **Nombre**: {Municipio} Índice UTCI
+- **Nombre**: {Municipio} Temperatura UTCI
 - **Entity ID**: `sensor.{municipio}_utci_index`
 - Estado: Sensación térmica calculada (si se han configurado los sensores necesarios)
 
 #### Sensor UTCI Literal
-- **Nombre**: {Municipio} Estado de Confort Térmico
-- **Entity ID**: `sensor.{municipio}_utci_literal`
+- **Nombre**: {Municipio} Estrés térmico
+- Entity ID: `sensor.{municipi}_utci_literal`
 - Estado: Descripción del estrés térmico e icono correspondiente
+
+#### Sensores Beaufort (Local)
+- **Índice Beaufort**: Número (0-17) calculado a partir de tu sensor de viento local.
+- Entity ID: `sensor.{municipio}_beaufort_index`
+- **Descripción Beaufort**: Texto descriptivo.
+- Entity ID: `sensor.{municipio}_beaufort_description`
+- *Nota: Requiere configurar un sensor de viento local.*
 
 #### Sensor Predicción horaria
 - **Nombre**: {Municipio} Predicción horaria
@@ -352,7 +366,7 @@ Para cada municipio configurado se crean:
 
 > **Nota:** Todas las entidades se agrupan bajo un único dispositivo con nombre "{Municipio}" (ej: "Barcelona")
 
-### Valores del Índice UTCI (Confort Térmico)
+### Valores de Temperatura UTCI (Estrés Térmico)
 
 El sensor "Estado de Confort Térmico" muestra un texto y un icono según el valor del índice UTCI:
 
@@ -367,6 +381,26 @@ El sensor "Estado de Confort Térmico" muestra un texto y un icono según el val
 | -13 a 0 | Estrés fuerte por frío | `snowflake-alert` |
 | -27 a -13 | Estrés muy fuerte por frío | `snowflake-alert` |
 | < -27 | Estrés extremo por frío | `snowflake-alert` |
+
+### Escala Beaufort (Viento)
+
+La integración también ofrece la escala Beaufort (0-17) y su descripción.
+
+| Índice | Descripción | km/h (aprox) |
+|-------|------------|--------------|
+| 0 | Calma | < 1 |
+| 1 | Ventolina | 1 - 5 |
+| 2 | Flojito (Brisa muy débil) | 6 - 11 |
+| 3 | Flojo (Brisa débil) | 12 - 19 |
+| 4 | Bonancible (Brisa moderada) | 20 - 28 |
+| 5 | Fresquito (Brisa fresca) | 29 - 38 |
+| 6 | Fresco (Brisa fuerte) | 39 - 49 |
+| 7 | Frescachón (Viento fuerte) | 50 - 61 |
+| 8 | Temporal (Viento muy fuerte) | 62 - 74 |
+| 9 | Temporal fuerte | 75 - 88 |
+| 10 | Temporal muy fuerte | 89 - 102 |
+| 11 | Temporal violento | 103 - 117 |
+| 12+ | Huracán | > 117 |
 
 ## Actualización de datos
 

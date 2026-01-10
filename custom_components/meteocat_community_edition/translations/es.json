@@ -226,10 +226,10 @@
       "solar_radiation": {
         "name": "Radiación solar (UV)"
       },      "utci_index": {
-        "name": "Índice UTCI"
+        "name": "Temperatura UTCI"
       },
       "utci_category": {
-        "name": "Estado del Confort Térmico",
+        "name": "Estrés térmico",
         "state": {
           "stress_extreme_heat": "Estrés extremo por calor",
           "stress_very_strong_heat": "Estrés muy fuerte por calor",
@@ -240,6 +240,27 @@
           "stress_strong_cold": "Estrés fuerte por frío",
           "stress_very_strong_cold": "Estrés muy fuerte por frío",
           "stress_extreme_cold": "Estrés extremo por frío"
+        }
+      },
+      "beaufort_index": {
+        "name": "Viento (Escala Beaufort)"
+      },
+      "beaufort_description": {
+        "name": "Viento (Descripción)",
+        "state": {
+          "beaufort_0": "Calma",
+          "beaufort_1": "Ventolina",
+          "beaufort_2": "Brisa muy débil",
+          "beaufort_3": "Brisa ligera",
+          "beaufort_4": "Brisa moderada",
+          "beaufort_5": "Brisa fresca",
+          "beaufort_6": "Brisa fuerte",
+          "beaufort_7": "Viento fuerte",
+          "beaufort_8": "Temporal",
+          "beaufort_9": "Temporal fuerte",
+          "beaufort_10": "Temporal muy fuerte",
+          "beaufort_11": "Tormenta",
+          "beaufort_hurricane": "Huracán"
         }
       },
       "forecast_hourly": {

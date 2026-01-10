@@ -260,6 +260,8 @@ Aquest mode està pensat per obtenir dades d'una estació meteorològica oficial
 | **Sensor** | `sensor.{estacio}_{codi}_precipitation` | Precipitació diària acumulada (mm) (Si l'estació en disposa). |
 | **Sensor** | `sensor.{estacio}_{codi}_utci_index` | Índex UTCI (Sensació tèrmica). Només disponible si l'estació té Temperatura, Humitat i Vent. |
 | **Sensor** | `sensor.{estacio}_{codi}_utci_literal` | Estat de Confort Tèrmic. Text i icona que indica el nivell d'estrès tèrmic basat en l'UTCI. |
+| **Sensor** | `sensor.{estacio}_{codi}_beaufort_index` | Índex Beaufort (0-17). Només disponible si l'estació té Vent. |
+| **Sensor** | `sensor.{estacio}_{codi}_beaufort_description` | Descripció Beaufort. Text que descriu la força del vent segons l'escala. |
 | **Sensor** | `sensor.{estacio}_{codi}_quota_disponible_{pla}` | Un sensor per a cada pla de quotes rellevant (Predicció, XEMA). Mostra les peticions restants. |
 | **Binary Sensor** | `binary_sensor.{estacio}_{codi}_update_state` | Indica l'estat de l'última actualització (`OFF` = Correcte, `ON` = Error). |
 | **Sensor** | `sensor.{estacio}_{codi}_last_update` | Timestamp de l'última actualització de mesures (horària). |
@@ -290,8 +292,10 @@ Permet crear una entitat `weather` que combina:
 | Tipus | Entitat | Descripció |
 |-------|---------|------------|
 | **Weather** | `weather.{municipi}` | Entitat principal. Mostra l'estat actual (dels teus sensors) i la predicció (del Meteocat). Si la condició climàtica no es pot determinar, mostra "unknown" amb icona genèrica. |
-| **Sensor** | `sensor.{municipi}_utci_index` | Índex UTCI (Sensació tèrmica). Només disponible si has configurat Temperatura, Humitat i Vent locals. |
-| **Sensor** | `sensor.{municipi}_utci_literal` | Estat de Confort Tèrmic. Text i icona que indica el nivell d'estrès tèrmic basat en l'UTCI. |
+| **Sensor** | `sensor.{municipi}_utci_index` | Temperatura UTCI (Sensació tèrmica). Només disponible si has configurat Temperatura, Humitat i Vent locals. |
+| **Sensor** | `sensor.{municipi}_utci_literal` | Estrès tèrmic. Text i icona que indica el nivell d'estrès tèrmic basat en l'UTCI. |
+| **Sensor** | `sensor.{municipi}_beaufort_index` | Índex Beaufort (0-17). Només disponible si has configurat Vent local. |
+| **Sensor** | `sensor.{municipi}_beaufort_description` | Descripció Beaufort. Text que descriu la força del vent segons l'escala. |
 | **Sensor** | `sensor.{municipi}_prediccio_horaria` | L'estat mostra les hores disponibles. Els atributs contenen la predicció completa per a 72h. |
 | **Sensor** | `sensor.{municipi}_prediccio_diaria` | L'estat mostra els dies disponibles. Els atributs contenen la predicció completa per a 8 dies. |
 | **Sensor** | `sensor.{municipi}_quota_disponible_{pla}` | Un sensor per a cada pla de quotes rellevant (Predicció). Mostra les peticions restants. |
@@ -308,9 +312,17 @@ Permet crear una entitat `weather` que combina:
 
 > **Nota:** Durant la configuració, se't demanarà que seleccionis els sensors de la teva estació local per alimentar l'entitat `weather`.
 
-### Valors de l'Índex UTCI (Confort Tèrmic)
+### Valors de Temperatura UTCI (Estrès Tèrmic)
 
-El sensor "Estat de Confort Tèrmic" mostra un text i una icona segons el valor de l'índex UTCI:
+El sensor "Estrès tèrmic" mostra un text i una icona segons el valor de la temperatura UTCI.
+
+**Mètode de càlcul (v1.2.82+)**:
+El càlcul de la temperatura UTCI utilitza l'estàndard científic basat en el **polinomi de regressió de sisè grau de Bröde et al. (2012)**. Aquest mètode integra:
+- Temperatura de l'aire ($T_a$)
+- Humitat relativa (RH) i pressió de vapor ($P_a$)
+- Velocitat del vent a 10m ($v_{10m}$, ajustada des de l'alçada del sensor)
+
+A diferència de fórmules simplificades, aquest model capta millor les interaccions complexes entre humitat i vent, especialment en condicions de fred. *Nota: S'assumeix $T_{mrt} \approx T_a$ (condicions d'ombra).*
 
 | Rang UTCI (ºC) | Estat | Icona |
 |-----------|-------|-------|
@@ -323,6 +335,28 @@ El sensor "Estat de Confort Tèrmic" mostra un text i una icona segons el valor 
 | -13 a 0 | Estrès fort per fred | `snowflake-alert` |
 | -27 a -13 | Estrès molt fort per fred | `snowflake-alert` |
 | < -27 | Estrès extrem per fred | `snowflake-alert` |
+
+### Escala Beaufort (Vent)
+
+A més de la velocitat del vent en km/h, la integració ofereix l'escala Beaufort (0-17) i la seva descripció associada. Aquesta escala és útil per entendre els efectes del vent en mar i terra.
+
+**Nota**: Encara que l'escala tradicional arriba fins a 12 (Huracà), aquesta integració suporta l'escala ampliada fins a 17, utilitzada en meteorologia extrema.
+
+| Índex | Descripció | km/h (aprox) |
+|-------|------------|--------------|
+| 0 | Calma | < 1 |
+| 1 | Ventolina | 1 - 5 |
+| 2 | Fluixet (Brisa molt feble) | 6 - 11 |
+| 3 | Fluix (Brisa feble) | 12 - 19 |
+| 4 | Bonancible (Brisa moderada) | 20 - 28 |
+| 5 | Fresquet (Brisa fresca) | 29 - 38 |
+| 6 | Fresc (Brisa forta) | 39 - 49 |
+| 7 | Frescàs (Vent fort) | 50 - 61 |
+| 8 | Temporal (Vent molt fort) | 62 - 74 |
+| 9 | Temporal fort | 75 - 88 |
+| 10 | Temporal molt fort | 89 - 102 |
+| 11 | Temporal violent | 103 - 117 |
+| 12+ | Huracà | > 117 |
 
 ## Actualització de dades
 

@@ -246,10 +246,17 @@ For each configured station, these entities are created:
 - Entity ID: `sensor.{station}_{code}_precipitation`
 
 #### UTCI Sensor (Heat Index)
-- **UTCI Index**: Calculates thermal sensation based on temp, humidity, and wind (if available on station).
+- **UTCI Temperature**: Calculates thermal sensation based on temp, humidity, and wind (if available on station).
 - Entity ID: `sensor.{station}_{code}_utci_index`
-- **Thermal Comfort Status**: Text and icon indicating the heat/cold stress level based on UTCI.
+- **Thermal Stress**: Text and icon indicating the heat/cold stress level based on UTCI.
 - Entity ID: `sensor.{station}_{code}_utci_literal`
+
+#### Beaufort Sensors (New v1.2.82)
+- **Beaufort Index**: Number (0-17) indicating wind force.
+- Entity ID: `sensor.{station}_{code}_beaufort_index`
+- **Beaufort Description**: Descriptive text of the wind force.
+- Entity ID: `sensor.{station}_{code}_beaufort_description`
+- *Note: Only appears if the station has wind data.*
 
 #### Quota Sensors
 - **Available Requests Forecast**: Remaining requests for Forecast plan
@@ -302,15 +309,20 @@ For each configured municipality, these entities are created:
 - `weather.{municipality}`: Main entity. Shows current state (from your sensors) and forecast (from Meteocat).
 
 #### UTCI Sensor
-- **Name**: {Municipality} UTCI Index
+- **Name**: {Municipality} UTCI Temperature
 - **Entity ID**: `sensor.{municipality}_utci_index`
 - State: Calculated thermal sensation (if required sensors are configured)
 
 #### UTCI Literal Sensor
-- **Name**: {Municipality} Thermal Comfort Status
+- **Name**: {Municipality} Thermal Stress
 - **Entity ID**: `sensor.{municipality}_utci_literal`
 - State: Description of thermal stress and corresponding icon
-
+#### Beaufort Sensors (Local)
+- **Beaufort Index**: Number (0-17) calculated from your local wind sensor.
+- Entity ID: `sensor.{municipality}_beaufort_index`
+- **Beaufort Description**: Descriptive text.
+- Entity ID: `sensor.{municipality}_beaufort_description`
+- *Note: Requires configuring a local wind sensor.*
 #### Hourly Forecast Sensor
 - **Name**: {Municipality} Hourly forecast
 - **Entity ID**: `sensor.{municipality}_previsio_horaria`
@@ -352,9 +364,9 @@ For each configured municipality, these entities are created:
 
 > **Note:** All entities are grouped under a single device named "{Municipality}" (e.g., "Barcelona")
 
-### UTCI Index Values (Thermal Comfort)
+### UTCI Temperature Values (Thermal Stress)
 
-The "Thermal Comfort Status" sensor shows a text and an icon depending on the UTCI index value:
+The "Thermal Stress" sensor shows a text and an icon depending on the UTCI temperature value:
 
 | UTCI Range (ºC) | Status | Icon |
 |-----------|-------|-------|
@@ -367,6 +379,26 @@ The "Thermal Comfort Status" sensor shows a text and an icon depending on the UT
 | -13 to 0 | Strong cold stress | `snowflake-alert` |
 | -27 to -13 | Very strong cold stress | `snowflake-alert` |
 | < -27 | Extreme cold stress | `snowflake-alert` |
+
+### Beaufort Scale (Wind)
+
+The integration also provides the Beaufort scale (0-17) and its description.
+
+| Index | Description | km/h (approx) |
+|-------|------------|--------------|
+| 0 | Calm | < 1 |
+| 1 | Light air | 1 - 5 |
+| 2 | Light breeze | 6 - 11 |
+| 3 | Gentle breeze | 12 - 19 |
+| 4 | Moderate breeze | 20 - 28 |
+| 5 | Fresh breeze | 29 - 38 |
+| 6 | Strong breeze | 39 - 49 |
+| 7 | High wind | 50 - 61 |
+| 8 | Gale | 62 - 74 |
+| 9 | Strong gale | 75 - 88 |
+| 10 | Storm | 89 - 102 |
+| 11 | Violent storm | 103 - 117 |
+| 12+ | Hurricane | > 117 |
 
 ## Data Updates
 

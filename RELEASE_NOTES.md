@@ -1,3 +1,13 @@
+# v1.2.82 - Millora UTCI i Nous Sensors de Vent (Beaufort)
+
+## 🆕 Novetats
+- **Escala Beaufort**: S'han afegit dos nous sensors per estació/municipi: `beaufort_index` (numèric 0-17) i `beaufort_description` (textual). Aquests sensors es generen automàticament si hi ha dades de vent disponibles (ja sigui via sensor local o via API).
+- **Traduccions Beaufort**: Descripcions completes de l'escala de vent en Català, Castellà i Anglès.
+
+## ⚡ Canvis
+- **UTCI**: Actualitzat el nom i la descripció dels sensors UTCI per alinear-se amb la terminologia científica (Temperatura UTCI vs Índex UTCI).
+- **Documentació**: Actualitzat el README amb taules detallades per UTCI i Beaufort.
+
 # v1.2.67 - Refactorització Config Flow V2 i correccions diverses
 
 ## 🆕 Canvis

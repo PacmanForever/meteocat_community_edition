@@ -15,19 +15,25 @@ from custom_components.meteocat_community_edition.utils import (
 
 def test_calculate_utci():
     """Test UTCI calculation."""
+    # Test case 0: Specific expert verification point (Bröde et al. 2012)
+    # T=9, RH=70%, V=3.31 km/h (~0.92m/s)
+    # Previous AAT result: ~7.0
+    # Standard Bröde result: ~9.35 (PyThermalComfort)
+    # Note: User provided table suggests 7.6, which matches RH=0. 
+    # We stick to the official polynomial which yields ~9.4 with humidity effect.
+    result_expert = calculate_utci(9.0, 70, 3.31)
+    assert 9.2 <= result_expert <= 9.5
+
     # Test case 1: Normal conditions
-    # T=20, H=50, V=10 km/h
-    # Fallback (Apparent Temp) estimate: ~17.9 C
-    # Wind provides cooling (20 -> 17.9).
+    # T=20, H=50, V=10 km/h (2.77 m/s)
+    # UTCI should be lower than T due to wind
     result = calculate_utci(20, 50, 10)
-    # Allow for some variation if library is present vs fallback, but generally < 20
-    assert 15 < result < 21
+    assert 15 < result < 20 
     
-    # Test case 2: Zero wind
+    # Test case 2: Zero wind (clamped to 0.5 m/s)
     # T=20, H=50, V=0
-    # Fallback: ~19.8 C
     result_calm = calculate_utci(20, 50, 0)
-    assert 19 < result_calm < 21
+    assert 19 < result_calm < 22
     
     # Verify wind cooling effect
     # With wind (10km/h) should be cooler than no wind

@@ -40,7 +40,13 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.helpers.event import async_track_state_change_event
 
-from .utils import calculate_utci, get_utci_category_key, get_utci_icon
+from .utils import (
+    calculate_utci,
+    get_utci_category_key,
+    get_utci_icon,
+    get_beaufort_value,
+    get_beaufort_description_key,
+)
 from .const import (
     ATTRIBUTION,
     METEOCAT_CONDITION_MAP,
@@ -139,6 +145,18 @@ async def async_setup_entry(
         entity_name = station_name  # Visual name without code (for forecast sensors)
         entity_name_with_code = f"{station_name} {station_code}"  # For device grouping
         
+        # Determine available variables from coordinator data
+        available_variables = set()
+        if (coordinator.data and 
+            "measurements" in coordinator.data and 
+            isinstance(coordinator.data.get("measurements"), list) and 
+            len(coordinator.data["measurements"]) > 0):
+             vars_list = coordinator.data["measurements"][0].get("variables", [])
+             for v in vars_list:
+                 if "codi" in v:
+                     available_variables.add(v["codi"])
+                     available_variables.add(str(v["codi"]))
+
         # Add XEMA sensors
         for variable_code in SENSOR_TYPES:
             entities.append(
@@ -149,6 +167,12 @@ async def async_setup_entry(
         entities.append(MeteocatUTCISensor(coordinator, entry, entity_name_with_code))
         # Add UTCI Literal Sensor (External)
         entities.append(MeteocatUTCILiteralSensor(coordinator, entry, entity_name_with_code))
+
+        # Add Beaufort Sensors (External) - Only if Wind Speed (30) is monitored
+        # Check against int 30 (usual) or string "30" (just in case)
+        if 30 in available_variables or "30" in available_variables:
+            entities.append(MeteocatBeaufortSensor(coordinator, entry, entity_name_with_code))
+            entities.append(MeteocatBeaufortDescriptionSensor(coordinator, entry, entity_name_with_code))
     else:
         entity_name = entry.data.get(CONF_MUNICIPALITY_NAME, f"Municipi {municipality_code}")
         entity_name_with_code = entity_name  # For device grouping
@@ -159,6 +183,11 @@ async def async_setup_entry(
             entry.data.get(CONF_SENSOR_WIND_SPEED)):
             entities.append(MeteocatUTCISensor(coordinator, entry, entity_name_with_code))
             entities.append(MeteocatUTCILiteralSensor(coordinator, entry, entity_name_with_code))
+        
+        # Add Beaufort Sensors (Local)
+        if entry.data.get(CONF_SENSOR_WIND_SPEED):
+            entities.append(MeteocatBeaufortSensor(coordinator, entry, entity_name_with_code))
+            entities.append(MeteocatBeaufortDescriptionSensor(coordinator, entry, entity_name_with_code))
     
     # Clean up forecast sensors if disabled or not supported in current mode
     try:
@@ -2131,3 +2160,103 @@ class MeteocatUTCILiteralSensor(MeteocatUTCISensor):
     def icon(self) -> str:
         """Return the icon."""
         return self._attr_icon
+
+
+class MeteocatBeaufortSensor(MeteocatUTCISensor):
+    """Beaufort Scale Sensor (Numeric 0-17)."""
+
+    _attr_translation_key = "beaufort_index"
+    _attr_device_class = None # Integer
+    _attr_native_unit_of_measurement = None
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_icon = "mdi:weather-windy"
+
+    def __init__(
+        self,
+        coordinator: MeteocatCoordinator,
+        entry: ConfigEntry,
+        device_name: str,
+    ) -> None:
+        """Initialize."""
+        super().__init__(coordinator, entry, device_name)
+        self._attr_unique_id = f"{entry.entry_id}_beaufort_index"
+
+    def _update_from_wind(self, wind_kmh: float | None) -> None:
+        if wind_kmh is None:
+            self._attr_native_value = None
+            self._attr_available = False
+            return
+        
+        self._attr_native_value = get_beaufort_value(wind_kmh)
+        self._attr_available = True
+
+    def _update_local_value(self) -> None:
+        # Re-use logic to get wind, ignore temp/hum
+        try:
+            wind_state = self.hass.states.get(self._source_wind)
+            if not wind_state or wind_state.state in ["unknown", "unavailable"]:
+                self._update_from_wind(None)
+                return
+            wind_kmh = float(wind_state.state)
+            self._update_from_wind(wind_kmh)
+        except (ValueError, TypeError):
+            self._update_from_wind(None)
+
+    def _update_external_value(self) -> None:
+        # Extract wind from coordinator
+        measurements = self.coordinator.data.get("measurements") if self.coordinator.data else None
+        if not measurements or not measurements[0].get("variables"):
+            self._update_from_wind(None)
+            return
+
+        wind_ms = None
+        for variable in measurements[0].get("variables", []):
+            if variable.get("codi") == 30: # Wind Speed
+                lectures = variable.get("lectures", [])
+                if lectures:
+                     try:
+                        wind_ms = float(lectures[-1].get("valor", 0))
+                     except (ValueError, TypeError):
+                        pass
+                break
+        
+        if wind_ms is not None:
+            self._update_from_wind(wind_ms * 3.6)
+        else:
+            self._update_from_wind(None)
+
+
+class MeteocatBeaufortDescriptionSensor(MeteocatBeaufortSensor):
+    """Beaufort Description Sensor (Text)."""
+
+    _attr_translation_key = "beaufort_description"
+    _attr_device_class = SensorDeviceClass.ENUM
+    _attr_native_unit_of_measurement = None
+    _attr_state_class = None
+    _attr_icon = "mdi:windsock"
+    _attr_options = [
+        "beaufort_0", "beaufort_1", "beaufort_2", "beaufort_3",
+        "beaufort_4", "beaufort_5", "beaufort_6", "beaufort_7",
+        "beaufort_8", "beaufort_9", "beaufort_10", "beaufort_11",
+        "beaufort_hurricane"
+    ]
+
+    def __init__(
+        self,
+        coordinator: MeteocatCoordinator,
+        entry: ConfigEntry,
+        device_name: str,
+    ) -> None:
+        """Initialize."""
+        super().__init__(coordinator, entry, device_name)
+        self._attr_unique_id = f"{entry.entry_id}_beaufort_description"
+    
+    def _update_from_wind(self, wind_kmh: float | None) -> None:
+        if wind_kmh is None:
+            self._attr_native_value = None
+            self._attr_available = False
+            return
+        
+        val = get_beaufort_value(wind_kmh)
+        self._attr_native_value = get_beaufort_description_key(val)
+        self._attr_available = True

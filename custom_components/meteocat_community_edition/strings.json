@@ -227,10 +227,10 @@
         "name": "Solar radiation (UV)"
       },
       "utci_index": {
-        "name": "UTCI Index"
+        "name": "UTCI Temperature"
       },
       "utci_category": {
-        "name": "Thermal Comfort Status",
+        "name": "Thermal Stress",
         "state": {
           "stress_extreme_heat": "Extreme heat stress",
           "stress_very_strong_heat": "Very strong heat stress",
@@ -241,8 +241,27 @@
           "stress_strong_cold": "Strong cold stress",
           "stress_very_strong_cold": "Very strong cold stress",
           "stress_extreme_cold": "Extreme cold stress"
-        }
+        }      },
+      "beaufort_index": {
+        "name": "Wind (Beaufort)"
       },
+      "beaufort_description": {
+        "name": "Wind (Description)",
+        "state": {
+          "beaufort_0": "Calm",
+          "beaufort_1": "Light air",
+          "beaufort_2": "Light breeze",
+          "beaufort_3": "Gentle breeze",
+          "beaufort_4": "Moderate breeze",
+          "beaufort_5": "Fresh breeze",
+          "beaufort_6": "Strong breeze",
+          "beaufort_7": "High wind",
+          "beaufort_8": "Gale",
+          "beaufort_9": "Strong gale",
+          "beaufort_10": "Storm",
+          "beaufort_11": "Violent storm",
+          "beaufort_hurricane": "Hurricane"
+        }      },
       "forecast_hourly": {
         "name": "Hourly forecast"
       },
