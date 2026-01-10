@@ -188,29 +188,11 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
     @property
     def condition(self) -> str | None:
         """Return the current condition."""
-        # For XEMA mode: use measurements
-        measurements = self.coordinator.data.get("measurements")
-        if measurements and isinstance(measurements, list) and measurements:
-            station_data = measurements[0]
-            variables = station_data.get("variables", [])
-            
-            for var in variables:
-                # Check for sky state variable (code 35)
-                if var.get("codi") == 35:
-                    lectures = var.get("lectures", [])
-                    if lectures:
-                        last_reading = lectures[-1]
-                        estat_code = last_reading.get("valor")
-                        if estat_code is not None:
-                            condition = METEOCAT_CONDITION_MAP.get(estat_code)
-                            
-                            # Convert sunny to clear-night if sun is below horizon
-                            if condition == "sunny" and self._is_night():
-                                return "clear-night"
-                            
-                            return condition
+        # XEMA measurements do not typically contain sky condition (symbol).
+        # Variable 35 is precipitation, not sky state.
+        # We fallback to forecast (municipal) for the condition symbol.
         
-        # For MODE_LOCAL: use forecast
+        # For MODE_LOCAL & MODE_EXTERNAL (fallback): use forecast
         forecast = self.coordinator.data.get("forecast")
         if not forecast:
             return None

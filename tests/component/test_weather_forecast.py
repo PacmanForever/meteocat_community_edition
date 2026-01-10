@@ -89,18 +89,19 @@ async def test_async_forecast_daily(mock_coordinator, mock_entry):
     assert forecast[0]["condition"] == "sunny"
 
 def test_condition_from_measurements(mock_coordinator, mock_entry):
-    """Test condition from measurements."""
+    """Test condition ignores measurements (formerly used code 35 incorrectly)."""
     mock_coordinator.data = {
         "measurements": [
             {
                 "variables": [
-                    {"codi": 35, "lectures": [{"valor": 1}]} # Sunny
+                    {"codi": 35, "lectures": [{"valor": 1}]} # Previously treated as Sunny, now ignored
                 ]
             }
         ]
     }
     weather = MeteocatWeather(mock_coordinator, mock_entry)
-    assert weather.condition == "sunny"
+    # Since we removed the logic that treated var 35 as condition, this should be None
+    assert weather.condition is None
 
 def test_condition_from_forecast_fallback(mock_coordinator, mock_entry):
     """Test condition fallback to forecast if measurements missing."""

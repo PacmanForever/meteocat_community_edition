@@ -5,6 +5,11 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.81] - 2026-01-10
+
+### Arreglat
+- **Condició Climàtica**: Eliminat l'ús incorrecte de la variable de precipitació (35) com a estat del cel. Això permet que el sistema utilitzi correctament la previsió municipal per determinar la icona del temps quan l'estació no reporta l'estat del cel.
+
 ## [1.2.80] - 2026-01-10
 
 ### Canviat

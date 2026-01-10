@@ -14,12 +14,18 @@ def mock_coordinator():
                 "codi": "YM",
                 "nom": "Granollers",
                 "coordenades": {"latitud": 41.6, "longitud": 2.3},
-                "variables": [
-                    # Sky state (codi 35) = 2 (Partly cloudy)
-                    {"codi": 35, "nom": "Estat cel", "lectures": [{"valor": 2, "data": "2025-11-24T12:00:00Z"}]},
-                ],
+                "variables": [],
             }
         ],
+        "forecast": {
+            "dies": [
+                {
+                    "variables": {
+                        "estatCel": {"valor": 2}  # Partly cloudy
+                    }
+                }
+            ]
+        },
         "station": {
             "coordenades": {"latitud": 41.6, "longitud": 2.3}
         }
@@ -49,7 +55,7 @@ def test_weather_icon_partlycloudy_day(mock_coordinator, mock_entry):
 def test_weather_icon_sunny_night(mock_coordinator, mock_entry):
     """Test condition becomes clear-night for sunny during night."""
     # Change to sunny (1)
-    mock_coordinator.data["measurements"][0]["variables"][0]["lectures"][0]["valor"] = 1
+    mock_coordinator.data["forecast"]["dies"][0]["variables"]["estatCel"]["valor"] = 1
     weather = MeteocatWeather(mock_coordinator, mock_entry)
     
     with patch.object(MeteocatWeather, '_is_night', return_value=True):
