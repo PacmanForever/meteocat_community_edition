@@ -1,3 +1,8 @@
+# v1.2.84 - Neteja Literals Beaufort
+
+## ⚡ Canvis
+- **Simplificació**: Eliminats els textos explicatius entre parèntesis de les descripcions Beaufort per fer-les més netes i directes (ex: "Vent fluixet" en comptes de "Vent fluixet (brisa molt feble)").
+
 # v1.2.83 - Correccions i Traduccions Beaufort Oficials
 
 ## ⚡ Canvis

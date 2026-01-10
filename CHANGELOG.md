@@ -5,6 +5,11 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.84] - 2026-01-10
+
+### Arreglat
+- **Literals**: Eliminats parèntesis redundants a les descripcions Beaufort.
+
 ## [1.2.83] - 2026-01-10
 
 ### Canviat

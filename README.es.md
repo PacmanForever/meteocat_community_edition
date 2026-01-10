@@ -390,13 +390,13 @@ La integración también ofrece la escala Beaufort (0-17) y su descripción.
 |-------|------------|--------------|
 | 0 | Calma | < 1 |
 | 1 | Ventolina | 1 - 5 |
-| 2 | Flojito (Brisa muy débil) | 6 - 11 |
-| 3 | Flojo (Brisa débil) | 12 - 19 |
-| 4 | Bonancible (Brisa moderada) | 20 - 28 |
-| 5 | Fresquito (Brisa fresca) | 29 - 38 |
-| 6 | Fresco (Brisa fuerte) | 39 - 49 |
-| 7 | Frescachón (Viento fuerte) | 50 - 61 |
-| 8 | Temporal (Viento muy fuerte) | 62 - 74 |
+| 2 | Brisa muy débil | 6 - 11 |
+| 3 | Brisa ligera | 12 - 19 |
+| 4 | Brisa moderada | 20 - 28 |
+| 5 | Brisa fresca | 29 - 38 |
+| 6 | Brisa fuerte | 39 - 49 |
+| 7 | Viento fuerte | 50 - 61 |
+| 8 | Temporal | 62 - 74 |
 | 9 | Temporal fuerte | 75 - 88 |
 | 10 | Temporal muy fuerte | 89 - 102 |
 | 11 | Temporal violento | 103 - 117 |

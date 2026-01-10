@@ -249,16 +249,16 @@
         "state": {
           "beaufort_0": "Calma",
           "beaufort_1": "Ventolina",
-          "beaufort_2": "Vent fluixet (brisa molt feble)",
-          "beaufort_3": "Vent fluix (brisa feble)",
-          "beaufort_4": "Vent moderat (brisa moderada)",
-          "beaufort_5": "Vent fresquet (brisa fresca)",
-          "beaufort_6": "Vent fresc (brisa forta)",
+          "beaufort_2": "Vent fluixet",
+          "beaufort_3": "Vent fluix",
+          "beaufort_4": "Vent moderat",
+          "beaufort_5": "Vent fresquet",
+          "beaufort_6": "Vent fresc",
           "beaufort_7": "Vent fort",
           "beaufort_8": "Temporal",
           "beaufort_9": "Temporal fort",
           "beaufort_10": "Temporal molt fort",
-          "beaufort_11": "Temporal violent (borrasca)",
+          "beaufort_11": "Temporal violent",
           "beaufort_hurricane": "Huracà"
         }      },
       "forecast_hourly": {
