@@ -25,9 +25,10 @@ from homeassistant.const import (
     UnitOfSpeed,
     UnitOfTemperature,
 )
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import dt as dt_util
+from homeassistant.helpers.event import async_track_sunrise, async_track_sunset
 
 from .const import (
     ATTRIBUTION, 
@@ -143,6 +144,20 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
             "manufacturer": "Meteocat Edició Comunitària",
             "model": "Estació Externa",
         }
+
+    async def async_added_to_hass(self) -> None:
+        """Register callbacks."""
+        await super().async_added_to_hass()
+        
+        # Track sun events to force update when sun sets/rises
+        # This ensures the condition icon changes from sunny to clear-night instantly
+        @callback
+        def async_sun_event_listener(event):
+            """Handle sun events."""
+            self.async_write_ha_state()
+
+        self.async_on_remove(async_track_sunrise(self.hass, async_sun_event_listener))
+        self.async_on_remove(async_track_sunset(self.hass, async_sun_event_listener))
 
     def _get_measurement_value(self, code: int) -> float | None:
         """Get measurement value from coordinator data by variable code."""
