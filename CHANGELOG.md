@@ -5,6 +5,12 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.88] - 2026-01-13
+
+### Arreglat
+- Correcció en els tests per evitar "Lingering timers" en el càlcul solar.
+- Correcció en descripció README: "Dades en temps real" -> "Dades actualitzades".
+
 ## [1.2.87] - 2026-01-13
 
 ### Afegit

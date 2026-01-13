@@ -515,8 +515,9 @@ def test_local_weather_condition_from_entity(mock_coordinator, mock_local_entry,
         weather = MeteocatLocalWeather(mock_coordinator, mock_local_entry)
         weather.hass = mock_hass
         
-        condition = weather.condition
-        assert condition == "sunny"
+        with patch.object(weather, '_is_night', return_value=False):
+            condition = weather.condition
+            assert condition == "sunny"
 
 
 def test_local_weather_condition_from_forecast(mock_coordinator, mock_local_entry, mock_hass):
@@ -543,7 +544,8 @@ def test_local_weather_condition_from_forecast(mock_coordinator, mock_local_entr
         weather.hass = mock_hass
         
         # Mock no rain sensor
-        with patch.object(weather, '_get_sensor_value', return_value=None):
+        with patch.object(weather, '_get_sensor_value', return_value=None), \
+             patch.object(weather, '_is_night', return_value=False):
             condition = weather.condition
             assert condition == "sunny"
 
