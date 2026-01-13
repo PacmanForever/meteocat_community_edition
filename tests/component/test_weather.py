@@ -246,7 +246,7 @@ def test_weather_entity_attribution(mock_coordinator, mock_entry):
     """Test that weather entity has attribution."""
     weather = MeteocatWeather(mock_coordinator, mock_entry)
     
-    assert weather.attribution == "Estació Granollers + Predicció Meteocat"
+    assert weather.attribution == "Estació Granollers (externa) + Predicció Meteocat"
 
 
 def test_weather_entity_handles_none_measurements(mock_coordinator, mock_entry):
@@ -590,8 +590,12 @@ def test_local_weather_native_pressure_from_sensor(mock_coordinator, mock_local_
 
 
 def test_local_weather_is_night_calculations(mock_coordinator, mock_local_entry, mock_hass):
-    """Test _is_night method calls sun helper correctly."""
+    """Test _is_night method calls sun helper correctly (when no coords available)."""
     
+    # Remove coordinates to force fallback to HA location
+    mock_local_entry.data.pop("municipality_lat", None)
+    mock_local_entry.data.pop("municipality_lon", None)
+
     with patch('homeassistant.helpers.event.async_track_state_change_event'):
         weather = MeteocatLocalWeather(mock_coordinator, mock_local_entry)
         weather.hass = mock_hass
@@ -628,9 +632,10 @@ def test_weather_entity_is_night_calculations(mock_coordinator, mock_entry, mock
     """Test _is_night method calls sun helper correctly for regular weather entity."""
     
     # Setup coordinates in the mock data (which would previously trigger the lat/lon path)
+    # We remove them to force fallback
     mock_coordinator.data = {
         "station": {
-            "coordenades": {"latitud": 41.6, "longitud": 2.3}
+            "coordenades": {}  # Empty coordinates
         },
         "measurements": [
             {

@@ -5,6 +5,16 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.87] - 2026-01-13
+
+### Afegit
+- **Icona de nit precisa**: El càlcul de dia/nit ara utilitza les coordenades exactes de l'estació (o municipi local) en lloc de la posició de Home Assistant.
+- **Actualització solar**: La icona del temps ara s'actualitza automàticament a la sortida i posta de sol (localitzada a l'estació).
+
+### Canviat
+- **Atribució**: Clarificada la font de les dades en l'entity weather ("Estació X (externa/local)").
+- **Requirements**: Actualitzada la documentació sobre gestió d'errors.
+
 ## [1.2.86] - 2026-01-10
 
 ### Arreglat
