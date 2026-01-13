@@ -35,7 +35,7 @@
 
 ## Features
 
-- 🌡️ **Real-time weather data** from XEMA stations
+- 🌡️ **Updated weather data** from XEMA stations
 - 📊 **Hourly forecasts** (72 hours) and **daily forecasts** (8 days)
 - 📈 **API quota sensors** to monitor usage
 - 🏢 **Multiple stations** configurable

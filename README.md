@@ -35,7 +35,7 @@ Integració **comunitària** i **no oficial** per a Home Assistant del Servei Me
 
 ## Característiques
 
-- 🌡️ **Dades meteorològiques en temps real** de les estacions XEMA
+- 🌡️ **Dades meteorològiques actualitzades** de les estacions XEMA
 - 📊 **Prediccions horàries** (72 hores) i **diàries** (8 dies)
 - 📈 **Sensors de quotes API** per controlar l'ús
 - 🏢 **Múltiples estacions** configurables
