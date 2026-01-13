@@ -42,7 +42,9 @@ async def test_local_weather_subscribes_to_sensors(hass: HomeAssistant, mock_coo
     weather.entity_id = "weather.test_local"
     
     # Mock async_track_state_change_event
-    with patch("homeassistant.helpers.event.async_track_state_change_event") as mock_track:
+    with patch("homeassistant.helpers.event.async_track_state_change_event") as mock_track, \
+         patch("custom_components.meteocat_community_edition.weather.async_track_sunrise"), \
+         patch("custom_components.meteocat_community_edition.weather.async_track_sunset"):
         # We need to mock super().async_added_to_hass() behavior or just let it run if it's safe
         # Since SingleCoordinatorWeatherEntity.async_added_to_hass calls super which is CoordinatorEntity...
         # It might try to connect to coordinator.
