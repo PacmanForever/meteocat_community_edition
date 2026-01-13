@@ -236,7 +236,68 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
         return None
 
     def _is_night(self) -> bool:
-        """Check if sun is below horizon using HA location."""
+        """Check if sun is below horizon using station coordinates if available."""
+        # 1. Attempt to get station coordinates (Lat/Lon)
+        lat = None
+        lon = None
+        
+        # Try getting from ConfigEntry (Best source for fixed metadata)
+        # Municipality flow saves: municipality_lat
+        lat = self._entry.data.get("municipality_lat")
+        lon = self._entry.data.get("municipality_lon")
+        
+        # If not found, check Station coordinates (External Mode)
+        # Coordinator caches station data in: _station_data (hidden key) in entry
+        if lat is None:
+            station_data = self._entry.data.get("_station_data")
+            if station_data:
+                coords = station_data.get("coordenades", {})
+                lat = coords.get("latitud")
+                lon = coords.get("longitud")
+
+        # If still not found, check live coordinator data (fallback)
+        if lat is None and self.coordinator.data:
+            # Check known keys used in coordinator
+            for key in ["station", "station_metadata"]:
+                station_data = self.coordinator.data.get(key)
+                if station_data:
+                    coords = station_data.get("coordenades", {})
+                    lat = coords.get("latitud")
+                    lon = coords.get("longitud")
+                    if lat is not None:
+                        break
+
+        # 2. If we have coordinates, use Astral to calculate sun state
+        if lat is not None and lon is not None:
+            try:
+                from astral import LocationInfo
+                from astral.sun import sun
+                
+                # Use HA timezone context
+                tz = dt_util.DEFAULT_TIME_ZONE
+                
+                # Create observer location
+                loc = LocationInfo(
+                    name="Meteocat Station",
+                    region="Catalonia", 
+                    timezone=str(tz),
+                    latitude=lat,
+                    longitude=lon
+                )
+                
+                now = dt_util.now()
+                
+                # Calculate sun events for today
+                s = sun(loc.observer, date=now.date(), tzinfo=tz)
+                sunrise = s["sunrise"]
+                sunset = s["sunset"]
+                
+                return now < sunrise or now > sunset
+            except (ImportError, Exception):
+                # Fallback on any calculation error
+                pass
+
+        # 3. Fallback to HA global location (Original logic)
         from homeassistant.helpers.sun import get_astral_event_date
         from homeassistant.const import SUN_EVENT_SUNSET, SUN_EVENT_SUNRISE
         

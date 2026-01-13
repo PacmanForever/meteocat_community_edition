@@ -40,6 +40,7 @@ Integració **comunitària** i **no oficial** per a Home Assistant del Servei Me
 - 📈 **Sensors de quotes API** per controlar l'ús
 - 🏢 **Múltiples estacions** configurables
 - 🏙️ **Mode Estació Local** per combinar sensors propis amb prediccions oficials
+- ☀️ **Càlcul precís de dia/nit**: La icona de condició (Sol/Nit serena) canvia automàticament segons la posta de sol a la **ubicació real de l'estació**, independentment d'on estigui instal·lat el teu Home Assistant.
 - 🌍 Traduccions en **català**, **castellà** i **anglès**
 
 ## Instal·lació
