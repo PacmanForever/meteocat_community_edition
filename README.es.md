@@ -25,8 +25,6 @@ Integración **comunitaria** y **no oficial** para Home Assistant del Servicio M
 > 🎯 **Objetivo**: Facilitar la integración con Home Assistant sin necesidad de conocer el funcionamiento interno de la API. No tiene ninguna finalidad comercial ni busca obtener ningún beneficio económico.
 
 > [!IMPORTANT]
-> **Beta:** Esta integración se encuentra en fase *beta*. No se garantiza su correcto funcionamiento y puede contener errores; úsala bajo tu propia responsabilidad.
->
 > **Es necesario registrarse en la API de Meteocat** para obtener una clave API:
 > - 🆓 **Plan ciudadano** (gratuito)
 > - 💼 **Plan empresa** (de pago)
@@ -87,7 +85,7 @@ Integración **comunitaria** y **no oficial** para Home Assistant del Servicio M
 
 ## Versionado
 
-- La versión actual del manifest es `1.2.68` y coincide con el último tag de git.
+- La versión actual del manifest es `1.2.89` y coincide con el último tag de git.
 
 ## Tests
 

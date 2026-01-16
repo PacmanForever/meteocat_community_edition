@@ -25,8 +25,6 @@ Integració **comunitària** i **no oficial** per a Home Assistant del Servei Me
 > 🎯 **Objectiu**: Facilitar la integració amb Home Assistant sense necessitat de conèixer el funcionament intern de l'API. No té cap finalitat comercial ni busca obtenir cap benefici econòmic.
 
 > [!IMPORTANT]
-> **Beta:** Aquesta integració es troba en fase *beta*. No es garanteix el correcte funcionament i pot contenir errors; utilitza-la sota la teva pròpia responsabilitat.
->  
 > **Cal registrar-se a l'API de Meteocat** per obtenir una clau API:
 > - 🆓 **Pla ciutadà** (gratuït)
 > - 💼 **Pla empresa** (de pagament)
@@ -99,7 +97,7 @@ Integració **comunitària** i **no oficial** per a Home Assistant del Servei Me
 
 ## Versionat
 
-- La versió actual del manifest és `1.2.68` i coincideix amb l'últim tag de git.
+- La versió actual del manifest és `1.2.89` i coincideix amb l'últim tag de git.
 
 ## Tests
 
