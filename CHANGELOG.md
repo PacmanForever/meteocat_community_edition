@@ -5,6 +5,12 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.89] - 2026-01-16
+
+### Arreglat
+- Millora en la gestió d'errors (fallback) quan falla el càlcul de dia/nit a l'entitat `weather`.
+- Correcció en els tests unitaris per validar correctament els fallades de les llibreries solars.
+
 ## [1.2.88] - 2026-01-13
 
 ### Arreglat
