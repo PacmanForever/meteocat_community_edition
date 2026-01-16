@@ -118,7 +118,8 @@ async def test_weather_is_night_error(hass: HomeAssistant, mock_coordinator, moc
     # Force an exception in get_astral_event_date
     mock_coordinator.data["station"] = {"coordenades": {"latitud": 41.0, "longitud": 2.0}}
     
-    with patch("astral.sun.sun", side_effect=Exception("Astral error")):
+    with patch("astral.sun.sun", side_effect=Exception("Astral error")), \
+            patch("homeassistant.helpers.sun.get_astral_event_date", side_effect=Exception("HA Sun Error")):
         assert entity._is_night() is False
 
 async def test_forecast_malformed_data(hass: HomeAssistant, mock_coordinator, mock_entry):
