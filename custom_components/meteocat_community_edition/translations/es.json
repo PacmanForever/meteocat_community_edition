@@ -39,7 +39,7 @@
       },
       "update_times": {
         "title": "Configuración de la predicción Meteocat",
-        "description": "Indica a qué horas quieres que se actualice.'",
+        "description": "Indica a qué horas quieres que se actualice.",
         "data": {
           "update_time_1": "Primera hora de actualización (Formato 24h: HH:MM)",
           "update_time_2": "Segunda hora de actualización (Formato 24h: HH:MM)",
@@ -136,7 +136,7 @@
     "step": {
       "init": {
         "title": "Configuración de la estación externa",
-        "description": "Indica a qué horas quieres que se actualice.'",
+        "description": "Indica a qué horas quieres que se actualice.",
         "data": {
           "update_time_1": "Primera hora de actualización (Formato 24h: HH:MM)",
           "update_time_2": "Segunda hora de actualización (Formato 24h: HH:MM)",
@@ -147,7 +147,7 @@
       },
       "local_sensors": {
         "title": "Configura los sensores locales",
-        "description": "Las tarjetas meteorológicas no siempre muestran todos estos valores'.",
+        "description": "Las tarjetas meteorológicas no siempre muestran todos estos valores.",
         "data": {
           "sensor_temperature": "Temperatura",
           "sensor_humidity": "Humedad relativa del aire",

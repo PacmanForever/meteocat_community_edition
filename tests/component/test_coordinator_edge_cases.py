@@ -42,7 +42,7 @@ async def test_coordinator_init_missing_key(hass: HomeAssistant):
         MeteocatCoordinator(hass, entry)
 
 async def test_coordinator_init_options_none(hass: HomeAssistant):
-    """Test coordinator initialization handles None options (using MagicMock to bypass immutable check)."""
+    """Test coordinator initialization handles None options without mutating the entry."""
     # Use MagicMock because MockConfigEntry prevents direct attribute assignment
     entry = MagicMock()
     entry.entry_id = "test_entry"
@@ -54,7 +54,10 @@ async def test_coordinator_init_options_none(hass: HomeAssistant):
     entry.options = None
     
     coordinator = MeteocatCoordinator(hass, entry)
-    assert coordinator.entry.options == {}
+    assert coordinator.entry.options is None
+    assert coordinator.update_time_1 == "06:00"
+    assert coordinator.update_time_2 == "14:00"
+    assert coordinator.update_time_3 == ""
 
 async def test_coordinator_429_quota_exceeded(hass: HomeAssistant, mock_api):
     """Test handling of 429 error during quotes fetch."""

@@ -78,10 +78,15 @@ Integració **comunitària** i **no oficial** per a Home Assistant del Servei Me
 
 ### Notes sobre el comportament de la icona (Condició)
 
-- **Mode Estació Externa**: La condició (icona de l'entitat weather) s'obté de les dades en temps real (XEMA), concretament de la variable de "Estat del cel" (codi 35). Per tant, funciona independentment de si s'ha activat la predicció.
-- **Mode Estació Local**: La condició per defecte es basa en la **Predicció Diària** d'aquell municipi.
-  - Si **desactives la predicció diària**, l'entitat weather no podrà determinar la condició global i la icona pot sortir en blanc i negre (estat desconegut/generic), llevat que hagis configurat una entitat local per a la condició ("Condició del cel") a les opcions.
-  - Per garantir que la icona es mostri correctament en mode Local sense sensors personalitzats, es recomana mantenir activada la Predicció Diària.
+- **Mode Estació Externa**: La condició (icona de l'entitat weather) es determina a partir de la predicció oficial disponible per al municipi associat a l'estació.
+  - Si tens activada la **predicció horària**, es prioritza l'`estatCel` corresponent a l'hora actual.
+  - Si no hi ha dada horària usable, es fa servir la **predicció diària** només si està activada a la configuració de l'estació.
+  - Si desactives la predicció diària per estalviar consum, no s'utilitza com a fallback.
+- **Mode Estació Local**: La condició es resol en aquest ordre:
+  - entitat local de condició, si l'has configurada;
+  - **Predicció Horària**, si està activada i hi ha dada usable per a l'hora actual;
+  - **Predicció Diària**, només si està activada.
+  - Si desactives la predicció diària i no hi ha cap altra font usable, la icona pot quedar en blanc i negre (estat desconegut/genèric).
 
 ## Entitats
 
@@ -97,7 +102,7 @@ Integració **comunitària** i **no oficial** per a Home Assistant del Servei Me
 
 ## Versionat
 
-- La versió actual del manifest és `1.2.89` i coincideix amb l'últim tag de git.
+- La versió actual del manifest és `1.2.90` i coincideix amb l'últim tag de git.
 
 ## Tests
 

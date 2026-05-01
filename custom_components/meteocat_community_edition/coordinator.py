@@ -89,45 +89,33 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         if not self.municipality_code and self.mode == MODE_EXTERNAL:
             self.municipality_code = entry.data.get("station_municipality_code")
         
-        # Ensure options is a dict (should always be, but be safe)
-        if entry.options is None:
-            entry.options = {}
+        entry_options = entry.options or {}
         
         # Get update times from config or use defaults
-        self.update_time_1 = entry.options.get(CONF_UPDATE_TIME_1, entry.data.get(CONF_UPDATE_TIME_1, DEFAULT_UPDATE_TIME_1)) or DEFAULT_UPDATE_TIME_1
-        self.update_time_2 = entry.options.get(CONF_UPDATE_TIME_2, entry.data.get(CONF_UPDATE_TIME_2, DEFAULT_UPDATE_TIME_2)) or DEFAULT_UPDATE_TIME_2
-        self.update_time_3 = entry.options.get(CONF_UPDATE_TIME_3, entry.data.get(CONF_UPDATE_TIME_3, "")) or ""
+        self.update_time_1 = entry_options.get(CONF_UPDATE_TIME_1, entry.data.get(CONF_UPDATE_TIME_1, DEFAULT_UPDATE_TIME_1)) or DEFAULT_UPDATE_TIME_1
+        self.update_time_2 = entry_options.get(CONF_UPDATE_TIME_2, entry.data.get(CONF_UPDATE_TIME_2, DEFAULT_UPDATE_TIME_2)) or DEFAULT_UPDATE_TIME_2
+        self.update_time_3 = entry_options.get(CONF_UPDATE_TIME_3, entry.data.get(CONF_UPDATE_TIME_3, "")) or ""
         
         # Get forecast settings
-        self.enable_forecast_daily = entry.options.get(CONF_ENABLE_FORECAST_DAILY, entry.data.get(CONF_ENABLE_FORECAST_DAILY, True))
+        self.enable_forecast_daily = entry_options.get(CONF_ENABLE_FORECAST_DAILY, entry.data.get(CONF_ENABLE_FORECAST_DAILY, True))
         if self.enable_forecast_daily is None:
             self.enable_forecast_daily = True
-        self.enable_forecast_hourly = entry.options.get(CONF_ENABLE_FORECAST_HOURLY, entry.data.get(CONF_ENABLE_FORECAST_HOURLY, False))
+        self.enable_forecast_hourly = entry_options.get(CONF_ENABLE_FORECAST_HOURLY, entry.data.get(CONF_ENABLE_FORECAST_HOURLY, False))
         if self.enable_forecast_hourly is None:
             self.enable_forecast_hourly = False
         
         # Get API base URL from options or use default
-        api_base_url = entry.options.get(CONF_API_BASE_URL, DEFAULT_API_BASE_URL)
+        api_base_url = entry_options.get(CONF_API_BASE_URL, DEFAULT_API_BASE_URL)
         
         # Get API key - now only from data
         api_key = entry.data.get(CONF_API_KEY)
         if not api_key:
             _LOGGER.error(
-                "Entry '%s' is missing API key in data. Entry data keys: %s. Entry data: %s",
+                "Entry '%s' is missing API key in data. Entry data keys: %s",
                 entry.title,
                 list(entry.data.keys()),
-                entry.data
             )
             raise ValueError(f"Entry '{entry.title}' is missing API key. Please reconfigure this integration.")
-        if api_key:
-            _LOGGER.debug(
-                "Initializing coordinator with API key: %s...%s (length: %d)",
-                api_key[:4] if len(api_key) > 4 else "***",
-                api_key[-4:] if len(api_key) > 4 else "***",
-                len(api_key)
-            )
-        else:
-            _LOGGER.error("API key is empty or None!")
         
         session = async_get_clientsession(hass)
         self.api = MeteocatAPI(

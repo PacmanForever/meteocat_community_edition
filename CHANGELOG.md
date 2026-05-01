@@ -5,6 +5,23 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.90] - 2026-05-02
+
+### Arreglat
+- **Condició climàtica externa**: L'entitat `weather` en mode Estació Externa ara prioritza correctament la predicció horària per determinar la condició actual i només fa fallback a la predicció diària si està activada a la configuració.
+- **Consum de quota**: La predicció diària ja no s'utilitza com a fallback quan està desactivada explícitament per estalviar consultes.
+- **Seguretat de logs**: Eliminada l'exposició de dades sensibles de configuració i fragments de la clau API als logs del coordinator.
+- **Reautenticació**: Eliminat codi mort al flux de reautenticació.
+- **Coordinator**: Evitada la mutació directa de `entry.options` quan és `None`, utilitzant valors per defecte sense modificar el `ConfigEntry`.
+- **Traduccions**: Corregides cadenes en castellà amb cometes sobreres.
+
+### Canviat
+- **Documentació**: Actualitzada la descripció del comportament de la condició climàtica al README i als docstrings per reflectir el funcionament real en mode extern i local.
+
+### Tests
+- Afegits tests de regressió per validar la prioritat de la predicció horària, el fallback a la diària i el respecte a la configuració de consum.
+- Suite completa validada: `545 passed`.
+
 ## [1.2.89] - 2026-01-16
 
 ### Arreglat

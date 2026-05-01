@@ -38,7 +38,7 @@ def test_options_flow_description_content():
     # Spanish
     es = load_translation("es")
     desc_es = es["options"]["step"]["init"]["description"]
-    assert desc_es == "Indica a qué horas quieres que se actualice.'"
+    assert desc_es == "Indica a qué horas quieres que se actualice."
     assert "opciones avanzadas" not in desc_es
     
     # English
@@ -82,7 +82,7 @@ def test_update_times_title_and_description():
     title_es = es["config"]["step"]["update_times"]["title"]
     desc_es = es["config"]["step"]["update_times"]["description"]
     assert title_es == "Configuración de la predicción Meteocat"
-    assert desc_es == "Indica a qué horas quieres que se actualice.'"
+    assert desc_es == "Indica a qué horas quieres que se actualice."
     
     # English
     en = load_translation("en")

@@ -384,10 +384,6 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             },
             errors=errors,
         )
-        self.municipality_code: str | None = None
-        self.municipality_name: str | None = None
-        self.api_base_url: str = DEFAULT_API_BASE_URL
-        self.update_time_1: str = DEFAULT_UPDATE_TIME_1
         self.update_time_2: str = DEFAULT_UPDATE_TIME_2
         self.update_time_3: str = ""
         self.enable_forecast_daily: bool = True

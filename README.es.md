@@ -85,7 +85,7 @@ Integración **comunitaria** y **no oficial** para Home Assistant del Servicio M
 
 ## Versionado
 
-- La versión actual del manifest es `1.2.89` y coincide con el último tag de git.
+- La versión actual del manifest es `1.2.90` y coincide con el último tag de git.
 
 ## Tests
 

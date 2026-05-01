@@ -47,7 +47,7 @@ def test_options_flow_description_content():
     # Spanish
     es = load_translation("es")
     desc_es = es["config"]["step"]["update_times"]["description"]
-    assert desc_es == "Indica a qué horas quieres que se actualice.'"
+    assert desc_es == "Indica a qué horas quieres que se actualice."
     assert "opciones avanzadas" not in desc_es
     
     # English

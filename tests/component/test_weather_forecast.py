@@ -2,7 +2,7 @@
 import sys
 import os
 from unittest.mock import MagicMock, patch
-from datetime import datetime
+from datetime import datetime, timezone
 
 # Add parent directory to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
@@ -26,7 +26,10 @@ def mock_entry():
     entry.data = {
         CONF_STATION_NAME: "Test Station",
         CONF_STATION_CODE: "TS",
+        "enable_forecast_daily": True,
+        "enable_forecast_hourly": True,
     }
+    entry.options = {}
     return entry
 
 @pytest.mark.asyncio
@@ -119,6 +122,116 @@ def test_condition_from_forecast_fallback(mock_coordinator, mock_entry):
     }
     weather = MeteocatWeather(mock_coordinator, mock_entry)
     assert weather.condition == "partlycloudy"
+
+
+def test_external_condition_prefers_hourly_over_daily(mock_coordinator, mock_entry):
+    """Test external mode prioritizes hourly forecast for the current hour."""
+    mock_coordinator.data = {
+        "measurements": [],
+        "forecast": {
+            "dies": [
+                {
+                    "variables": {
+                        "estatCel": {"valor": 2},
+                    }
+                }
+            ]
+        },
+        "forecast_hourly": {
+            "dies": [
+                {
+                    "variables": {
+                        "estatCel": {
+                            "valors": [
+                                {"data": "2023-01-01T12:00Z", "valor": 1},
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+    }
+
+    with patch(
+        "custom_components.meteocat_community_edition.weather.dt_util.utcnow",
+        return_value=datetime(2023, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
+    ):
+        weather = MeteocatWeather(mock_coordinator, mock_entry)
+        assert weather.condition == "sunny"
+
+
+def test_external_condition_falls_back_to_daily_when_hourly_has_no_match(mock_coordinator, mock_entry):
+    """Test external mode falls back to daily forecast when hourly data is unusable."""
+    mock_coordinator.data = {
+        "measurements": [],
+        "forecast": {
+            "dies": [
+                {
+                    "variables": {
+                        "estatCel": {"valor": 2},
+                    }
+                }
+            ]
+        },
+        "forecast_hourly": {
+            "dies": [
+                {
+                    "variables": {
+                        "estatCel": {
+                            "valors": [
+                                {"data": "2023-01-01T11:00Z", "valor": 1},
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+    }
+
+    with patch(
+        "custom_components.meteocat_community_edition.weather.dt_util.utcnow",
+        return_value=datetime(2023, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
+    ):
+        weather = MeteocatWeather(mock_coordinator, mock_entry)
+        assert weather.condition == "partlycloudy"
+
+
+def test_external_condition_ignores_daily_when_disabled(mock_coordinator, mock_entry):
+    """Test external mode does not use daily forecast when it is disabled in config."""
+    mock_entry.data["enable_forecast_daily"] = False
+    mock_entry.data["enable_forecast_hourly"] = True
+    mock_coordinator.data = {
+        "measurements": [],
+        "forecast": {
+            "dies": [
+                {
+                    "variables": {
+                        "estatCel": {"valor": 2},
+                    }
+                }
+            ]
+        },
+        "forecast_hourly": {
+            "dies": [
+                {
+                    "variables": {
+                        "estatCel": {
+                            "valors": [
+                                {"data": "2023-01-01T11:00Z", "valor": 1},
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+    }
+
+    with patch(
+        "custom_components.meteocat_community_edition.weather.dt_util.utcnow",
+        return_value=datetime(2023, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
+    ):
+        weather = MeteocatWeather(mock_coordinator, mock_entry)
+        assert weather.condition is None
 
 def test_is_night(mock_coordinator, mock_entry):
     """Test is_night logic."""

@@ -1,11 +1,8 @@
 """Weather entity for Meteocat (Community Edition).
 
-This module provides a Weather entity for MODE_EXTERNAL that combines:
-- Current measurements from the station
-- Forecast data (hourly and daily)
-
-The weather entity is only created in MODE_EXTERNAL.
-MODE_LOCAL uses sensor entities for forecast data.
+This module provides Weather entities for both modes:
+- MODE_EXTERNAL: current station measurements plus Meteocat forecast data
+- MODE_LOCAL: local Home Assistant sensor values plus Meteocat forecast data
 """
 from __future__ import annotations
 
@@ -33,6 +30,8 @@ from homeassistant.helpers.event import async_track_sunrise, async_track_sunset
 from .const import (
     ATTRIBUTION, 
     METEOCAT_CONDITION_MAP, 
+    CONF_ENABLE_FORECAST_DAILY,
+    CONF_ENABLE_FORECAST_HOURLY,
     CONF_STATION_NAME, 
     CONF_MUNICIPALITY_NAME,
     DOMAIN,
@@ -180,6 +179,79 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
                         return None
         return None
 
+    def _normalize_condition(self, condition: str | None) -> str | None:
+        """Normalize the condition for night mode when needed."""
+        if condition == "sunny" and self._is_night():
+            return "clear-night"
+        return condition
+
+    def _map_condition_code(self, estat_code: Any) -> str | None:
+        """Map a Meteocat sky state code to a Home Assistant weather condition."""
+        return self._normalize_condition(METEOCAT_CONDITION_MAP.get(estat_code))
+
+    def _get_condition_from_daily_forecast(self) -> str | None:
+        """Get the current condition from daily forecast data."""
+        forecast = self.coordinator.data.get("forecast")
+        if not forecast:
+            return None
+
+        dies = forecast.get("dies", [])
+        if not dies:
+            return None
+
+        first_day = dies[0]
+        variables = first_day.get("variables", {})
+
+        estat_cel = variables.get("estatCel", {}) or variables.get("estat", {})
+        if isinstance(estat_cel, dict):
+            estat_code = estat_cel.get("valor", estat_cel.get("codi"))
+            if estat_code is not None:
+                return self._map_condition_code(estat_code)
+
+        return None
+
+    def _get_condition_from_hourly_forecast(self) -> str | None:
+        """Get the current condition from hourly forecast data."""
+        forecast_hourly = self.coordinator.data.get("forecast_hourly")
+        if not forecast_hourly:
+            return None
+
+        current_hour_utc = dt_util.utcnow().replace(minute=0, second=0, microsecond=0)
+
+        dies = forecast_hourly.get("dies", [])
+        for dia in dies:
+            variables = dia.get("variables", {})
+            estat_cel_data = variables.get("estatCel", {}) or variables.get("estat", {})
+            estat_valors = estat_cel_data.get("valors", estat_cel_data.get("valor", []))
+
+            if not isinstance(estat_valors, list):
+                continue
+
+            for entry in estat_valors:
+                if not isinstance(entry, dict):
+                    continue
+
+                data_str = entry.get("data")
+                if not data_str:
+                    continue
+
+                try:
+                    entry_dt = dt_util.parse_datetime(data_str)
+                    if not entry_dt:
+                        continue
+                except (TypeError, ValueError):
+                    continue
+
+                entry_dt_utc = dt_util.as_utc(entry_dt)
+                if entry_dt_utc.replace(minute=0, second=0, microsecond=0) != current_hour_utc:
+                    continue
+
+                estat_code = entry.get("valor", entry.get("codi"))
+                if estat_code is not None:
+                    return self._map_condition_code(estat_code)
+
+        return None
+
     @property
     def native_temperature(self) -> float | None:
         """Return the current temperature."""
@@ -205,34 +277,24 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
         """Return the current condition."""
         # XEMA measurements do not typically contain sky condition (symbol).
         # Variable 35 is precipitation, not sky state.
-        # We fallback to forecast (municipal) for the condition symbol.
-        
-        # For MODE_LOCAL & MODE_EXTERNAL (fallback): use forecast
-        forecast = self.coordinator.data.get("forecast")
-        if not forecast:
-            return None
-        
-        # Get first day's data
-        dies = forecast.get("dies", [])
-        if not dies:
-            return None
-        
-        first_day = dies[0]
-        variables = first_day.get("variables", {})
-        
-        # Get sky state (simple object with valor)
-        estat_cel = variables.get("estatCel", {})
-        if isinstance(estat_cel, dict):
-            estat_code = estat_cel.get("valor")
-            if estat_code is not None:
-                condition = METEOCAT_CONDITION_MAP.get(estat_code)
-                
-                # Convert sunny to clear-night if sun is below horizon
-                if condition == "sunny" and self._is_night():
-                    return "clear-night"
-                
+        # Use hourly forecast when configured, because it can change every hour.
+        enable_hourly = self._entry.options.get(
+            CONF_ENABLE_FORECAST_HOURLY,
+            self._entry.data.get(CONF_ENABLE_FORECAST_HOURLY, False),
+        )
+        if enable_hourly:
+            condition = self._get_condition_from_hourly_forecast()
+            if condition is not None:
                 return condition
-        
+
+        # Only fall back to daily forecast if daily data is configured.
+        enable_daily = self._entry.options.get(
+            CONF_ENABLE_FORECAST_DAILY,
+            self._entry.data.get(CONF_ENABLE_FORECAST_DAILY, True),
+        )
+        if enable_daily:
+            return self._get_condition_from_daily_forecast()
+
         return None
 
     def _is_night(self) -> bool:

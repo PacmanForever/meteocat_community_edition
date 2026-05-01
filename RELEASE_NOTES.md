@@ -1,3 +1,21 @@
+# v1.2.90 - Correcció de la Condició Climàtica Externa i Neteja Interna
+
+## 🐛 Correccions
+- **Condició climàtica externa**: L'entitat `weather` en mode Estació Externa ara prioritza correctament la predicció horària per calcular la condició actual.
+- **Fallback controlat**: La predicció diària només s'utilitza com a fallback si està activada a la configuració de l'estació.
+- **Estalvi de quota**: Si la predicció diària està desactivada per reduir consum, ja no es consulta com a font de condició climàtica.
+- **Seguretat de logs**: Eliminada l'exposició de dades sensibles i fragments de la clau API als logs del coordinator.
+- **Reautenticació**: Eliminat codi mort al flux de reautenticació.
+- **Coordinator**: Corregit l'accés a `entry.options` per evitar mutacions directes innecessàries del `ConfigEntry`.
+- **Traduccions**: Corregides cadenes en castellà amb cometes sobreres.
+
+## ⚡ Canvis
+- **Documentació**: Actualitzada la descripció del comportament de la condició climàtica al README i als docstrings per reflectir el funcionament real en mode extern i local.
+
+## ✅ Validació
+- Afegits tests de regressió per a la prioritat entre predicció horària i diària.
+- Validació completa del projecte: `545 passed`.
+
 # v1.2.86 - Correcció Inicialització Sensors UTCI/Beaufort
 
 ## 🐛 Correccions
