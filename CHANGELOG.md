@@ -5,6 +5,15 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.91] - 2026-05-02
+
+### Afegit
+- **Instruccions del repositori**: Afegit [`.github/copilot-instructions.md`] amb context específic del projecte Meteocat per a assistents i automatitzacions.
+- **Manteniment de workflows**: Afegit el workflow [`.github/workflows/keepalive.yml`] per evitar que GitHub desactivi automatismes per inactivitat.
+
+### Canviat
+- **Script de cobertura**: Actualitzats els permisos de `scripts/update_coverage.py` perquè no requereixi bit executable.
+
 ## [1.2.90] - 2026-05-02
 
 ### Arreglat

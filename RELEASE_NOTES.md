@@ -1,3 +1,12 @@
+# v1.2.91 - Fitxers de Manteniment del Repositori
+
+## 🆕 Novetats
+- **Instruccions Copilot**: Afegit el fitxer `.github/copilot-instructions.md` amb context actualitzat del projecte, arquitectura i convencions de treball.
+- **Keepalive de workflows**: Afegit `.github/workflows/keepalive.yml` per mantenir actius els workflows de GitHub Actions.
+
+## ⚡ Canvis
+- **Script de cobertura**: El fitxer `scripts/update_coverage.py` deixa de marcar-se com executable.
+
 # v1.2.90 - Correcció de la Condició Climàtica Externa i Neteja Interna
 
 ## 🐛 Correccions

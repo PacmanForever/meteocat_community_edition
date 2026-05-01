@@ -85,7 +85,7 @@
 
 ## Versioning
 
-- The current manifest version is `1.2.90` and matches the latest git tag.
+- The current manifest version is `1.2.91` and matches the latest git tag.
 
 ## Tests
 
