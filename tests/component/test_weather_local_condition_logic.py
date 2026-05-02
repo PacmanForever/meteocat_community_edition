@@ -129,7 +129,7 @@ async def test_local_weather_tracks_local_condition_entity(hass: HomeAssistant, 
     weather.hass = hass
 
     with patch(
-        "custom_components.meteocat_community_edition.weather.SingleCoordinatorWeatherEntity.async_added_to_hass",
+        "custom_components.meteocat_community_edition.weather.MeteocatWeather.async_added_to_hass",
         return_value=None,
     ), patch(
         "homeassistant.helpers.event.async_track_state_change_event"

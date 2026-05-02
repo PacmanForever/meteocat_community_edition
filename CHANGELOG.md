@@ -5,7 +5,13 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
-## [1.2.91] - 2026-05-02
+## [1.2.93] - 2026-05-02
+
+### Arreglat
+- **CI tests**: Corregit el test `test_local_weather_tracks_local_condition_entity` perquè no deixi timers solars penjats al teardown en entorns Python 3.11.
+
+### Tests
+- Suite completa validada: `548 passed`.
 
 ## [1.2.92] - 2026-05-02
 
