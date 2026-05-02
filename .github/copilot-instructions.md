@@ -31,12 +31,20 @@ Integració custom de Home Assistant per consumir dades oficials de Meteocat i e
 
 ## Convencions
 
-- Commits en anglès, format: `vX.Y.Z: brief description`
+- Commits de release en anglès, format: `vX.Y.Z: brief description`
 - Tags: `vX.Y.Z`
 - Changelog: format `## [X.Y.Z] - YYYY-MM-DD` amb seccions `### Arreglat`, `### Canviat`, `### Afegit`
 - Releases: manualment amb `gh release create` o via GitHub UI
 - Sempre executar tots els tests abans de commit o release
 - Respostes en català, codi en anglès
+
+## Checklist de release
+
+- Actualitzar `custom_components/meteocat_community_edition/manifest.json`
+- Actualitzar `CHANGELOG.md`
+- Actualitzar les referències de versió al README si escau
+- Executar la suite completa abans del tag/release
+- Crear commit de release, tag i release només quan tot l'anterior sigui consistent
 
 ## Home Assistant — Patrons del projecte
 
@@ -55,6 +63,7 @@ Integració custom de Home Assistant per consumir dades oficials de Meteocat i e
 - **Reauth**: Evitar codi mort o estat residual després de `return self.async_abort(...)`.
 - **Weather entity**: Existeix tant en mode extern com en mode local; la documentació i docstrings han d'estar alineats amb això.
 - **Actualitzacions**: Respectar el model de scheduling del coordinator per evitar consum innecessari d'API.
+- **Tests HA i timers**: Si un test mockeja `async_added_to_hass`, cal evitar deixar callbacks o timers registrats pel `super()` real, especialment els de sortida/posta de sol.
 
 ## Preferències del projecte
 
@@ -66,5 +75,6 @@ Integració custom de Home Assistant per consumir dades oficials de Meteocat i e
 ## Validació mínima abans de donar una tasca per acabada
 
 - Executar com a mínim els tests afectats pel canvi
+- Si el canvi toca traduccions o textos del config flow, revisar `strings.json`, `translations/*.json` i els tests de traduccions
 - Si el canvi toca lògica funcional, executar la suite completa:
   - `./venv/bin/python -m pytest tests/component tests/unit -q`
