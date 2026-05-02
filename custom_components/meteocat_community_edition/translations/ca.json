@@ -13,7 +13,7 @@
         "title": "Configura la nova estació",
         "description": "Estació Externa: Mesures i predicció de Meteocat\n\nEstació Local: Mesures locals i predicció de Meteocat",
         "data": {
-          "mode": "Quina classe d'estació vols crear?"
+          "mode": "Quina mena d'estació vols crear?"
         }
       },
       "comarca": {
@@ -39,7 +39,7 @@
       },
       "update_times": {
         "title": "Configura la predicció de Meteocat",
-        "description": "Indica a quines hores vols que s'actualitzi:",
+        "description": "Indica a quines hores vols que s'actualitzi:\n\nATENCIÓ: Com més hores d'actualització i més tipus de predicció activis, més quota consumiràs. Si el consum és massa alt, la quota mensual potser no arribarà a final de mes.",
         "data": {
           "update_time_1": "Primera hora d'actualització (Format 24h: HH:MM)",
           "update_time_2": "Segona hora d'actualització (Format 24h: HH:MM)",
@@ -49,7 +49,7 @@
         }
       },
       "local_sensors": {
-        "title": "Configura els sensors Locals",
+        "title": "Configura els sensors locals",
         "description": "Les targetes meteorològiques no sempre mostren tots aquests valors.",
         "data": {
           "sensor_temperature": "Temperatura",
@@ -70,15 +70,15 @@
         "title": "Configura la condició climàtica",
         "description": "",
         "data": {
-          "mapping_type": "Selecciona quin mapeig vols per la propietat 'Condició climàtica' (Icona)."
+          "mapping_type": "Selecciona quin mapeig vols per a la propietat 'Condició climàtica' (icona)."
         },
         "data_description": {
-          "mapping_type": "Meteocat\nEl valor de condició s'agafarà automàticament de la predicció oficial de Meteocat (mapeig fix, no editable).\n\nPersonalitzat\nEl valor de la condició s'agafarà d'un sensor numèric local. Caldrà definir (a la següent pantalla) un mapeig entre els valors del sensor local i les condicions suportades per Home Assistant (ex: clear-night, sunny, partlycloudy, cloudy, rainy, pouring, lightning, snowy, fog, etc.)."
+          "mapping_type": "Meteocat\nEl valor de la condició s'agafarà automàticament de la predicció oficial de Meteocat (mapeig fix, no editable).\n\nPersonalitzat\nEl valor de la condició s'agafarà d'un sensor numèric local. Caldrà definir, a la pantalla següent, un mapeig entre els valors del sensor local i les condicions suportades per Home Assistant (ex: clear-night, sunny, partlycloudy, cloudy, rainy, pouring, lightning, snowy, fog, etc.)."
         }
       },
       "condition_mapping_custom": {
         "title": "Configura el mapeig de la condició climàtica",
-        "description": "Selecciona el sensor que té la condició climàtica numèrica i configura el mapeig a utilitzar.\n\nEl mapeig defineix quins valors numèrics del sensor corresponen a cada condició. Pots especificar múltiples valors separats per comes (ex: 1, 3, 5) o rangs (ex: 10-20).",
+        "description": "Selecciona el sensor que té la condició climàtica numèrica i configura el mapeig que es farà servir. Pots especificar múltiples valors separats per comes.\n\nExemple: si el teu sensor local retorna 1 per assolellat, 2 per parcialment ennuvolat i 3 o 4 per plujós, omple: \nAssolellat: 1\nParcialment ennuvolat: 2\nPlujós: 3, 4",
         "data": {
           "local_condition_entity": "Sensor que indica la condició climàtica",
           "clear-night": "Nit serena",
@@ -136,7 +136,7 @@
     "step": {
       "init": {
         "title": "Configura la predicció de Meteocat",
-        "description": "Indica a quines hores vols que s'actualitzi:",
+        "description": "Indica a quines hores vols que s'actualitzi:\n\nATENCIÓ: Com més hores d'actualització i més tipus de predicció activis, més quota consumiràs. Si el consum és massa alt, la quota mensual potser no arribarà a final de mes.",
         "data": {
           "update_time_1": "Primera hora d'actualització (Format 24h: HH:MM)",
           "update_time_2": "Segona hora d'actualització (Format 24h: HH:MM)",
@@ -167,15 +167,15 @@
         "title": "Configura la condició climàtica",
         "description": "",
         "data": {
-          "mapping_type": "Selecciona quin mapeig vols per la propietat 'Condició climàtica' (Icona)."
+          "mapping_type": "Selecciona quin mapeig vols per a la propietat 'Condició climàtica' (icona)."
         },
         "data_description": {
-          "mapping_type": "Meteocat\nEl valor de condició s'agafarà automàticament de la predicció oficial de Meteocat (mapeig fix, no editable).\n\nPersonalitzat\nEl valor de la condició s'agafarà d'un sensor numèric local. Caldrà definir (a la següent pantalla) un mapeig entre els valors del sensor local i les condicions suportades per Home Assistant (ex: clear-night, sunny, partlycloudy, cloudy, rainy, pouring, lightning, snowy, fog, etc.)."
+          "mapping_type": "Meteocat\nEl valor de la condició s'agafarà automàticament de la predicció oficial de Meteocat (mapeig fix, no editable).\n\nPersonalitzat\nEl valor de la condició s'agafarà d'un sensor numèric local. Caldrà definir, a la pantalla següent, un mapeig entre els valors del sensor local i les condicions suportades per Home Assistant (ex: clear-night, sunny, partlycloudy, cloudy, rainy, pouring, lightning, snowy, fog, etc.)."
         }
       },
       "condition_mapping_custom": {
         "title": "Configura el mapeig de la condició climàtica",
-        "description": "Selecciona el sensor que té la condició climàtica numèrica i configura el mapeig a utilitzar.\n\nEl mapeig defineix quins valors numèrics del sensor corresponen a cada condició. Pots especificar múltiples valors separats per comes (ex: 1, 3, 5) o rangs (ex: 10-20).",
+        "description": "Selecciona el sensor que té la condició climàtica numèrica i configura el mapeig que es farà servir. Pots especificar múltiples valors separats per comes.\n\nExemple: si el teu sensor local retorna 1 per assolellat, 2 per parcialment ennuvolat i 3 o 4 per plujós, omple: \nAssolellat: 1\nParcialment ennuvolat: 2\nPlujós: 3, 4",
         "data": {
           "local_condition_entity": "Sensor que indica la condició climàtica",
           "clear-night": "Nit serena",

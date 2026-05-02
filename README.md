@@ -102,7 +102,7 @@ Integració **comunitària** i **no oficial** per a Home Assistant del Servei Me
 
 ## Versionat
 
-- La versió actual del manifest és `1.2.91` i coincideix amb l'últim tag de git.
+- La versió actual del manifest és `1.2.92` i coincideix amb l'últim tag de git.
 
 ## Tests
 

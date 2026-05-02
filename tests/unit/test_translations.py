@@ -32,19 +32,19 @@ def test_options_flow_description_content():
     # Catalan
     ca = load_translation("ca")
     desc_ca = ca["options"]["step"]["init"]["description"]
-    assert desc_ca == "Indica a quines hores vols que s'actualitzi:"
+    assert desc_ca == "Indica a quines hores vols que s'actualitzi:\n\nATENCIÓ: Com més hores d'actualització i més tipus de predicció activis, més quota consumiràs. Si el consum és massa alt, la quota mensual potser no arribarà a final de mes."
     assert "opcions avançades" not in desc_ca
     
     # Spanish
     es = load_translation("es")
     desc_es = es["options"]["step"]["init"]["description"]
-    assert desc_es == "Indica a qué horas quieres que se actualice."
+    assert desc_es == "Indica a qué horas quieres que se actualice.\n\nATENCIÓN: Cuantas más horas de actualización y más tipos de predicción actives, más cuota se consumirá. Si el consumo es demasiado alto, es posible que la cuota mensual no llegue a final de mes."
     assert "opciones avanzadas" not in desc_es
     
     # English
     en = load_translation("en")
     desc_en = en["options"]["step"]["init"]["description"]
-    assert desc_en == "Indicate at what times you want it to update:"
+    assert desc_en == "Indicate at what times you want it to update:\n\nATTENTION: The more update times and forecast types you enable, the more quota will be consumed. If consumption is too high, your monthly quota may run out before the end of the month."
     assert "advanced options" not in desc_en
 
 
@@ -75,21 +75,21 @@ def test_update_times_title_and_description():
     title_ca = ca["config"]["step"]["update_times"]["title"]
     desc_ca = ca["config"]["step"]["update_times"]["description"]
     assert title_ca == "Configura la predicció de Meteocat"
-    assert desc_ca == "Indica a quines hores vols que s'actualitzi:"
+    assert desc_ca == "Indica a quines hores vols que s'actualitzi:\n\nATENCIÓ: Com més hores d'actualització i més tipus de predicció activis, més quota consumiràs. Si el consum és massa alt, la quota mensual potser no arribarà a final de mes."
     
     # Spanish
     es = load_translation("es")
     title_es = es["config"]["step"]["update_times"]["title"]
     desc_es = es["config"]["step"]["update_times"]["description"]
     assert title_es == "Configuración de la predicción Meteocat"
-    assert desc_es == "Indica a qué horas quieres que se actualice."
+    assert desc_es == "Indica a qué horas quieres que se actualice.\n\nATENCIÓN: Cuantas más horas de actualización y más tipos de predicción actives, más cuota se consumirá. Si el consumo es demasiado alto, es posible que la cuota mensual no llegue a final de mes."
     
     # English
     en = load_translation("en")
     title_en = en["config"]["step"]["update_times"]["title"]
     desc_en = en["config"]["step"]["update_times"]["description"]
     assert title_en == "Configure Meteocat Forecast"
-    assert desc_en == "Indicate at what times you want it to update:"
+    assert desc_en == "Indicate at what times you want it to update:\n\nATTENTION: The more update times and forecast types you enable, the more quota will be consumed. If consumption is too high, your monthly quota may run out before the end of the month."
 
 
 def test_condition_mapping_custom_texts():
@@ -104,8 +104,7 @@ def test_condition_mapping_custom_texts():
     condition_sunny_ca = ca["config"]["step"]["condition_mapping_custom"]["data"]["sunny"]
     
     assert title_ca == "Configura el mapeig de la condició climàtica"
-    # description might be empty or specific, checking logical equivalence
-    assert desc_ca == "Selecciona el sensor que té la condició climàtica numèrica i configura el mapeig a utilitzar.\n\nEl mapeig defineix quins valors numèrics del sensor corresponen a cada condició. Pots especificar múltiples valors separats per comes (ex: 1, 3, 5) o rangs (ex: 10-20)."
+    assert desc_ca == "Selecciona el sensor que té la condició climàtica numèrica i configura el mapeig que es farà servir. Pots especificar múltiples valors separats per comes.\n\nExemple: si el teu sensor local retorna 1 per assolellat, 2 per parcialment ennuvolat i 3 o 4 per plujós, omple: \nAssolellat: 1\nParcialment ennuvolat: 2\nPlujós: 3, 4"
     assert entity_label_ca == "Sensor que indica la condició climàtica"
     assert condition_sunny_ca == "Assolellat"
     
@@ -117,7 +116,7 @@ def test_condition_mapping_custom_texts():
     condition_sunny_es = es["config"]["step"]["condition_mapping_custom"]["data"]["sunny"]
     
     assert title_es == "Configuración del mapeo de la condición climática"
-    assert desc_es == "Selecciona el sensor que indica el valor de la condición y el mapeo a utilizar. Puedes especificar múltiples valores separados por comas."
+    assert desc_es == "Selecciona el sensor que indica el valor de la condición y configura el mapeo a utilizar. Puedes especificar múltiples valores separados por comas.\n\nEjemplo: si tu sensor local devuelve 1 para soleado, 2 para parcialmente nublado y 3 o 4 para lluvioso, rellena:\nSoleado: 1\nParcialmente nublado: 2\nLluvioso: 3, 4"
     assert entity_label_es == "Sensor que indica la condición"
     assert condition_sunny_es == "Soleado"
     
@@ -129,7 +128,7 @@ def test_condition_mapping_custom_texts():
     condition_sunny_en = en["config"]["step"]["condition_mapping_custom"]["data"]["sunny"]
     
     assert title_en == "Configure Weather Condition Mapping"
-    assert desc_en == "Select the sensor that contains the condition value and the mapping to be used. You can enter multiple values separated by commas."
+    assert desc_en == "Select the sensor that contains the condition value and configure the mapping to use. You can enter multiple values separated by commas.\n\nExample: if your local sensor returns 1 for sunny, 2 for partly cloudy and 3 or 4 for rainy, fill in:\nSunny: 1\nPartly cloudy: 2\nRainy: 3, 4"
     assert entity_label_en == "Sensor that indicates the condition"
     assert condition_sunny_en == "Sunny"
 

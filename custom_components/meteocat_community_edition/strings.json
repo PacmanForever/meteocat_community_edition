@@ -39,7 +39,7 @@
       },
       "update_times": {
         "title": "Configure Meteocat Forecast",
-        "description": "Indicate at what times you want it to update:",
+        "description": "Indicate at what times you want it to update:\n\nATTENTION: The more update times and forecast types you enable, the more quota will be consumed. If consumption is too high, your monthly quota may run out before the end of the month.",
         "data": {
           "update_time_1": "First update time (24h format: HH:MM)",
           "update_time_2": "Second update time (24h format: HH:MM)",
@@ -78,7 +78,7 @@
       },
       "condition_mapping_custom": {
         "title": "Configure Weather Condition Mapping",
-        "description": "Select the sensor that contains the condition value and the mapping to be used. You can enter multiple values separated by commas.",
+        "description": "Select the sensor that contains the condition value and configure the mapping to use. You can enter multiple values separated by commas.\n\nExample: if your local sensor returns 1 for sunny, 2 for partly cloudy and 3 or 4 for rainy, fill in:\nSunny: 1\nPartly cloudy: 2\nRainy: 3, 4",
         "data": {
           "local_condition_entity": "Sensor that indicates the condition",
           "clear-night": "Clear night",
@@ -136,7 +136,7 @@
     "step": {
       "init": {
         "title": "Configure Meteocat Forecast",
-        "description": "Indicate at what times you want it to update:",
+        "description": "Indicate at what times you want it to update:\n\nATTENTION: The more update times and forecast types you enable, the more quota will be consumed. If consumption is too high, your monthly quota may run out before the end of the month.",
         "data": {
           "update_time_1": "First update time (24h format: HH:MM)",
           "update_time_2": "Second update time (24h format: HH:MM)",
@@ -175,7 +175,7 @@
       },
       "condition_mapping_custom": {
         "title": "Configure Weather Condition Mapping",
-        "description": "Select the sensor that contains the condition value and the mapping to be used. You can enter multiple values separated by commas.",
+        "description": "Select the sensor that contains the condition value and configure the mapping to use. You can enter multiple values separated by commas.\n\nExample: if your local sensor returns 1 for sunny, 2 for partly cloudy and 3 or 4 for rainy, fill in:\nSunny: 1\nPartly cloudy: 2\nRainy: 3, 4",
         "data": {
           "local_condition_entity": "Sensor that indicates the condition",
           "clear-night": "Clear night",

@@ -39,7 +39,7 @@
       },
       "update_times": {
         "title": "Configuración de la predicción Meteocat",
-        "description": "Indica a qué horas quieres que se actualice.",
+        "description": "Indica a qué horas quieres que se actualice.\n\nATENCIÓN: Cuantas más horas de actualización y más tipos de predicción actives, más cuota se consumirá. Si el consumo es demasiado alto, es posible que la cuota mensual no llegue a final de mes.",
         "data": {
           "update_time_1": "Primera hora de actualización (Formato 24h: HH:MM)",
           "update_time_2": "Segunda hora de actualización (Formato 24h: HH:MM)",
@@ -78,7 +78,7 @@
       },
       "condition_mapping_custom": {
         "title": "Configuración del mapeo de la condición climática",
-        "description": "Selecciona el sensor que indica el valor de la condición y el mapeo a utilizar. Puedes especificar múltiples valores separados por comas.",
+        "description": "Selecciona el sensor que indica el valor de la condición y configura el mapeo a utilizar. Puedes especificar múltiples valores separados por comas.\n\nEjemplo: si tu sensor local devuelve 1 para soleado, 2 para parcialmente nublado y 3 o 4 para lluvioso, rellena:\nSoleado: 1\nParcialmente nublado: 2\nLluvioso: 3, 4",
         "data": {
           "local_condition_entity": "Sensor que indica la condición",
           "clear-night": "Noche despejada",
@@ -136,7 +136,7 @@
     "step": {
       "init": {
         "title": "Configuración de la estación externa",
-        "description": "Indica a qué horas quieres que se actualice.",
+        "description": "Indica a qué horas quieres que se actualice.\n\nATENCIÓN: Cuantas más horas de actualización y más tipos de predicción actives, más cuota se consumirá. Si el consumo es demasiado alto, es posible que la cuota mensual no llegue a final de mes.",
         "data": {
           "update_time_1": "Primera hora de actualización (Formato 24h: HH:MM)",
           "update_time_2": "Segunda hora de actualización (Formato 24h: HH:MM)",
@@ -175,7 +175,7 @@
       },
       "condition_mapping_custom": {
         "title": "Configuración del mapeo de la condición climática",
-        "description": "Selecciona el sensor que indica el valor de la condición y el mapeo a utilizar. Puedes especificar múltiples valores separados por comas.",
+        "description": "Selecciona el sensor que indica el valor de la condición y configura el mapeo a utilizar. Puedes especificar múltiples valores separados por comas.\n\nEjemplo: si tu sensor local devuelve 1 para soleado, 2 para parcialmente nublado y 3 o 4 para lluvioso, rellena:\nSoleado: 1\nParcialmente nublado: 2\nLluvioso: 3, 4",
         "data": {
           "local_condition_entity": "Sensor que indica la condición",
           "clear-night": "Noche despejada",

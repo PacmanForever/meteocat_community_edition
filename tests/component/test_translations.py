@@ -41,19 +41,19 @@ def test_options_flow_description_content():
     # Catalan
     ca = load_translation("ca")
     desc_ca = ca["config"]["step"]["update_times"]["description"]
-    assert desc_ca == "Indica a quines hores vols que s'actualitzi:"
+    assert desc_ca == "Indica a quines hores vols que s'actualitzi:\n\nATENCIÓ: Com més hores d'actualització i més tipus de predicció activis, més quota consumiràs. Si el consum és massa alt, la quota mensual potser no arribarà a final de mes."
     assert "opcions avançades" not in desc_ca
     
     # Spanish
     es = load_translation("es")
     desc_es = es["config"]["step"]["update_times"]["description"]
-    assert desc_es == "Indica a qué horas quieres que se actualice."
+    assert desc_es == "Indica a qué horas quieres que se actualice.\n\nATENCIÓN: Cuantas más horas de actualización y más tipos de predicción actives, más cuota se consumirá. Si el consumo es demasiado alto, es posible que la cuota mensual no llegue a final de mes."
     assert "opciones avanzadas" not in desc_es
     
     # English
     en = load_translation("en")
     desc_en = en["config"]["step"]["update_times"]["description"]
-    assert desc_en == "Indicate at what times you want it to update:"
+    assert desc_en == "Indicate at what times you want it to update:\n\nATTENTION: The more update times and forecast types you enable, the more quota will be consumed. If consumption is too high, your monthly quota may run out before the end of the month."
     assert "advanced options" not in desc_en
 
 def test_options_flow_sensors_labels():

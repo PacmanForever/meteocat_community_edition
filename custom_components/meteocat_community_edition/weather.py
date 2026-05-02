@@ -613,6 +613,9 @@ class MeteocatLocalWeather(MeteocatWeather):
             for entity_id in self._sensors.values() 
             if entity_id
         ]
+
+        if self._local_condition_entity and self._local_condition_entity not in sensors_to_track:
+            sensors_to_track.append(self._local_condition_entity)
         
         if sensors_to_track:
             from homeassistant.helpers.event import async_track_state_change_event
@@ -690,10 +693,7 @@ class MeteocatLocalWeather(MeteocatWeather):
                         if condition == "sunny" and self._is_night():
                             return "clear-night"
                         return condition
-                    else:
-                        _LOGGER.debug("Condition not found in mapping, returning None")
-                        # Return None when mapping fails - better than guessing
-                        return None
+                    _LOGGER.debug("Condition not found in mapping, falling back to forecast data")
                 except (ValueError, TypeError):
                     _LOGGER.debug("Could not convert to int, checking if raw_value is valid condition")
                     # Not a number, check if it's already a valid condition
@@ -715,8 +715,7 @@ class MeteocatLocalWeather(MeteocatWeather):
                         if raw_value == "sunny" and self._is_night():
                             return "clear-night"
                         return raw_value
-                    _LOGGER.debug("Raw value is not a valid condition, returning None")
-                    return None  # fallback
+                    _LOGGER.debug("Raw value is not a valid condition, falling back to forecast data")
 
         # 2. Try Hourly Forecast first (Best precision)
         forecast_hourly = self.coordinator.data.get("forecast_hourly")

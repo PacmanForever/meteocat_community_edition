@@ -84,7 +84,7 @@ async def test_local_condition_entity_custom_mapping(hass: HomeAssistant, mock_c
     assert weather.condition == "pouring"
 
 async def test_local_condition_entity_invalid_state_returns_none(hass: HomeAssistant, mock_coordinator, mock_config_entry):
-    """Test that invalid state in condition entity returns None (blocking fallback)."""
+    """Test that invalid state in condition entity falls back to forecast."""
     # Add rain sensor to prove it's NOT used
     mock_config_entry.data["sensor_rain"] = "sensor.rain_gauge"
     
@@ -97,8 +97,9 @@ async def test_local_condition_entity_invalid_state_returns_none(hass: HomeAssis
     # Rain sensor active
     hass.states.async_set("sensor.rain_gauge", "5.0")
     
-    # Logic returns None when parsing fails for configured entity
-    assert weather.condition is None
+    with patch.object(MeteocatLocalWeather, "_is_night", return_value=False):
+        # Invalid local value should fall back to forecast data
+        assert weather.condition == "sunny"
 
 async def test_local_condition_entity_unknown_unavailable(hass: HomeAssistant, mock_coordinator, mock_config_entry):
     """Test local condition entity being unknown or unavailable."""
@@ -112,14 +113,33 @@ async def test_local_condition_entity_unknown_unavailable(hass: HomeAssistant, m
         assert weather.condition == "sunny" 
 
 async def test_local_condition_entity_mapping_miss(hass: HomeAssistant, mock_coordinator, mock_config_entry):
-    """Test local condition entity value not found in mapping."""
+    """Test local condition entity value not found in mapping falls back to forecast."""
     weather = MeteocatLocalWeather(mock_coordinator, mock_config_entry)
     weather.hass = hass
 
     # "999" is not in default map
     hass.states.async_set("sensor.local_condition", "999")
     
-    assert weather.condition is None
+    with patch.object(MeteocatLocalWeather, "_is_night", return_value=False):
+        assert weather.condition == "sunny"
+
+async def test_local_weather_tracks_local_condition_entity(hass: HomeAssistant, mock_coordinator, mock_config_entry):
+    """Test the local condition entity is included in tracked sensor updates."""
+    weather = MeteocatLocalWeather(mock_coordinator, mock_config_entry)
+    weather.hass = hass
+
+    with patch(
+        "custom_components.meteocat_community_edition.weather.SingleCoordinatorWeatherEntity.async_added_to_hass",
+        return_value=None,
+    ), patch(
+        "homeassistant.helpers.event.async_track_state_change_event"
+    ) as mock_track:
+        weather.async_on_remove = MagicMock()
+
+        await weather.async_added_to_hass()
+
+        tracked_entities = mock_track.call_args.args[1]
+        assert "sensor.local_condition" in tracked_entities
 
 async def test_get_sensor_value_error_handling(hass: HomeAssistant, mock_coordinator, mock_config_entry):
     """Test _get_sensor_value error cases."""

@@ -7,6 +7,22 @@ i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
 ## [1.2.91] - 2026-05-02
 
+## [1.2.92] - 2026-05-02
+
+### Arreglat
+- **Condició climàtica local**: La `weather` local ara s'actualitza quan canvia el sensor de condició local i fa fallback a la predicció si el valor local és invàlid o no està mapejat.
+- **Mapeig personalitzat**: A l'edició del mapping personalitzat ja no es mostren per defecte els valors de Meteocat quan no hi ha cap mapping guardat.
+
+### Canviat
+- **Traduccions**: Afegits avisos de consum de quota a la pantalla de predicció i exemples més clars al formulari de mapping personalitzat.
+- **Català UI**: Polides diverses cadenes del flux de configuració perquè sonin més naturals.
+
+### Tests
+- Afegits tests per cobrir el fallback de la condició local, la subscripció al sensor de condició i el preomplert del mapping personalitzat.
+- Suite completa validada: `548 passed`.
+
+## [1.2.91] - 2026-05-02
+
 ### Afegit
 - **Instruccions del repositori**: Afegit [`.github/copilot-instructions.md`] amb context específic del projecte Meteocat per a assistents i automatitzacions.
 - **Manteniment de workflows**: Afegit el workflow [`.github/workflows/keepalive.yml`] per evitar que GitHub desactivi automatismes per inactivitat.

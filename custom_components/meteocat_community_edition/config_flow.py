@@ -1206,8 +1206,9 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
         # Pre-process mapping for display (Invert: condition -> "1, 2, 3")
         inverted_mapping = {}
         
-        # Use existing custom mapping if available, otherwise use default Meteocat mapping
-        source_mapping = current_mapping if current_mapping else METEOCAT_CONDITION_MAP
+        # Only pre-fill from the user's saved custom mapping.
+        # Showing Meteocat defaults here is misleading because this screen maps a local sensor.
+        source_mapping = current_mapping
         
         if source_mapping:
             for code, condition in source_mapping.items():

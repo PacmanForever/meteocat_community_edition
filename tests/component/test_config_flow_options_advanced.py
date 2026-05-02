@@ -7,6 +7,15 @@ from custom_components.meteocat_community_edition.config_flow import MeteocatCon
 from custom_components.meteocat_community_edition.api import MeteocatAPIError
 from custom_components.meteocat_community_edition.const import CONF_COMARCA_CODE, CONF_MUNICIPALITY_CODE
 
+
+def _get_suggested_value(schema, field_name: str):
+    """Return the suggested value for a schema field."""
+    for key in schema.schema:
+        if str(key) == field_name:
+            description = getattr(key, "description", None) or {}
+            return description.get("suggested_value")
+    raise AssertionError(f"Field {field_name} not found in schema")
+
 @pytest.fixture
 def mock_config_entry():
     entry = MagicMock(spec=ConfigEntry)
@@ -418,6 +427,48 @@ async def test_custom_mapping_display_numeric_sort(hass, mock_config_entry):
     # Check that schema default values are populated correctly
     # Since we can't easily inspect the schema object details in this test setup without internal knowledge
     # we verify that it runs successfully.
+
+
+async def test_options_custom_mapping_prefills_empty_when_no_saved_mapping(hass, mock_config_entry):
+    """Test options custom mapping form keeps fields empty when no custom mapping is saved."""
+    mock_config_entry.data = {
+        "api_key": "test_key",
+        "mode": "local",
+        "mapping_type": "custom",
+        "local_condition_entity": "sensor.condition",
+    }
+
+    flow = MeteocatOptionsFlow(mock_config_entry)
+    flow.hass = MagicMock()
+
+    result = await flow.async_step_condition_mapping_custom(None)
+
+    assert result["type"] == "form"
+    schema = result["data_schema"]
+    assert _get_suggested_value(schema, "local_condition_entity") == "sensor.condition"
+    assert _get_suggested_value(schema, "sunny") == ""
+    assert _get_suggested_value(schema, "cloudy") == ""
+
+
+async def test_options_custom_mapping_prefills_from_saved_custom_mapping(hass, mock_config_entry):
+    """Test options custom mapping form prefers the saved custom mapping."""
+    mock_config_entry.data = {
+        "api_key": "test_key",
+        "mode": "local",
+        "mapping_type": "custom",
+        "local_condition_entity": "sensor.condition",
+        "custom_condition_mapping": {"100": "sunny", "5": "sunny", "8": "cloudy"},
+    }
+
+    flow = MeteocatOptionsFlow(mock_config_entry)
+    flow.hass = MagicMock()
+
+    result = await flow.async_step_condition_mapping_custom(None)
+
+    assert result["type"] == "form"
+    schema = result["data_schema"]
+    assert _get_suggested_value(schema, "sunny") == "5, 100"
+    assert _get_suggested_value(schema, "cloudy") == "8"
     # Ideally checking result["data_schema"]...
     
     # However, since we refactored to separate fields, the concept of "sorting" in display text is less relevant
