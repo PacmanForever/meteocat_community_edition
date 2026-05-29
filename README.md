@@ -102,7 +102,7 @@ Integració **comunitària** i **no oficial** per a Home Assistant del Servei Me
 
 ## Versionat
 
-- La versió actual del manifest és `1.2.94` i coincideix amb l'últim tag de git.
+- La versió actual del manifest és `1.2.95` i coincideix amb l'últim tag de git.
 
 ## Tests
 
@@ -302,6 +302,7 @@ Les **condicions calculades** només s'avaluen si els sensors necessaris estan c
 
 | Condició | Es calcula només si... | Sensors necessaris | Regla | Prioritat | Notes |
 |----------|-------------------------|--------------------|-------|-----------|-------|
+| `clear-night` | La condició final resolta és `sunny` i el sol està sota l'horitzó | Coordenades de l'estació o municipi | `sunny` + nit | Derivada final | No cal mapar explícitament `clear-night` si `sunny` ja es resol correctament |
 | `lightning-rainy` | Hi ha intensitat de pluja disponible | Intensitat de pluja (mm/h) | `>= 50` | 2 | En aquesta iteració és una inferència per pluja molt intensa, no una detecció real de llamps |
 | `pouring` | Hi ha intensitat de pluja disponible | Intensitat de pluja (mm/h) | `10-49` | 3 | Preval sobre `rainy`, `windy` i `fog` |
 | `rainy` | Hi ha intensitat de pluja disponible | Intensitat de pluja (mm/h) | `1-9` | 4 | Si plou, preval sobre `windy` i `fog` |
@@ -310,6 +311,8 @@ Les **condicions calculades** només s'avaluen si els sensors necessaris estan c
 | `hail` | No es calcula en aquesta iteració | - | - | 1 reservada | No s'infereix sense un sensor dedicat fiable |
 
 > **Important**: si no configures el sensor d'**Intensitat de Pluja (mm/h)**, les condicions `rainy`, `pouring`, `lightning-rainy` i `windy` no es calcularan automàticament.
+
+> **Important**: `Nit serena` es deriva automàticament quan la condició final és `Assolellat` i ja és de nit. No cal un mapping separat de `clear-night` si `sunny` ja està resolt.
 
 **Dispositiu**: `{Nom Municipi}` (ex: "Barcelona")
 

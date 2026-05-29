@@ -7,6 +7,17 @@ i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
 ## [1.2.94] - 2026-05-29
 
+## [1.2.95] - 2026-05-29
+
+### Afegit
+- **Nit serena calculada**: Ara la condició `clear-night` (nit serena) es deriva automàticament quan la condició resolta és `sunny` i el sol està sota l'horitzó, sense necessitat de mapping explícit. Documentat i testejat explícitament.
+
+### Canviat
+- **Documentació**: Afegida la condició `clear-night` com a condició calculada als tres idiomes.
+
+### Tests
+- Afegit test explícit per a la normalització de `sunny` a `clear-night` en mode local.
+
 ### Afegit
 - **Condicions calculades en mode local**: Afegit el sensor local d'**intensitat de pluja (mm/h)** i el càlcul automàtic de les condicions `rainy`, `pouring`, `lightning-rainy`, `windy` i `fog` quan els sensors necessaris estan configurats.
 

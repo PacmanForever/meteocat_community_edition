@@ -85,7 +85,7 @@ Integración **comunitaria** y **no oficial** para Home Assistant del Servicio M
 
 ## Versionado
 
-- La versión actual del manifest es `1.2.94` y coincide con el último tag de git.
+- La versión actual del manifest es `1.2.95` y coincide con el último tag de git.
 
 ## Tests
 
@@ -312,6 +312,7 @@ Las **condiciones calculadas** solo se evalúan si los sensores necesarios está
 
 | Condición | Se calcula solo si... | Sensores necesarios | Regla | Prioridad | Notas |
 |-----------|------------------------|---------------------|-------|-----------|-------|
+| `clear-night` | La condición final resuelta es `sunny` y el sol está bajo el horizonte | Coordenadas de la estación o municipio | `sunny` + noche | Estado derivado final | No hace falta mapear `clear-night` explícitamente si `sunny` ya se resuelve correctamente |
 | `lightning-rainy` | Hay intensidad de lluvia disponible | Intensidad de lluvia (mm/h) | `>= 50` | 2 | En esta iteración es una inferencia por lluvia muy intensa, no una detección real de rayos |
 | `pouring` | Hay intensidad de lluvia disponible | Intensidad de lluvia (mm/h) | `10-49` | 3 | Prevalece sobre `rainy`, `windy` y `fog` |
 | `rainy` | Hay intensidad de lluvia disponible | Intensidad de lluvia (mm/h) | `1-9` | 4 | Si llueve, prevalece sobre `windy` y `fog` |
@@ -320,6 +321,8 @@ Las **condiciones calculadas** solo se evalúan si los sensores necesarios está
 | `hail` | No se calcula en esta iteración | - | - | 1 reservada | No se infiere sin un sensor dedicado fiable |
 
 > **Importante**: si no configuras el sensor de **Intensidad de lluvia (mm/h)**, las condiciones `rainy`, `pouring`, `lightning-rainy` y `windy` no se calcularán automáticamente.
+
+> **Importante**: `Noche despejada` se deriva automáticamente cuando la condición final resuelta es `Sunny` y ya es de noche. No hace falta un mapeo separado de `clear-night` si `sunny` ya se resuelve correctamente.
 
 Para cada municipio configurado se crean:
 

@@ -85,7 +85,7 @@
 
 ## Versioning
 
-- The current manifest version is `1.2.94` and matches the latest git tag.
+- The current manifest version is `1.2.95` and matches the latest git tag.
 
 ## Tests
 
@@ -312,6 +312,7 @@ Calculated overrides are only evaluated when the required sensors are configured
 
 | Condition | Calculated only if... | Required sensors | Rule | Priority | Notes |
 |-----------|------------------------|------------------|------|----------|-------|
+| `clear-night` | The final resolved condition is `sunny` and the sun is below the horizon | Station or municipality coordinates | `sunny` + night | Final derived state | You do not need to map `clear-night` explicitly if `sunny` already resolves correctly |
 | `lightning-rainy` | Rain intensity is available | Rain intensity (mm/h) | `>= 50` | 2 | In this iteration it is inferred from very intense rain, not from actual lightning detection |
 | `pouring` | Rain intensity is available | Rain intensity (mm/h) | `10-49` | 3 | Takes precedence over `rainy`, `windy` and `fog` |
 | `rainy` | Rain intensity is available | Rain intensity (mm/h) | `1-9` | 4 | If it is raining, it takes precedence over `windy` and `fog` |
@@ -320,6 +321,8 @@ Calculated overrides are only evaluated when the required sensors are configured
 | `hail` | Not calculated in this iteration | - | - | Reserved priority 1 | It is not inferred without a reliable dedicated sensor |
 
 > **Important**: if you do not configure **Rain Intensity (mm/h)**, the `rainy`, `pouring`, `lightning-rainy` and `windy` calculated conditions will not be derived automatically.
+
+> **Important**: `Clear night` is derived automatically when the final resolved condition is `Sunny` and it is already night. A separate `clear-night` mapping is not required if `sunny` already resolves correctly.
 
 For each configured municipality, these entities are created:
 
