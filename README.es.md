@@ -315,7 +315,7 @@ Las **condiciones calculadas** solo se evalúan si los sensores necesarios está
 | `lightning-rainy` | Hay intensidad de lluvia disponible | Intensidad de lluvia (mm/h) | `>= 50` | 2 | En esta iteración es una inferencia por lluvia muy intensa, no una detección real de rayos |
 | `pouring` | Hay intensidad de lluvia disponible | Intensidad de lluvia (mm/h) | `10-49` | 3 | Prevalece sobre `rainy`, `windy` y `fog` |
 | `rainy` | Hay intensidad de lluvia disponible | Intensidad de lluvia (mm/h) | `1-9` | 4 | Si llueve, prevalece sobre `windy` y `fog` |
-| `windy` | No llueve y hay ráfaga disponible | Intensidad de lluvia (mm/h), Ráfaga máxima de viento (km/h) | Lluvia `= 0` y ráfaga `> 20` | 5 | La unidad del umbral es `km/h` |
+| `windy` | No llueve y hay ráfaga disponible | Intensidad de lluvia (mm/h), Ráfaga máxima de viento (km/h) | Lluvia `= 0` y ráfaga `> 20 (Escala Beaufort 4)` | 5 | La unidad del umbral es `km/h` |
 | `fog` | No llueve y hay humedad, temperatura y punto de rocío | Intensidad de lluvia (mm/h), Humedad (%), Temperatura (°C), Punto de rocío (°C) | Lluvia `= 0`, humedad `>= 95` y `abs(temperatura - punto de rocío) < 1` | 6 | Solo se calcula si existen todos los sensores necesarios |
 | `hail` | No se calcula en esta iteración | - | - | 1 reservada | No se infiere sin un sensor dedicado fiable |
 

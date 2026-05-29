@@ -305,7 +305,7 @@ Les **condicions calculades** només s'avaluen si els sensors necessaris estan c
 | `lightning-rainy` | Hi ha intensitat de pluja disponible | Intensitat de pluja (mm/h) | `>= 50` | 2 | En aquesta iteració és una inferència per pluja molt intensa, no una detecció real de llamps |
 | `pouring` | Hi ha intensitat de pluja disponible | Intensitat de pluja (mm/h) | `10-49` | 3 | Preval sobre `rainy`, `windy` i `fog` |
 | `rainy` | Hi ha intensitat de pluja disponible | Intensitat de pluja (mm/h) | `1-9` | 4 | Si plou, preval sobre `windy` i `fog` |
-| `windy` | No plou i hi ha ràfega disponible | Intensitat de pluja (mm/h), Ràfega de vent màxima (km/h) | Pluja `= 0` i ràfega `> 20` | 5 | La unitat del llindar és `km/h` |
+| `windy` | No plou i hi ha ràfega disponible | Intensitat de pluja (mm/h), Ràfega de vent màxima (km/h) | Pluja `= 0` i ràfega `> 20 (Escala Beaufort 4)` | 5 | La unitat del llindar és `km/h` |
 | `fog` | No plou i hi ha humitat, temperatura i punt de rosada | Intensitat de pluja (mm/h), Humitat (%), Temperatura (°C), Punt de rosada (°C) | Pluja `= 0`, humitat `>= 95` i `abs(temperatura - punt de rosada) < 1` | 6 | Només es calcula si tots els sensors necessaris existeixen |
 | `hail` | No es calcula en aquesta iteració | - | - | 1 reservada | No s'infereix sense un sensor dedicat fiable |
 

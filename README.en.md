@@ -315,7 +315,7 @@ Calculated overrides are only evaluated when the required sensors are configured
 | `lightning-rainy` | Rain intensity is available | Rain intensity (mm/h) | `>= 50` | 2 | In this iteration it is inferred from very intense rain, not from actual lightning detection |
 | `pouring` | Rain intensity is available | Rain intensity (mm/h) | `10-49` | 3 | Takes precedence over `rainy`, `windy` and `fog` |
 | `rainy` | Rain intensity is available | Rain intensity (mm/h) | `1-9` | 4 | If it is raining, it takes precedence over `windy` and `fog` |
-| `windy` | It is not raining and gust data is available | Rain intensity (mm/h), Maximum wind gust (km/h) | Rain `= 0` and gust `> 20` | 5 | The threshold unit is `km/h` |
+| `windy` | It is not raining and gust data is available | Rain intensity (mm/h), Maximum wind gust (km/h) | Rain `= 0` and gust `> 20 (Beaufort scale 4)` | 5 | The threshold unit is `km/h` |
 | `fog` | It is not raining and humidity, temperature and dew point are available | Rain intensity (mm/h), Humidity (%), Temperature (°C), Dew point (°C) | Rain `= 0`, humidity `>= 95` and `abs(temperature - dew point) < 1` | 6 | Only calculated when all required sensors exist |
 | `hail` | Not calculated in this iteration | - | - | Reserved priority 1 | It is not inferred without a reliable dedicated sensor |
 
