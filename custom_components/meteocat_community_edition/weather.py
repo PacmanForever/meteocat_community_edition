@@ -38,6 +38,7 @@ from .const import (
     CONF_SENSOR_TEMPERATURE,
     CONF_SENSOR_HUMIDITY,
     CONF_SENSOR_PRESSURE,
+    CONF_SENSOR_RAIN_INTENSITY,
     CONF_SENSOR_WIND_SPEED,
     CONF_SENSOR_WIND_BEARING,
     CONF_SENSOR_WIND_GUST,
@@ -528,10 +529,10 @@ class MeteocatLocalWeather(MeteocatWeather):
         sensors = [
             ("ozone", "ozone"),
             ("pressure", "pressure"),
+            ("rain_intensity", "rain_intensity"),
             ("wind_speed", "wind_speed"),
             ("wind_bearing", "wind_bearing"),
             ("wind_gust", "wind_gust"),
-            ("rain", "rain"),
             ("visibility", "visibility"),
             ("uv_index", "uv_index"),
             ("cloud_coverage", "cloud_coverage"),
@@ -585,6 +586,7 @@ class MeteocatLocalWeather(MeteocatWeather):
             "temp": get_conf(CONF_SENSOR_TEMPERATURE),
             "humidity": get_conf(CONF_SENSOR_HUMIDITY),
             "pressure": get_conf(CONF_SENSOR_PRESSURE),
+            "rain_intensity": get_conf(CONF_SENSOR_RAIN_INTENSITY),
             "wind_speed": get_conf(CONF_SENSOR_WIND_SPEED),
             "wind_bearing": get_conf(CONF_SENSOR_WIND_BEARING),
             "wind_gust": get_conf(CONF_SENSOR_WIND_GUST),
@@ -645,6 +647,79 @@ class MeteocatLocalWeather(MeteocatWeather):
         except ValueError:
             return None
 
+    def _resolve_mapped_condition(self, raw_value: str) -> str | None:
+        """Resolve a condition from the configured local condition entity."""
+        try:
+            estat_code = int(raw_value)
+            if self._mapping_type == "custom" and self._custom_condition_mapping:
+                return self._custom_condition_mapping.get(str(estat_code))
+            return METEOCAT_CONDITION_MAP.get(estat_code)
+        except (TypeError, ValueError):
+            pass
+
+        valid_conditions = {
+            "clear-night",
+            "sunny",
+            "partlycloudy",
+            "cloudy",
+            "rainy",
+            "pouring",
+            "lightning",
+            "lightning-rainy",
+            "hail",
+            "snowy",
+            "snowy-rainy",
+            "fog",
+            "windy",
+            "windy-variant",
+            "exceptional",
+        }
+        if raw_value in valid_conditions:
+            return raw_value
+        return None
+
+    def _get_base_local_condition(self) -> str | None:
+        """Return the condition coming from the configured local condition entity."""
+        if not self._local_condition_entity:
+            return None
+
+        state = self.hass.states.get(self._local_condition_entity)
+        if not state or state.state in ("unknown", "unavailable"):
+            return None
+
+        return self._resolve_mapped_condition(state.state)
+
+    def _get_calculated_condition_override(self) -> str | None:
+        """Return a calculated local condition override when required sensors are available."""
+        rain_intensity = self._get_sensor_value("rain_intensity")
+        wind_gust = self._get_sensor_value("wind_gust")
+        humidity = self._get_sensor_value("humidity")
+        temperature = self._get_sensor_value("temp")
+        dew_point = self._get_sensor_value("dew_point")
+
+        if rain_intensity is not None:
+            if rain_intensity >= 50:
+                return "lightning-rainy"
+            if rain_intensity >= 10:
+                return "pouring"
+            if rain_intensity >= 1:
+                return "rainy"
+
+        if rain_intensity == 0 and wind_gust is not None and wind_gust > 20:
+            return "windy"
+
+        if (
+            rain_intensity == 0
+            and humidity is not None
+            and humidity >= 95
+            and temperature is not None
+            and dew_point is not None
+            and abs(temperature - dew_point) < 1
+        ):
+            return "fog"
+
+        return None
+
     @property
     def native_temperature(self) -> float | None:
         """Return the current temperature."""
@@ -661,127 +736,23 @@ class MeteocatLocalWeather(MeteocatWeather):
         return UnitOfPrecipitationDepth.MILLIMETERS
 
     @property
+    def native_precipitation(self) -> float | None:
+        """Return the current rain intensity from the configured local sensor."""
+        return self._get_sensor_value("rain_intensity")
+
+    @property
     def condition(self) -> str | None:
-        """Return the current condition, supporting custom mapping and entity."""
-        # 1. If a local condition entity is configured, use its state
-        if self._local_condition_entity:
-            state = self.hass.states.get(self._local_condition_entity)
-            if state and state.state not in ("unknown", "unavailable"):
-                raw_value = state.state
-                _LOGGER.debug("Local condition entity state: %s", raw_value)
-                # Try to convert to int for mapping
-                try:
-                    estat_code = int(raw_value)
-                    _LOGGER.debug("Converted to int: %s", estat_code)
-                    # Apply mapping if configured
-                    if self._mapping_type == "custom" and self._custom_condition_mapping:
-                        mapping = self._custom_condition_mapping
-                        _LOGGER.debug("Using custom mapping: %s", mapping)
-                        # Custom mapping uses string keys
-                        condition = mapping.get(str(estat_code))
-                        _LOGGER.debug("Custom mapping lookup for '%s': %s", str(estat_code), condition)
-                    else:
-                        from .const import METEOCAT_CONDITION_MAP
-                        mapping = METEOCAT_CONDITION_MAP
-                        _LOGGER.debug("Using default mapping")
-                        # Default mapping uses integer keys
-                        condition = mapping.get(estat_code)
-                        _LOGGER.debug("Default mapping lookup for %s: %s", estat_code, condition)
-                    
-                    if condition:
-                        _LOGGER.debug("Returning mapped condition: %s", condition)
-                        if condition == "sunny" and self._is_night():
-                            return "clear-night"
-                        return condition
-                    _LOGGER.debug("Condition not found in mapping, falling back to forecast data")
-                except (ValueError, TypeError):
-                    _LOGGER.debug("Could not convert to int, checking if raw_value is valid condition")
-                    # Not a number, check if it's already a valid condition
-                    from homeassistant.components.weather import (
-                        ATTR_CONDITION_SUNNY, ATTR_CONDITION_PARTLYCLOUDY, ATTR_CONDITION_CLOUDY,
-                        ATTR_CONDITION_RAINY, ATTR_CONDITION_POURING, ATTR_CONDITION_LIGHTNING,
-                        ATTR_CONDITION_LIGHTNING_RAINY, ATTR_CONDITION_HAIL, ATTR_CONDITION_SNOWY,
-                        ATTR_CONDITION_SNOWY_RAINY, ATTR_CONDITION_FOG, ATTR_CONDITION_WINDY,
-                        ATTR_CONDITION_WINDY_VARIANT, ATTR_CONDITION_CLEAR_NIGHT, ATTR_CONDITION_EXCEPTIONAL
-                    )
-                    valid_conditions = [
-                        ATTR_CONDITION_SUNNY, ATTR_CONDITION_PARTLYCLOUDY, ATTR_CONDITION_CLOUDY,
-                        ATTR_CONDITION_RAINY, ATTR_CONDITION_POURING, ATTR_CONDITION_LIGHTNING,
-                        ATTR_CONDITION_LIGHTNING_RAINY, ATTR_CONDITION_HAIL, ATTR_CONDITION_SNOWY,
-                        ATTR_CONDITION_SNOWY_RAINY, ATTR_CONDITION_FOG, ATTR_CONDITION_WINDY,
-                        ATTR_CONDITION_WINDY_VARIANT, ATTR_CONDITION_CLEAR_NIGHT, ATTR_CONDITION_EXCEPTIONAL
-                    ]
-                    if raw_value in valid_conditions:
-                        if raw_value == "sunny" and self._is_night():
-                            return "clear-night"
-                        return raw_value
-                    _LOGGER.debug("Raw value is not a valid condition, falling back to forecast data")
-
-        # 2. Try Hourly Forecast first (Best precision)
-        forecast_hourly = self.coordinator.data.get("forecast_hourly")
-        if forecast_hourly:
-            # Match current hour
-            current_hour_utc = dt_util.utcnow().replace(minute=0, second=0, microsecond=0)
-            
-            dies = forecast_hourly.get("dies", [])
-            for dia in dies:
-                variables = dia.get("variables", {})
-                estat_cel_data = variables.get("estatCel", {}) or variables.get("estat", {})
-                estat_valors = estat_cel_data.get("valors", estat_cel_data.get("valor", []))
-                
-                for entry in estat_valors:
-                    data_str = entry.get("data")
-                    if data_str:
-                        try:
-                            entry_dt = dt_util.parse_datetime(data_str)
-                            if entry_dt:
-                                entry_dt_utc = dt_util.as_utc(entry_dt)
-                                if entry_dt_utc.replace(minute=0, second=0, microsecond=0) == current_hour_utc:
-                                    estat_code = entry.get("valor")
-                                    if estat_code is not None:
-                                        if self._mapping_type == "custom" and self._custom_condition_mapping:
-                                            mapping = self._custom_condition_mapping
-                                            condition = mapping.get(str(estat_code))
-                                        else:
-                                            from .const import METEOCAT_CONDITION_MAP
-                                            mapping = METEOCAT_CONDITION_MAP
-                                            condition = mapping.get(estat_code)
-                                        
-                                        if condition == "sunny" and self._is_night():
-                                            return "clear-night"
-                                        return condition
-                        except (ValueError, TypeError):
-                            continue
-
-        # 3. Use Daily forecast (Fallback)
-        forecast = self.coordinator.data.get("forecast")
-        if forecast:
-            dies = forecast.get("dies", [])
-            if dies:
-                variables = dies[0].get("variables", {})
-                estat_cel = variables.get("estatCel", {})
-                if isinstance(estat_cel, dict):
-                    estat_code = estat_cel.get("valor")
-                    if estat_code is not None:
-                        # Choose mapping
-                        if self._mapping_type == "custom" and self._custom_condition_mapping:
-                            mapping = self._custom_condition_mapping
-                            # Custom mapping uses string keys
-                            condition = mapping.get(str(estat_code))
-                        else:
-                            from .const import METEOCAT_CONDITION_MAP
-                            mapping = METEOCAT_CONDITION_MAP
-                            # Default mapping uses integer keys
-                            condition = mapping.get(estat_code)
-                        if condition == "sunny" and self._is_night():
-                            return "clear-night"
-                        return condition
-
-        # 4. Fallback to super (default) logic
-        condition = super().condition
-        if condition == "sunny" and self._is_night():
-            return "clear-night"
-        return condition
+        """Return the current condition for local mode."""
+        condition = self._get_calculated_condition_override()
+        if condition is None:
+            condition = self._get_base_local_condition()
+        if condition is None:
+            condition = self._get_condition_from_hourly_forecast()
+        if condition is None:
+            condition = self._get_condition_from_daily_forecast()
+        if condition is None:
+            condition = super().condition
+        return self._normalize_condition(condition)
 
     @property
     def native_pressure(self) -> float | None:

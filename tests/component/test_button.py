@@ -190,6 +190,27 @@ def test_button_icon(mock_coordinator, mock_entry_xema):
     assert button.icon == "mdi:refresh"
 
 
+def test_button_available_always_true(mock_coordinator, mock_entry_xema):
+    """Buttons should stay available even if coordinator is failing."""
+    measurements_button = MeteocatRefreshMeasurementsButton(
+        mock_coordinator,
+        mock_entry_xema,
+        "Granollers",
+        "Granollers YM",
+        MODE_EXTERNAL,
+    )
+    forecast_button = MeteocatRefreshForecastButton(
+        mock_coordinator,
+        mock_entry_xema,
+        "Granollers",
+        "Granollers YM",
+        MODE_EXTERNAL,
+    )
+
+    assert measurements_button.available is True
+    assert forecast_button.available is True
+
+
 async def test_button_press_triggers_refresh(mock_coordinator, mock_entry_xema):
     """Test button press triggers coordinator refresh."""
     button = MeteocatRefreshMeasurementsButton(
@@ -203,6 +224,43 @@ async def test_button_press_triggers_refresh(mock_coordinator, mock_entry_xema):
     await button.async_press()
     
     assert mock_coordinator.async_refresh_measurements.called
+
+
+@pytest.mark.asyncio
+async def test_forecast_button_press_triggers_specialized_refresh(mock_coordinator, mock_entry_xema):
+    """Forecast button should prefer async_refresh_forecast when present."""
+    button = MeteocatRefreshForecastButton(
+        mock_coordinator,
+        mock_entry_xema,
+        "Granollers",
+        "Granollers YM",
+        MODE_EXTERNAL,
+    )
+
+    await button.async_press()
+
+    mock_coordinator.async_refresh_forecast.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_forecast_button_press_falls_back_to_request_refresh(mock_entry_xema):
+    """Forecast button should fall back to async_request_refresh when needed."""
+
+    class SimpleCoordinator:
+        async_request_refresh = AsyncMock()
+
+    coordinator = SimpleCoordinator()
+    button = MeteocatRefreshForecastButton(
+        coordinator,
+        mock_entry_xema,
+        "Granollers",
+        "Granollers YM",
+        MODE_EXTERNAL,
+    )
+
+    await button.async_press()
+
+    coordinator.async_request_refresh.assert_called_once()
 
 
 @pytest.mark.asyncio

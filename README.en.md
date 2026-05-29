@@ -85,7 +85,7 @@
 
 ## Versioning
 
-- The current manifest version is `1.2.93` and matches the latest git tag.
+- The current manifest version is `1.2.94` and matches the latest git tag.
 
 ## Tests
 
@@ -299,7 +299,27 @@ It allows creating a `weather` entity that combines:
 1. **Current Data**: From your local sensors (Temperature, Humidity, Pressure, Wind, Rain Intensity).
 2. **Forecast**: Official Meteocat forecast for your municipality.
 
-> **Note about rain**: If you configure the **Rain Intensity** sensor, the entity will show "Rainy" state when precipitation is detected. If it's not raining, it will show the Meteocat forecast (e.g., "Sunny", "Cloudy").
+#### Local weather condition: base mapping and calculated overrides
+
+The local `weather` condition is resolved in this order:
+
+1. **Calculated overrides** from local sensors.
+2. **Base local condition** from the configured `local_condition_entity` and its mapping.
+3. **Hourly Meteocat forecast**.
+4. **Daily Meteocat forecast**.
+
+Calculated overrides are only evaluated when the required sensors are configured and available. When a calculated rule matches, it **takes precedence** over the base local condition. When no calculated rule is active, the integration keeps the base local condition; if that base condition cannot be resolved, it falls back to Meteocat forecast data.
+
+| Condition | Calculated only if... | Required sensors | Rule | Priority | Notes |
+|-----------|------------------------|------------------|------|----------|-------|
+| `lightning-rainy` | Rain intensity is available | Rain intensity (mm/h) | `>= 50` | 2 | In this iteration it is inferred from very intense rain, not from actual lightning detection |
+| `pouring` | Rain intensity is available | Rain intensity (mm/h) | `10-49` | 3 | Takes precedence over `rainy`, `windy` and `fog` |
+| `rainy` | Rain intensity is available | Rain intensity (mm/h) | `1-9` | 4 | If it is raining, it takes precedence over `windy` and `fog` |
+| `windy` | It is not raining and gust data is available | Rain intensity (mm/h), Maximum wind gust (km/h) | Rain `= 0` and gust `> 20` | 5 | The threshold unit is `km/h` |
+| `fog` | It is not raining and humidity, temperature and dew point are available | Rain intensity (mm/h), Humidity (%), Temperature (°C), Dew point (°C) | Rain `= 0`, humidity `>= 95` and `abs(temperature - dew point) < 1` | 6 | Only calculated when all required sensors exist |
+| `hail` | Not calculated in this iteration | - | - | Reserved priority 1 | It is not inferred without a reliable dedicated sensor |
+
+> **Important**: if you do not configure **Rain Intensity (mm/h)**, the `rainy`, `pouring`, `lightning-rainy` and `windy` calculated conditions will not be derived automatically.
 
 For each configured municipality, these entities are created:
 

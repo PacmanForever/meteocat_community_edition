@@ -16,6 +16,11 @@ def _get_suggested_value(schema, field_name: str):
             return description.get("suggested_value")
     raise AssertionError(f"Field {field_name} not found in schema")
 
+
+def _get_schema_field_names(schema):
+    """Return schema field names in display order."""
+    return [str(key) for key in schema.schema]
+
 @pytest.fixture
 def mock_config_entry():
     entry = MagicMock(spec=ConfigEntry)
@@ -318,7 +323,8 @@ async def test_local_sensors_step_success(hass, mock_config_entry):
     with patch.object(flow, "async_step_condition_mapping_type", return_value={"type": "done"}):
         result = await flow.async_step_local_sensors({
             "sensor_temperature": "sensor.temp",
-            "sensor_humidity": "sensor.hum"
+            "sensor_humidity": "sensor.hum",
+            "sensor_rain_intensity": "sensor.rain_rate",
         })
         
         assert result["type"] == "done"
@@ -326,6 +332,7 @@ async def test_local_sensors_step_success(hass, mock_config_entry):
         # Verify internal update but NO save yet
         assert flow.updated_data["sensor_temperature"] == "sensor.temp"
         assert flow.updated_data["sensor_humidity"] == "sensor.hum"
+        assert flow.updated_data["sensor_rain_intensity"] == "sensor.rain_rate"
         
         mock_update = flow.hass.config_entries.async_update_entry
         assert not mock_update.called
@@ -448,6 +455,25 @@ async def test_options_custom_mapping_prefills_empty_when_no_saved_mapping(hass,
     assert _get_suggested_value(schema, "local_condition_entity") == "sensor.condition"
     assert _get_suggested_value(schema, "sunny") == ""
     assert _get_suggested_value(schema, "cloudy") == ""
+
+
+async def test_options_custom_mapping_places_hail_after_lightning_rainy(hass, mock_config_entry):
+    """Test custom mapping form shows hail immediately after lightning-rainy."""
+    mock_config_entry.data = {
+        "api_key": "test_key",
+        "mode": "local",
+        "mapping_type": "custom",
+        "local_condition_entity": "sensor.condition",
+    }
+
+    flow = MeteocatOptionsFlow(mock_config_entry)
+    flow.hass = MagicMock()
+
+    result = await flow.async_step_condition_mapping_custom(None)
+
+    assert result["type"] == "form"
+    field_names = _get_schema_field_names(result["data_schema"])
+    assert field_names.index("hail") == field_names.index("lightning-rainy") + 1
 
 
 async def test_options_custom_mapping_prefills_from_saved_custom_mapping(hass, mock_config_entry):

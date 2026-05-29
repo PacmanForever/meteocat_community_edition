@@ -32,6 +32,7 @@ from .const import (
     CONF_SENSOR_TEMPERATURE,
     CONF_SENSOR_HUMIDITY,
     CONF_SENSOR_PRESSURE,
+    CONF_SENSOR_RAIN_INTENSITY,
     CONF_SENSOR_WIND_SPEED,
     CONF_SENSOR_WIND_BEARING,
     CONF_SENSOR_WIND_GUST,
@@ -69,9 +70,9 @@ VALID_WEATHER_CONDITIONS = [
     ATTR_CONDITION_POURING,
     ATTR_CONDITION_LIGHTNING,
     ATTR_CONDITION_LIGHTNING_RAINY,
+    ATTR_CONDITION_HAIL,
     ATTR_CONDITION_SNOWY,
     ATTR_CONDITION_SNOWY_RAINY,
-    ATTR_CONDITION_HAIL,
     ATTR_CONDITION_FOG,
     ATTR_CONDITION_WINDY,
     ATTR_CONDITION_WINDY_VARIANT,
@@ -801,6 +802,9 @@ class MeteocatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Optional(CONF_SENSOR_PRESSURE): selector.EntitySelector(
                     selector.EntitySelectorConfig(domain="sensor", device_class=["pressure", "atmospheric_pressure"])
                 ),
+                vol.Optional(CONF_SENSOR_RAIN_INTENSITY): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain="sensor")
+                ),
                 vol.Optional(CONF_SENSOR_WIND_SPEED): selector.EntitySelector(
                     selector.EntitySelectorConfig(domain="sensor", device_class="wind_speed")
                 ),
@@ -1074,6 +1078,7 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                 self.updated_data[CONF_SENSOR_TEMPERATURE] = get_entity_id(CONF_SENSOR_TEMPERATURE)
                 self.updated_data[CONF_SENSOR_HUMIDITY] = get_entity_id(CONF_SENSOR_HUMIDITY)
                 self.updated_data[CONF_SENSOR_PRESSURE] = get_entity_id(CONF_SENSOR_PRESSURE)
+                self.updated_data[CONF_SENSOR_RAIN_INTENSITY] = get_entity_id(CONF_SENSOR_RAIN_INTENSITY)
                 self.updated_data[CONF_SENSOR_WIND_SPEED] = get_entity_id(CONF_SENSOR_WIND_SPEED)
                 self.updated_data[CONF_SENSOR_WIND_BEARING] = get_entity_id(CONF_SENSOR_WIND_BEARING)
                 self.updated_data[CONF_SENSOR_WIND_GUST] = get_entity_id(CONF_SENSOR_WIND_GUST)
@@ -1097,6 +1102,9 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                 ),
                 vol.Optional(CONF_SENSOR_PRESSURE, description={"suggested_value": data.get(CONF_SENSOR_PRESSURE)}): selector.EntitySelector(
                     selector.EntitySelectorConfig(domain="sensor", device_class=["pressure", "atmospheric_pressure"], multiple=False)
+                ),
+                vol.Optional(CONF_SENSOR_RAIN_INTENSITY, description={"suggested_value": data.get(CONF_SENSOR_RAIN_INTENSITY)}): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain="sensor", multiple=False)
                 ),
                 vol.Optional(CONF_SENSOR_WIND_SPEED, description={"suggested_value": data.get(CONF_SENSOR_WIND_SPEED)}): selector.EntitySelector(
                     selector.EntitySelectorConfig(domain="sensor", device_class="wind_speed", multiple=False)

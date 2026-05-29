@@ -256,7 +256,7 @@ def test_local_weather_extra_state_attributes_all_sensors(mock_coordinator, mock
         "wind_speed": "sensor.wind",
         "wind_bearing": "sensor.bearing",
         "wind_gust": "sensor.gust",
-        "rain": "sensor.rain_intensity",
+        "rain_intensity": "sensor.rain_intensity",
         "visibility": "sensor.visibility",
         "uv_index": "sensor.uv",
         "cloud_coverage": "sensor.cloud",
@@ -271,7 +271,7 @@ def test_local_weather_extra_state_attributes_all_sensors(mock_coordinator, mock
     weather.hass.states.get.side_effect = get_state
     attrs = weather.extra_state_attributes
     expected_keys = [
-        "ozone", "pressure", "wind_speed", "wind_bearing", "wind_gust", "rain", "visibility", "uv_index", "cloud_coverage", "dew_point", "apparent_temperature"
+        "ozone", "pressure", "wind_speed", "wind_bearing", "wind_gust", "rain_intensity", "visibility", "uv_index", "cloud_coverage", "dew_point", "apparent_temperature"
     ]
     for key in expected_keys:
         assert key in attrs

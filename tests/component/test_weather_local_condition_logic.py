@@ -12,6 +12,9 @@ from homeassistant.components.weather import (
 from custom_components.meteocat_community_edition.weather import MeteocatLocalWeather
 from custom_components.meteocat_community_edition.const import (
     CONF_MUNICIPALITY_NAME,
+    CONF_SENSOR_RAIN_INTENSITY,
+    CONF_SENSOR_WIND_GUST,
+    CONF_SENSOR_DEW_POINT,
     DOMAIN,
 )
 
@@ -43,6 +46,9 @@ def mock_config_entry():
         "mapping_type": "meteocat",
         "custom_condition_mapping": {},
         "local_condition_entity": "sensor.local_condition",
+        CONF_SENSOR_RAIN_INTENSITY: "sensor.rain_intensity",
+        CONF_SENSOR_WIND_GUST: "sensor.wind_gust",
+        CONF_SENSOR_DEW_POINT: "sensor.dew_point",
     }
     return entry
 
@@ -85,21 +91,17 @@ async def test_local_condition_entity_custom_mapping(hass: HomeAssistant, mock_c
 
 async def test_local_condition_entity_invalid_state_returns_none(hass: HomeAssistant, mock_coordinator, mock_config_entry):
     """Test that invalid state in condition entity falls back to forecast."""
-    # Add rain sensor to prove it's NOT used
-    mock_config_entry.data["sensor_rain"] = "sensor.rain_gauge"
-    
     weather = MeteocatLocalWeather(mock_coordinator, mock_config_entry)
     weather.hass = hass
-    weather._sensors["rain"] = "sensor.rain_gauge"
 
     # Local condition invalid
     hass.states.async_set("sensor.local_condition", "invalid_garbage")
     # Rain sensor active
-    hass.states.async_set("sensor.rain_gauge", "5.0")
+    hass.states.async_set("sensor.rain_intensity", "5.0")
     
     with patch.object(MeteocatLocalWeather, "_is_night", return_value=False):
         # Invalid local value should fall back to forecast data
-        assert weather.condition == "sunny"
+        assert weather.condition == "rainy"
 
 async def test_local_condition_entity_unknown_unavailable(hass: HomeAssistant, mock_coordinator, mock_config_entry):
     """Test local condition entity being unknown or unavailable."""
@@ -140,6 +142,7 @@ async def test_local_weather_tracks_local_condition_entity(hass: HomeAssistant, 
 
         tracked_entities = mock_track.call_args.args[1]
         assert "sensor.local_condition" in tracked_entities
+        assert "sensor.rain_intensity" in tracked_entities
 
 async def test_get_sensor_value_error_handling(hass: HomeAssistant, mock_coordinator, mock_config_entry):
     """Test _get_sensor_value error cases."""
@@ -203,3 +206,96 @@ async def test_forecast_daily_bad_data(hass: HomeAssistant, mock_coordinator, mo
     assert len(forecast) == 1
     # Should have datetime but missing other values
     assert "native_templow" not in forecast[0]
+
+async def test_calculated_condition_rainy_override_precedes_local_mapping(hass: HomeAssistant, mock_coordinator, mock_config_entry):
+    """Rain intensity should override the mapped local condition."""
+    weather = MeteocatLocalWeather(mock_coordinator, mock_config_entry)
+    weather.hass = hass
+
+    hass.states.async_set("sensor.local_condition", "1")
+    hass.states.async_set("sensor.rain_intensity", "5")
+
+    with patch.object(MeteocatLocalWeather, "_is_night", return_value=False):
+        assert weather.condition == "rainy"
+
+async def test_calculated_condition_pouring(hass: HomeAssistant, mock_coordinator, mock_config_entry):
+    """Rain intensity between 10 and 49 should force pouring."""
+    weather = MeteocatLocalWeather(mock_coordinator, mock_config_entry)
+    weather.hass = hass
+
+    hass.states.async_set("sensor.rain_intensity", "12")
+
+    with patch.object(MeteocatLocalWeather, "_is_night", return_value=False):
+        assert weather.condition == "pouring"
+
+async def test_calculated_condition_lightning_rainy(hass: HomeAssistant, mock_coordinator, mock_config_entry):
+    """Very high rain intensity should force lightning-rainy."""
+    weather = MeteocatLocalWeather(mock_coordinator, mock_config_entry)
+    weather.hass = hass
+
+    hass.states.async_set("sensor.rain_intensity", "50")
+
+    with patch.object(MeteocatLocalWeather, "_is_night", return_value=False):
+        assert weather.condition == "lightning-rainy"
+
+async def test_calculated_condition_windy(hass: HomeAssistant, mock_coordinator, mock_config_entry):
+    """Zero rain plus gust over threshold should force windy."""
+    weather = MeteocatLocalWeather(mock_coordinator, mock_config_entry)
+    weather.hass = hass
+
+    hass.states.async_set("sensor.rain_intensity", "0")
+    hass.states.async_set("sensor.wind_gust", "21")
+
+    with patch.object(MeteocatLocalWeather, "_is_night", return_value=False):
+        assert weather.condition == "windy"
+
+async def test_calculated_condition_fog(hass: HomeAssistant, mock_coordinator, mock_config_entry):
+    """Fog should require zero rain, high humidity and dew point near temperature."""
+    weather = MeteocatLocalWeather(mock_coordinator, mock_config_entry)
+    weather.hass = hass
+    weather._sensors["temp"] = "sensor.temp"
+    weather._sensors["humidity"] = "sensor.humidity"
+
+    hass.states.async_set("sensor.rain_intensity", "0")
+    hass.states.async_set("sensor.humidity", "97")
+    hass.states.async_set("sensor.temp", "12.4")
+    hass.states.async_set("sensor.dew_point", "11.8")
+
+    with patch.object(MeteocatLocalWeather, "_is_night", return_value=False):
+        assert weather.condition == "fog"
+
+async def test_calculated_condition_priority(hass: HomeAssistant, mock_coordinator, mock_config_entry):
+    """Higher priority calculated overrides should win when multiple rules match."""
+    weather = MeteocatLocalWeather(mock_coordinator, mock_config_entry)
+    weather.hass = hass
+
+    hass.states.async_set("sensor.rain_intensity", "0")
+    hass.states.async_set("sensor.wind_gust", "30")
+    hass.states.async_set("sensor.humidity", "99")
+    hass.states.async_set("sensor.temp", "10.0")
+    hass.states.async_set("sensor.dew_point", "9.5")
+
+    with patch.object(MeteocatLocalWeather, "_is_night", return_value=False):
+        assert weather.condition == "windy"
+
+async def test_calculated_condition_hail_not_forced(hass: HomeAssistant, mock_coordinator, mock_config_entry):
+    """Hail should not be inferred in this iteration."""
+    weather = MeteocatLocalWeather(mock_coordinator, mock_config_entry)
+    weather.hass = hass
+
+    hass.states.async_set("sensor.rain_intensity", "80")
+
+    with patch.object(MeteocatLocalWeather, "_is_night", return_value=False):
+        assert weather.condition != "hail"
+        assert weather.condition == "lightning-rainy"
+
+async def test_calculated_condition_requires_needed_sensors(hass: HomeAssistant, mock_coordinator, mock_config_entry):
+    """Fog should not be calculated when required sensors are missing."""
+    weather = MeteocatLocalWeather(mock_coordinator, mock_config_entry)
+    weather.hass = hass
+
+    hass.states.async_set("sensor.rain_intensity", "0")
+    hass.states.async_set("sensor.humidity", "97")
+
+    with patch.object(MeteocatLocalWeather, "_is_night", return_value=False):
+        assert weather.condition == "sunny"

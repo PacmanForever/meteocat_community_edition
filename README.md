@@ -102,7 +102,7 @@ Integració **comunitària** i **no oficial** per a Home Assistant del Servei Me
 
 ## Versionat
 
-- La versió actual del manifest és `1.2.93` i coincideix amb l'últim tag de git.
+- La versió actual del manifest és `1.2.94` i coincideix amb l'últim tag de git.
 
 ## Tests
 
@@ -289,7 +289,27 @@ Permet crear una entitat `weather` que combina:
 1. **Dades actuals**: Dels teus sensors locals (Temperatura, Humitat, Pressió, Vent, Intensitat de Pluja).
 2. **Predicció**: Oficial del Meteocat per al teu municipi.
 
-> **Nota sobre la pluja**: Si configures el sensor d'**Intensitat de Pluja**, l'entitat mostrarà l'estat "Plujós" quan detecti precipitació. Si no plou, mostrarà la predicció de Meteocat (ex: "Sol", "Ennuvolat").
+#### Condició climàtica local: mapping base i condicions calculades
+
+La condició climàtica de l'entitat `weather` en mode local es resol en aquest ordre:
+
+1. **Condicions calculades** a partir dels sensors locals.
+2. **Condició base local** del sensor configurat a `local_condition_entity` i el seu mapping.
+3. **Predicció horària** del Meteocat.
+4. **Predicció diària** del Meteocat.
+
+Les **condicions calculades** només s'avaluen si els sensors necessaris estan configurats i disponibles. Quan una regla calculada es compleix, **preval per sobre** de la condició base local. Quan no s'activa cap regla calculada, es manté la condició base; i si aquesta no es pot resoldre, es manté el fallback actual a la predicció del Meteocat.
+
+| Condició | Es calcula només si... | Sensors necessaris | Regla | Prioritat | Notes |
+|----------|-------------------------|--------------------|-------|-----------|-------|
+| `lightning-rainy` | Hi ha intensitat de pluja disponible | Intensitat de pluja (mm/h) | `>= 50` | 2 | En aquesta iteració és una inferència per pluja molt intensa, no una detecció real de llamps |
+| `pouring` | Hi ha intensitat de pluja disponible | Intensitat de pluja (mm/h) | `10-49` | 3 | Preval sobre `rainy`, `windy` i `fog` |
+| `rainy` | Hi ha intensitat de pluja disponible | Intensitat de pluja (mm/h) | `1-9` | 4 | Si plou, preval sobre `windy` i `fog` |
+| `windy` | No plou i hi ha ràfega disponible | Intensitat de pluja (mm/h), Ràfega de vent màxima (km/h) | Pluja `= 0` i ràfega `> 20` | 5 | La unitat del llindar és `km/h` |
+| `fog` | No plou i hi ha humitat, temperatura i punt de rosada | Intensitat de pluja (mm/h), Humitat (%), Temperatura (°C), Punt de rosada (°C) | Pluja `= 0`, humitat `>= 95` i `abs(temperatura - punt de rosada) < 1` | 6 | Només es calcula si tots els sensors necessaris existeixen |
+| `hail` | No es calcula en aquesta iteració | - | - | 1 reservada | No s'infereix sense un sensor dedicat fiable |
+
+> **Important**: si no configures el sensor d'**Intensitat de Pluja (mm/h)**, les condicions `rainy`, `pouring`, `lightning-rainy` i `windy` no es calcularan automàticament.
 
 **Dispositiu**: `{Nom Municipi}` (ex: "Barcelona")
 

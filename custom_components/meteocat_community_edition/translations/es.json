@@ -52,18 +52,19 @@
         "title": "Configuración de los sensores locales",
         "description": "Las tarjetas meteorológicas no siempre muestran todos estos valores.",
         "data": {
-          "sensor_temperature": "Temperatura",
-          "sensor_humidity": "Humedad relativa del aire",
-          "sensor_pressure": "Presión atmosférica",
-          "sensor_wind_speed": "Velocidad del viento",
+          "sensor_temperature": "Temperatura (°C)",
+          "sensor_humidity": "Humedad relativa del aire (%)",
+          "sensor_pressure": "Presión atmosférica (hPa)",
+          "sensor_rain_intensity": "Intensidad de lluvia (mm/h)",
+          "sensor_wind_speed": "Velocidad del viento (km/h)",
           "sensor_wind_bearing": "Dirección del viento (grados)",
-          "sensor_wind_gust": "Ráfaga de viento máxima",
-          "sensor_visibility": "Visibilidad",
+          "sensor_wind_gust": "Ráfaga de viento máxima (km/h)",
+          "sensor_visibility": "Visibilidad (m)",
           "sensor_uv_index": "Índice UV",
-          "sensor_ozone": "Ozono",
-          "sensor_cloud_coverage": "Cobertura de nubes",
-          "sensor_dew_point": "Punto de rocío",
-          "sensor_apparent_temperature": "Temperatura de sensación"
+          "sensor_ozone": "Ozono (AQI)",
+          "sensor_cloud_coverage": "Cobertura de nubes (%)",
+          "sensor_dew_point": "Punto de rocío (°C)",
+          "sensor_apparent_temperature": "Temperatura de sensación (°C)"
         }
       },
       "condition_mapping_type": {
@@ -149,18 +150,19 @@
         "title": "Configura los sensores locales",
         "description": "Las tarjetas meteorológicas no siempre muestran todos estos valores.",
         "data": {
-          "sensor_temperature": "Temperatura",
-          "sensor_humidity": "Humedad relativa del aire",
-          "sensor_pressure": "Presión atmosférica",
-          "sensor_wind_speed": "Velocidad del viento",
+          "sensor_temperature": "Temperatura (°C)",
+          "sensor_humidity": "Humedad relativa del aire (%)",
+          "sensor_pressure": "Presión atmosférica (hPa)",
+          "sensor_rain_intensity": "Intensidad de lluvia (mm/h)",
+          "sensor_wind_speed": "Velocidad del viento (km/h)",
           "sensor_wind_bearing": "Dirección del viento (grados)",
-          "sensor_wind_gust": "Ráfaga de viento máxima",
-          "sensor_visibility": "Visibilidad",
+          "sensor_wind_gust": "Ráfaga de viento máxima (km/h)",
+          "sensor_visibility": "Visibilidad (m)",
           "sensor_uv_index": "Índice UV",
-          "sensor_ozone": "Ozono",
-          "sensor_cloud_coverage": "Cobertura de nubes",
-          "sensor_dew_point": "Punto de rocío",
-          "sensor_apparent_temperature": "Temperatura de sensación"
+          "sensor_ozone": "Ozono (AQI)",
+          "sensor_cloud_coverage": "Cobertura de nubes (%)",
+          "sensor_dew_point": "Punto de rocío (°C)",
+          "sensor_apparent_temperature": "Temperatura de sensación (°C)"
         }
       },
       "condition_mapping_type": {

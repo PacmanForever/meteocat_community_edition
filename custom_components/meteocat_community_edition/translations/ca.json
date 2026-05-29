@@ -52,18 +52,19 @@
         "title": "Configura els sensors locals",
         "description": "Les targetes meteorològiques no sempre mostren tots aquests valors.",
         "data": {
-          "sensor_temperature": "Temperatura",
-          "sensor_humidity": "Humitat relativa de l'aire",
-          "sensor_pressure": "Pressió atmosfèrica",
-          "sensor_wind_speed": "Velocitat del vent",
+          "sensor_temperature": "Temperatura (°C)",
+          "sensor_humidity": "Humitat relativa de l'aire (%)",
+          "sensor_pressure": "Pressió atmosfèrica (hPa)",
+          "sensor_rain_intensity": "Intensitat de pluja (mm/h)",
+          "sensor_wind_speed": "Velocitat del vent (km/h)",
           "sensor_wind_bearing": "Direcció del vent (graus)",
-          "sensor_wind_gust": "Ràfega de vent màxima",
-          "sensor_visibility": "Visibilitat",
+          "sensor_wind_gust": "Ràfega de vent màxima (km/h)",
+          "sensor_visibility": "Visibilitat (m)",
           "sensor_uv_index": "Índex UV",
-          "sensor_ozone": "Ozó",
-          "sensor_cloud_coverage": "Cobertura de núvols",
-          "sensor_dew_point": "Punt de rosada",
-          "sensor_apparent_temperature": "Temperatura de sensació"
+          "sensor_ozone": "Ozó (AQI)",
+          "sensor_cloud_coverage": "Cobertura de núvols (%)",
+          "sensor_dew_point": "Punt de rosada (°C)",
+          "sensor_apparent_temperature": "Temperatura de sensació (°C)"
         }
       },
       "condition_mapping_type": {
@@ -149,18 +150,19 @@
         "title": "Configura els sensors locals",
         "description": "Les targetes meteorològiques no sempre mostren tots aquests valors.",
         "data": {
-          "sensor_temperature": "Temperatura",
-          "sensor_humidity": "Humitat relativa de l'aire",
-          "sensor_pressure": "Pressió atmosfèrica",
-          "sensor_wind_speed": "Velocitat del vent",
+          "sensor_temperature": "Temperatura (°C)",
+          "sensor_humidity": "Humitat relativa de l'aire (%)",
+          "sensor_pressure": "Pressió atmosfèrica (hPa)",
+          "sensor_rain_intensity": "Intensitat de pluja (mm/h)",
+          "sensor_wind_speed": "Velocitat del vent (km/h)",
           "sensor_wind_bearing": "Direcció del vent (graus)",
-          "sensor_wind_gust": "Ràfega de vent màxima",
-          "sensor_visibility": "Visibilitat",
+          "sensor_wind_gust": "Ràfega de vent màxima (km/h)",
+          "sensor_visibility": "Visibilitat (m)",
           "sensor_uv_index": "Índex UV",
-          "sensor_ozone": "Ozó",
-          "sensor_cloud_coverage": "Cobertura de núvols",
-          "sensor_dew_point": "Punt de rosada",
-          "sensor_apparent_temperature": "Temperatura de sensació"
+          "sensor_ozone": "Ozó (AQI)",
+          "sensor_cloud_coverage": "Cobertura de núvols (%)",
+          "sensor_dew_point": "Punt de rosada (°C)",
+          "sensor_apparent_temperature": "Temperatura de sensació (°C)"
         }
       },
       "condition_mapping_type": {

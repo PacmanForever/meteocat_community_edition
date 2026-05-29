@@ -5,6 +5,20 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.94] - 2026-05-29
+
+### Afegit
+- **Condicions calculades en mode local**: Afegit el sensor local d'**intensitat de pluja (mm/h)** i el càlcul automàtic de les condicions `rainy`, `pouring`, `lightning-rainy`, `windy` i `fog` quan els sensors necessaris estan configurats.
+
+### Canviat
+- **Estació local**: La condició climàtica del `weather` local ara prioritza els overrides calculats, després el mapping base local i finalment el fallback a la predicció del Meteocat.
+- **Config flow**: La pantalla de sensors locals i les seves traduccions mostren les unitats a totes les etiquetes i inclouen el camp d'**intensitat de pluja (mm/h)**.
+- **Documentació**: Els README en català, anglès i castellà expliquen clarament les regles, prioritats i limitacions de les condicions calculades en mode local.
+
+### Tests
+- Afegits tests específics per a totes les condicions forçades implementades i cobertura addicional als camins crítics de `button.py` i `coordinator.py`.
+- Suite completa validada: `565 passed`, cobertura total `96.23%`.
+
 ## [1.2.93] - 2026-05-02
 
 ### Arreglat

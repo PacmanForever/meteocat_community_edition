@@ -52,18 +52,19 @@
         "title": "Configure Local Sensors",
         "description": "Weather cards do not always show all these values.",
         "data": {
-          "sensor_temperature": "Temperature",
-          "sensor_humidity": "Relative humidity",
-          "sensor_pressure": "Atmospheric pressure",
-          "sensor_wind_speed": "Wind speed",
+          "sensor_temperature": "Temperature (°C)",
+          "sensor_humidity": "Relative humidity (%)",
+          "sensor_pressure": "Atmospheric pressure (hPa)",
+          "sensor_rain_intensity": "Rain intensity (mm/h)",
+          "sensor_wind_speed": "Wind speed (km/h)",
           "sensor_wind_bearing": "Wind direction (degrees)",
-          "sensor_wind_gust": "Maximum wind gust",
-          "sensor_visibility": "Visibility",
+          "sensor_wind_gust": "Maximum wind gust (km/h)",
+          "sensor_visibility": "Visibility (m)",
           "sensor_uv_index": "UV Index",
-          "sensor_ozone": "Ozone",
-          "sensor_cloud_coverage": "Cloud coverage",
-          "sensor_dew_point": "Dew point",
-          "sensor_apparent_temperature": "Apparent temperature"
+          "sensor_ozone": "Ozone (AQI)",
+          "sensor_cloud_coverage": "Cloud coverage (%)",
+          "sensor_dew_point": "Dew point (°C)",
+          "sensor_apparent_temperature": "Apparent temperature (°C)"
         }
       },
       "condition_mapping_type": {
@@ -149,18 +150,19 @@
         "title": "Configure Local Sensors",
         "description": "Weather cards do not always show all these values.",
         "data": {
-          "sensor_temperature": "Temperature",
-          "sensor_humidity": "Relative humidity",
-          "sensor_pressure": "Atmospheric pressure",
-          "sensor_wind_speed": "Wind speed",
+          "sensor_temperature": "Temperature (°C)",
+          "sensor_humidity": "Relative humidity (%)",
+          "sensor_pressure": "Atmospheric pressure (hPa)",
+          "sensor_rain_intensity": "Rain intensity (mm/h)",
+          "sensor_wind_speed": "Wind speed (km/h)",
           "sensor_wind_bearing": "Wind direction (degrees)",
-          "sensor_wind_gust": "Maximum wind gust",
-          "sensor_visibility": "Visibility",
+          "sensor_wind_gust": "Maximum wind gust (km/h)",
+          "sensor_visibility": "Visibility (m)",
           "sensor_uv_index": "UV Index",
-          "sensor_ozone": "Ozone",
-          "sensor_cloud_coverage": "Cloud coverage",
-          "sensor_dew_point": "Dew point",
-          "sensor_apparent_temperature": "Apparent temperature"
+          "sensor_ozone": "Ozone (AQI)",
+          "sensor_cloud_coverage": "Cloud coverage (%)",
+          "sensor_dew_point": "Dew point (°C)",
+          "sensor_apparent_temperature": "Apparent temperature (°C)"
         }
       },
       "condition_mapping_type": {

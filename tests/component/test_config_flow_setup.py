@@ -28,7 +28,7 @@ from custom_components.meteocat_community_edition.config_flow import (
     CONF_ENABLE_FORECAST_HOURLY,
 )
 from custom_components.meteocat_community_edition.api import MeteocatAPIError
-from custom_components.meteocat_community_edition.const import CONF_SENSOR_TEMPERATURE, CONF_SENSOR_HUMIDITY
+from custom_components.meteocat_community_edition.const import CONF_SENSOR_TEMPERATURE, CONF_SENSOR_HUMIDITY, CONF_SENSOR_RAIN_INTENSITY
 
 def test_is_valid_time_format():
     """Test time format validation."""
@@ -222,6 +222,7 @@ async def test_flow_update_times_step_local():
     sensors_input = {
         CONF_SENSOR_TEMPERATURE: "sensor.temp",
         CONF_SENSOR_HUMIDITY: "sensor.hum",
+        CONF_SENSOR_RAIN_INTENSITY: "sensor.rain_rate",
     }
     result2 = await flow.async_step_local_sensors(sensors_input)
     assert result2["type"] == "form"
@@ -283,10 +284,11 @@ async def test_flow_local_sensors_step():
     flow.context = {}
     flow.api_base_url = "https://api.meteocat.cat/release/v1"
     # Import constants for sensors
-    from custom_components.meteocat_community_edition.const import CONF_SENSOR_TEMPERATURE, CONF_SENSOR_HUMIDITY
+    from custom_components.meteocat_community_edition.const import CONF_SENSOR_TEMPERATURE, CONF_SENSOR_HUMIDITY, CONF_SENSOR_RAIN_INTENSITY
     sensors_input = {
         CONF_SENSOR_TEMPERATURE: "sensor.temp",
         CONF_SENSOR_HUMIDITY: "sensor.hum",
+        CONF_SENSOR_RAIN_INTENSITY: "sensor.rain_rate",
     }
     result = await flow.async_step_local_sensors(sensors_input)
     assert result["type"] == "form"
@@ -295,7 +297,7 @@ async def test_flow_local_sensors_step():
 @pytest.mark.asyncio
 async def test_flow_mapping_step_called():
     """Test que la pantalla de mapping (condition_mapping) es crida després de sensors locals."""
-    from custom_components.meteocat_community_edition.const import CONF_SENSOR_TEMPERATURE, CONF_SENSOR_HUMIDITY
+    from custom_components.meteocat_community_edition.const import CONF_SENSOR_TEMPERATURE, CONF_SENSOR_HUMIDITY, CONF_SENSOR_RAIN_INTENSITY
     flow = MeteocatConfigFlow()
     flow.hass = MagicMock()
     flow.api_key = "valid_key"
@@ -314,6 +316,7 @@ async def test_flow_mapping_step_called():
     sensors_input = {
         CONF_SENSOR_TEMPERATURE: "sensor.temp",
         CONF_SENSOR_HUMIDITY: "sensor.hum",
+        CONF_SENSOR_RAIN_INTENSITY: "sensor.rain_rate",
     }
     result = await flow.async_step_local_sensors(sensors_input)
     assert result["type"] == "form"
@@ -333,6 +336,7 @@ async def test_flow_mapping_type_meteocat_creates_entry():
     flow._local_sensors_input = {
         CONF_SENSOR_TEMPERATURE: "sensor.temp",
         CONF_SENSOR_HUMIDITY: "sensor.hum",
+        CONF_SENSOR_RAIN_INTENSITY: "sensor.rain_rate",
     }
     flow.api_base_url = "https://api.meteocat.cat/release/v1"
     result = await flow.async_step_condition_mapping_type({"mapping_type": "meteocat"})
@@ -340,6 +344,7 @@ async def test_flow_mapping_type_meteocat_creates_entry():
     assert result["title"] == "Abrera"
     assert result["data"][CONF_SENSOR_TEMPERATURE] == "sensor.temp"
     assert result["data"][CONF_SENSOR_HUMIDITY] == "sensor.hum"
+    assert result["data"][CONF_SENSOR_RAIN_INTENSITY] == "sensor.rain_rate"
     assert result["data"]["mapping_type"] == "meteocat"
     # Regression test: ensure API key is included in entry data
     assert result["data"][CONF_API_KEY] == "test_api_key"
@@ -360,6 +365,7 @@ async def test_flow_mapping_type_custom_leads_to_custom_step():
     flow._local_sensors_input = {
         CONF_SENSOR_TEMPERATURE: "sensor.temp",
         CONF_SENSOR_HUMIDITY: "sensor.hum",
+        CONF_SENSOR_RAIN_INTENSITY: "sensor.rain_rate",
     }
     flow.municipality_name = "Abrera"
     flow.api_base_url = "https://api.meteocat.cat/release/v1"
