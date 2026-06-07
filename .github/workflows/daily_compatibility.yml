@@ -9,6 +9,8 @@ jobs:
   check-compatibility:
     name: Check against HA ${{ matrix.channel }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:

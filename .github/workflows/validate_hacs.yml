@@ -11,6 +11,8 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     name: HACS Validation
+    permissions:
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
