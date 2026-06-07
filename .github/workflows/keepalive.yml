@@ -2,7 +2,7 @@ name: Keepalive Workflow
 
 on:
   schedule:
-    - cron: '0 0 1 * *'  # 1st of each month at midnight UTC
+    - cron: '15 0 * * *'  # Daily at 00:15 UTC
   workflow_dispatch:
 
 jobs:
@@ -19,7 +19,7 @@ jobs:
 
       - name: Create keepalive commit when repository is inactive
         env:
-          MAX_INACTIVE_DAYS: "50"
+          MAX_INACTIVE_DAYS: "45"
         run: |
           set -eu
 
