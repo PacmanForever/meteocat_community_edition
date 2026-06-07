@@ -12,16 +12,21 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
       - name: Create keepalive commit when repository is inactive
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MAX_INACTIVE_DAYS: "45"
         run: |
           set -eu
+
+          repo_dir="$(mktemp -d)"
+          trap 'rm -rf "$repo_dir"' EXIT
+
+          git init "$repo_dir"
+          cd "$repo_dir"
+          git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git fetch --depth=1 origin "${GITHUB_REF_NAME}"
+          git checkout -B "${GITHUB_REF_NAME}" "FETCH_HEAD"
 
           last_commit_ts="$(git log -1 --format=%ct)"
           now_ts="$(date +%s)"
