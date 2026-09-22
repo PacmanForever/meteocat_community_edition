@@ -5,6 +5,17 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.96] - 2026-09-22
+
+### Arreglat
+- **Llicència del repositori**: Substituït el resum curt de la GPL pel text estàndard complet de GPL-3.0 perquè GitHub i HACS la puguin identificar correctament.
+
+### Canviat
+- **Compatibilitat diària**: El workflow de comprovació diària i la documentació associada passen a referir-se només al canal estable de Home Assistant.
+
+### Tests
+- Afegit un test de regressió perquè una condició local mapejada a `sunny` es normalitzi a `clear-night` quan és de nit.
+
 ## [1.2.94] - 2026-05-29
 
 ## [1.2.95] - 2026-05-29

@@ -65,6 +65,16 @@ async def test_local_condition_entity_numeric_state(hass: HomeAssistant, mock_co
         
         assert weather.condition == "sunny"
 
+async def test_local_condition_entity_sunny_becomes_clear_night_at_night(hass: HomeAssistant, mock_coordinator, mock_config_entry):
+    """A mapped sunny local condition should become clear-night after sunset."""
+    weather = MeteocatLocalWeather(mock_coordinator, mock_config_entry)
+    weather.hass = hass
+
+    hass.states.async_set("sensor.local_condition", "1")
+
+    with patch.object(MeteocatLocalWeather, "_is_night", return_value=True):
+        assert weather.condition == "clear-night"
+
 async def test_local_condition_entity_valid_string_state(hass: HomeAssistant, mock_coordinator, mock_config_entry):
     """Test local condition entity returning a valid condition string."""
     weather = MeteocatLocalWeather(mock_coordinator, mock_config_entry)

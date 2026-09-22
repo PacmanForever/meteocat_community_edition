@@ -7,14 +7,13 @@ on:
 
 jobs:
   check-compatibility:
-    name: Check against HA ${{ matrix.channel }}
+    name: Check against latest HA stable
     runs-on: ubuntu-latest
     permissions:
       contents: read
     strategy:
       fail-fast: false
       matrix:
-        channel: [stable, beta]
         python-version: ["3.12"]
 
     steps:
@@ -33,15 +32,10 @@ jobs:
           pip install -r requirements.txt
           pip install -r requirements-test.txt
 
-      - name: Install Home Assistant ${{ matrix.channel }}
+      - name: Install Home Assistant stable
         run: |
-          if [ "${{ matrix.channel }}" = "stable" ]; then
-            echo "Installing latest Stable Home Assistant..."
-            pip install --upgrade homeassistant
-          elif [ "${{ matrix.channel }}" = "beta" ]; then
-            echo "Installing latest Beta Home Assistant..."
-            pip install --upgrade --pre homeassistant
-          fi
+          echo "Installing latest stable Home Assistant..."
+          pip install --upgrade homeassistant
           
           echo "Installed Home Assistant version:"
           pip show homeassistant | grep Version
