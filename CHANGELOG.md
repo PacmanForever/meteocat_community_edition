@@ -5,6 +5,11 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.97] - 2026-10-18
+
+### Afegit
+- Afegida la icona de marca local de la integració per a la publicació a HACS.
+
 ## [1.2.96] - 2026-09-22
 
 ### Arreglat
