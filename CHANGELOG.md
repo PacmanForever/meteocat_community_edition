@@ -10,6 +10,9 @@ i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 ### Afegit
 - Afegida la icona de marca local de la integració per a la publicació a HACS.
 
+### Canviat
+- Eliminada la dependència `aiohttp` del manifest perquè Home Assistant ja la proporciona.
+
 ## [1.2.96] - 2026-09-22
 
 ### Arreglat
