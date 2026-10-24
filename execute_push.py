@@ -7,7 +7,7 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-os.chdir(r'c:\Jordi\meteocat_community_edition')
+os.chdir(r'c:\pacman\meteocat_community_edition')
 
 # Step 1: Configure git
 subprocess.run(['git', 'config', 'user.email', 'release@meteocat.local'], capture_output=True)

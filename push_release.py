@@ -4,8 +4,8 @@ import sys
 import os
 from datetime import datetime
 
-os.chdir(r'c:\Jordi\meteocat_community_edition')
-log_path = r'c:\Jordi\meteocat_community_edition\github_release.log'
+os.chdir(r'c:\pacman\meteocat_community_edition')
+log_path = r'c:\pacman\meteocat_community_edition\github_release.log'
 
 with open(log_path, 'w', encoding='utf-8') as log:
     log.write(f"{'='*80}\n")

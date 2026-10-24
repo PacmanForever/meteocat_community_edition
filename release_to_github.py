@@ -22,7 +22,7 @@ def run_cmd(cmd, desc):
     
     return result.returncode == 0
 
-os.chdir(r'c:\Jordi\meteocat_community_edition')
+os.chdir(r'c:\pacman\meteocat_community_edition')
 
 print("="*80)
 print("PUSHING v1.0.0 RELEASE TO GITHUB")

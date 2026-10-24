@@ -39,8 +39,10 @@ def mock_get_clientsession_custom():
          patch("custom_components.meteocat_community_edition.config_flow.async_get_clientsession", return_value=MagicMock()):
         yield
 
-@pytest.fixture(autouse=True)
-def auto_enable_custom_integrations(enable_custom_integrations):
-    """Enable custom integrations defined in the custom_components dir."""
-    yield
 
+@pytest.fixture(autouse=True)
+def auto_enable_custom_integrations(request):
+    """Enable custom integrations for component tests that use Home Assistant."""
+    if request.node.path.parent.name == "component" and request.node.path.name != "test_api.py":
+        request.getfixturevalue("enable_custom_integrations")
+    yield

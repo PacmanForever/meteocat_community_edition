@@ -3,7 +3,7 @@
 import subprocess
 import os
 
-os.chdir(r'c:\Jordi\meteocat_community_edition')
+os.chdir(r'c:\pacman\meteocat_community_edition')
 
 # Configure git
 subprocess.run(['git', 'config', 'user.email', 'release@meteocat.local'], capture_output=True)
