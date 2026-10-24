@@ -1,0 +1,311 @@
+{
+  "title": "Meteocat (Community Edition)",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configure API Connection",
+        "description": "",
+        "data": {
+          "api_key": "API Key"
+        }
+      },
+      "mode": {
+        "title": "Configure New Station",
+        "description": "External Station: Measurements and forecast from Meteocat\n\nLocal Station: Local measurements and forecast from Meteocat",
+        "data": {
+          "mode": "What type of station do you want to create?"
+        }
+      },
+      "comarca": {
+        "title": "Select a Region",
+        "description": "",
+        "data": {
+          "comarca_code": "Region"
+        }
+      },
+      "station": {
+        "title": "Select External Station",
+        "description": "",
+        "data": {
+          "station_code": "Station"
+        }
+      },
+      "municipality": {
+        "title": "Select Municipality",
+        "description": "",
+        "data": {
+          "municipality_code": "Municipality"
+        }
+      },
+      "update_times": {
+        "title": "Configure Meteocat Forecast",
+        "description": "Indicate at what times you want it to update:\n\nATTENTION: The more update times and forecast types you enable, the more quota will be consumed. If consumption is too high, your monthly quota may run out before the end of the month.",
+        "data": {
+          "update_time_1": "First update time (24h format: HH:MM)",
+          "update_time_2": "Second update time (24h format: HH:MM)",
+          "update_time_3": "Third update time (24h format: HH:MM)",
+          "enable_forecast_daily": "I want daily forecast",
+          "enable_forecast_hourly": "I want hourly forecast"
+        }
+      },
+      "local_sensors": {
+        "title": "Configure Local Sensors",
+        "description": "Weather cards do not always show all these values.",
+        "data": {
+          "sensor_temperature": "Temperature (°C)",
+          "sensor_humidity": "Relative humidity (%)",
+          "sensor_pressure": "Atmospheric pressure (hPa)",
+          "sensor_rain_intensity": "Rain intensity (mm/h)",
+          "sensor_wind_speed": "Wind speed (km/h)",
+          "sensor_wind_bearing": "Wind direction (degrees)",
+          "sensor_wind_gust": "Maximum wind gust (km/h)",
+          "sensor_visibility": "Visibility (m)",
+          "sensor_uv_index": "UV Index",
+          "sensor_ozone": "Ozone (AQI)",
+          "sensor_cloud_coverage": "Cloud coverage (%)",
+          "sensor_dew_point": "Dew point (°C)",
+          "sensor_apparent_temperature": "Apparent temperature (°C)"
+        }
+      },
+      "condition_mapping_type": {
+        "title": "Configure Weather Condition",
+        "description": "",
+        "data": {
+          "mapping_type": "Select which mapping you want for the 'Weather Condition' property (Icon)."
+        },
+        "data_description": {
+          "mapping_type": "Meteocat\nThe condition value will be automatically taken from the official Meteocat forecast (fixed mapping, not editable).\n\nCustom\nThe condition value will be taken from a local numeric sensor. You will need to define (on the next screen) a mapping between the local sensor values and the conditions supported by Home Assistant (ex: clear-night, sunny, partlycloudy, cloudy, rainy, pouring, lightning, snowy, fog, etc.)."
+        }
+      },
+      "condition_mapping_custom": {
+        "title": "Configure Weather Condition Mapping",
+        "description": "Select the sensor that contains the condition value and configure the mapping to use. You can enter multiple values separated by commas.\n\nExample: if your local sensor returns 1 for sunny, 2 for partly cloudy and 3 or 4 for rainy, fill in:\nSunny: 1\nPartly cloudy: 2\nRainy: 3, 4",
+        "data": {
+          "local_condition_entity": "Sensor that indicates the condition",
+          "clear-night": "Clear night",
+          "sunny": "Sunny",
+          "partlycloudy": "Partly cloudy",
+          "cloudy": "Cloudy",
+          "rainy": "Rainy",
+          "pouring": "Pouring",
+          "lightning": "Lightning",
+          "lightning-rainy": "Lightning rainy",
+          "hail": "Hail",
+          "snowy": "Snowy",
+          "snowy-rainy": "Snowy rainy",
+          "fog": "Fog",
+          "windy": "Windy",
+          "windy-variant": "Windy variant",
+          "exceptional": "Exceptional"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Re-authentication Required",
+        "description": "The API key has expired or is invalid. Please enter a new valid API key."
+      }
+    },
+    "error": {
+      "cannot_connect": "Could not connect to Meteocat API. Check the API key.",
+      "no_comarques": "No available regions found",
+      "no_stations": "No stations found in this region",
+      "no_municipalities": "No municipalities found in this region",
+      "no_comarca_selected": "You must select a region",
+      "no_station_selected": "You must select a station",
+      "invalid_time_format": "Invalid time format. Use 24h format: HH:MM (example: 06:00 or 14:30)",
+      "times_must_differ": "Update times must be different",
+      "must_select_one_forecast": "You must select at least one forecast type (daily or hourly)",
+      "required": "This field is required",
+      "invalid_auth": "Invalid API key. Please check that the API key is correct.",
+      "invalid_format": "Invalid format. Use 'value: condition' format on each line.",
+      "invalid_condition": "Invalid condition. Valid conditions are: sunny, partlycloudy, cloudy, rainy, pouring, lightning, lightning-rainy, hail, snowy, snowy-rainy, fog, windy, windy-variant, clear-night, exceptional.",
+      "value_not_allowed": "Value not allowed. Select an option from the list.",
+      "unknown": "Unknown error"
+    },
+    "abort": {
+      "already_configured": "This station is already configured",
+      "reauth_successful": "Re-authentication completed successfully"
+    }
+  },
+  "options": {
+    "error": {
+      "must_select_one_forecast": "You must select at least one forecast type (daily or hourly)",
+      "invalid_auth": "Invalid API key. Please check that the API key is correct.",
+      "times_must_differ": "Update times must be different",
+      "invalid_time_format": "Invalid time format. Use 24h format: HH:MM (example: 06:00 or 14:30)",
+      "required": "This field is required"
+    },
+    "step": {
+      "init": {
+        "title": "Configure Meteocat Forecast",
+        "description": "Indicate at what times you want it to update:\n\nATTENTION: The more update times and forecast types you enable, the more quota will be consumed. If consumption is too high, your monthly quota may run out before the end of the month.",
+        "data": {
+          "update_time_1": "First update time (24h format: HH:MM)",
+          "update_time_2": "Second update time (24h format: HH:MM)",
+          "update_time_3": "Third update time (24h format: HH:MM)",
+          "enable_forecast_daily": "I want daily forecast",
+          "enable_forecast_hourly": "I want hourly forecast"
+        }
+      },
+      "local_sensors": {
+        "title": "Configure Local Sensors",
+        "description": "Weather cards do not always show all these values.",
+        "data": {
+          "sensor_temperature": "Temperature (°C)",
+          "sensor_humidity": "Relative humidity (%)",
+          "sensor_pressure": "Atmospheric pressure (hPa)",
+          "sensor_rain_intensity": "Rain intensity (mm/h)",
+          "sensor_wind_speed": "Wind speed (km/h)",
+          "sensor_wind_bearing": "Wind direction (degrees)",
+          "sensor_wind_gust": "Maximum wind gust (km/h)",
+          "sensor_visibility": "Visibility (m)",
+          "sensor_uv_index": "UV Index",
+          "sensor_ozone": "Ozone (AQI)",
+          "sensor_cloud_coverage": "Cloud coverage (%)",
+          "sensor_dew_point": "Dew point (°C)",
+          "sensor_apparent_temperature": "Apparent temperature (°C)"
+        }
+      },
+      "condition_mapping_type": {
+        "title": "Configure Weather Condition",
+        "description": "",
+        "data": {
+          "mapping_type": "Select which mapping you want for the 'Weather Condition' property (Icon)."
+        },
+        "data_description": {
+          "mapping_type": "Meteocat\nThe condition value will be automatically taken from the official Meteocat forecast (fixed mapping, not editable).\n\nCustom\nThe condition value will be taken from a local numeric sensor. You will need to define (on the next screen) a mapping between the local sensor values and the conditions supported by Home Assistant (ex: clear-night, sunny, partlycloudy, cloudy, rainy, pouring, lightning, snowy, fog, etc.)."
+        }
+      },
+      "condition_mapping_custom": {
+        "title": "Configure Weather Condition Mapping",
+        "description": "Select the sensor that contains the condition value and configure the mapping to use. You can enter multiple values separated by commas.\n\nExample: if your local sensor returns 1 for sunny, 2 for partly cloudy and 3 or 4 for rainy, fill in:\nSunny: 1\nPartly cloudy: 2\nRainy: 3, 4",
+        "data": {
+          "local_condition_entity": "Sensor that indicates the condition",
+          "clear-night": "Clear night",
+          "sunny": "Sunny",
+          "partlycloudy": "Partly cloudy",
+          "cloudy": "Cloudy",
+          "rainy": "Rainy",
+          "pouring": "Pouring",
+          "lightning": "Lightning",
+          "lightning-rainy": "Lightning rainy",
+          "hail": "Hail",
+          "snowy": "Snowy",
+          "snowy-rainy": "Snowy rainy",
+          "fog": "Fog",
+          "windy": "Windy",
+          "windy-variant": "Windy variant",
+          "exceptional": "Exceptional"
+        }
+      }
+    }
+  },
+  "device_automation": {
+    "trigger_type": {
+      "data_updated": "Data updated",
+      "next_update_changed": "Next update changed"
+    }
+  },
+  "entity": {
+    "sensor": {
+      "temperature": {
+        "name": "Temperature"
+      },
+      "humidity": {
+        "name": "Relative humidity"
+      },
+      "pressure": {
+        "name": "Pressure"
+      },
+      "wind_speed": {
+        "name": "Wind speed"
+      },
+      "wind_direction": {
+        "name": "Wind direction"
+      },
+      "precipitation": {
+        "name": "Daily precipitation"
+      },
+      "solar_radiation": {
+        "name": "Solar radiation (UV)"
+      },
+      "utci_index": {
+        "name": "UTCI Temperature"
+      },
+      "utci_category": {
+        "name": "Thermal Stress",
+        "state": {
+          "stress_extreme_heat": "Extreme heat stress",
+          "stress_very_strong_heat": "Very strong heat stress",
+          "stress_strong_heat": "Strong heat stress",
+          "stress_moderate_heat": "Moderate heat stress",
+          "comfort_no_stress": "Comfort (No thermal stress)",
+          "stress_moderate_cold": "Moderate cold stress",
+          "stress_strong_cold": "Strong cold stress",
+          "stress_very_strong_cold": "Very strong cold stress",
+          "stress_extreme_cold": "Extreme cold stress"
+        }
+      },
+      "beaufort_index": {
+        "name": "Wind (Beaufort)"
+      },
+      "beaufort_description": {
+        "name": "Wind (Description)",
+        "state": {
+          "beaufort_0": "Calm",
+          "beaufort_1": "Light air",
+          "beaufort_2": "Light breeze",
+          "beaufort_3": "Gentle breeze",
+          "beaufort_4": "Moderate breeze",
+          "beaufort_5": "Fresh breeze",
+          "beaufort_6": "Strong breeze",
+          "beaufort_7": "High wind",
+          "beaufort_8": "Gale",
+          "beaufort_9": "Strong gale",
+          "beaufort_10": "Storm",
+          "beaufort_11": "Violent storm",
+          "beaufort_hurricane": "Hurricane"
+        }
+      },
+      "forecast_hourly": {
+        "name": "Hourly forecast"
+      },
+      "forecast_daily": {
+        "name": "Daily forecast"
+      },
+      "last_update": {
+        "name": "Last measurements update"
+      },
+      "next_update": {
+        "name": "Next measurements update"
+      },
+      "next_forecast_update": {
+        "name": "Next forecast update"
+      },
+      "last_forecast_update": {
+        "name": "Last forecast update"
+      },
+      "update_time": {
+        "name": "Update time {number}"
+      },
+      "latitude": {
+        "name": "Latitude"
+      },
+      "longitude": {
+        "name": "Longitude"
+      }
+    },
+    "binary_sensor": {
+      "update_state": {
+        "name": "Last update successful"
+      }
+    },
+    "button": {
+      "refresh_measurements": {
+        "name": "Refresh Measurements"
+      },
+      "refresh_forecast": {
+        "name": "Refresh Forecast"
+      }
+    }
+  }
+}

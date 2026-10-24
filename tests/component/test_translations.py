@@ -12,26 +12,15 @@ except ImportError:
 
 def load_translation(lang):
     """Load translation file."""
-    if lang == "en":
-        # For English, load strings.json from the component root
-        path = os.path.join(
-            os.path.dirname(__file__),
-            "..",
-            "..",
-            "custom_components",
-            "meteocat_community_edition",
-            "strings.json",
-        )
-    else:
-        path = os.path.join(
-            os.path.dirname(__file__),
-            "..",
-            "..",
-            "custom_components",
-            "meteocat_community_edition",
-            "translations",
-            f"{lang}.json",
-        )
+    path = os.path.join(
+        os.path.dirname(__file__),
+        "..",
+        "..",
+        "custom_components",
+        "meteocat_community_edition",
+        "translations",
+        f"{lang}.json",
+    )
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
 

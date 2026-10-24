@@ -17,11 +17,7 @@ def load_translation(lang):
     project_root = os.path.dirname(os.path.dirname(test_dir))
     component_dir = os.path.join(project_root, "custom_components", "meteocat_community_edition")
     
-    if lang == "en":
-        # For English, load strings.json from the component root
-        path = os.path.join(component_dir, "strings.json")
-    else:
-        path = os.path.join(component_dir, "translations", f"{lang}.json")
+    path = os.path.join(component_dir, "translations", f"{lang}.json")
     
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
