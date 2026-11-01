@@ -325,36 +325,6 @@ async def async_setup_entry(
             )
     
     
-    # Force enable configuration sensors that might be disabled in registry
-    # This prevents them from sticking in disabled state after category changes
-    # Use a try-except block to ensure we never block setup if registry operations fail
-    try:
-        registry = er.async_get(hass)
-        
-        # Accessing registry entries safely
-        entry_entities = [
-            entity for entity in registry.entities.values() 
-            if entity.config_entry_id == entry.entry_id
-        ]
-        
-        for reg_entity in entry_entities:
-            if reg_entity.disabled: 
-                uid = reg_entity.unique_id
-                should_enable = (
-                    uid.endswith("_municipality_name") or
-                    uid.endswith("_comarca_name") or
-                    uid.endswith("_provincia_name") or
-                    "_update_time_" in uid or
-                    "_station_municipality_name" in uid or
-                    "_station_comarca_name" in uid or
-                    "_station_provincia_name" in uid
-                )
-                
-                if should_enable:
-                     registry.async_update_entity(reg_entity.entity_id, disabled_by=None)
-    except Exception as ex:
-        _LOGGER.warning("Could not force enable config sensors: %s", ex)
-    
     async_add_entities(entities)
 
 

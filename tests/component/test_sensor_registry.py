@@ -92,8 +92,8 @@ async def test_async_setup_entry_registry_error_handling(hass):
         # Should proceed to add entities despite warning
         assert async_add_entities.called
 
-async def test_async_setup_registry_enable_entities(hass):
-    """Test forcing enable of disabled entities."""
+async def test_async_setup_preserves_disabled_entities(hass):
+    """Test setup does not re-enable entities disabled by the user."""
     entry = MagicMock()
     entry.entry_id = "test_entry_enable"
     entry.data = {CONF_MODE: MODE_LOCAL}
@@ -116,4 +116,4 @@ async def test_async_setup_registry_enable_entities(hass):
     with patch("custom_components.meteocat_community_edition.sensor.er.async_get", return_value=mock_registry):
         await async_setup_entry(hass, entry, async_add_entities)
         
-        mock_registry.async_update_entity.assert_called_with("sensor.test", disabled_by=None)
+        mock_registry.async_update_entity.assert_not_called()

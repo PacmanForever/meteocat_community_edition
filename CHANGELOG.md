@@ -5,6 +5,12 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.99] - 2026-11-02
+
+### Arreglat
+- Es respecta l'estat desactivat dels sensors triat per l'usuari en reiniciar o recarregar la integració.
+- Eliminats els fitxers de bytecode de Python del paquet de la integració.
+
 ## [1.2.98] - 2026-10-24
 
 ### Arreglat
