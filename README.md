@@ -48,12 +48,8 @@ Integració **comunitària** i **no oficial** per a Home Assistant del Servei Me
 
 1. Assegura't que tens [HACS](https://hacs.xyz/) instal·lat
 2. A HACS, ves a "Integracions"
-3. Fes clic al menú de 3 punts (dalt a la dreta) i selecciona "Repositoris personalitzats"
-4. Afegeix aquest URL: `https://github.com/PacmanForever/meteocat_community_edition`
-5. Categoria: `Integration`
-6. Fes clic a "Afegir"
-7. Cerca "Meteocat" i instal·la
-8. Reinicia Home Assistant
+3. Cerca "Meteocat" al catàleg i instal·la la integració
+4. Reinicia Home Assistant
 
 ### Manual
 

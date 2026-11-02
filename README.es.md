@@ -47,12 +47,8 @@ Integración **comunitaria** y **no oficial** para Home Assistant del Servicio M
 
 1. Asegúrate de tener [HACS](https://hacs.xyz/) instalado
 2. En HACS, ve a "Integraciones"
-3. Haz clic en el menú de 3 puntos (arriba a la derecha) y selecciona "Repositorios personalizados"
-4. Añade esta URL: `https://github.com/PacmanForever/meteocat_community_edition`
-5. Categoría: `Integration`
-6. Haz clic en "Añadir"
-7. Busca "Meteocat" e instala
-8. Reinicia Home Assistant
+3. Busca "Meteocat" en el catálogo e instala la integración
+4. Reinicia Home Assistant
 
 ### Manual
 

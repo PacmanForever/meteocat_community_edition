@@ -47,12 +47,8 @@
 
 1. Make sure you have [HACS](https://hacs.xyz/) installed
 2. In HACS, go to "Integrations"
-3. Click the 3-dot menu (top right) and select "Custom repositories"
-4. Add this URL: `https://github.com/PacmanForever/meteocat_community_edition`
-5. Category: `Integration`
-6. Click "Add"
-7. Search for "Meteocat" and install
-8. Restart Home Assistant
+3. Search the catalog for "Meteocat" and install the integration
+4. Restart Home Assistant
 
 ### Manual
 
