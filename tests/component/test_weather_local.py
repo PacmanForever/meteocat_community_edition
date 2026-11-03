@@ -14,6 +14,8 @@ from homeassistant.const import (
 from custom_components.meteocat_community_edition.weather import MeteocatLocalWeather
 from custom_components.meteocat_community_edition.const import (
     DOMAIN, 
+    INTEGRATION_VERSION,
+    MANUFACTURER,
     MODE_LOCAL,
     CONF_MUNICIPALITY_NAME,
     CONF_SENSOR_TEMPERATURE,
@@ -72,6 +74,8 @@ def test_local_weather_initialization(mock_coordinator, mock_entry):
     assert weather.entity_id == "weather.abrera_local"
     
     assert weather.device_info["model"] == "Estació Local"
+    assert weather.device_info["manufacturer"] == MANUFACTURER
+    assert weather.device_info["sw_version"] == INTEGRATION_VERSION
     assert weather.attribution == "Estació Abrera (local) + Predicció Meteocat"
 
 def test_local_weather_sensors(mock_coordinator, mock_entry):

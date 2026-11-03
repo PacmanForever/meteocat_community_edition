@@ -18,7 +18,12 @@ from custom_components.meteocat_community_edition.button import (
     MeteocatRefreshMeasurementsButton,
     MeteocatRefreshForecastButton,
 )
-from custom_components.meteocat_community_edition.const import DOMAIN, MODE_EXTERNAL
+from custom_components.meteocat_community_edition.const import (
+    DOMAIN,
+    INTEGRATION_VERSION,
+    MANUFACTURER,
+    MODE_EXTERNAL,
+)
 
 
 @pytest.fixture
@@ -159,6 +164,16 @@ def test_all_entities_share_same_device_name(mock_coordinator, mock_entry):
     assert next_update_sensor._attr_device_info["name"] == "Granollers YM"
     assert button_measurements._attr_device_info["name"] == "Granollers YM"
     assert button_forecast._attr_device_info["name"] == "Granollers YM"
+
+    for entity in (
+        quota_sensor,
+        last_update_sensor,
+        next_update_sensor,
+        button_measurements,
+        button_forecast,
+    ):
+        assert entity._attr_device_info["manufacturer"] == MANUFACTURER
+        assert entity._attr_device_info["sw_version"] == INTEGRATION_VERSION
 
 
 def test_entity_ids_include_station_code(mock_coordinator, mock_entry):

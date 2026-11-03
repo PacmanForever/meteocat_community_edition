@@ -7,7 +7,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import ATTRIBUTION, CONF_MODE, DOMAIN, MODE_LOCAL, MODE_EXTERNAL
+from .const import ATTRIBUTION, CONF_MODE, DOMAIN, INTEGRATION_VERSION, MANUFACTURER, MODE_LOCAL, MODE_EXTERNAL
 from .coordinator import MeteocatCoordinator
 
 
@@ -87,8 +87,9 @@ class MeteocatRefreshMeasurementsButton(CoordinatorEntity[MeteocatCoordinator], 
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": device_name,
-            "manufacturer": "Meteocat Edició Comunitària",
+            "manufacturer": MANUFACTURER,
             "model": "Estació Externa",
+            "sw_version": INTEGRATION_VERSION,
         }
 
     @property
@@ -147,8 +148,9 @@ class MeteocatRefreshForecastButton(CoordinatorEntity[MeteocatCoordinator], Butt
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": device_name,
-            "manufacturer": "Meteocat Edició Comunitària",
+            "manufacturer": MANUFACTURER,
             "model": "Estació Externa" if mode == MODE_EXTERNAL else "Estació Local",
+            "sw_version": INTEGRATION_VERSION,
         }
 
     @property

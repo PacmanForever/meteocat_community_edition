@@ -14,6 +14,8 @@ from custom_components.meteocat_community_edition.binary_sensor import (
 )
 from custom_components.meteocat_community_edition.const import (
     DOMAIN,
+    INTEGRATION_VERSION,
+    MANUFACTURER,
     MODE_EXTERNAL,
     MODE_LOCAL,
 )
@@ -406,6 +408,8 @@ def test_binary_sensor_device_info_external_mode(mock_coordinator_success, mock_
     device_info = sensor.device_info
     assert device_info["name"] == "Granollers YM"
     assert device_info["model"] == "Estació Externa"
+    assert device_info["manufacturer"] == MANUFACTURER
+    assert device_info["sw_version"] == INTEGRATION_VERSION
     assert (DOMAIN, "test_entry") in device_info["identifiers"]
 
 
@@ -423,6 +427,8 @@ def test_binary_sensor_device_info_local_mode(mock_coordinator_success, mock_ent
     device_info = sensor.device_info
     assert device_info["name"] == "Barcelona"
     assert device_info["model"] == "Estació Local"
+    assert device_info["manufacturer"] == MANUFACTURER
+    assert device_info["sw_version"] == INTEGRATION_VERSION
 
 
 def test_binary_sensor_icon_when_ok(mock_coordinator_success, mock_entry_external):

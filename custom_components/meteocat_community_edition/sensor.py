@@ -60,6 +60,8 @@ from .const import (
     CONF_SENSOR_HUMIDITY,
     CONF_SENSOR_WIND_SPEED,
     DOMAIN,
+    INTEGRATION_VERSION,
+    MANUFACTURER,
     MODE_LOCAL,
     MODE_EXTERNAL,
     XEMA_VARIABLES,
@@ -374,8 +376,9 @@ class MeteocatQuotaSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
-            "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
+            "manufacturer": MANUFACTURER,
             "model": "Estaci\u00f3 XEMA" if mode == MODE_EXTERNAL else "Predicci\u00f3 Municipi",
+            "sw_version": INTEGRATION_VERSION,
         }
         
         # Quota sensors are diagnostic information
@@ -514,8 +517,9 @@ class MeteocatXemaSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": f"{entity_name} {station_code}",
-            "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
+            "manufacturer": MANUFACTURER,
             "model": "Estaci\u00f3 XEMA",
+            "sw_version": INTEGRATION_VERSION,
         }
 
     @property
@@ -585,8 +589,9 @@ class MeteocatForecastSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
-            "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
+            "manufacturer": MANUFACTURER,
             "model": "Predicci\u00f3 Municipi",
+            "sw_version": INTEGRATION_VERSION,
         }
 
     @property
@@ -799,8 +804,9 @@ class MeteocatLastUpdateSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnt
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
-            "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
+            "manufacturer": MANUFACTURER,
             "model": "Estaci\u00f3 XEMA" if mode == MODE_EXTERNAL else "Predicci\u00f3 Municipi",
+            "sw_version": INTEGRATION_VERSION,
 
         }
         
@@ -856,8 +862,9 @@ class MeteocatNextForecastUpdateSensor(CoordinatorEntity[MeteocatCoordinator], S
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
-            "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
+            "manufacturer": MANUFACTURER,
             "model": "Estaci\u00f3 XEMA",
+            "sw_version": INTEGRATION_VERSION,
         }
         
         self._attr_entity_category = EntityCategory.DIAGNOSTIC
@@ -910,8 +917,9 @@ class MeteocatLastForecastUpdateSensor(CoordinatorEntity[MeteocatCoordinator], S
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
-            "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
+            "manufacturer": MANUFACTURER,
             "model": "Estaci\u00f3 XEMA",
+            "sw_version": INTEGRATION_VERSION,
         }
         
         self._attr_entity_category = EntityCategory.DIAGNOSTIC
@@ -986,8 +994,9 @@ class MeteocatNextUpdateSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnt
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
-            "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
+            "manufacturer": MANUFACTURER,
             "model": "Estaci\u00f3 XEMA" if mode == MODE_EXTERNAL else "Predicci\u00f3 Municipi",
+            "sw_version": INTEGRATION_VERSION,
 
         }
         
@@ -1054,9 +1063,9 @@ class MeteocatUpdateTimeSensor(SensorEntity):
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
-            "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
+            "manufacturer": MANUFACTURER,
             "model": "Estaci\u00f3 XEMA" if mode == MODE_EXTERNAL else "Predicci\u00f3 Municipi",
-
+            "sw_version": INTEGRATION_VERSION,
         }
         
         # Update time sensors are configuration information
@@ -1125,8 +1134,9 @@ class MeteocatAltitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
-            "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
+            "manufacturer": MANUFACTURER,
             "model": "Estaci\u00f3 XEMA",
+            "sw_version": INTEGRATION_VERSION,
         }
         
         # Geographic sensors are configuration information
@@ -1200,8 +1210,9 @@ class MeteocatLatitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
-            "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
+            "manufacturer": MANUFACTURER,
             "model": "Estaci\u00f3 XEMA",
+            "sw_version": INTEGRATION_VERSION,
         }
         
         # Geographic sensors are configuration information
@@ -1273,8 +1284,9 @@ class MeteocatLongitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnti
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
-            "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
+            "manufacturer": MANUFACTURER,
             "model": "Estaci\u00f3 XEMA",
+            "sw_version": INTEGRATION_VERSION,
         }
         
         # Geographic sensors are configuration information
@@ -1348,8 +1360,9 @@ class MeteocatMunicipalityNameSensor(SensorEntity):
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
-            "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
+            "manufacturer": MANUFACTURER,
             "model": "Predicci\u00f3 Municipi",
+            "sw_version": INTEGRATION_VERSION,
         }
         
         # Municipality name is configuration information
@@ -1410,8 +1423,9 @@ class MeteocatComarcaNameSensor(SensorEntity):
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
-            "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
+            "manufacturer": MANUFACTURER,
             "model": "Predicci\u00f3 Municipi",
+            "sw_version": INTEGRATION_VERSION,
         }
         
         # Comarca name is configuration information
@@ -1475,8 +1489,9 @@ class MeteocatMunicipalityLatitudeSensor(SensorEntity):
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
-            "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
+            "manufacturer": MANUFACTURER,
             "model": "Predicci\u00f3 Municipi",
+            "sw_version": INTEGRATION_VERSION,
         }
         
         # Municipality sensors provide location information
@@ -1539,8 +1554,9 @@ class MeteocatMunicipalityLongitudeSensor(SensorEntity):
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
-            "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
+            "manufacturer": MANUFACTURER,
             "model": "Predicci\u00f3 Municipi",
+            "sw_version": INTEGRATION_VERSION,
         }
         
         # Municipality sensors provide location information
@@ -1601,8 +1617,9 @@ class MeteocatProvinciaNameSensor(SensorEntity):
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
-            "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
+            "manufacturer": MANUFACTURER,
             "model": "Predicci\u00f3 Municipi",
+            "sw_version": INTEGRATION_VERSION,
         }
         
         # Provincia name is configuration information
@@ -1664,8 +1681,9 @@ class MeteocatStationComarcaNameSensor(SensorEntity):
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
-            "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
+            "manufacturer": MANUFACTURER,
             "model": "Estaci\u00f3 XEMA",
+            "sw_version": INTEGRATION_VERSION,
         }
         
         # Geographic sensors are configuration information
@@ -1727,8 +1745,9 @@ class MeteocatStationMunicipalityNameSensor(SensorEntity):
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
-            "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
+            "manufacturer": MANUFACTURER,
             "model": "Estaci\u00f3 XEMA",
+            "sw_version": INTEGRATION_VERSION,
         }
         
         # Geographic sensors are configuration information
@@ -1790,8 +1809,9 @@ class MeteocatStationProvinciaNameSensor(SensorEntity):
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
-            "manufacturer": "Meteocat Edici\u00f3 Comunit\u00e0ria",
+            "manufacturer": MANUFACTURER,
             "model": "Estaci\u00f3 XEMA",
+            "sw_version": INTEGRATION_VERSION,
         }
         
         # Geographic sensors are configuration information
@@ -1941,7 +1961,8 @@ class MeteocatUTCISensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": device_name,
-            "manufacturer": ATTRIBUTION,
+            "manufacturer": MANUFACTURER,
+            "sw_version": INTEGRATION_VERSION,
         }
 
         # Local mode input entities

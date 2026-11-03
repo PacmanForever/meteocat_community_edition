@@ -39,6 +39,8 @@ from .const import (
     CONF_STATION_NAME,
     CONF_MUNICIPALITY_NAME,
     DOMAIN,
+    INTEGRATION_VERSION,
+    MANUFACTURER,
     MODE_EXTERNAL,
     MODE_LOCAL,
 )
@@ -149,8 +151,9 @@ class MeteocatUpdateStatusBinarySensor(CoordinatorEntity[MeteocatCoordinator], B
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
-            "manufacturer": "Meteocat Edició Comunitària",
+            "manufacturer": MANUFACTURER,
             "model": model,
+            "sw_version": INTEGRATION_VERSION,
         }
 
     @property
