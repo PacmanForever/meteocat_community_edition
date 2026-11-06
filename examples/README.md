@@ -81,15 +81,17 @@ Exemple: `weather.granollers_ym`, `sensor.granollers_ym_quota_prediccio`
 
 Exemple: `sensor.granollers_prediccio_diaria`, `button.granollers_refresh`
 
-### Custom Cards recomanades
+### Targetes personalitzades recomanades
 
-Algunes targetes utilitzen custom cards de HACS. Instal·la-les via HACS → Frontend:
+Alguns exemples utilitzen targetes personalitzades. A Home Assistant 2026.11 o posterior, ves a **Configuració** > **Mercat** i cerca cada targeta. Si no hi és, afegeix-ne el repositori des de **Afegeix des d'un enllaç**:
 
 - **Mini Graph Card** - Gràfics compactes
 - **Apexcharts Card** - Gràfics avançats
 - **Mushroom Cards** - Disseny modern
 - **Button Card** - Targetes personalitzades avançades
 - **Card Mod** - Estils CSS personalitzats
+
+En Home Assistant 2026.10 o anterior, instal·la-les des de HACS > Frontend.
 
 ## 🔍 Trobar els teus Entity IDs
 
@@ -120,7 +122,7 @@ Per més informació sobre com utilitzar les dades de predicció en templates i 
 R: Revisa que els Entity IDs coincideixin amb els de la teva configuració. Comprova també els logs de Home Assistant per errors.
 
 **P: Les targetes no es mostren correctament**
-R: Assegura't que el mode d'edició del dashboard és YAML. Algunes targetes poden requerir custom cards de HACS.
+R: Assegura't que el mode d'edició del dashboard és YAML. Algunes targetes personalitzades s'han d'instal·lar des del Mercat.
 
 **P: Com puc veure l'estructura de les dades de predicció?**
 R: Utilitza **Developer Tools** → **Template** i executa:
@@ -149,4 +151,4 @@ Aquests exemples estan sota la mateixa llicència GPL-3.0 del projecte principal
 - [Repositori principal](https://github.com/PacmanForever/meteocat_community_edition)
 - [Documentació Home Assistant](https://www.home-assistant.io/docs/)
 - [Documentació Lovelace](https://www.home-assistant.io/lovelace/)
-- [HACS](https://hacs.xyz/)
+- [Mercat (abans HACS)](https://www.home-assistant.io/integrations/marketplace/)

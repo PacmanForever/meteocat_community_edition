@@ -43,12 +43,13 @@ Integración **comunitaria** y **no oficial** para Home Assistant del Servicio M
 
 ## Instalación
 
-### Vía HACS (Recomendado)
+### Mercado (antes HACS)
 
-1. Asegúrate de tener [HACS](https://hacs.xyz/) instalado
-2. En HACS, ve a "Integraciones"
-3. Busca "Meteocat" en el catálogo e instala la integración
-4. Reinicia Home Assistant
+1. En Home Assistant 2026.11 o posterior, ve a **Ajustes** > **Mercado**.
+2. Busca **Meteocat** en el catálogo y selecciona **Instalar**.
+3. Completa el flujo de configuración que se abre. Si lo cierras, ve a **Ajustes** > **Dispositivos y servicios** > **Añadir integración** y busca **Meteocat**.
+
+En Home Assistant 2026.10 o anterior, busca **Meteocat** en HACS.
 
 ### Manual
 

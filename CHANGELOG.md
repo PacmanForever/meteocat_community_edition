@@ -5,6 +5,11 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.101] - 2026-11-06
+
+### Canviat
+- Actualitzada la documentació d'instal·lació per al Mercat de Home Assistant i alineades les versions en català, anglès i castellà.
+
 ## [1.2.100] - 2026-11-03
 
 ### Canviat

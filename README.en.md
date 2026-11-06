@@ -43,12 +43,13 @@
 
 ## Installation
 
-### Via HACS (Recommended)
+### Marketplace (formerly HACS)
 
-1. Make sure you have [HACS](https://hacs.xyz/) installed
-2. In HACS, go to "Integrations"
-3. Search the catalog for "Meteocat" and install the integration
-4. Restart Home Assistant
+1. In Home Assistant 2026.11 or newer, go to **Settings** > **Marketplace**.
+2. Search the catalog for **Meteocat** and select **Install**.
+3. Complete the setup flow that opens. If you close it, go to **Settings** > **Devices & services** > **Add integration** and search for **Meteocat**.
+
+On Home Assistant 2026.10 and older, search for **Meteocat** in HACS.
 
 ### Manual
 

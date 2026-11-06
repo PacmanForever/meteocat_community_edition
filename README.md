@@ -44,12 +44,13 @@ Integració **comunitària** i **no oficial** per a Home Assistant del Servei Me
 
 ## Instal·lació
 
-### Via HACS (Recomanat)
+### Mercat (abans HACS)
 
-1. Assegura't que tens [HACS](https://hacs.xyz/) instal·lat
-2. A HACS, ves a "Integracions"
-3. Cerca "Meteocat" al catàleg i instal·la la integració
-4. Reinicia Home Assistant
+1. A Home Assistant 2026.11 o posterior, ves a **Configuració** > **Mercat**.
+2. Cerca **Meteocat** al catàleg i selecciona **Instal·la**.
+3. Completa el flux de configuració que s'obre. Si el tanques, ves a **Configuració** > **Dispositius i serveis** > **Afegeix integració** i cerca **Meteocat**.
+
+En Home Assistant 2026.10 o anterior, cerca **Meteocat** a HACS.
 
 ### Manual
 
