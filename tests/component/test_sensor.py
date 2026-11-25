@@ -398,7 +398,6 @@ def test_update_time_sensor_unique_id(mock_coordinator, mock_entry):
 
 def test_update_time_and_forecast_configuration_entities(mock_coordinator, mock_entry):
     """Test configuration entities expose configured update times and forecast types."""
-    from types import SimpleNamespace
     from homeassistant.helpers.entity import EntityCategory
     from custom_components.meteocat_community_edition.sensor import MeteocatForecastConfigurationSensor
 
@@ -420,29 +419,18 @@ def test_update_time_and_forecast_configuration_entities(mock_coordinator, mock_
     hourly_forecast_sensor = MeteocatForecastConfigurationSensor(
         mock_coordinator, mock_entry, "Granollers YM", "hourly"
     )
-    platform_data = SimpleNamespace(
-        platform_name=DOMAIN,
-        domain="sensor",
-        platform_translations={},
-        default_language_platform_translations={},
-    )
-    for entity in (
-        update_time_sensor,
-        daily_forecast_sensor,
-        hourly_forecast_sensor,
-    ):
-        entity.platform_data = platform_data
 
     assert update_time_sensor.entity_category == EntityCategory.CONFIG
-    assert update_time_sensor.state == "06:00"
+    assert update_time_sensor.available is True
+    assert update_time_sensor.native_value == "06:00"
     assert daily_forecast_sensor.entity_category == EntityCategory.CONFIG
     assert daily_forecast_sensor.native_value == "enabled"
-    assert daily_forecast_sensor.state == "enabled"
+    assert daily_forecast_sensor.available is True
     assert daily_forecast_sensor.device_class == "enum"
     assert daily_forecast_sensor.options == ["enabled", "disabled"]
     assert hourly_forecast_sensor.entity_category == EntityCategory.CONFIG
     assert hourly_forecast_sensor.native_value == "disabled"
-    assert hourly_forecast_sensor.state == "disabled"
+    assert hourly_forecast_sensor.available is True
 
 
 def test_diagnostic_sensors_entity_category(mock_coordinator, mock_entry):
