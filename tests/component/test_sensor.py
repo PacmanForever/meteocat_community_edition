@@ -171,6 +171,8 @@ def test_quota_sensor_device_info(mock_coordinator, mock_entry):
 
 def test_forecast_sensor_daily(mock_coordinator, mock_entry):
     """Test daily forecast sensor."""
+    from homeassistant.helpers.entity import EntityCategory
+
     sensor = MeteocatForecastSensor(
         mock_coordinator,
         mock_entry,
@@ -181,12 +183,15 @@ def test_forecast_sensor_daily(mock_coordinator, mock_entry):
     _mock_platform(sensor)
     
     assert sensor.translation_key == "forecast_daily"
+    assert sensor.entity_category == EntityCategory.DIAGNOSTIC
     assert sensor.has_entity_name is True
     assert sensor.native_value is not None  # El valor depèn de les dades del coordinator
 
 
 def test_forecast_sensor_hourly(mock_coordinator, mock_entry):
     """Test hourly forecast sensor."""
+    from homeassistant.helpers.entity import EntityCategory
+
     sensor = MeteocatForecastSensor(
         mock_coordinator,
         mock_entry,
@@ -197,6 +202,7 @@ def test_forecast_sensor_hourly(mock_coordinator, mock_entry):
     _mock_platform(sensor)
     
     assert sensor.translation_key == "forecast_hourly"
+    assert sensor.entity_category == EntityCategory.DIAGNOSTIC
     assert sensor.has_entity_name is True
     # Should return current hour's value
     assert sensor.native_value is not None
@@ -420,15 +426,15 @@ def test_update_time_and_forecast_configuration_entities(mock_coordinator, mock_
         mock_coordinator, mock_entry, "Granollers YM", "hourly"
     )
 
-    assert update_time_sensor.entity_category == EntityCategory.CONFIG
+    assert update_time_sensor.entity_category == EntityCategory.DIAGNOSTIC
     assert update_time_sensor.available is True
     assert update_time_sensor.native_value == "06:00"
-    assert daily_forecast_sensor.entity_category == EntityCategory.CONFIG
+    assert daily_forecast_sensor.entity_category == EntityCategory.DIAGNOSTIC
     assert daily_forecast_sensor.native_value == "enabled"
     assert daily_forecast_sensor.available is True
     assert daily_forecast_sensor.device_class == "enum"
     assert daily_forecast_sensor.options == ["enabled", "disabled"]
-    assert hourly_forecast_sensor.entity_category == EntityCategory.CONFIG
+    assert hourly_forecast_sensor.entity_category == EntityCategory.DIAGNOSTIC
     assert hourly_forecast_sensor.native_value == "disabled"
     assert hourly_forecast_sensor.available is True
 
@@ -479,7 +485,7 @@ def test_diagnostic_sensors_entity_category(mock_coordinator, mock_entry):
         "YM"
     )
     
-    assert update_time_sensor._attr_entity_category == EntityCategory.CONFIG
+    assert update_time_sensor._attr_entity_category == EntityCategory.DIAGNOSTIC
     # Other sensors remain diagnostic
     assert last_sensor._attr_entity_category == EntityCategory.DIAGNOSTIC
     assert next_sensor._attr_entity_category == EntityCategory.DIAGNOSTIC
@@ -559,7 +565,7 @@ def test_latitude_sensor(mock_coordinator, mock_entry):
     assert sensor.icon == "mdi:latitude"
     assert sensor.unique_id == f"{mock_entry.entry_id}_latitude"
     assert sensor.translation_key == "latitude"
-    assert sensor.entity_category == EntityCategory.CONFIG
+    assert sensor.entity_category == EntityCategory.DIAGNOSTIC
 
 
 def test_latitude_sensor_no_data(mock_coordinator, mock_entry):
@@ -606,7 +612,7 @@ def test_longitude_sensor(mock_coordinator, mock_entry):
     assert sensor.icon == "mdi:longitude"
     assert sensor.unique_id == f"{mock_entry.entry_id}_longitude"
     assert sensor.translation_key == "longitude"
-    assert sensor.entity_category == EntityCategory.CONFIG
+    assert sensor.entity_category == EntityCategory.DIAGNOSTIC
 
 
 def test_longitude_sensor_no_data(mock_coordinator, mock_entry):
@@ -649,7 +655,7 @@ def test_municipality_name_sensor(mock_coordinator, mock_entry):
     assert sensor.icon == "mdi:city"
     assert sensor.unique_id == f"{mock_entry.entry_id}_municipality_name"
     assert sensor.name == "Municipi"
-    assert sensor.entity_category == EntityCategory.CONFIG
+    assert sensor.entity_category == EntityCategory.DIAGNOSTIC
 
 
 def test_municipality_name_sensor_no_data(mock_coordinator, mock_entry):
@@ -696,7 +702,7 @@ def test_comarca_name_sensor(mock_coordinator, mock_entry):
     assert sensor.icon == "mdi:map"
     assert sensor.unique_id == f"{mock_entry.entry_id}_comarca_name"
     assert sensor.name == "Comarca"
-    assert sensor.entity_category == EntityCategory.CONFIG
+    assert sensor.entity_category == EntityCategory.DIAGNOSTIC
     assert sensor.entity_registry_enabled_default is True
 
 
@@ -749,7 +755,7 @@ def test_station_comarca_name_sensor():
     
     assert sensor.native_value == "Vallès Oriental"
     assert sensor.icon == "mdi:map"
-    assert sensor.entity_category == EntityCategory.CONFIG
+    assert sensor.entity_category == EntityCategory.DIAGNOSTIC
 
 
 def test_station_comarca_name_sensor_no_data():
@@ -806,7 +812,7 @@ def test_station_municipality_name_sensor():
     
     assert sensor.native_value == "Granollers"
     assert sensor.icon == "mdi:city"
-    assert sensor.entity_category == EntityCategory.CONFIG
+    assert sensor.entity_category == EntityCategory.DIAGNOSTIC
 
 
 def test_station_municipality_name_sensor_no_data():
@@ -921,7 +927,7 @@ def test_municipality_latitude_sensor():
     assert sensor.native_value == 41.6
     assert sensor.icon == "mdi:latitude"
     assert sensor.translation_key == "latitude"
-    assert sensor.entity_category == EntityCategory.CONFIG
+    assert sensor.entity_category == EntityCategory.DIAGNOSTIC
 
 
 def test_municipality_longitude_sensor():
@@ -951,7 +957,7 @@ def test_municipality_longitude_sensor():
     assert sensor.native_value == 2.3
     assert sensor.icon == "mdi:longitude"
     assert sensor.translation_key == "longitude"
-    assert sensor.entity_category == EntityCategory.CONFIG
+    assert sensor.entity_category == EntityCategory.DIAGNOSTIC
 
 
 def test_municipality_latitude_sensor_no_data():
@@ -1034,7 +1040,7 @@ def test_municipality_provincia_name_sensor():
     
     assert sensor.native_value == "Barcelona"
     assert sensor.icon == "mdi:map-marker-radius"
-    # assert sensor.entity_category == EntityCategory.CONFIG
+    assert sensor.entity_category is None
 
 
 def test_coordinate_sensors_read_from_entry_data_cache():

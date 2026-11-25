@@ -5,6 +5,11 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.104] - 2026-11-25
+
+### Canviat
+- Els sensors de només lectura amb informació de configuració (ubicació, horaris i prediccions) apareixen al grup Diagnòstics, perquè Home Assistant no permet la categoria Configuració en entitats sensor.
+
 ## [1.2.103] - 2026-11-25
 
 ### Arreglat

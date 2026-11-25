@@ -73,7 +73,7 @@ En Home Assistant 2026.10 o anterior, busca **Meteocat** en HACS.
 
 - **Botones de actualización**: Los botones "Actualizar Medidas" y "Actualizar Predicción" ahora siempre muestran un icono.
 - **Sensores binarios de condición calculados**: Helando (temperatura ≤ 0 °C), Lloviendo (intensidad de lluvia > 0), Ventando (velocidad del viento > 0) y Bochorno (UTCI > 25 °C). Solo se crean cuando están disponibles las entradas necesarias.
-- **Grupo Configuración del dispositivo**: Muestra comarca, municipio, coordenadas, horas configuradas y si están activadas las predicciones diaria/horaria. Los datos del pronóstico permanecen en el grupo Sensores.
+- **Grupo Diagnósticos del dispositivo**: Muestra comarca, municipio, coordenadas, horas configuradas, estado de las predicciones y sensores de predicción diaria/horaria. Los datos detallados del pronóstico están en los atributos de esos sensores.
 
 ## Opciones avanzadas
 
@@ -85,7 +85,7 @@ En Home Assistant 2026.10 o anterior, busca **Meteocat** en HACS.
 
 ## Versionado
 
-- La versión actual del manifest es `1.2.103` y coincide con el último tag de git.
+- La versión actual del manifest es `1.2.104` y coincide con el último tag de git.
 
 ## Tests
 
@@ -296,7 +296,7 @@ Para cada estación configurada se crean:
 
 > **Nota:** Todas las entidades se agrupan bajo un único dispositivo con nombre "{Estación} {Código}" (ej: "Barcelona YM")
 >
-> El grupo **Configuración** del dispositivo incluye las horas configuradas, el estado activado/desactivado de las predicciones diaria y horaria y los datos de ubicación disponibles. La precipitación XEMA es acumulada, no intensidad instantánea, por lo que no se crea un sensor binario externo «Lloviendo».
+> El grupo **Diagnósticos** del dispositivo incluye las horas configuradas, el estado activado/desactivado de las predicciones diaria y horaria y los datos de ubicación disponibles. La precipitación XEMA es acumulada, no intensidad instantánea, por lo que no se crea un sensor binario externo «Lloviendo».
 
 ### Modo Estación Local (Medidas locales y predicción de Meteocat)
 
@@ -401,7 +401,7 @@ Para cada municipio configurado se crean:
 
 > **Nota:** Todas las entidades se agrupan bajo un único dispositivo con nombre "{Municipio}" (ej: "Barcelona")
 >
-> El grupo **Configuración** del dispositivo incluye las horas configuradas, el estado activado/desactivado de las predicciones diaria y horaria y los datos de ubicación disponibles. Los datos reales del pronóstico permanecen en el grupo Sensores.
+> El grupo **Diagnósticos** del dispositivo incluye las horas configuradas, el estado activado/desactivado de las predicciones diaria y horaria, los datos de ubicación disponibles y los sensores de predicción. Los datos detallados del pronóstico están en los atributos de esos sensores.
 
 ### Valores de Temperatura UTCI (Estrés Térmico)
 

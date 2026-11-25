@@ -563,6 +563,7 @@ class MeteocatForecastSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
     """Representation of a Meteocat forecast sensor (hourly or daily)."""
 
     _attr_attribution = ATTRIBUTION
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
 
     def __init__(
         self,
@@ -1024,7 +1025,7 @@ class MeteocatUpdateTimeSensor(SensorEntity):
     """Sensor showing configured update time."""
 
     _attr_attribution = ATTRIBUTION
-    _attr_entity_category = EntityCategory.CONFIG
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
 
     def __init__(
         self,
@@ -1100,7 +1101,7 @@ class MeteocatForecastConfigurationSensor(SensorEntity):
 
     _attr_attribution = ATTRIBUTION
     _attr_device_class = SensorDeviceClass.ENUM
-    _attr_entity_category = EntityCategory.CONFIG
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_options = ["enabled", "disabled"]
 
     def __init__(
@@ -1188,8 +1189,6 @@ class MeteocatAltitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
             "sw_version": INTEGRATION_VERSION,
         }
         
-        # Geographic sensors are configuration information
-        # self._attr_entity_category = EntityCategory.CONFIG
         self._attr_entity_registry_enabled_default = True
 
     @property
@@ -1229,7 +1228,7 @@ class MeteocatLatitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
 
     _attr_attribution = ATTRIBUTION
     _attr_native_unit_of_measurement = "\u00b0"
-    _attr_entity_category = EntityCategory.CONFIG
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
 
     def __init__(
         self,
@@ -1265,8 +1264,6 @@ class MeteocatLatitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
             "sw_version": INTEGRATION_VERSION,
         }
         
-        # Geographic sensors are configuration information
-        # self._attr_entity_category = EntityCategory.CONFIG
         self._attr_entity_registry_enabled_default = True
         self._attr_available = True
 
@@ -1304,7 +1301,7 @@ class MeteocatLongitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnti
 
     _attr_attribution = ATTRIBUTION
     _attr_native_unit_of_measurement = "\u00b0"
-    _attr_entity_category = EntityCategory.CONFIG
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
 
     def __init__(
         self,
@@ -1340,8 +1337,6 @@ class MeteocatLongitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnti
             "sw_version": INTEGRATION_VERSION,
         }
         
-        # Geographic sensors are configuration information
-        # self._attr_entity_category = EntityCategory.CONFIG
         self._attr_entity_registry_enabled_default = True
         self._attr_available = True
 
@@ -1383,7 +1378,7 @@ class MeteocatMunicipalityNameSensor(SensorEntity):
     """
 
     _attr_attribution = ATTRIBUTION
-    _attr_entity_category = EntityCategory.CONFIG
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
 
     def __init__(
         self,
@@ -1445,7 +1440,7 @@ class MeteocatComarcaNameSensor(SensorEntity):
     """
 
     _attr_attribution = ATTRIBUTION
-    _attr_entity_category = EntityCategory.CONFIG
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
 
     def __init__(
         self,
@@ -1509,7 +1504,7 @@ class MeteocatMunicipalityLatitudeSensor(SensorEntity):
 
     _attr_attribution = ATTRIBUTION
     _attr_native_unit_of_measurement = "\u00b0"
-    _attr_entity_category = EntityCategory.CONFIG
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
 
     def __init__(
         self,
@@ -1573,7 +1568,7 @@ class MeteocatMunicipalityLongitudeSensor(SensorEntity):
 
     _attr_attribution = ATTRIBUTION
     _attr_native_unit_of_measurement = "\u00b0"
-    _attr_entity_category = EntityCategory.CONFIG
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
 
     def __init__(
         self,
@@ -1669,8 +1664,6 @@ class MeteocatProvinciaNameSensor(SensorEntity):
             "sw_version": INTEGRATION_VERSION,
         }
         
-        # Provincia name is configuration information
-        # self._attr_entity_category = EntityCategory.CONFIG
         self._attr_entity_registry_enabled_default = True
         self._attr_available = True
         self._attr_should_poll = False
@@ -1699,7 +1692,7 @@ class MeteocatStationComarcaNameSensor(SensorEntity):
     """
 
     _attr_attribution = ATTRIBUTION
-    _attr_entity_category = EntityCategory.CONFIG
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
 
     def __init__(
         self,
@@ -1763,7 +1756,7 @@ class MeteocatStationMunicipalityNameSensor(SensorEntity):
     """
 
     _attr_attribution = ATTRIBUTION
-    _attr_entity_category = EntityCategory.CONFIG
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
 
     def __init__(
         self,
@@ -1859,8 +1852,6 @@ class MeteocatStationProvinciaNameSensor(SensorEntity):
             "sw_version": INTEGRATION_VERSION,
         }
         
-        # Geographic sensors are configuration information
-        # self._attr_entity_category = EntityCategory.CONFIG
         self._attr_available = True
         self._attr_entity_registry_enabled_default = True
         self._attr_should_poll = False

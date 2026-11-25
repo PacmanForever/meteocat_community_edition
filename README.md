@@ -91,7 +91,7 @@ En Home Assistant 2026.10 o anterior, cerca **Meteocat** a HACS.
 
 - **Botons d'actualització**: Els botons "Actualitzar Mesures" i "Actualitzar Predicció" ara sempre mostren una icona.
 - **Sensors binaris de condició**: Glaçant (temperatura ≤ 0 °C), Plovent (intensitat de pluja > 0), Ventant (velocitat del vent > 0) i Xafogor (UTCI > 25 °C). Només es creen si les dades necessàries estan disponibles.
-- **Grup Configuració del dispositiu**: Inclou la comarca, el municipi, les coordenades, les hores configurades i si la predicció diària/horària està activada. Les dades reals de predicció continuen al grup de sensors.
+- **Grup Diagnòstics del dispositiu**: Inclou la comarca, el municipi, les coordenades, les hores configurades, l'estat de les prediccions i els sensors de predicció diària/horària. Les dades detallades del pronòstic són als seus atributs.
 
 ## Opcions avançades
 
@@ -103,7 +103,7 @@ En Home Assistant 2026.10 o anterior, cerca **Meteocat** a HACS.
 
 ## Versionat
 
-- La versió actual del manifest és `1.2.103` i coincideix amb l'últim tag de git.
+- La versió actual del manifest és `1.2.104` i coincideix amb l'últim tag de git.
 
 ## Tests
 
@@ -285,7 +285,7 @@ Aquest mode està pensat per obtenir dades d'una estació meteorològica oficial
 | **Sensor** | `sensor.{estacio}_{codi}_provincia_name` | Nom de la província (si disponible). |
 | **Button** | `button.{estacio}_{codi}_refresh` | Botó per forçar una actualització manual immediata. |
 
-Els sensors binaris calculats en mode extern només es creen si l'estació ofereix les mesures necessàries. No es crea el sensor «Plovent»: la precipitació XEMA és acumulada i no representa intensitat instantània. El grup **Configuració** del dispositiu mostra les hores d'actualització, l'estat activat/desactivat de les prediccions diària i horària, i les dades d'ubicació disponibles.
+Els sensors binaris calculats en mode extern només es creen si l'estació ofereix les mesures necessàries. No es crea el sensor «Plovent»: la precipitació XEMA és acumulada i no representa intensitat instantània. El grup **Diagnòstics** del dispositiu mostra les hores d'actualització, l'estat activat/desactivat de les prediccions diària i horària, i les dades d'ubicació disponibles.
 
 ### Mode Estació Local (Mesures locals i predicció de Meteocat)
 
@@ -347,7 +347,7 @@ Les **condicions calculades** només s'avaluen si els sensors necessaris estan c
 | **Sensor** | `sensor.{municipi}_municipality_longitude` | Longitud del municipi (si disponible). |
 | **Button** | `button.{municipi}_refresh` | Botó per forçar una actualització manual immediata. |
 
-El grup **Configuració** del dispositiu inclou les hores configurades, l'estat activat/desactivat de les prediccions diària i horària i les dades d'ubicació disponibles. Les dades reals de predicció romanen al grup de sensors.
+El grup **Diagnòstics** del dispositiu inclou les hores configurades, l'estat activat/desactivat de les prediccions diària i horària, les dades d'ubicació disponibles i els sensors de predicció. Les dades detallades del pronòstic són als atributs d'aquests sensors.
 
 > **Nota:** Durant la configuració, se't demanarà que seleccionis els sensors de la teva estació local per alimentar l'entitat `weather`.
 
