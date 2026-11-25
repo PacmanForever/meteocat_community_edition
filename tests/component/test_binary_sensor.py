@@ -10,6 +10,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..',
 import pytest
 
 from custom_components.meteocat_community_edition.binary_sensor import (
+    MeteocatCalculatedConditionBinarySensor,
     MeteocatUpdateStatusBinarySensor,
 )
 from custom_components.meteocat_community_edition.const import (
@@ -110,6 +111,88 @@ def test_binary_sensor_initialization_local_mode(mock_coordinator_success, mock_
     assert sensor.has_entity_name is False
     assert sensor.translation_key == "update_state"
     assert sensor.name == "Última actualització correcte"
+
+
+def test_calculated_external_conditions(mock_coordinator_success, mock_entry_external, monkeypatch):
+    """Test freezing, windy, and muggy conditions from XEMA measurements."""
+    from custom_components.meteocat_community_edition import binary_sensor
+
+    mock_coordinator_success.data = {
+        "measurements": [
+            {
+                "variables": [
+                    {"codi": 32, "lectures": [{"valor": 0}]},
+                    {"codi": 33, "lectures": [{"valor": 60}]},
+                    {"codi": 30, "lectures": [{"valor": 1}]},
+                ]
+            }
+        ]
+    }
+    freezing_sensor = MeteocatCalculatedConditionBinarySensor(
+        mock_coordinator_success,
+        mock_entry_external,
+        "Granollers",
+        "Granollers YM",
+        MODE_EXTERNAL,
+        "freezing",
+    )
+    windy_sensor = MeteocatCalculatedConditionBinarySensor(
+        mock_coordinator_success,
+        mock_entry_external,
+        "Granollers",
+        "Granollers YM",
+        MODE_EXTERNAL,
+        "windy",
+    )
+    muggy_sensor = MeteocatCalculatedConditionBinarySensor(
+        mock_coordinator_success,
+        mock_entry_external,
+        "Granollers",
+        "Granollers YM",
+        MODE_EXTERNAL,
+        "muggy",
+    )
+
+    assert freezing_sensor.is_on is True
+    assert windy_sensor.is_on is True
+    assert muggy_sensor.is_on is False
+    assert muggy_sensor.available is True
+
+    mock_coordinator_success.data["measurements"][0]["variables"][0]["lectures"][0][
+        "valor"
+    ] = 0.1
+    assert freezing_sensor.is_on is False
+
+    monkeypatch.setattr(binary_sensor, "calculate_utci", lambda *_: 25.0)
+    assert muggy_sensor.is_on is False
+    monkeypatch.setattr(binary_sensor, "calculate_utci", lambda *_: 25.01)
+    assert muggy_sensor.is_on is True
+
+
+def test_local_raining_condition_uses_configured_intensity(mock_entry_locality):
+    """Test local rain condition uses only the configured intensity sensor."""
+    from types import SimpleNamespace
+
+    mock_entry_locality.data["sensor_rain_intensity"] = "sensor.rain_intensity"
+    coordinator = MagicMock()
+    sensor = MeteocatCalculatedConditionBinarySensor(
+        coordinator,
+        mock_entry_locality,
+        "Barcelona",
+        "Barcelona",
+        MODE_LOCAL,
+        "raining",
+        {"rain": "sensor.rain_intensity"},
+    )
+    states = {"sensor.rain_intensity": SimpleNamespace(state="0.2")}
+    sensor.hass = MagicMock()
+    sensor.hass.states.get.side_effect = states.get
+
+    assert sensor.is_on is True
+    assert sensor.available is True
+
+    states["sensor.rain_intensity"] = SimpleNamespace(state="0")
+    assert sensor.is_on is False
 
 
 def test_binary_sensor_success_state(mock_coordinator_success, mock_entry_external):

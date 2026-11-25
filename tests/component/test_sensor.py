@@ -396,6 +396,39 @@ def test_update_time_sensor_unique_id(mock_coordinator, mock_entry):
     assert sensor_1._attr_unique_id != sensor_2._attr_unique_id
 
 
+def test_update_time_and_forecast_configuration_entities(mock_coordinator, mock_entry):
+    """Test configuration entities expose configured update times and forecast types."""
+    from homeassistant.helpers.entity import EntityCategory
+    from custom_components.meteocat_community_edition.sensor import MeteocatForecastConfigurationSensor
+
+    update_time_sensor = MeteocatUpdateTimeSensor(
+        mock_coordinator,
+        mock_entry,
+        "Granollers",
+        "Granollers YM",
+        MODE_EXTERNAL,
+        1,
+        "YM",
+    )
+    mock_coordinator.enable_forecast_daily = True
+    mock_coordinator.enable_forecast_hourly = False
+
+    daily_forecast_sensor = MeteocatForecastConfigurationSensor(
+        mock_coordinator, mock_entry, "Granollers YM", "daily"
+    )
+    hourly_forecast_sensor = MeteocatForecastConfigurationSensor(
+        mock_coordinator, mock_entry, "Granollers YM", "hourly"
+    )
+
+    assert update_time_sensor.entity_category == EntityCategory.CONFIG
+    assert daily_forecast_sensor.entity_category == EntityCategory.CONFIG
+    assert daily_forecast_sensor.native_value == "enabled"
+    assert daily_forecast_sensor.device_class == "enum"
+    assert daily_forecast_sensor.options == ["enabled", "disabled"]
+    assert hourly_forecast_sensor.entity_category == EntityCategory.CONFIG
+    assert hourly_forecast_sensor.native_value == "disabled"
+
+
 def test_diagnostic_sensors_entity_category(mock_coordinator, mock_entry):
     """Test all diagnostic sensors have correct entity category."""
     from homeassistant.helpers.entity import EntityCategory
@@ -442,8 +475,7 @@ def test_diagnostic_sensors_entity_category(mock_coordinator, mock_entry):
         "YM"
     )
     
-    # Update time sensors are configuration category
-    # assert update_time_sensor._attr_entity_category == EntityCategory.CONFIG
+    assert update_time_sensor._attr_entity_category == EntityCategory.CONFIG
     # Other sensors remain diagnostic
     assert last_sensor._attr_entity_category == EntityCategory.DIAGNOSTIC
     assert next_sensor._attr_entity_category == EntityCategory.DIAGNOSTIC
@@ -497,6 +529,8 @@ def test_altitude_sensor_no_data(mock_coordinator, mock_entry):
 
 def test_latitude_sensor(mock_coordinator, mock_entry):
     """Test latitude sensor."""
+    from homeassistant.helpers.entity import EntityCategory
+
     mock_coordinator.data = {
         "station": {
             "codi": "YM",
@@ -521,6 +555,7 @@ def test_latitude_sensor(mock_coordinator, mock_entry):
     assert sensor.icon == "mdi:latitude"
     assert sensor.unique_id == f"{mock_entry.entry_id}_latitude"
     assert sensor.translation_key == "latitude"
+    assert sensor.entity_category == EntityCategory.CONFIG
 
 
 def test_latitude_sensor_no_data(mock_coordinator, mock_entry):
@@ -541,6 +576,8 @@ def test_latitude_sensor_no_data(mock_coordinator, mock_entry):
 
 def test_longitude_sensor(mock_coordinator, mock_entry):
     """Test longitude sensor."""
+    from homeassistant.helpers.entity import EntityCategory
+
     mock_coordinator.data = {
         "station": {
             "codi": "YM",
@@ -565,6 +602,7 @@ def test_longitude_sensor(mock_coordinator, mock_entry):
     assert sensor.icon == "mdi:longitude"
     assert sensor.unique_id == f"{mock_entry.entry_id}_longitude"
     assert sensor.translation_key == "longitude"
+    assert sensor.entity_category == EntityCategory.CONFIG
 
 
 def test_longitude_sensor_no_data(mock_coordinator, mock_entry):
@@ -684,6 +722,7 @@ def test_comarca_name_sensor_no_data(mock_coordinator, mock_entry):
 def test_station_comarca_name_sensor():
     """Test station comarca name sensor."""
     from custom_components.meteocat_community_edition.sensor import MeteocatStationComarcaNameSensor
+    from homeassistant.helpers.entity import EntityCategory
     from unittest.mock import MagicMock
     
     mock_coordinator = MagicMock()
@@ -706,6 +745,7 @@ def test_station_comarca_name_sensor():
     
     assert sensor.native_value == "Vallès Oriental"
     assert sensor.icon == "mdi:map"
+    assert sensor.entity_category == EntityCategory.CONFIG
 
 
 def test_station_comarca_name_sensor_no_data():
@@ -739,6 +779,7 @@ def test_station_comarca_name_sensor_no_data():
 def test_station_municipality_name_sensor():
     """Test station municipality name sensor."""
     from custom_components.meteocat_community_edition.sensor import MeteocatStationMunicipalityNameSensor
+    from homeassistant.helpers.entity import EntityCategory
     from unittest.mock import MagicMock
     
     mock_coordinator = MagicMock()
@@ -761,6 +802,7 @@ def test_station_municipality_name_sensor():
     
     assert sensor.native_value == "Granollers"
     assert sensor.icon == "mdi:city"
+    assert sensor.entity_category == EntityCategory.CONFIG
 
 
 def test_station_municipality_name_sensor_no_data():

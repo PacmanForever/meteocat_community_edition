@@ -72,6 +72,8 @@ On Home Assistant 2026.10 and older, search for **Meteocat** in HACS.
 ## Entities
 
 - **Update buttons**: The "Refresh Measurements" and "Refresh Forecast" buttons now always show an icon.
+- **Calculated condition binary sensors**: Freezing (temperature ≤ 0 °C), Raining (rain intensity > 0), Windy (wind speed > 0), and Muggy (UTCI > 25 °C). Each is created only when its required inputs are available.
+- **Device Configuration group**: Shows comarca, municipality, coordinates, configured update times, and whether daily/hourly forecasts are enabled. Forecast data itself remains in the Sensors group.
 
 ## Advanced options
 
@@ -83,7 +85,7 @@ On Home Assistant 2026.10 and older, search for **Meteocat** in HACS.
 
 ## Versioning
 
-- The current manifest version is `1.2.96` and matches the latest git tag.
+- The current manifest version is `1.2.102` and matches the latest git tag.
 
 ## Tests
 
@@ -266,6 +268,11 @@ For each configured station, these entities are created:
 - Entity ID: `binary_sensor.{station}_{code}_update_state`
 - State: OFF (OK) / ON (Problem)
 
+#### Calculated Condition Binary Sensors
+- `binary_sensor.{station}_{code}_freezing`: ON when temperature is ≤ 0 °C (if available).
+- `binary_sensor.{station}_{code}_windy`: ON when wind speed is > 0 (if available).
+- `binary_sensor.{station}_{code}_muggy`: ON when UTCI is > 25 °C (if temperature, humidity, and wind are available).
+
 #### Timestamp Sensors (Measurements - Hourly)
 - **Last update**: Timestamp of the last successful measurement update
 - **Next update**: Timestamp of the next scheduled measurement update
@@ -288,6 +295,8 @@ For each configured station, these entities are created:
 - Example: `button.Barcelona_ym_refresh`
 
 > **Note:** All entities are grouped under a single device named "{Station} {Code}" (e.g., "Barcelona YM")
+>
+> The device's **Configuration** group contains configured update times, daily/hourly forecast enabled status, and available location data. XEMA precipitation is accumulated rather than instantaneous intensity, so no external "Raining" binary sensor is created.
 
 ### Local Station Mode (Local measurements and Meteocat forecast)
 
@@ -321,6 +330,13 @@ Calculated overrides are only evaluated when the required sensors are configured
 > **Important**: if you do not configure **Rain Intensity (mm/h)**, the `rainy`, `pouring`, `lightning-rainy` and `windy` calculated conditions will not be derived automatically.
 
 > **Important**: `Clear night` is derived automatically when the final resolved condition is `Sunny` and it is already night. A separate `clear-night` mapping is not required if `sunny` already resolves correctly.
+
+#### Calculated Condition Binary Sensors
+- `binary_sensor.{municipality}_freezing`: ON when the configured temperature is ≤ 0 °C.
+- `binary_sensor.{municipality}_raining`: ON when the configured rain intensity is > 0.
+- `binary_sensor.{municipality}_windy`: ON when the configured wind speed is > 0.
+- `binary_sensor.{municipality}_muggy`: ON when UTCI calculated from temperature, humidity, and wind is > 25 °C.
+- Each entity is created only when its required local source sensors are configured.
 
 For each configured municipality, these entities are created:
 
@@ -382,6 +398,8 @@ For each configured municipality, these entities are created:
 - Example: `button.Barcelona_refresh`
 
 > **Note:** All entities are grouped under a single device named "{Municipality}" (e.g., "Barcelona")
+>
+> The device's **Configuration** group contains configured update times, daily/hourly forecast enabled status, and available location data. Actual forecast data remains in the Sensors group.
 
 ### UTCI Temperature Values (Thermal Stress)
 

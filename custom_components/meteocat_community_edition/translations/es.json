@@ -283,6 +283,20 @@
       "last_forecast_update": {
         "name": "Última actualización predicción"
       },
+      "forecast_daily_config": {
+        "name": "Configuración de la predicción diaria",
+        "state": {
+          "enabled": "Activada",
+          "disabled": "Desactivada"
+        }
+      },
+      "forecast_hourly_config": {
+        "name": "Configuración de la predicción horaria",
+        "state": {
+          "enabled": "Activada",
+          "disabled": "Desactivada"
+        }
+      },
       "update_time": {
         "name": "Hora de actualización {number}"
       },
@@ -294,6 +308,18 @@
       }
     },
     "binary_sensor": {
+      "freezing": {
+        "name": "Helando"
+      },
+      "raining": {
+        "name": "Lloviendo"
+      },
+      "windy": {
+        "name": "Ventando"
+      },
+      "muggy": {
+        "name": "Bochorno"
+      },
       "update_state": {
         "name": "Última actualización correcta"
       }

@@ -282,6 +282,20 @@
       "last_forecast_update": {
         "name": "Last forecast update"
       },
+      "forecast_daily_config": {
+        "name": "Daily forecast setting",
+        "state": {
+          "enabled": "Enabled",
+          "disabled": "Disabled"
+        }
+      },
+      "forecast_hourly_config": {
+        "name": "Hourly forecast setting",
+        "state": {
+          "enabled": "Enabled",
+          "disabled": "Disabled"
+        }
+      },
       "update_time": {
         "name": "Update time {number}"
       },
@@ -293,6 +307,18 @@
       }
     },
     "binary_sensor": {
+      "freezing": {
+        "name": "Freezing"
+      },
+      "raining": {
+        "name": "Raining"
+      },
+      "windy": {
+        "name": "Windy"
+      },
+      "muggy": {
+        "name": "Muggy"
+      },
       "update_state": {
         "name": "Last update successful"
       }

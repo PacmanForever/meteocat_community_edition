@@ -5,7 +5,7 @@ This integration provides weather data from the Meteocat API for Catalonia.
 Platforms:
 - Weather: Weather entity (MODE_EXTERNAL only)
 - Sensor: All data sensors (forecasts, measurements, timestamps, quotas, geographic)
-- Binary Sensor: Health monitoring (update status)
+- Binary Sensor: Health monitoring and calculated weather conditions
 - Button: Manual data refresh
 
 Last updated: 2025-11-27

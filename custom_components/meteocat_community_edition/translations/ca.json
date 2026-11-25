@@ -281,6 +281,20 @@
       "last_forecast_update": {
         "name": "Última actualització predicció"
       },
+      "forecast_daily_config": {
+        "name": "Configuració de la predicció diària",
+        "state": {
+          "enabled": "Activada",
+          "disabled": "Desactivada"
+        }
+      },
+      "forecast_hourly_config": {
+        "name": "Configuració de la predicció horària",
+        "state": {
+          "enabled": "Activada",
+          "disabled": "Desactivada"
+        }
+      },
       "update_time": {
         "name": "Hora d'actualització {number}"
       },
@@ -292,6 +306,18 @@
       }
     },
     "binary_sensor": {
+      "freezing": {
+        "name": "Glaçant"
+      },
+      "raining": {
+        "name": "Plovent"
+      },
+      "windy": {
+        "name": "Ventant"
+      },
+      "muggy": {
+        "name": "Xafogor"
+      },
       "update_state": {
         "name": "Última actualització correcte"
       }

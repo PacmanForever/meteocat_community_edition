@@ -286,6 +286,8 @@ async def async_setup_entry(
         MeteocatNextUpdateSensor(coordinator, entry, entity_name, entity_name_with_code, mode, station_code if mode == MODE_EXTERNAL else None),
         MeteocatUpdateTimeSensor(coordinator, entry, entity_name, entity_name_with_code, mode, 1, station_code if mode == MODE_EXTERNAL else None),
         MeteocatUpdateTimeSensor(coordinator, entry, entity_name, entity_name_with_code, mode, 2, station_code if mode == MODE_EXTERNAL else None),
+        MeteocatForecastConfigurationSensor(coordinator, entry, entity_name_with_code, "daily"),
+        MeteocatForecastConfigurationSensor(coordinator, entry, entity_name_with_code, "hourly"),
     ])
     
     # Add forecast update sensors (only for external mode)
@@ -1022,6 +1024,7 @@ class MeteocatUpdateTimeSensor(SensorEntity):
     """Sensor showing configured update time."""
 
     _attr_attribution = ATTRIBUTION
+    _attr_entity_category = EntityCategory.CONFIG
 
     def __init__(
         self,
@@ -1068,8 +1071,6 @@ class MeteocatUpdateTimeSensor(SensorEntity):
             "sw_version": INTEGRATION_VERSION,
         }
         
-        # Update time sensors are configuration information
-        # self._attr_entity_category = EntityCategory.CONFIG
         self._attr_entity_registry_enabled_default = True
         self._attr_available = True
         self._attr_should_poll = False
@@ -1092,6 +1093,54 @@ class MeteocatUpdateTimeSensor(SensorEntity):
     def icon(self) -> str:
         """Return the icon."""
         return "mdi:clock-time-four-outline"
+
+
+class MeteocatForecastConfigurationSensor(SensorEntity):
+    """Sensor showing whether a forecast type is enabled."""
+
+    _attr_attribution = ATTRIBUTION
+    _attr_device_class = SensorDeviceClass.ENUM
+    _attr_entity_category = EntityCategory.CONFIG
+    _attr_options = ["enabled", "disabled"]
+
+    def __init__(
+        self,
+        coordinator: MeteocatCoordinator,
+        entry: ConfigEntry,
+        device_name: str,
+        forecast_type: str,
+    ) -> None:
+        """Initialize the forecast configuration sensor."""
+        self._coordinator = coordinator
+        self._forecast_type = forecast_type
+        self._attr_unique_id = f"{entry.entry_id}_forecast_{forecast_type}_enabled"
+        self._attr_has_entity_name = True
+        self._attr_translation_key = f"forecast_{forecast_type}_config"
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, entry.entry_id)},
+            "name": device_name,
+            "manufacturer": MANUFACTURER,
+            "model": (
+                "Estaci\u00f3 XEMA"
+                if coordinator.mode == MODE_EXTERNAL
+                else "Predicci\u00f3 Municipi"
+            ),
+            "sw_version": INTEGRATION_VERSION,
+        }
+
+    @property
+    def native_value(self) -> str:
+        """Return whether this forecast type is enabled."""
+        return (
+            "enabled"
+            if getattr(self._coordinator, f"enable_forecast_{self._forecast_type}")
+            else "disabled"
+        )
+
+    @property
+    def icon(self) -> str:
+        """Return the icon."""
+        return "mdi:calendar-check" if self.native_value == "enabled" else "mdi:calendar-remove"
 
 
 class MeteocatAltitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
@@ -1180,6 +1229,7 @@ class MeteocatLatitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
 
     _attr_attribution = ATTRIBUTION
     _attr_native_unit_of_measurement = "\u00b0"
+    _attr_entity_category = EntityCategory.CONFIG
 
     def __init__(
         self,
@@ -1254,6 +1304,7 @@ class MeteocatLongitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnti
 
     _attr_attribution = ATTRIBUTION
     _attr_native_unit_of_measurement = "\u00b0"
+    _attr_entity_category = EntityCategory.CONFIG
 
     def __init__(
         self,
@@ -1652,6 +1703,7 @@ class MeteocatStationComarcaNameSensor(SensorEntity):
     """
 
     _attr_attribution = ATTRIBUTION
+    _attr_entity_category = EntityCategory.CONFIG
 
     def __init__(
         self,
@@ -1686,8 +1738,6 @@ class MeteocatStationComarcaNameSensor(SensorEntity):
             "sw_version": INTEGRATION_VERSION,
         }
         
-        # Geographic sensors are configuration information
-        # self._attr_entity_category = EntityCategory.CONFIG
         self._attr_entity_registry_enabled_default = True
         self._attr_available = True
         self._attr_should_poll = False
@@ -1717,6 +1767,7 @@ class MeteocatStationMunicipalityNameSensor(SensorEntity):
     """
 
     _attr_attribution = ATTRIBUTION
+    _attr_entity_category = EntityCategory.CONFIG
 
     def __init__(
         self,
@@ -1750,8 +1801,6 @@ class MeteocatStationMunicipalityNameSensor(SensorEntity):
             "sw_version": INTEGRATION_VERSION,
         }
         
-        # Geographic sensors are configuration information
-        # self._attr_entity_category = EntityCategory.CONFIG
         self._attr_entity_registry_enabled_default = True
         self._attr_available = True
         self._attr_should_poll = False

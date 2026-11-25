@@ -4,7 +4,7 @@ from typing import Final
 DOMAIN: Final = "meteocat_community_edition"
 ATTRIBUTION: Final = "Meteocat"
 MANUFACTURER: Final = "@pacmanforever"
-INTEGRATION_VERSION: Final = "1.2.100"
+INTEGRATION_VERSION: Final = "1.2.102"
 
 # API Configuration
 DEFAULT_API_BASE_URL: Final = "https://api.meteo.cat"

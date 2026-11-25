@@ -5,6 +5,15 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.102] - 2026-11-25
+
+### Afegit
+- Sensors binaris calculats per a glaçada (temperatura ≤ 0 °C), pluja local (intensitat > 0), vent (velocitat > 0) i xafogor (UTCI > 25 °C), condicionats a la disponibilitat de les dades necessàries.
+- Grup de configuració del dispositiu per a dades d'ubicació, horaris d'actualització i estat de les prediccions diària i horària.
+
+### Canviat
+- Actualitzada la documentació en català, anglès i castellà per descriure les entitats i els seus criteris.
+
 ## [1.2.101] - 2026-11-06
 
 ### Canviat

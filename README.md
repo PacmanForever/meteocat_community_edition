@@ -39,6 +39,7 @@ Integració **comunitària** i **no oficial** per a Home Assistant del Servei Me
 - 📈 **Sensors de quotes API** per controlar l'ús
 - 🏢 **Múltiples estacions** configurables
 - 🏙️ **Mode Estació Local** per combinar sensors propis amb prediccions oficials
+- 🌡️ **Sensors binaris calculats** per indicar glaçada, pluja, vent i xafogor quan hi ha les dades necessàries
 - ☀️ **Càlcul precís de dia/nit**: La icona de condició (Sol/Nit serena) canvia automàticament segons la posta de sol a la **ubicació real de l'estació**, independentment d'on estigui instal·lat el teu Home Assistant.
 - 🌍 Traduccions en **català**, **castellà** i **anglès**
 
@@ -89,6 +90,8 @@ En Home Assistant 2026.10 o anterior, cerca **Meteocat** a HACS.
 ## Entitats
 
 - **Botons d'actualització**: Els botons "Actualitzar Mesures" i "Actualitzar Predicció" ara sempre mostren una icona.
+- **Sensors binaris de condició**: Glaçant (temperatura ≤ 0 °C), Plovent (intensitat de pluja > 0), Ventant (velocitat del vent > 0) i Xafogor (UTCI > 25 °C). Només es creen si les dades necessàries estan disponibles.
+- **Grup Configuració del dispositiu**: Inclou la comarca, el municipi, les coordenades, les hores configurades i si la predicció diària/horària està activada. Les dades reals de predicció continuen al grup de sensors.
 
 ## Opcions avançades
 
@@ -100,7 +103,7 @@ En Home Assistant 2026.10 o anterior, cerca **Meteocat** a HACS.
 
 ## Versionat
 
-- La versió actual del manifest és `1.2.96` i coincideix amb l'últim tag de git.
+- La versió actual del manifest és `1.2.102` i coincideix amb l'últim tag de git.
 
 ## Tests
 
@@ -266,6 +269,9 @@ Aquest mode està pensat per obtenir dades d'una estació meteorològica oficial
 | **Sensor** | `sensor.{estacio}_{codi}_beaufort_description` | Descripció Beaufort. Text que descriu la força del vent segons l'escala. |
 | **Sensor** | `sensor.{estacio}_{codi}_quota_disponible_{pla}` | Un sensor per a cada pla de quotes rellevant (Predicció, XEMA). Mostra les peticions restants. |
 | **Binary Sensor** | `binary_sensor.{estacio}_{codi}_update_state` | Indica l'estat de l'última actualització (`OFF` = Correcte, `ON` = Error). |
+| **Binary Sensor** | `binary_sensor.{estacio}_{codi}_freezing` | Glaçant si la temperatura és ≤ 0 °C (quan la variable de temperatura està disponible). |
+| **Binary Sensor** | `binary_sensor.{estacio}_{codi}_windy` | Ventant si la velocitat del vent és > 0 (quan la variable de vent està disponible). |
+| **Binary Sensor** | `binary_sensor.{estacio}_{codi}_muggy` | Xafogor si l'UTCI és > 25 °C (quan hi ha temperatura, humitat i vent). |
 | **Sensor** | `sensor.{estacio}_{codi}_last_update` | Timestamp de l'última actualització de mesures (horària). |
 | **Sensor** | `sensor.{estacio}_{codi}_next_update` | Timestamp de la pròxima actualització de mesures (horària). |
 | **Sensor** | `sensor.{estacio}_{codi}_last_forecast_update` | Timestamp de l'última actualització de predicció. |
@@ -278,6 +284,8 @@ Aquest mode està pensat per obtenir dades d'una estació meteorològica oficial
 | **Sensor** | `sensor.{estacio}_{codi}_municipality_name` | Nom del municipi (si disponible). |
 | **Sensor** | `sensor.{estacio}_{codi}_provincia_name` | Nom de la província (si disponible). |
 | **Button** | `button.{estacio}_{codi}_refresh` | Botó per forçar una actualització manual immediata. |
+
+Els sensors binaris calculats en mode extern només es creen si l'estació ofereix les mesures necessàries. No es crea el sensor «Plovent»: la precipitació XEMA és acumulada i no representa intensitat instantània. El grup **Configuració** del dispositiu mostra les hores d'actualització, l'estat activat/desactivat de les prediccions diària i horària, i les dades d'ubicació disponibles.
 
 ### Mode Estació Local (Mesures locals i predicció de Meteocat)
 
@@ -325,6 +333,10 @@ Les **condicions calculades** només s'avaluen si els sensors necessaris estan c
 | **Sensor** | `sensor.{municipi}_prediccio_diaria` | L'estat mostra els dies disponibles. Els atributs contenen la predicció completa per a 8 dies. |
 | **Sensor** | `sensor.{municipi}_quota_disponible_{pla}` | Un sensor per a cada pla de quotes rellevant (Predicció). Mostra les peticions restants. |
 | **Binary Sensor** | `binary_sensor.{municipi}_update_state` | Indica l'estat de l'última actualització (`OFF` = Correcte, `ON` = Error). |
+| **Binary Sensor** | `binary_sensor.{municipi}_freezing` | Glaçant quan la temperatura és ≤ 0 °C (si el sensor està configurat). |
+| **Binary Sensor** | `binary_sensor.{municipi}_raining` | Plovent quan la intensitat de pluja és > 0 (si el sensor està configurat). |
+| **Binary Sensor** | `binary_sensor.{municipi}_windy` | Ventant quan la velocitat del vent és > 0 (si el sensor està configurat). |
+| **Binary Sensor** | `binary_sensor.{municipi}_muggy` | Xafogor quan l'UTCI és > 25 °C (si temperatura, humitat i vent estan configurats). |
 | **Sensor** | `sensor.{municipi}_last_update` | Timestamp de l'última actualització exitosa. |
 | **Sensor** | `sensor.{municipi}_next_update` | Timestamp de la pròxima actualització programada. |
 | **Sensor** | `sensor.{municipi}_update_time_{n}` | Mostra les hores d'actualització configurades. |
@@ -334,6 +346,8 @@ Les **condicions calculades** només s'avaluen si els sensors necessaris estan c
 | **Sensor** | `sensor.{municipi}_municipality_latitude` | Latitud del municipi (si disponible). |
 | **Sensor** | `sensor.{municipi}_municipality_longitude` | Longitud del municipi (si disponible). |
 | **Button** | `button.{municipi}_refresh` | Botó per forçar una actualització manual immediata. |
+
+El grup **Configuració** del dispositiu inclou les hores configurades, l'estat activat/desactivat de les prediccions diària i horària i les dades d'ubicació disponibles. Les dades reals de predicció romanen al grup de sensors.
 
 > **Nota:** Durant la configuració, se't demanarà que seleccionis els sensors de la teva estació local per alimentar l'entitat `weather`.
 

@@ -72,6 +72,8 @@ En Home Assistant 2026.10 o anterior, busca **Meteocat** en HACS.
 ## Entidades
 
 - **Botones de actualización**: Los botones "Actualizar Medidas" y "Actualizar Predicción" ahora siempre muestran un icono.
+- **Sensores binarios de condición calculados**: Helando (temperatura ≤ 0 °C), Lloviendo (intensidad de lluvia > 0), Ventando (velocidad del viento > 0) y Bochorno (UTCI > 25 °C). Solo se crean cuando están disponibles las entradas necesarias.
+- **Grupo Configuración del dispositivo**: Muestra comarca, municipio, coordenadas, horas configuradas y si están activadas las predicciones diaria/horaria. Los datos del pronóstico permanecen en el grupo Sensores.
 
 ## Opciones avanzadas
 
@@ -83,7 +85,7 @@ En Home Assistant 2026.10 o anterior, busca **Meteocat** en HACS.
 
 ## Versionado
 
-- La versión actual del manifest es `1.2.96` y coincide con el último tag de git.
+- La versión actual del manifest es `1.2.102` y coincide con el último tag de git.
 
 ## Tests
 
@@ -266,6 +268,11 @@ Para cada estación configurada se crean:
 - Entity ID: `binary_sensor.{estacion}_{codigo}_update_state`
 - Estado: OFF (Correcto) / ON (Problema)
 
+#### Sensores binarios de condición calculados
+- `binary_sensor.{estacion}_{codigo}_freezing`: ON cuando la temperatura es ≤ 0 °C (si está disponible).
+- `binary_sensor.{estacion}_{codigo}_windy`: ON cuando la velocidad del viento es > 0 (si está disponible).
+- `binary_sensor.{estacion}_{codigo}_muggy`: ON cuando el UTCI es > 25 °C (si están disponibles temperatura, humedad y viento).
+
 #### Sensores de Timestamps (Mediciones - Horarias)
 - **Última actualización**: Timestamp de la última actualización de mediciones exitosa
 - **Próxima actualización**: Timestamp de la próxima actualización de mediciones programada
@@ -288,6 +295,8 @@ Para cada estación configurada se crean:
 - Ejemplo: `button.Barcelona_ym_refresh`
 
 > **Nota:** Todas las entidades se agrupan bajo un único dispositivo con nombre "{Estación} {Código}" (ej: "Barcelona YM")
+>
+> El grupo **Configuración** del dispositivo incluye las horas configuradas, el estado activado/desactivado de las predicciones diaria y horaria y los datos de ubicación disponibles. La precipitación XEMA es acumulada, no intensidad instantánea, por lo que no se crea un sensor binario externo «Lloviendo».
 
 ### Modo Estación Local (Medidas locales y predicción de Meteocat)
 
@@ -321,6 +330,13 @@ Las **condiciones calculadas** solo se evalúan si los sensores necesarios está
 > **Importante**: si no configuras el sensor de **Intensidad de lluvia (mm/h)**, las condiciones `rainy`, `pouring`, `lightning-rainy` y `windy` no se calcularán automáticamente.
 
 > **Importante**: `Noche despejada` se deriva automáticamente cuando la condición final resuelta es `Sunny` y ya es de noche. No hace falta un mapeo separado de `clear-night` si `sunny` ya se resuelve correctamente.
+
+#### Sensores binarios de condición calculados
+- `binary_sensor.{municipio}_freezing`: ON cuando la temperatura configurada es ≤ 0 °C.
+- `binary_sensor.{municipio}_raining`: ON cuando la intensidad de lluvia configurada es > 0.
+- `binary_sensor.{municipio}_windy`: ON cuando la velocidad del viento configurada es > 0.
+- `binary_sensor.{municipio}_muggy`: ON cuando el UTCI calculado con temperatura, humedad y viento es > 25 °C.
+- Cada entidad se crea solo si están configurados sus sensores locales necesarios.
 
 Para cada municipio configurado se crean:
 
@@ -384,6 +400,8 @@ Para cada municipio configurado se crean:
 - Ejemplo: `button.Barcelona_refresh`
 
 > **Nota:** Todas las entidades se agrupan bajo un único dispositivo con nombre "{Municipio}" (ej: "Barcelona")
+>
+> El grupo **Configuración** del dispositivo incluye las horas configuradas, el estado activado/desactivado de las predicciones diaria y horaria y los datos de ubicación disponibles. Los datos reales del pronóstico permanecen en el grupo Sensores.
 
 ### Valores de Temperatura UTCI (Estrés Térmico)
 
