@@ -1383,6 +1383,7 @@ class MeteocatMunicipalityNameSensor(SensorEntity):
     """
 
     _attr_attribution = ATTRIBUTION
+    _attr_entity_category = EntityCategory.CONFIG
 
     def __init__(
         self,
@@ -1416,8 +1417,6 @@ class MeteocatMunicipalityNameSensor(SensorEntity):
             "sw_version": INTEGRATION_VERSION,
         }
         
-        # Municipality name is configuration information
-        # self._attr_entity_category = EntityCategory.CONFIG
         self._attr_entity_registry_enabled_default = True
         self._attr_available = True
         self._attr_should_poll = False
@@ -1446,6 +1445,7 @@ class MeteocatComarcaNameSensor(SensorEntity):
     """
 
     _attr_attribution = ATTRIBUTION
+    _attr_entity_category = EntityCategory.CONFIG
 
     def __init__(
         self,
@@ -1479,8 +1479,6 @@ class MeteocatComarcaNameSensor(SensorEntity):
             "sw_version": INTEGRATION_VERSION,
         }
         
-        # Comarca name is configuration information
-        # self._attr_entity_category = EntityCategory.CONFIG
         self._attr_entity_registry_enabled_default = True
         self._attr_available = True
         self._attr_should_poll = False
@@ -1511,6 +1509,7 @@ class MeteocatMunicipalityLatitudeSensor(SensorEntity):
 
     _attr_attribution = ATTRIBUTION
     _attr_native_unit_of_measurement = "\u00b0"
+    _attr_entity_category = EntityCategory.CONFIG
 
     def __init__(
         self,
@@ -1545,8 +1544,6 @@ class MeteocatMunicipalityLatitudeSensor(SensorEntity):
             "sw_version": INTEGRATION_VERSION,
         }
         
-        # Municipality sensors provide location information
-        # self._attr_entity_category = EntityCategory.CONFIG  # Removed to show in sensors group
         self._attr_entity_registry_enabled_default = True
         self._attr_available = True
 
@@ -1576,6 +1573,7 @@ class MeteocatMunicipalityLongitudeSensor(SensorEntity):
 
     _attr_attribution = ATTRIBUTION
     _attr_native_unit_of_measurement = "\u00b0"
+    _attr_entity_category = EntityCategory.CONFIG
 
     def __init__(
         self,
@@ -1610,8 +1608,6 @@ class MeteocatMunicipalityLongitudeSensor(SensorEntity):
             "sw_version": INTEGRATION_VERSION,
         }
         
-        # Municipality sensors provide location information
-        # self._attr_entity_category = EntityCategory.CONFIG  # Removed to show in sensors group
         self._attr_entity_registry_enabled_default = True
         self._attr_available = True
 

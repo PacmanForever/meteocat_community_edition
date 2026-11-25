@@ -75,6 +75,19 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 
+def _get_device_for_entry(
+    device_registry: dr.DeviceRegistry, entry_id: str
+) -> dr.DeviceEntry | None:
+    """Return this entry's device using the lookup API supported by Home Assistant."""
+    identifier = (DOMAIN, entry_id)
+    lookup_by_identifier = getattr(
+        type(device_registry), "async_get_device_by_identifier", None
+    )
+    if lookup_by_identifier is not None:
+        return lookup_by_identifier(device_registry, identifier, entry_id)
+    return device_registry.async_get_device(identifiers={identifier})
+
+
 class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     """Coordinator for Meteocat data (handles both External and Local modes)."""
 
@@ -296,9 +309,7 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             
             try:
                 device_registry = dr.async_get(self.hass)
-                device = device_registry.async_get_device(
-                    identifiers={(DOMAIN, self.entry.entry_id)}
-                )
+                device = _get_device_for_entry(device_registry, self.entry.entry_id)
                 if device and device.id:
                     next_update_event_data["device_id"] = device.id
             except (AttributeError, ValueError) as err:
@@ -321,9 +332,7 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         
         try:
             device_registry = dr.async_get(self.hass)
-            device = device_registry.async_get_device(
-                identifiers={(DOMAIN, self.entry.entry_id)}
-            )
+            device = _get_device_for_entry(device_registry, self.entry.entry_id)
             if device and device.id:
                 event_data["device_id"] = device.id
         except (AttributeError, ValueError) as err:

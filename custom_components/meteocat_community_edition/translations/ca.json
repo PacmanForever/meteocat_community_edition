@@ -282,14 +282,14 @@
         "name": "Última actualització predicció"
       },
       "forecast_daily_config": {
-        "name": "Configuració de la predicció diària",
+        "name": "Predicció diària",
         "state": {
           "enabled": "Activada",
           "disabled": "Desactivada"
         }
       },
       "forecast_hourly_config": {
-        "name": "Configuració de la predicció horària",
+        "name": "Predicció horària",
         "state": {
           "enabled": "Activada",
           "disabled": "Desactivada"

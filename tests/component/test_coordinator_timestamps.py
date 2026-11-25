@@ -10,11 +10,44 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..',
 import pytest
 from homeassistant.util import dt as dt_util
 
-from custom_components.meteocat_community_edition.coordinator import MeteocatCoordinator
+from custom_components.meteocat_community_edition.coordinator import (
+    MeteocatCoordinator,
+    _get_device_for_entry,
+)
 from custom_components.meteocat_community_edition.const import (
+    DOMAIN,
     MODE_EXTERNAL,
     MODE_LOCAL,
 )
+
+
+def test_get_device_for_entry_uses_entry_scoped_identifier_lookup():
+    """Use Home Assistant's non-deprecated device lookup when available."""
+    device = object()
+
+    class DeviceRegistryWithScopedLookup:
+        def async_get_device_by_identifier(self, identifier, config_entry_id):
+            assert identifier == (DOMAIN, "entry_1")
+            assert config_entry_id == "entry_1"
+            return device
+
+        def async_get_device(self, **kwargs):
+            pytest.fail("Deprecated lookup should not be used")
+
+    assert _get_device_for_entry(DeviceRegistryWithScopedLookup(), "entry_1") is device
+
+
+def test_get_device_for_entry_falls_back_for_older_home_assistant():
+    """Retain compatibility with Home Assistant versions without scoped lookup."""
+    device = object()
+
+    class LegacyDeviceRegistry:
+        def async_get_device(self, *, identifiers):
+            assert identifiers == {(DOMAIN, "entry_2")}
+            return device
+
+    assert _get_device_for_entry(LegacyDeviceRegistry(), "entry_2") is device
+
 
 # Patch device_registry globally for all tests in this file
 @pytest.fixture(autouse=True)

@@ -283,14 +283,14 @@
         "name": "Last forecast update"
       },
       "forecast_daily_config": {
-        "name": "Daily forecast setting",
+        "name": "Daily forecast",
         "state": {
           "enabled": "Enabled",
           "disabled": "Disabled"
         }
       },
       "forecast_hourly_config": {
-        "name": "Hourly forecast setting",
+        "name": "Hourly forecast",
         "state": {
           "enabled": "Enabled",
           "disabled": "Disabled"

@@ -5,6 +5,15 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.103] - 2026-11-25
+
+### Arreglat
+- Actualitzada la cerca del dispositiu perquè eviti l'API obsoleta de Home Assistant i continuï sent compatible amb versions anteriors.
+
+### Canviat
+- Els sensors de municipi, comarca, latitud i longitud del mode local ara apareixen al grup Configuració.
+- Simplificats els noms dels sensors de predicció a «Predicció diària» i «Predicció horària».
+
 ## [1.2.102] - 2026-11-25
 
 ### Afegit
