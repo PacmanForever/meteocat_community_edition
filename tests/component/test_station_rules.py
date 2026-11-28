@@ -5,6 +5,7 @@ import pytest
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType, InvalidData
 from pytest_homeassistant_custom_component.common import MockConfigEntry
+import voluptuous as vol
 
 from custom_components.meteocat_community_edition.const import (
     CONF_API_KEY,
@@ -26,6 +27,7 @@ from custom_components.meteocat_community_edition.station_rules import (
     StationRuleManager,
     condition_matches,
     external_measurement_value,
+    validate_script_actions,
 )
 
 
@@ -64,6 +66,22 @@ def test_external_measurement_value_uses_sensor_semantics():
     assert external_measurement_value(measurements, "35") == 0.7
     assert external_measurement_value(measurements, "34") is None
     assert external_measurement_value(None, "32") is None
+
+
+def test_validate_script_actions_supports_legacy_home_assistant_schema(monkeypatch):
+    def legacy_script_schema(actions):
+        if any("action" in action for action in actions):
+            raise vol.Invalid("Unable to determine action")
+        return actions
+
+    monkeypatch.setattr(
+        "custom_components.meteocat_community_edition.station_rules.cv.SCRIPT_SCHEMA",
+        legacy_script_schema,
+    )
+
+    assert validate_script_actions(
+        [{"action": "test.record_action", "data": {"value": "executed"}}]
+    ) == [{"service": "test.record_action", "data": {"value": "executed"}}]
 
 
 @pytest.mark.asyncio

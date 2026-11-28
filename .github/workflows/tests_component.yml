@@ -13,8 +13,9 @@ jobs:
     permissions:
       contents: read
     strategy:
+      fail-fast: false
       matrix:
-        python-version: ["3.11", "3.12"]
+        python-version: ["3.11", "3.12", "3.14"]
 
     steps:
       - uses: actions/checkout@v4
@@ -29,6 +30,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install homeassistant
           pip install -r requirements-test.txt
+          pip show homeassistant | grep Version
 
       - name: Run tests with coverage
         run: |

@@ -55,6 +55,33 @@ _LOCAL_PARAMETERS = (
 _OPERATORS = {">", ">=", "<", "<="}
 
 
+def validate_script_actions(actions: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Validate actions across Home Assistant's legacy and current formats."""
+    try:
+        return cv.SCRIPT_SCHEMA(actions)
+    except vol.Invalid:
+        legacy_actions = _use_legacy_service_keys(actions)
+        if legacy_actions == actions:
+            raise
+        return cv.SCRIPT_SCHEMA(legacy_actions)
+
+
+def _use_legacy_service_keys(value: Any) -> Any:
+    """Translate modern service actions for older Home Assistant versions."""
+    if isinstance(value, list):
+        return [_use_legacy_service_keys(item) for item in value]
+    if not isinstance(value, dict):
+        return value
+
+    converted = {
+        key: _use_legacy_service_keys(item) for key, item in value.items()
+    }
+    action = converted.get("action")
+    if isinstance(action, str) and "." in action and "service" not in converted:
+        converted["service"] = converted.pop("action")
+    return converted
+
+
 def _numeric_value(value: Any) -> float | None:
     """Return a finite numeric value, or None for invalid sensor states."""
     if isinstance(value, bool):
@@ -146,7 +173,7 @@ class StationRuleManager:
                     )
                     continue
                 try:
-                    actions = cv.SCRIPT_SCHEMA(actions)
+                    actions = validate_script_actions(actions)
                 except vol.Invalid:
                     _LOGGER.warning(
                         "Skipping station rule with invalid actions in config entry %s",
@@ -249,7 +276,7 @@ class StationRuleManager:
         rule_id = rule["id"]
         lock = self._action_locks.setdefault(rule_id, asyncio.Lock())
         async with lock:
-            sequence = cv.SCRIPT_SCHEMA(rule["actions"])
+            sequence = validate_script_actions(rule["actions"])
             script = Script(
                 self.hass,
                 sequence,

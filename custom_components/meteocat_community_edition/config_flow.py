@@ -17,6 +17,7 @@ from homeassistant.helpers import config_validation as cv, selector
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import MeteocatAPI, MeteocatAPIError
+from .station_rules import validate_script_actions
 from .const import (
     CONF_API_BASE_URL,
     CONF_API_KEY,
@@ -1629,7 +1630,7 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                 errors["actions"] = "station_rule_actions_required"
             else:
                 try:
-                    actions = cv.SCRIPT_SCHEMA(actions)
+                    validate_script_actions(actions)
                 except vol.Invalid:
                     errors["actions"] = "invalid_station_rule"
 
