@@ -90,7 +90,6 @@ async def test_binary_sensor_setup_adds_only_conditions_with_configured_sources(
             CONF_MUNICIPALITY_NAME: "Barcelona",
             "sensor_temperature": "sensor.temperature",
             "sensor_humidity": "sensor.humidity",
-            "sensor_wind_speed": "sensor.wind_speed",
         },
     )
     entry.add_to_hass(hass)
@@ -105,8 +104,72 @@ async def test_binary_sensor_setup_adds_only_conditions_with_configured_sources(
         for entity in entities
         if isinstance(entity, MeteocatCalculatedConditionBinarySensor)
     ]
-    assert {entity._condition for entity in conditions} == {
-        "freezing",
-        "windy",
-        "muggy",
+    assert {entity._condition for entity in conditions} == {"freezing", "muggy"}
+
+
+async def test_binary_sensor_setup_local_muggy_with_configured_dew_point(
+    hass: HomeAssistant, mock_coordinator
+):
+    """Create muggy when only a direct dew point source is configured."""
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        data={
+            CONF_MODE: MODE_LOCAL,
+            CONF_MUNICIPALITY_CODE: "080193",
+            CONF_MUNICIPALITY_NAME: "Barcelona",
+            "sensor_dew_point": "sensor.dew_point",
+        },
+    )
+    entry.add_to_hass(hass)
+    hass.data[DOMAIN] = {entry.entry_id: mock_coordinator}
+    mock_add_entities = MagicMock()
+
+    await async_setup_entry(hass, entry, mock_add_entities)
+
+    conditions = [
+        entity
+        for entity in mock_add_entities.call_args[0][0]
+        if isinstance(entity, MeteocatCalculatedConditionBinarySensor)
+    ]
+    assert {entity._condition for entity in conditions} == {"muggy"}
+
+
+async def test_binary_sensor_setup_external_muggy_needs_no_wind(
+    hass: HomeAssistant, mock_coordinator
+):
+    """Create external muggy when XEMA temperature and humidity are available."""
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        data={
+            CONF_MODE: MODE_EXTERNAL,
+            CONF_STATION_CODE: "X4",
+            CONF_STATION_NAME: "Test Station",
+        },
+    )
+    entry.add_to_hass(hass)
+    mock_coordinator.data = {
+        "measurements": [
+            {
+                "variables": [
+                    {"codi": 32, "lectures": [{"valor": 25}]},
+                    {"codi": 33, "lectures": [{"valor": 70}]},
+                ]
+            }
+        ]
     }
+    hass.data[DOMAIN] = {entry.entry_id: mock_coordinator}
+    mock_add_entities = MagicMock()
+
+    await async_setup_entry(hass, entry, mock_add_entities)
+
+    conditions = [
+        entity
+        for entity in mock_add_entities.call_args[0][0]
+        if isinstance(entity, MeteocatCalculatedConditionBinarySensor)
+    ]
+    assert {entity._condition for entity in conditions} == {"freezing", "muggy"}
+    muggy_sensor = next(
+        entity for entity in conditions if entity._condition == "muggy"
+    )
+    assert muggy_sensor.available is True
+    assert muggy_sensor.is_on is True

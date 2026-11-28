@@ -132,7 +132,11 @@
       "invalid_auth": "Invalid API key. Please check that the API key is correct.",
       "times_must_differ": "Update times must be different",
       "invalid_time_format": "Invalid time format. Use 24h format: HH:MM (example: 06:00 or 14:30)",
-      "required": "This field is required"
+      "required": "This field is required",
+      "no_station_rule_parameters": "No numeric parameters are available for this station.",
+      "select_station_rule": "Select a valid rule.",
+      "invalid_station_rule": "The rule is invalid.",
+      "station_rule_actions_required": "Configure at least one action."
     },
     "step": {
       "init": {
@@ -143,7 +147,26 @@
           "update_time_2": "Second update time (24h format: HH:MM)",
           "update_time_3": "Third update time (24h format: HH:MM)",
           "enable_forecast_daily": "I want daily forecast",
-          "enable_forecast_hourly": "I want hourly forecast"
+          "enable_forecast_hourly": "I want hourly forecast",
+          "configure_station_rules": "Configure threshold rules and actions"
+        }
+      },
+      "station_rules": {
+        "title": "Station rules",
+        "description": "Add rules that run actions when a parameter value crosses its threshold. Initial conditions do not run actions.",
+        "data": {
+          "rule_action": "What would you like to do?",
+          "rule_id": "Rule"
+        }
+      },
+      "station_rule": {
+        "title": "Configure a station rule",
+        "description": "Actions run when the condition changes from false to true. Meteocat parameters are evaluated when measurements are updated.",
+        "data": {
+          "parameter": "Station parameter",
+          "operator": "Comparison",
+          "threshold": "Threshold",
+          "actions": "Actions"
         }
       },
       "local_sensors": {
@@ -310,16 +333,16 @@
     },
     "binary_sensor": {
       "freezing": {
-        "name": "Freezing"
+        "name": "It is freezing"
       },
       "raining": {
-        "name": "Raining"
+        "name": "It is raining"
       },
       "windy": {
-        "name": "Windy"
+        "name": "It is windy"
       },
       "muggy": {
-        "name": "Muggy"
+        "name": "It is muggy"
       },
       "update_state": {
         "name": "Last update successful"

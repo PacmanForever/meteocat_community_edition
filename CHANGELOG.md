@@ -5,6 +5,15 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.105] - 2026-11-28
+
+### Afegit
+- Regles opcionals per estació que comparen paràmetres locals o de Meteocat amb un llindar i executen les accions configurades en passar de falsa a certa. La primera lectura inicialitza cada regla sense executar-ne l'acció.
+
+### Canviat
+- «Fa xafogor» ara es basa en un punt de rosada ≥ 18 °C: en mode local prioritza el sensor configurat i, si no n'hi ha, el calcula amb temperatura i humitat; en mode Meteocat el calcula amb les mesures XEMA de temperatura i humitat.
+- Actualitzats els noms dels sensors binaris de condició i les traduccions per presentar-los com a estats afirmatius.
+
 ## [1.2.104] - 2026-11-25
 
 ### Canviat

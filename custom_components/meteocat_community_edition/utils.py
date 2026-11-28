@@ -304,6 +304,29 @@ def calculate_utci(temp_c: float, humidity_percent: float, wind_speed_kmh: float
         # Fallback to just temperature (or simplified AAT) if critical math failure
         return temp_c
 
+
+def calculate_dew_point(temp_c: float, humidity_percent: float) -> float | None:
+    """Calculate dew point in Celsius using the Magnus approximation."""
+    if (
+        not math.isfinite(temp_c)
+        or not math.isfinite(humidity_percent)
+        or humidity_percent <= 0
+        or humidity_percent > 100
+        or temp_c <= -243.04
+    ):
+        return None
+
+    gamma = math.log(humidity_percent / 100) + (
+        17.625 * temp_c / (243.04 + temp_c)
+    )
+    denominator = 17.625 - gamma
+    if denominator == 0:
+        return None
+
+    dew_point = 243.04 * gamma / denominator
+    return dew_point if math.isfinite(dew_point) else None
+
+
 def get_utci_category_key(utci_value: float) -> str:
     """Return the translation key suffix for the UTCI category."""
     if utci_value > 46:

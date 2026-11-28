@@ -28,7 +28,7 @@ def test_options_flow_description_content():
     # Catalan
     ca = load_translation("ca")
     desc_ca = ca["options"]["step"]["init"]["description"]
-    assert desc_ca == "Indica a quines hores vols que s'actualitzi:\n\nATENCIÓ: Com més hores d'actualització i més tipus de predicció activis, més quota consumiràs. Si el consum és massa alt, la quota mensual potser no arribarà a final de mes."
+    assert desc_ca == "Indica a quines hores vols que s'actualitzi:\n\nATENCIÓ: Com més hores d'actualització i més tipus de predicció activis, més quota consumiràs i potser no arribes a final de mes."
     assert "opcions avançades" not in desc_ca
     
     # Spanish
@@ -71,7 +71,7 @@ def test_update_times_title_and_description():
     title_ca = ca["config"]["step"]["update_times"]["title"]
     desc_ca = ca["config"]["step"]["update_times"]["description"]
     assert title_ca == "Configura la predicció de Meteocat"
-    assert desc_ca == "Indica a quines hores vols que s'actualitzi:\n\nATENCIÓ: Com més hores d'actualització i més tipus de predicció activis, més quota consumiràs. Si el consum és massa alt, la quota mensual potser no arribarà a final de mes."
+    assert desc_ca == "Indica a quines hores vols que s'actualitzi:\n\nATENCIÓ: Com més hores d'actualització i més tipus de predicció activis, més quota consumiràs i potser no arribes a final de mes."
     
     # Spanish
     es = load_translation("es")

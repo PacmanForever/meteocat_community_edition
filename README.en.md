@@ -85,7 +85,7 @@ On Home Assistant 2026.10 and older, search for **Meteocat** in HACS.
 
 ## Versioning
 
-- The current manifest version is `1.2.104` and matches the latest git tag.
+- The current manifest version is `1.2.105` and matches the latest git tag.
 
 ## Tests
 

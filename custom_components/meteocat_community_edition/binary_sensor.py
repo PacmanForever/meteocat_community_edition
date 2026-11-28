@@ -31,7 +31,9 @@ from .const import (
     CONF_SENSOR_HUMIDITY,
     CONF_SENSOR_RAIN_INTENSITY,
     CONF_SENSOR_TEMPERATURE,
+    CONF_SENSOR_DEW_POINT,
     CONF_SENSOR_WIND_SPEED,
+    DEFAULT_MUGGY_DEW_POINT_THRESHOLD,
     DOMAIN,
     INTEGRATION_VERSION,
     MANUFACTURER,
@@ -39,7 +41,7 @@ from .const import (
     MODE_LOCAL,
 )
 from .coordinator import MeteocatCoordinator
-from .utils import calculate_utci
+from .utils import calculate_dew_point
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -47,18 +49,19 @@ _LOCAL_CONDITION_SOURCES = {
     "freezing": ("temperature",),
     "raining": ("rain",),
     "windy": ("wind",),
-    "muggy": ("temperature", "humidity", "wind"),
+    "muggy": ("temperature", "humidity"),
 }
 _LOCAL_SOURCE_CONFIG_KEYS = {
     "temperature": CONF_SENSOR_TEMPERATURE,
     "humidity": CONF_SENSOR_HUMIDITY,
+    "dew_point": CONF_SENSOR_DEW_POINT,
     "rain": CONF_SENSOR_RAIN_INTENSITY,
     "wind": CONF_SENSOR_WIND_SPEED,
 }
 _EXTERNAL_CONDITION_CODES = {
     "freezing": {"temperature": 32},
     "windy": {"wind": 30},
-    "muggy": {"temperature": 32, "humidity": 33, "wind": 30},
+    "muggy": {"temperature": 32, "humidity": 33},
 }
 _CONDITION_ICONS = {
     "freezing": "mdi:snowflake-thermometer",
@@ -120,7 +123,15 @@ async def async_setup_entry(
             for source, config_key in _LOCAL_SOURCE_CONFIG_KEYS.items()
         }
         for condition, required_sources in _LOCAL_CONDITION_SOURCES.items():
-            if all(configured_sources[source] for source in required_sources):
+            has_required_sources = all(
+                configured_sources[source] for source in required_sources
+            )
+            has_configured_dew_point = bool(configured_sources["dew_point"])
+            if condition == "muggy":
+                has_required_sources = (
+                    has_configured_dew_point or has_required_sources
+                )
+            if has_required_sources:
                 entities.append(
                     MeteocatCalculatedConditionBinarySensor(
                         coordinator,
@@ -279,6 +290,22 @@ class MeteocatCalculatedConditionBinarySensor(
 
     def _get_condition_values(self) -> dict[str, float | None]:
         """Read all values required to calculate this condition."""
+        if self._condition == "muggy":
+            if (
+                self._mode == MODE_LOCAL
+                and self._configured_sources.get("dew_point") is not None
+            ):
+                return {"dew_point": self._get_value("dew_point")}
+
+            temperature = self._get_value("temperature")
+            humidity = self._get_value("humidity")
+            dew_point = (
+                calculate_dew_point(temperature, humidity)
+                if temperature is not None and humidity is not None
+                else None
+            )
+            return {"dew_point": dew_point}
+
         if self._mode == MODE_LOCAL:
             sources = _LOCAL_CONDITION_SOURCES[self._condition]
         else:
@@ -298,15 +325,9 @@ class MeteocatCalculatedConditionBinarySensor(
             return values["rain"] > 0
         if self._condition == "windy":
             return values["wind"] > 0
-
-        wind_speed = values["wind"]
-        if self._mode == MODE_EXTERNAL:
-            wind_speed *= 3.6
-        return calculate_utci(
-            values["temperature"],
-            values["humidity"],
-            wind_speed,
-        ) > 25
+        if self._condition == "muggy":
+            return values["dew_point"] >= DEFAULT_MUGGY_DEW_POINT_THRESHOLD
+        return False
 
     @property
     def available(self) -> bool:

@@ -3,7 +3,9 @@ from __future__ import annotations
 
 from collections import OrderedDict
 import logging
+import math
 from typing import Any
+from uuid import uuid4
 
 import aiohttp
 import voluptuous as vol
@@ -11,6 +13,7 @@ import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.data_entry_flow import FlowResult
+from homeassistant.helpers import config_validation as cv, selector
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import MeteocatAPI, MeteocatAPIError
@@ -29,6 +32,8 @@ from .const import (
     CONF_UPDATE_TIME_3,
     CONF_ENABLE_FORECAST_DAILY,
     CONF_ENABLE_FORECAST_HOURLY,
+    CONF_CONFIGURE_STATION_RULES,
+    CONF_STATION_RULES,
     CONF_SENSOR_TEMPERATURE,
     CONF_SENSOR_HUMIDITY,
     CONF_SENSOR_PRESSURE,
@@ -51,6 +56,7 @@ from .const import (
     MODE_EXTERNAL,
     MODE_EXTERNAL_LABEL,
     METEOCAT_CONDITION_MAP,
+    XEMA_VARIABLES,
 )
 
 from homeassistant.components.weather import (
@@ -78,6 +84,88 @@ VALID_WEATHER_CONDITIONS = [
     ATTR_CONDITION_WINDY_VARIANT,
     ATTR_CONDITION_EXCEPTIONAL,
 ]
+
+_STATION_PARAMETER_LABELS = {
+    "ca": {
+        "temperature": "Temperatura",
+        "humidity": "Humitat relativa",
+        "pressure": "Pressió atmosfèrica",
+        "precipitation": "Precipitació diària",
+        "wind_speed": "Velocitat del vent",
+        "wind_direction": "Direcció del vent",
+        "solar_radiation": "Radiació solar",
+        "rain_intensity": "Intensitat de pluja",
+        "wind_bearing": "Direcció del vent",
+        "wind_gust": "Ràfega de vent",
+        "visibility": "Visibilitat",
+        "uv_index": "Índex UV",
+        "ozone": "Ozó",
+        "cloud_coverage": "Cobertura de núvols",
+        "dew_point": "Punt de rosada",
+        "apparent_temperature": "Temperatura aparent",
+    },
+    "en": {
+        "temperature": "Temperature",
+        "humidity": "Relative humidity",
+        "pressure": "Atmospheric pressure",
+        "precipitation": "Daily precipitation",
+        "wind_speed": "Wind speed",
+        "wind_direction": "Wind direction",
+        "solar_radiation": "Solar radiation",
+        "rain_intensity": "Rain intensity",
+        "wind_bearing": "Wind direction",
+        "wind_gust": "Wind gust",
+        "visibility": "Visibility",
+        "uv_index": "UV index",
+        "ozone": "Ozone",
+        "cloud_coverage": "Cloud coverage",
+        "dew_point": "Dew point",
+        "apparent_temperature": "Apparent temperature",
+    },
+    "es": {
+        "temperature": "Temperatura",
+        "humidity": "Humedad relativa",
+        "pressure": "Presión atmosférica",
+        "precipitation": "Precipitación diaria",
+        "wind_speed": "Velocidad del viento",
+        "wind_direction": "Dirección del viento",
+        "solar_radiation": "Radiación solar",
+        "rain_intensity": "Intensidad de lluvia",
+        "wind_bearing": "Dirección del viento",
+        "wind_gust": "Ráfaga de viento",
+        "visibility": "Visibilidad",
+        "uv_index": "Índice UV",
+        "ozone": "Ozono",
+        "cloud_coverage": "Cobertura de nubes",
+        "dew_point": "Punto de rocío",
+        "apparent_temperature": "Temperatura aparente",
+    },
+}
+_STATION_OPERATOR_LABELS = {
+    "ca": {">": "Més gran que", ">=": "Com a mínim", "<": "Menys que", "<=": "Com a màxim"},
+    "en": {">": "Greater than", ">=": "At least", "<": "Less than", "<=": "At most"},
+    "es": {">": "Mayor que", ">=": "Como mínimo", "<": "Menor que", "<=": "Como máximo"},
+}
+_STATION_RULE_ACTION_LABELS = {
+    "ca": {
+        "add": "Afegeix una regla",
+        "edit": "Edita una regla",
+        "remove": "Elimina una regla",
+        "done": "Desa i acaba",
+    },
+    "en": {
+        "add": "Add a rule",
+        "edit": "Edit a rule",
+        "remove": "Remove a rule",
+        "done": "Save and finish",
+    },
+    "es": {
+        "add": "Añadir una regla",
+        "edit": "Editar una regla",
+        "remove": "Eliminar una regla",
+        "done": "Guardar y terminar",
+    },
+}
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -913,6 +1001,9 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
         self.api_key = self.updated_data.get(CONF_API_KEY) or self.updated_options.get(CONF_API_KEY)
         
         if user_input is not None:
+            self._manage_station_rules = user_input.get(
+                CONF_CONFIGURE_STATION_RULES, False
+            )
             # Validate update times if they're being changed
             time1 = user_input.get(CONF_UPDATE_TIME_1, "").strip()
             time2 = user_input.get(CONF_UPDATE_TIME_2, "").strip()
@@ -959,6 +1050,8 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                     else:
                         _LOGGER.debug("Finishing options flow for external mode, entry data keys: %s", 
                                     list(self.updated_data.keys()))
+                        if self._manage_station_rules:
+                            return await self.async_step_station_rules()
                         self._save_changes()
                         return self.async_create_entry(title="", data=None)
 
@@ -1012,6 +1105,10 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                 default=self.updated_options.get(
                     CONF_ENABLE_FORECAST_HOURLY, current_enable_hourly
                 ),
+            ): bool,
+            vol.Optional(
+                CONF_CONFIGURE_STATION_RULES,
+                default=False,
             ): bool,
         }
 
@@ -1168,6 +1265,8 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                 # Otherwise, go to sensors configuration
                 mode = self.updated_data.get(CONF_MODE)
                 if mode == MODE_LOCAL and CONF_SENSOR_TEMPERATURE in self.updated_data:
+                    if getattr(self, "_manage_station_rules", False):
+                        return await self.async_step_station_rules()
                     self._save_changes()
                     return self.async_create_entry(title="", data=None)
                 else:
@@ -1248,6 +1347,8 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                     self.updated_data["custom_condition_mapping"] = parsed_mapping
                     self.updated_data["local_condition_entity"] = local_entity
                     
+                    if getattr(self, "_manage_station_rules", False):
+                        return await self.async_step_station_rules()
                     self._save_changes()
                     
                     return self.async_create_entry(title="", data=None)
@@ -1282,6 +1383,340 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
             data_schema=schema,
             errors=errors,
             description_placeholders={"description": "custom_mapping_description"},
+        )
+
+    def _station_rule_parameters(
+        self, selected_parameter: str | None = None
+    ) -> list[dict[str, str]]:
+        """Return the numeric parameters available for this station."""
+        mode = self.updated_data.get(CONF_MODE, MODE_EXTERNAL)
+        parameters: list[dict[str, str]] = []
+
+        if mode == MODE_LOCAL:
+            for key in (
+                CONF_SENSOR_TEMPERATURE,
+                CONF_SENSOR_HUMIDITY,
+                CONF_SENSOR_PRESSURE,
+                CONF_SENSOR_RAIN_INTENSITY,
+                CONF_SENSOR_WIND_SPEED,
+                CONF_SENSOR_WIND_BEARING,
+                CONF_SENSOR_WIND_GUST,
+                CONF_SENSOR_VISIBILITY,
+                CONF_SENSOR_UV_INDEX,
+                CONF_SENSOR_OZONE,
+                CONF_SENSOR_CLOUD_COVERAGE,
+                CONF_SENSOR_DEW_POINT,
+                CONF_SENSOR_APPARENT_TEMPERATURE,
+            ):
+                entity_id = self.updated_data.get(key)
+                if isinstance(entity_id, list):
+                    entity_id = entity_id[0] if entity_id else None
+                if not isinstance(entity_id, str) or not entity_id:
+                    continue
+                state = self.hass.states.get(entity_id)
+                friendly_name = (
+                    state.attributes.get("friendly_name") if state is not None else None
+                )
+                label = friendly_name or entity_id
+                unit = (
+                    state.attributes.get("unit_of_measurement")
+                    if state is not None
+                    else None
+                )
+                suffix = f" ({unit})" if unit else ""
+                parameter_name = key.removeprefix("sensor_")
+                parameter_label = _STATION_PARAMETER_LABELS.get(
+                    self._station_rule_language(), {}
+                ).get(parameter_name, parameter_name.replace("_", " ").title())
+                parameters.append(
+                    {
+                        "value": key,
+                        "label": (
+                            f"{parameter_label}: {label}{suffix}"
+                        ),
+                    }
+                )
+            return parameters
+
+        coordinator = None
+        hass_data = self.hass.data
+        if isinstance(hass_data, dict):
+            integration_data = hass_data.get(DOMAIN)
+            if isinstance(integration_data, dict):
+                coordinator = integration_data.get(self.config_entry.entry_id)
+
+        measurements = (
+            coordinator.data.get("measurements")
+            if coordinator is not None and isinstance(coordinator.data, dict)
+            else None
+        )
+        available_codes: set[str] = set()
+        if isinstance(measurements, list) and measurements:
+            station = measurements[0]
+            variables = station.get("variables", []) if isinstance(station, dict) else []
+            if isinstance(variables, list):
+                supported_codes = {str(code) for code in XEMA_VARIABLES.values()}
+                available_codes = {
+                    str(variable["codi"])
+                    for variable in variables
+                    if isinstance(variable, dict)
+                    and str(variable.get("codi")) in supported_codes
+                }
+
+        if selected_parameter and selected_parameter in {
+            str(code) for code in XEMA_VARIABLES.values()
+        }:
+            available_codes.add(selected_parameter)
+
+        from .sensor import SENSOR_TYPES
+
+        translated_labels = _STATION_PARAMETER_LABELS.get(
+            self._station_rule_language(), {}
+        )
+        names_by_code = {str(code): name for name, code in XEMA_VARIABLES.items()}
+        for code in sorted(available_codes, key=int):
+            variable_name = names_by_code.get(code, f"Variable {code}")
+            parameter_label = translated_labels.get(
+                variable_name, variable_name.replace("_", " ").title()
+            )
+            sensor_config = SENSOR_TYPES.get(int(code), {})
+            unit = sensor_config.get("unit")
+            suffix = f" ({unit})" if unit else ""
+            parameters.append(
+                {
+                    "value": code,
+                    "label": f"{parameter_label}{suffix}",
+                }
+            )
+        return parameters
+
+    def _station_rule_language(self) -> str:
+        """Return a supported language code for selector labels."""
+        language = getattr(getattr(self.hass, "config", None), "language", "en")
+        return language.split("-")[0] if isinstance(language, str) else "en"
+
+    def _station_rule_label(self, rule: dict[str, Any]) -> str:
+        """Return a localized, readable summary for a configured rule."""
+        parameter = rule.get("parameter")
+        parameter_option = next(
+            (
+                option
+                for option in self._station_rule_parameters(parameter)
+                if option["value"] == parameter
+            ),
+            None,
+        )
+        parameter_label = (
+            parameter_option["label"]
+            if parameter_option is not None
+            else str(parameter)
+        )
+        operator = rule.get("operator")
+        operator_label = _STATION_OPERATOR_LABELS.get(
+            self._station_rule_language(), {}
+        ).get(operator, str(operator))
+        threshold = rule.get("threshold")
+        try:
+            threshold_label = f"{float(threshold):g}"
+        except (TypeError, ValueError, OverflowError):
+            threshold_label = str(threshold)
+        return f"{parameter_label} {operator_label} {threshold_label}"
+
+    async def async_step_station_rules(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Manage threshold rules associated with this station."""
+        errors: dict[str, str] = {}
+        rules = self.updated_options.get(CONF_STATION_RULES, [])
+        if not isinstance(rules, list):
+            rules = []
+
+        parameters = self._station_rule_parameters()
+        if user_input is not None:
+            operation = user_input.get("rule_action")
+            if operation == "done":
+                self._save_changes()
+                return self.async_create_entry(title="", data=None)
+            if operation == "add":
+                if not parameters:
+                    errors["base"] = "no_station_rule_parameters"
+                else:
+                    self._station_rule_edit_id = None
+                    return await self.async_step_station_rule()
+            elif operation in ("edit", "remove"):
+                rule_id = user_input.get("rule_id")
+                selected_rule = next(
+                    (
+                        rule
+                        for rule in rules
+                        if isinstance(rule, dict) and rule.get("id") == rule_id
+                    ),
+                    None,
+                )
+                if selected_rule is None:
+                    errors["rule_id"] = "select_station_rule"
+                elif operation == "remove":
+                    self.updated_options[CONF_STATION_RULES] = [
+                        rule
+                        for rule in rules
+                        if not isinstance(rule, dict) or rule.get("id") != rule_id
+                    ]
+                    return await self.async_step_station_rules()
+                else:
+                    self._station_rule_edit_id = rule_id
+                    return await self.async_step_station_rule()
+            else:
+                errors["base"] = "invalid_station_rule"
+
+        language = self._station_rule_language()
+        labels = _STATION_RULE_ACTION_LABELS.get(language, {})
+        operation_options = [
+            {"value": "add", "label": labels.get("add", "Add a rule")},
+            {"value": "done", "label": labels.get("done", "Save and finish")},
+        ]
+        if rules:
+            operation_options[1:1] = [
+                {"value": "edit", "label": labels.get("edit", "Edit a rule")},
+                {"value": "remove", "label": labels.get("remove", "Remove a rule")},
+            ]
+
+        schema: dict[Any, Any] = {
+            vol.Required("rule_action", default="done"): selector.SelectSelector(
+                selector.SelectSelectorConfig(options=operation_options)
+            )
+        }
+        if rules:
+            rule_options = [
+                {
+                    "value": rule["id"],
+                    "label": self._station_rule_label(rule),
+                }
+                for rule in rules
+                if isinstance(rule, dict) and isinstance(rule.get("id"), str)
+            ]
+            if rule_options:
+                schema[vol.Optional("rule_id")] = selector.SelectSelector(
+                    selector.SelectSelectorConfig(options=rule_options)
+                )
+
+        return self.async_show_form(
+            step_id="station_rules",
+            data_schema=vol.Schema(schema),
+            errors=errors,
+        )
+
+    async def async_step_station_rule(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Add or edit one station threshold rule."""
+        errors: dict[str, str] = {}
+        rules = self.updated_options.get(CONF_STATION_RULES, [])
+        if not isinstance(rules, list):
+            rules = []
+
+        rule_id = getattr(self, "_station_rule_edit_id", None)
+        current_rule = next(
+            (
+                rule
+                for rule in rules
+                if isinstance(rule, dict) and rule.get("id") == rule_id
+            ),
+            {},
+        )
+        parameters = self._station_rule_parameters(
+            current_rule.get("parameter")
+        )
+        parameter_values = {item["value"] for item in parameters}
+
+        if user_input is not None:
+            parameter = user_input.get("parameter")
+            operator = user_input.get("operator")
+            threshold = user_input.get("threshold")
+            actions = user_input.get("actions")
+            try:
+                numeric_threshold = (
+                    math.nan if isinstance(threshold, bool) else float(threshold)
+                )
+            except (TypeError, ValueError, OverflowError):
+                numeric_threshold = math.nan
+
+            if parameter not in parameter_values:
+                errors["parameter"] = "invalid_station_rule"
+            if operator not in (">", ">=", "<", "<="):
+                errors["operator"] = "invalid_station_rule"
+            if not math.isfinite(numeric_threshold):
+                errors["threshold"] = "invalid_station_rule"
+            if not isinstance(actions, list) or not actions:
+                errors["actions"] = "station_rule_actions_required"
+            else:
+                try:
+                    actions = cv.SCRIPT_SCHEMA(actions)
+                except vol.Invalid:
+                    errors["actions"] = "invalid_station_rule"
+
+            if not errors:
+                new_rule = {
+                    "id": rule_id or uuid4().hex,
+                    "parameter": parameter,
+                    "operator": operator,
+                    "threshold": numeric_threshold,
+                    "actions": actions,
+                }
+                if rule_id:
+                    updated_rules = [
+                        new_rule
+                        if isinstance(rule, dict) and rule.get("id") == rule_id
+                        else rule
+                        for rule in rules
+                    ]
+                else:
+                    updated_rules = [*rules, new_rule]
+                self.updated_options[CONF_STATION_RULES] = updated_rules
+                return await self.async_step_station_rules()
+
+        if not parameters:
+            errors["base"] = "no_station_rule_parameters"
+
+        language = self._station_rule_language()
+        operator_labels = _STATION_OPERATOR_LABELS.get(language, {})
+        selected_parameter = current_rule.get("parameter")
+        schema: dict[Any, Any] = {
+            vol.Required(
+                "parameter",
+                default=selected_parameter or (parameters[0]["value"] if parameters else None),
+            ): selector.SelectSelector(
+                selector.SelectSelectorConfig(options=parameters)
+            ),
+            vol.Required(
+                "operator", default=current_rule.get("operator", ">")
+            ): selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=[
+                        {
+                            "value": operator,
+                            "label": operator_labels.get(operator, operator),
+                        }
+                        for operator in (">", ">=", "<", "<=")
+                    ]
+                )
+            ),
+            vol.Required(
+                "threshold",
+                default=current_rule.get("threshold", 0),
+            ): selector.NumberSelector(
+                selector.NumberSelectorConfig(
+                    mode=selector.NumberSelectorMode.BOX,
+                    step=0.1,
+                )
+            ),
+            vol.Required(
+                "actions", default=current_rule.get("actions", [])
+            ): selector.ActionSelector(),
+        }
+        return self.async_show_form(
+            step_id="station_rule",
+            data_schema=vol.Schema(schema),
+            errors=errors,
         )
 
 

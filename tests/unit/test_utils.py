@@ -3,15 +3,27 @@ import sys
 import os
 from unittest.mock import patch
 import math
+import pytest
 
 # Add parent directory to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 from custom_components.meteocat_community_edition.utils import (
+    calculate_dew_point,
     calculate_utci,
     get_utci_category_key,
     get_utci_icon,
 )
+
+
+def test_calculate_dew_point():
+    """Test Magnus dew point calculation and boundary conditions."""
+    assert calculate_dew_point(20, 50) == pytest.approx(9.26, abs=0.02)
+    assert calculate_dew_point(20, 100) == pytest.approx(20)
+    assert calculate_dew_point(25, 0) is None
+    assert calculate_dew_point(25, 101) is None
+    assert calculate_dew_point(float("nan"), 50) is None
+
 
 def test_calculate_utci():
     """Test UTCI calculation."""

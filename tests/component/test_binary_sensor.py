@@ -113,16 +113,14 @@ def test_binary_sensor_initialization_local_mode(mock_coordinator_success, mock_
     assert sensor.name == "Última actualització correcte"
 
 
-def test_calculated_external_conditions(mock_coordinator_success, mock_entry_external, monkeypatch):
-    """Test freezing, windy, and muggy conditions from XEMA measurements."""
-    from custom_components.meteocat_community_edition import binary_sensor
-
+def test_calculated_external_conditions(mock_coordinator_success, mock_entry_external):
+    """Test external conditions and calculate muggy from temperature and humidity."""
     mock_coordinator_success.data = {
         "measurements": [
             {
                 "variables": [
                     {"codi": 32, "lectures": [{"valor": 0}]},
-                    {"codi": 33, "lectures": [{"valor": 60}]},
+                    {"codi": 33, "lectures": [{"valor": 70}]},
                     {"codi": 30, "lectures": [{"valor": 1}]},
                 ]
             }
@@ -160,13 +158,70 @@ def test_calculated_external_conditions(mock_coordinator_success, mock_entry_ext
 
     mock_coordinator_success.data["measurements"][0]["variables"][0]["lectures"][0][
         "valor"
-    ] = 0.1
+    ] = 25
     assert freezing_sensor.is_on is False
-
-    monkeypatch.setattr(binary_sensor, "calculate_utci", lambda *_: 25.0)
-    assert muggy_sensor.is_on is False
-    monkeypatch.setattr(binary_sensor, "calculate_utci", lambda *_: 25.01)
     assert muggy_sensor.is_on is True
+
+
+def test_local_muggy_uses_configured_dew_point_sensor(mock_entry_locality):
+    """Test a configured local dew point sensor takes precedence."""
+    from types import SimpleNamespace
+
+    coordinator = MagicMock()
+    sensor = MeteocatCalculatedConditionBinarySensor(
+        coordinator,
+        mock_entry_locality,
+        "Barcelona",
+        "Barcelona",
+        MODE_LOCAL,
+        "muggy",
+        {"temperature": "sensor.temperature", "humidity": "sensor.humidity",
+         "dew_point": "sensor.dew_point"},
+    )
+    states = {
+        "sensor.temperature": SimpleNamespace(state="30"),
+        "sensor.humidity": SimpleNamespace(state="90"),
+        "sensor.dew_point": SimpleNamespace(state="18"),
+    }
+    sensor.hass = MagicMock()
+    sensor.hass.states.get.side_effect = states.get
+
+    assert sensor.is_on is True
+    assert sensor.available is True
+
+    states["sensor.dew_point"] = SimpleNamespace(state="17.9")
+    assert sensor.is_on is False
+    states["sensor.dew_point"] = SimpleNamespace(state="unavailable")
+    assert sensor.is_on is False
+    assert sensor.available is False
+
+
+def test_local_muggy_calculates_dew_point_without_wind(mock_entry_locality):
+    """Test local muggy fallback calculates dew point from temperature and humidity."""
+    from types import SimpleNamespace
+
+    coordinator = MagicMock()
+    sensor = MeteocatCalculatedConditionBinarySensor(
+        coordinator,
+        mock_entry_locality,
+        "Barcelona",
+        "Barcelona",
+        MODE_LOCAL,
+        "muggy",
+        {"temperature": "sensor.temperature", "humidity": "sensor.humidity"},
+    )
+    states = {
+        "sensor.temperature": SimpleNamespace(state="25"),
+        "sensor.humidity": SimpleNamespace(state="70"),
+    }
+    sensor.hass = MagicMock()
+    sensor.hass.states.get.side_effect = states.get
+
+    assert sensor.available is True
+    assert sensor.is_on is True
+
+    states["sensor.humidity"] = SimpleNamespace(state="40")
+    assert sensor.is_on is False
 
 
 def test_local_raining_condition_uses_configured_intensity(mock_entry_locality):

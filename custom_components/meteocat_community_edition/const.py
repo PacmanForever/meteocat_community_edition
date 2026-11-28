@@ -4,7 +4,7 @@ from typing import Final
 DOMAIN: Final = "meteocat_community_edition"
 ATTRIBUTION: Final = "Meteocat"
 MANUFACTURER: Final = "@pacmanforever"
-INTEGRATION_VERSION: Final = "1.2.104"
+INTEGRATION_VERSION: Final = "1.2.105"
 
 # API Configuration
 DEFAULT_API_BASE_URL: Final = "https://api.meteo.cat"
@@ -25,6 +25,8 @@ CONF_UPDATE_TIME_2: Final = "update_time_2"
 CONF_UPDATE_TIME_3: Final = "update_time_3"
 CONF_ENABLE_FORECAST_DAILY: Final = "enable_forecast_daily"
 CONF_ENABLE_FORECAST_HOURLY: Final = "enable_forecast_hourly"
+CONF_STATION_RULES: Final = "station_rules"
+CONF_CONFIGURE_STATION_RULES: Final = "configure_station_rules"
 
 # Local Sensors Configuration
 CONF_SENSOR_TEMPERATURE: Final = "sensor_temperature"
@@ -52,6 +54,7 @@ MODE_LOCAL_LABEL: Final = "Local"
 # Update times (defaults)
 DEFAULT_UPDATE_TIME_1: Final = "06:00"
 DEFAULT_UPDATE_TIME_2: Final = "14:00"
+DEFAULT_MUGGY_DEW_POINT_THRESHOLD: Final = 18.0
 UPDATE_TIMES: Final = ["06:00", "14:00"]
 
 # Events

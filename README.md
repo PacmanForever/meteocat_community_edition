@@ -75,6 +75,36 @@ En Home Assistant 2026.10 o anterior, cerca **Meteocat** a HACS.
 
 - **Millores en les etiquetes de la interfície**: Les pantalles de configuració tenen etiquetes més clares i descripcions simplificades.
 
+### Regles de llindar i accions de l'estació
+
+Cada estació pot tenir regles pròpies que executen accions de Home Assistant quan canvia una lectura. Les regles es configuren a **Configuració** → **Dispositius i serveis** → **Meteocat** → **Opcions**; activa **Configura regles de llindar i accions** per obrir-ne la pantalla de gestió.
+
+#### Crear i gestionar regles
+
+1. Obre les opcions de la integració i activa **Configura regles de llindar i accions**.
+2. A la pantalla de regles, tria **Afegeix una regla**.
+3. Selecciona un paràmetre, una comparació (`>`, `>=`, `<` o `<=`) i el valor llindar.
+4. Selecciona una o més accions amb el selector d'accions de Home Assistant.
+5. Desa la regla i, quan hagis acabat, tria **Desa i acaba**.
+
+Per modificar o eliminar una regla existent, torna a obrir les opcions, activa la configuració de regles, selecciona **Edita una regla** o **Elimina una regla** i tria la regla corresponent. Els canvis es desen en acabar el flux d'opcions.
+
+#### Quan s'executen les accions
+
+- Una regla s'executa quan la seva condició canvia de **falsa a certa**. Per exemple, `temperatura > 25 °C` s'activa en passar de 25 °C o menys a més de 25 °C.
+- No es repeteix l'acció mentre la condició continuï sent certa. Quan torni a ser falsa, la regla queda preparada per a un nou creuament.
+- La primera lectura vàlida després d'iniciar o recarregar Home Assistant només estableix l'estat inicial: no executa accions. Els valors `unknown`, `unavailable` o no numèrics tampoc no disparen accions; la primera lectura vàlida posterior torna a inicialitzar la regla.
+- Les regles d'una estació local s'avaluen quan canvia l'estat de l'entitat sensor seleccionada.
+- Les regles d'una estació externa s'avaluen quan s'obtenen correctament noves mesures de Meteocat. No s'avaluen en actualitzacions que només obtenen la predicció.
+
+#### Requisits i unitats
+
+- **Estació local**: cal tenir configurat almenys un sensor local numèric a la configuració de l'estació. Només s'ofereixen com a paràmetres els sensors seleccionats per aquella estació. El llindar s'ha d'introduir en la mateixa unitat que publica el sensor.
+- **Estació Meteocat**: cal que l'estació retorni a l'API una de les variables numèriques que admet la integració. La disponibilitat depèn de les mesures rebudes; la pantalla mostra la unitat de la variable.
+- Cada regla ha de tenir almenys una acció. Les accions es configuren i s'executen des de la integració, associades a l'estació; no cal crear un trigger d'automatització separat.
+- No hi ha comparador d'igualtat exacta (`=`): amb lectures decimals, la igualtat exacta pot ser poc fiable. Per a valors concrets, es poden combinar llindars o usar un interval amb dues regles.
+- La variable Meteocat **precipitació** representa l'acumulació del dia en mil·límetres, no la intensitat instantània de pluja. Els paràmetres Meteocat només s'actualitzen quan la integració consulta les mesures, segons el seu calendari o una actualització manual.
+
 ### Notes sobre el comportament de la icona (Condició)
 
 - **Mode Estació Externa**: La condició (icona de l'entitat weather) es determina a partir de la predicció oficial disponible per al municipi associat a l'estació.
@@ -90,7 +120,14 @@ En Home Assistant 2026.10 o anterior, cerca **Meteocat** a HACS.
 ## Entitats
 
 - **Botons d'actualització**: Els botons "Actualitzar Mesures" i "Actualitzar Predicció" ara sempre mostren una icona.
-- **Sensors binaris de condició**: Glaçant (temperatura ≤ 0 °C), Plovent (intensitat de pluja > 0), Ventant (velocitat del vent > 0) i Xafogor (UTCI > 25 °C). Només es creen si les dades necessàries estan disponibles.
+- **Sensors binaris de condició**: «Està glaçant» (temperatura ≤ 0 °C), «Està plovent» (intensitat de pluja > 0), «Fa vent» (velocitat del vent > 0) i «Fa xafogor» (punt de rosada ≥ 18 °C). Només es creen si les dades necessàries estan disponibles.
+
+El punt de rosada per a «Fa xafogor» s'obté de manera diferent segons el mode:
+
+- **Estació local**: si has configurat un sensor de punt de rosada, s'utilitza aquest valor. Si no n'has configurat cap, es calcula a partir dels sensors locals de temperatura i humitat relativa amb l'aproximació de Magnus. Si el sensor de punt de rosada configurat no està disponible, el binari també queda no disponible.
+- **Estació Meteocat**: es calcula amb les mesures XEMA de temperatura (codi 32) i humitat relativa (codi 33), perquè el punt de rosada no forma part de les variables que aquesta integració obté per a l'estació. No cal disposar de la mesura del vent.
+
+El càlcul de Magnus és `γ = ln(HR / 100) + 17,625 × T / (243,04 + T)` i `punt de rosada = 243,04 × γ / (17,625 - γ)`, on `T` és la temperatura en °C i `HR` la humitat relativa en percentatge. El sensor «Fa xafogor» s'activa quan el punt de rosada és igual o superior a 18 °C.
 - **Grup Diagnòstics del dispositiu**: Inclou la comarca, el municipi, les coordenades, les hores configurades, l'estat de les prediccions i els sensors de predicció diària/horària. Les dades detallades del pronòstic són als seus atributs.
 
 ## Opcions avançades
@@ -103,7 +140,7 @@ En Home Assistant 2026.10 o anterior, cerca **Meteocat** a HACS.
 
 ## Versionat
 
-- La versió actual del manifest és `1.2.104` i coincideix amb l'últim tag de git.
+- La versió actual del manifest és `1.2.105` i coincideix amb l'últim tag de git.
 
 ## Tests
 
@@ -269,9 +306,9 @@ Aquest mode està pensat per obtenir dades d'una estació meteorològica oficial
 | **Sensor** | `sensor.{estacio}_{codi}_beaufort_description` | Descripció Beaufort. Text que descriu la força del vent segons l'escala. |
 | **Sensor** | `sensor.{estacio}_{codi}_quota_disponible_{pla}` | Un sensor per a cada pla de quotes rellevant (Predicció, XEMA). Mostra les peticions restants. |
 | **Binary Sensor** | `binary_sensor.{estacio}_{codi}_update_state` | Indica l'estat de l'última actualització (`OFF` = Correcte, `ON` = Error). |
-| **Binary Sensor** | `binary_sensor.{estacio}_{codi}_freezing` | Glaçant si la temperatura és ≤ 0 °C (quan la variable de temperatura està disponible). |
-| **Binary Sensor** | `binary_sensor.{estacio}_{codi}_windy` | Ventant si la velocitat del vent és > 0 (quan la variable de vent està disponible). |
-| **Binary Sensor** | `binary_sensor.{estacio}_{codi}_muggy` | Xafogor si l'UTCI és > 25 °C (quan hi ha temperatura, humitat i vent). |
+| **Binary Sensor** | `binary_sensor.{estacio}_{codi}_freezing` | «Està glaçant» si la temperatura és ≤ 0 °C (quan la variable de temperatura està disponible). |
+| **Binary Sensor** | `binary_sensor.{estacio}_{codi}_windy` | «Fa vent» si la velocitat del vent és > 0 (quan la variable de vent està disponible). |
+| **Binary Sensor** | `binary_sensor.{estacio}_{codi}_muggy` | «Fa xafogor» quan el punt de rosada calculat amb temperatura i humitat XEMA és ≥ 18 °C. No necessita la mesura del vent. |
 | **Sensor** | `sensor.{estacio}_{codi}_last_update` | Timestamp de l'última actualització de mesures (horària). |
 | **Sensor** | `sensor.{estacio}_{codi}_next_update` | Timestamp de la pròxima actualització de mesures (horària). |
 | **Sensor** | `sensor.{estacio}_{codi}_last_forecast_update` | Timestamp de l'última actualització de predicció. |
@@ -285,7 +322,7 @@ Aquest mode està pensat per obtenir dades d'una estació meteorològica oficial
 | **Sensor** | `sensor.{estacio}_{codi}_provincia_name` | Nom de la província (si disponible). |
 | **Button** | `button.{estacio}_{codi}_refresh` | Botó per forçar una actualització manual immediata. |
 
-Els sensors binaris calculats en mode extern només es creen si l'estació ofereix les mesures necessàries. No es crea el sensor «Plovent»: la precipitació XEMA és acumulada i no representa intensitat instantània. El grup **Diagnòstics** del dispositiu mostra les hores d'actualització, l'estat activat/desactivat de les prediccions diària i horària, i les dades d'ubicació disponibles.
+Els sensors binaris calculats en mode extern només es creen si l'estació ofereix les mesures necessàries. No es crea el sensor «Està plovent»: la precipitació XEMA és acumulada i no representa intensitat instantània. El grup **Diagnòstics** del dispositiu mostra les hores d'actualització, l'estat activat/desactivat de les prediccions diària i horària, i les dades d'ubicació disponibles.
 
 ### Mode Estació Local (Mesures locals i predicció de Meteocat)
 
@@ -333,10 +370,10 @@ Les **condicions calculades** només s'avaluen si els sensors necessaris estan c
 | **Sensor** | `sensor.{municipi}_prediccio_diaria` | L'estat mostra els dies disponibles. Els atributs contenen la predicció completa per a 8 dies. |
 | **Sensor** | `sensor.{municipi}_quota_disponible_{pla}` | Un sensor per a cada pla de quotes rellevant (Predicció). Mostra les peticions restants. |
 | **Binary Sensor** | `binary_sensor.{municipi}_update_state` | Indica l'estat de l'última actualització (`OFF` = Correcte, `ON` = Error). |
-| **Binary Sensor** | `binary_sensor.{municipi}_freezing` | Glaçant quan la temperatura és ≤ 0 °C (si el sensor està configurat). |
-| **Binary Sensor** | `binary_sensor.{municipi}_raining` | Plovent quan la intensitat de pluja és > 0 (si el sensor està configurat). |
-| **Binary Sensor** | `binary_sensor.{municipi}_windy` | Ventant quan la velocitat del vent és > 0 (si el sensor està configurat). |
-| **Binary Sensor** | `binary_sensor.{municipi}_muggy` | Xafogor quan l'UTCI és > 25 °C (si temperatura, humitat i vent estan configurats). |
+| **Binary Sensor** | `binary_sensor.{municipi}_freezing` | «Està glaçant» quan la temperatura és ≤ 0 °C (si el sensor està configurat). |
+| **Binary Sensor** | `binary_sensor.{municipi}_raining` | «Està plovent» quan la intensitat de pluja és > 0 (si el sensor està configurat). |
+| **Binary Sensor** | `binary_sensor.{municipi}_windy` | «Fa vent» quan la velocitat del vent és > 0 (si el sensor està configurat). |
+| **Binary Sensor** | `binary_sensor.{municipi}_muggy` | «Fa xafogor» quan el punt de rosada és ≥ 18 °C. Utilitza el sensor de punt de rosada configurat, si n'hi ha; altrament, el calcula amb temperatura i humitat locals. |
 | **Sensor** | `sensor.{municipi}_last_update` | Timestamp de l'última actualització exitosa. |
 | **Sensor** | `sensor.{municipi}_next_update` | Timestamp de la pròxima actualització programada. |
 | **Sensor** | `sensor.{municipi}_update_time_{n}` | Mostra les hores d'actualització configurades. |

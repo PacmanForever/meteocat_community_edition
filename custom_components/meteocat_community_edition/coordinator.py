@@ -71,6 +71,7 @@ from .const import (
     MODE_EXTERNAL,
     MODE_LOCAL,
 )
+from .station_rules import StationRuleManager
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -163,6 +164,7 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             name=name,
             update_interval=None,  # ⚠️ CRITICAL: Must be None to prevent quota exhaustion
         )
+        self.station_rule_manager = StationRuleManager(hass, entry)
 
     @callback
     def _schedule_next_update(self) -> None:
@@ -243,6 +245,7 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
     async def async_shutdown(self) -> None:
         """Clean up when shutting down."""
+        self.station_rule_manager.async_unload()
         if self._scheduled_update_remover:
             self._scheduled_update_remover()
             self._scheduled_update_remover = None
@@ -460,6 +463,7 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             }
             
             has_retryable_error = False
+            measurements_updated = False
             for key, result in zip(tasks.keys(), results):
                 if isinstance(result, Exception):
                     _LOGGER.warning("Error fetching %s: %s", key, result)
@@ -475,6 +479,7 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     data[key] = result
                     if key == "measurements":
                         self.last_measurements_update = dt_util.utcnow()
+                        measurements_updated = True
             
             if not self._is_retry_update:
                 # Only fetch quotes when fetching forecast or measurements to save quota
@@ -546,6 +551,11 @@ class MeteocatCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     _LOGGER.error(error_msg)
                     raise UpdateFailed(error_msg)
             
+            if measurements_updated:
+                self.station_rule_manager.process_external_measurements(
+                    data.get("measurements")
+                )
+
             self._is_first_refresh = False
             self._fire_events(self.next_scheduled_update)
             

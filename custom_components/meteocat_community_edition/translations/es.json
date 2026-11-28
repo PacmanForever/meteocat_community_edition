@@ -132,7 +132,11 @@
       "invalid_auth": "Clave API inválida. Por favor, verifica que la clave API sea correcta.",
       "times_must_differ": "Los horarios de actualización deben ser diferentes",
       "invalid_time_format": "Formato de hora inválido. Usa el formato 24h: HH:MM (ejemplo: 06:00 o 14:30)",
-      "required": "Este campo es obligatorio"
+      "required": "Este campo es obligatorio",
+      "no_station_rule_parameters": "No hay parámetros numéricos disponibles para esta estación.",
+      "select_station_rule": "Selecciona una regla válida.",
+      "invalid_station_rule": "La regla no es válida.",
+      "station_rule_actions_required": "Configura al menos una acción."
     },
     "step": {
       "init": {
@@ -143,7 +147,26 @@
           "update_time_2": "Segunda hora de actualización (Formato 24h: HH:MM)",
           "update_time_3": "Tercera hora de actualización (Formato 24h: HH:MM)",
           "enable_forecast_daily": "Quiero la predicción diaria",
-          "enable_forecast_hourly": "Quiero la predicción horaria"
+          "enable_forecast_hourly": "Quiero la predicción horaria",
+          "configure_station_rules": "Configurar reglas de umbral y acciones"
+        }
+      },
+      "station_rules": {
+        "title": "Reglas de la estación",
+        "description": "Añade reglas que ejecutan acciones cuando el valor de un parámetro cruza el umbral. Las condiciones iniciales no ejecutan acciones.",
+        "data": {
+          "rule_action": "¿Qué quieres hacer?",
+          "rule_id": "Regla"
+        }
+      },
+      "station_rule": {
+        "title": "Configurar una regla de la estación",
+        "description": "La acción se ejecutará cuando la condición pase de falsa a verdadera. Los parámetros Meteocat se evalúan cuando se actualizan las medidas.",
+        "data": {
+          "parameter": "Parámetro de la estación",
+          "operator": "Comparación",
+          "threshold": "Umbral",
+          "actions": "Acciones"
         }
       },
       "local_sensors": {
@@ -309,16 +332,16 @@
     },
     "binary_sensor": {
       "freezing": {
-        "name": "Helando"
+        "name": "Está helando"
       },
       "raining": {
-        "name": "Lloviendo"
+        "name": "Está lloviendo"
       },
       "windy": {
-        "name": "Ventando"
+        "name": "Hace viento"
       },
       "muggy": {
-        "name": "Bochorno"
+        "name": "Hace bochorno"
       },
       "update_state": {
         "name": "Última actualización correcta"

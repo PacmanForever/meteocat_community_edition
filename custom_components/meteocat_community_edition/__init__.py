@@ -50,6 +50,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """
     
     coordinator = MeteocatCoordinator(hass, entry)
+    coordinator.station_rule_manager.async_setup()
     
     # Migrate API key from options to data if necessary
     from .const import CONF_API_KEY

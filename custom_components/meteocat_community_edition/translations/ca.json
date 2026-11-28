@@ -39,7 +39,7 @@
       },
       "update_times": {
         "title": "Configura la predicció de Meteocat",
-        "description": "Indica a quines hores vols que s'actualitzi:\n\nATENCIÓ: Com més hores d'actualització i més tipus de predicció activis, més quota consumiràs. Si el consum és massa alt, la quota mensual potser no arribarà a final de mes.",
+        "description": "Indica a quines hores vols que s'actualitzi:\n\nATENCIÓ: Com més hores d'actualització i més tipus de predicció activis, més quota consumiràs i potser no arribes a final de mes.",
         "data": {
           "update_time_1": "Primera hora d'actualització (Format 24h: HH:MM)",
           "update_time_2": "Segona hora d'actualització (Format 24h: HH:MM)",
@@ -132,18 +132,41 @@
       "invalid_auth": "Clau API invàlida. Si us plau, comprova que la clau API sigui correcta.",
       "times_must_differ": "Els horaris d'actualització han de ser diferents",
       "invalid_time_format": "Format d'hora invàlid. Utilitza el format 24h: HH:MM (exemple: 06:00 o 14:30)",
-      "required": "Aquest camp és obligatori"
+      "required": "Aquest camp és obligatori",
+      "no_station_rule_parameters": "No hi ha paràmetres numèrics disponibles per a aquesta estació.",
+      "select_station_rule": "Selecciona una regla vàlida.",
+      "invalid_station_rule": "La regla no és vàlida.",
+      "station_rule_actions_required": "Configura almenys una acció."
     },
     "step": {
       "init": {
         "title": "Configura la predicció de Meteocat",
-        "description": "Indica a quines hores vols que s'actualitzi:\n\nATENCIÓ: Com més hores d'actualització i més tipus de predicció activis, més quota consumiràs. Si el consum és massa alt, la quota mensual potser no arribarà a final de mes.",
+        "description": "Indica a quines hores vols que s'actualitzi:\n\nATENCIÓ: Com més hores d'actualització i més tipus de predicció activis, més quota consumiràs i potser no arribes a final de mes.",
         "data": {
           "update_time_1": "Primera hora d'actualització (Format 24h: HH:MM)",
           "update_time_2": "Segona hora d'actualització (Format 24h: HH:MM)",
           "update_time_3": "Tercera hora d'actualització (Format 24h: HH:MM)",
           "enable_forecast_daily": "Vull la predicció diària",
-          "enable_forecast_hourly": "Vull la predicció horària"
+          "enable_forecast_hourly": "Vull la predicció horària",
+          "configure_station_rules": "Configura regles de llindar i accions"
+        }
+      },
+      "station_rules": {
+        "title": "Regles de l’estació",
+        "description": "Afegeix regles que executen accions quan el valor d’un paràmetre creua el llindar. Les condicions inicials no executen accions.",
+        "data": {
+          "rule_action": "Què vols fer?",
+          "rule_id": "Regla"
+        }
+      },
+      "station_rule": {
+        "title": "Configura una regla de l’estació",
+        "description": "L’acció s’executarà quan la condició passi de falsa a certa. Els paràmetres Meteocat s’avaluen quan s’actualitzen les mesures.",
+        "data": {
+          "parameter": "Paràmetre de l’estació",
+          "operator": "Comparació",
+          "threshold": "Llindar",
+          "actions": "Accions"
         }
       },
       "local_sensors": {
@@ -307,16 +330,16 @@
     },
     "binary_sensor": {
       "freezing": {
-        "name": "Glaçant"
+        "name": "Està glaçant"
       },
       "raining": {
-        "name": "Plovent"
+        "name": "Està plovent"
       },
       "windy": {
-        "name": "Ventant"
+        "name": "Fa vent"
       },
       "muggy": {
-        "name": "Xafogor"
+        "name": "Fa xafogor"
       },
       "update_state": {
         "name": "Última actualització correcte"
