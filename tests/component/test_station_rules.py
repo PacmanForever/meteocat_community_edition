@@ -1,4 +1,5 @@
 """Tests for station threshold rules and their configured actions."""
+import asyncio
 from unittest.mock import AsyncMock, Mock
 
 import pytest
@@ -87,9 +88,11 @@ def test_validate_script_actions_supports_legacy_home_assistant_schema(monkeypat
 @pytest.mark.asyncio
 async def test_external_rules_fire_only_when_condition_crosses_up(hass: HomeAssistant):
     calls: list[str] = []
+    completed_actions: asyncio.Queue[str] = asyncio.Queue()
 
     async def record_action(call):
         calls.append(call.data["value"])
+        completed_actions.put_nowait(call.data["value"])
 
     hass.services.async_register("test", "record_action", record_action)
     entry = MockConfigEntry(
@@ -129,11 +132,13 @@ async def test_external_rules_fire_only_when_condition_crosses_up(hass: HomeAssi
     update_temperature(26)
     update_temperature(28)
     await hass.async_block_till_done()
+    await asyncio.wait_for(completed_actions.get(), timeout=5)
     assert calls == ["temperature threshold"]
 
     update_temperature(25)
     update_temperature(26)
     await hass.async_block_till_done()
+    await asyncio.wait_for(completed_actions.get(), timeout=5)
     assert calls == ["temperature threshold", "temperature threshold"]
 
 
@@ -142,9 +147,11 @@ async def test_coordinator_evaluates_only_successful_measurement_refreshes(
     hass: HomeAssistant,
 ):
     calls: list[int] = []
+    completed_actions: asyncio.Queue[int] = asyncio.Queue()
 
     async def record_action(call):
         calls.append(call.data["value"])
+        completed_actions.put_nowait(call.data["value"])
 
     hass.services.async_register("test", "record_temperature", record_action)
     entry = MockConfigEntry(
@@ -211,6 +218,8 @@ async def test_coordinator_evaluates_only_successful_measurement_refreshes(
             data = await coordinator._async_update_data()
             coordinator.data = data
             await hass.async_block_till_done()
+            if expected_calls:
+                await asyncio.wait_for(completed_actions.get(), timeout=5)
             assert len(calls) == expected_calls
     finally:
         await coordinator.async_shutdown()
