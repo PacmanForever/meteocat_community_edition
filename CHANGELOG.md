@@ -5,6 +5,15 @@ Tots els canvis notables del projecte es documenten aquí.
 El format es basa en [Keep a Changelog](https://keepachangelog.com/ca/1.0.0/),
 i el projecte segueix [Semantic Versioning](https://semver.org/lang/ca/).
 
+## [1.2.106] - 2026-11-28
+
+### Afegit
+- Permesa la cancel·lació d'una regla mentre es configura, sense sortir de les opcions de l'estació.
+
+### Canviat
+- La pantalla de regles apareix sempre al final del flux d'opcions; els selectors de comparació i gestió s'han convertit en desplegables.
+- Simplificades les etiquetes dels paràmetres i aclarit que els llindars es comparen amb els valors directes de la font, sense conversió d'unitats.
+
 ## [1.2.105] - 2026-11-28
 
 ### Afegit

@@ -8,7 +8,6 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.meteocat_community_edition.const import (
     CONF_API_KEY,
-    CONF_CONFIGURE_STATION_RULES,
     CONF_ENABLE_FORECAST_DAILY,
     CONF_ENABLE_FORECAST_HOURLY,
     CONF_MODE,
@@ -311,10 +310,26 @@ async def test_external_options_flow_saves_station_rule(hass: HomeAssistant):
             CONF_UPDATE_TIME_1: "06:00",
             CONF_ENABLE_FORECAST_DAILY: True,
             CONF_ENABLE_FORECAST_HOURLY: False,
-            CONF_CONFIGURE_STATION_RULES: True,
         },
     )
     assert result["step_id"] == "station_rules"
+    station_rules_schema = result["data_schema"].schema
+    action_selector = next(
+        selector
+        for marker, selector in station_rules_schema.items()
+        if str(marker) == "rule_action"
+    )
+    assert action_selector.config["mode"] == "dropdown"
+
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input={"rule_action": "add"}
+    )
+    assert result["step_id"] == "station_rule"
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input={"form_action": "cancel"}
+    )
+    assert result["step_id"] == "station_rules"
+    assert entry.options.get(CONF_STATION_RULES, []) == []
 
     result = await hass.config_entries.options.async_configure(
         result["flow_id"], user_input={"rule_action": "add"}
@@ -329,12 +344,18 @@ async def test_external_options_flow_saves_station_rule(hass: HomeAssistant):
     parameter_labels = {
         option["label"] for option in parameter_selector.config["options"]
     }
-    assert any(label.startswith("Temperature") for label in parameter_labels)
-    assert any(label.startswith("Daily precipitation") for label in parameter_labels)
+    assert parameter_labels == {"Temperature", "Daily precipitation"}
+    operator_selector = next(
+        selector
+        for marker, selector in rule_schema.items()
+        if str(marker) == "operator"
+    )
+    assert operator_selector.config["mode"] == "dropdown"
     with pytest.raises(InvalidData):
         await hass.config_entries.options.async_configure(
             result["flow_id"],
             user_input={
+                "form_action": "save",
                 "parameter": "34",
                 "operator": ">",
                 "threshold": 25,
@@ -350,6 +371,7 @@ async def test_external_options_flow_saves_station_rule(hass: HomeAssistant):
     result = await hass.config_entries.options.async_configure(
         result["flow_id"],
         user_input={
+            "form_action": "save",
             "parameter": "32",
             "operator": ">",
             "threshold": 25,
@@ -378,6 +400,22 @@ async def test_external_options_flow_saves_station_rule(hass: HomeAssistant):
 async def test_local_options_flow_saves_rule_for_configured_sensor(
     hass: HomeAssistant,
 ):
+    hass.states.async_set(
+        "sensor.outdoor_temperature",
+        "20",
+        {
+            "friendly_name": "Davis Vue temperature",
+            "unit_of_measurement": "°F",
+        },
+    )
+    hass.states.async_set(
+        "sensor.outdoor_humidity",
+        "50",
+        {
+            "friendly_name": "Davis Vue humidity",
+            "unit_of_measurement": "%",
+        },
+    )
     entry = MockConfigEntry(
         domain=DOMAIN,
         data={
@@ -399,7 +437,6 @@ async def test_local_options_flow_saves_rule_for_configured_sensor(
             CONF_UPDATE_TIME_1: "06:00",
             CONF_ENABLE_FORECAST_DAILY: True,
             CONF_ENABLE_FORECAST_HOURLY: False,
-            CONF_CONFIGURE_STATION_RULES: True,
         },
     )
     assert result["step_id"] == "local_sensors"
@@ -421,9 +458,20 @@ async def test_local_options_flow_saves_rule_for_configured_sensor(
         result["flow_id"], user_input={"rule_action": "add"}
     )
     assert result["step_id"] == "station_rule"
+    rule_schema = result["data_schema"].schema
+    parameter_selector = next(
+        selector
+        for marker, selector in rule_schema.items()
+        if str(marker) == "parameter"
+    )
+    parameter_labels = {
+        option["label"] for option in parameter_selector.config["options"]
+    }
+    assert parameter_labels == {"Temperature", "Relative humidity"}
     result = await hass.config_entries.options.async_configure(
         result["flow_id"],
         user_input={
+            "form_action": "save",
             "parameter": CONF_SENSOR_TEMPERATURE,
             "operator": "<",
             "threshold": 0,

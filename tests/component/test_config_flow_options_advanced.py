@@ -389,7 +389,11 @@ async def test_options_custom_mapping_logic_valid(hass, mock_config_entry):
     flow.hass = MagicMock()
     flow.hass.config_entries = MagicMock()
     
-    with patch.object(flow, "async_create_entry", return_value={"type": "done"}):
+    with patch.object(
+        flow,
+        "async_step_station_rules",
+        return_value={"type": "station_rules"},
+    ) as station_rules_step:
         result = await flow.async_step_condition_mapping_custom({
             "local_condition_entity": "sensor.test",
             "sunny": "1",
@@ -397,10 +401,13 @@ async def test_options_custom_mapping_logic_valid(hass, mock_config_entry):
         })
         
         mock_update = flow.hass.config_entries.async_update_entry
-        assert mock_update.called
-        args = mock_update.call_args[1]
-        assert args["data"]["custom_condition_mapping"] == {"1": "sunny", "2": "rainy"}
-        assert result["type"] == "done"
+        assert not mock_update.called
+        assert flow.updated_data["custom_condition_mapping"] == {
+            "1": "sunny",
+            "2": "rainy",
+        }
+        station_rules_step.assert_awaited_once()
+        assert result["type"] == "station_rules"
 
 
 async def test_options_custom_mapping_logic_empty(hass, mock_config_entry):

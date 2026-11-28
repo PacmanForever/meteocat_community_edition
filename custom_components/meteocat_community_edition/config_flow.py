@@ -32,7 +32,6 @@ from .const import (
     CONF_UPDATE_TIME_3,
     CONF_ENABLE_FORECAST_DAILY,
     CONF_ENABLE_FORECAST_HOURLY,
-    CONF_CONFIGURE_STATION_RULES,
     CONF_STATION_RULES,
     CONF_SENSOR_TEMPERATURE,
     CONF_SENSOR_HUMIDITY,
@@ -145,6 +144,11 @@ _STATION_OPERATOR_LABELS = {
     "ca": {">": "Més gran que", ">=": "Com a mínim", "<": "Menys que", "<=": "Com a màxim"},
     "en": {">": "Greater than", ">=": "At least", "<": "Less than", "<=": "At most"},
     "es": {">": "Mayor que", ">=": "Como mínimo", "<": "Menor que", "<=": "Como máximo"},
+}
+_STATION_RULE_FORM_ACTION_LABELS = {
+    "ca": {"save": "Desa la regla", "cancel": "Descarta la regla"},
+    "en": {"save": "Save rule", "cancel": "Discard rule"},
+    "es": {"save": "Guardar la regla", "cancel": "Descartar la regla"},
 }
 _STATION_RULE_ACTION_LABELS = {
     "ca": {
@@ -1001,9 +1005,6 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
         self.api_key = self.updated_data.get(CONF_API_KEY) or self.updated_options.get(CONF_API_KEY)
         
         if user_input is not None:
-            self._manage_station_rules = user_input.get(
-                CONF_CONFIGURE_STATION_RULES, False
-            )
             # Validate update times if they're being changed
             time1 = user_input.get(CONF_UPDATE_TIME_1, "").strip()
             time2 = user_input.get(CONF_UPDATE_TIME_2, "").strip()
@@ -1050,10 +1051,7 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                     else:
                         _LOGGER.debug("Finishing options flow for external mode, entry data keys: %s", 
                                     list(self.updated_data.keys()))
-                        if self._manage_station_rules:
-                            return await self.async_step_station_rules()
-                        self._save_changes()
-                        return self.async_create_entry(title="", data=None)
+                        return await self.async_step_station_rules()
 
         # Prepare description placeholders
         description_placeholders = {}
@@ -1105,10 +1103,6 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                 default=self.updated_options.get(
                     CONF_ENABLE_FORECAST_HOURLY, current_enable_hourly
                 ),
-            ): bool,
-            vol.Optional(
-                CONF_CONFIGURE_STATION_RULES,
-                default=False,
             ): bool,
         }
 
@@ -1265,10 +1259,7 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                 # Otherwise, go to sensors configuration
                 mode = self.updated_data.get(CONF_MODE)
                 if mode == MODE_LOCAL and CONF_SENSOR_TEMPERATURE in self.updated_data:
-                    if getattr(self, "_manage_station_rules", False):
-                        return await self.async_step_station_rules()
-                    self._save_changes()
-                    return self.async_create_entry(title="", data=None)
+                    return await self.async_step_station_rules()
                 else:
                     return await self.async_step_local_sensors()
                 
@@ -1347,11 +1338,7 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                     self.updated_data["custom_condition_mapping"] = parsed_mapping
                     self.updated_data["local_condition_entity"] = local_entity
                     
-                    if getattr(self, "_manage_station_rules", False):
-                        return await self.async_step_station_rules()
-                    self._save_changes()
-                    
-                    return self.async_create_entry(title="", data=None)
+                    return await self.async_step_station_rules()
 
         # Build schema with pre-fills
         schema_dict = {
@@ -1413,17 +1400,6 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                     entity_id = entity_id[0] if entity_id else None
                 if not isinstance(entity_id, str) or not entity_id:
                     continue
-                state = self.hass.states.get(entity_id)
-                friendly_name = (
-                    state.attributes.get("friendly_name") if state is not None else None
-                )
-                label = friendly_name or entity_id
-                unit = (
-                    state.attributes.get("unit_of_measurement")
-                    if state is not None
-                    else None
-                )
-                suffix = f" ({unit})" if unit else ""
                 parameter_name = key.removeprefix("sensor_")
                 parameter_label = _STATION_PARAMETER_LABELS.get(
                     self._station_rule_language(), {}
@@ -1431,9 +1407,7 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                 parameters.append(
                     {
                         "value": key,
-                        "label": (
-                            f"{parameter_label}: {label}{suffix}"
-                        ),
+                        "label": parameter_label,
                     }
                 )
             return parameters
@@ -1468,8 +1442,6 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
         }:
             available_codes.add(selected_parameter)
 
-        from .sensor import SENSOR_TYPES
-
         translated_labels = _STATION_PARAMETER_LABELS.get(
             self._station_rule_language(), {}
         )
@@ -1479,13 +1451,10 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
             parameter_label = translated_labels.get(
                 variable_name, variable_name.replace("_", " ").title()
             )
-            sensor_config = SENSOR_TYPES.get(int(code), {})
-            unit = sensor_config.get("unit")
-            suffix = f" ({unit})" if unit else ""
             parameters.append(
                 {
                     "value": code,
-                    "label": f"{parameter_label}{suffix}",
+                    "label": parameter_label,
                 }
             )
         return parameters
@@ -1582,7 +1551,10 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
 
         schema: dict[Any, Any] = {
             vol.Required("rule_action", default="done"): selector.SelectSelector(
-                selector.SelectSelectorConfig(options=operation_options)
+                selector.SelectSelectorConfig(
+                    mode=selector.SelectSelectorMode.DROPDOWN,
+                    options=operation_options,
+                )
             )
         }
         if rules:
@@ -1629,6 +1601,13 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
         parameter_values = {item["value"] for item in parameters}
 
         if user_input is not None:
+            form_action = user_input.get("form_action", "save")
+            if form_action == "cancel":
+                self._station_rule_edit_id = None
+                return await self.async_step_station_rules()
+            if form_action != "save":
+                errors["form_action"] = "invalid_station_rule"
+
             parameter = user_input.get("parameter")
             operator = user_input.get("operator")
             threshold = user_input.get("threshold")
@@ -1679,6 +1658,7 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
 
         language = self._station_rule_language()
         operator_labels = _STATION_OPERATOR_LABELS.get(language, {})
+        form_action_labels = _STATION_RULE_FORM_ACTION_LABELS.get(language, {})
         selected_parameter = current_rule.get("parameter")
         schema: dict[Any, Any] = {
             vol.Required(
@@ -1691,6 +1671,7 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
                 "operator", default=current_rule.get("operator", ">")
             ): selector.SelectSelector(
                 selector.SelectSelectorConfig(
+                    mode=selector.SelectSelectorMode.DROPDOWN,
                     options=[
                         {
                             "value": operator,
@@ -1712,6 +1693,18 @@ class MeteocatOptionsFlow(config_entries.OptionsFlow):
             vol.Required(
                 "actions", default=current_rule.get("actions", [])
             ): selector.ActionSelector(),
+            vol.Required("form_action", default="save"): selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    mode=selector.SelectSelectorMode.DROPDOWN,
+                    options=[
+                        {
+                            "value": action,
+                            "label": form_action_labels.get(action, action),
+                        }
+                        for action in ("save", "cancel")
+                    ],
+                )
+            ),
         }
         return self.async_show_form(
             step_id="station_rule",

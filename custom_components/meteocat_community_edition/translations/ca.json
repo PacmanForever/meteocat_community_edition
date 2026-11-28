@@ -147,8 +147,7 @@
           "update_time_2": "Segona hora d'actualització (Format 24h: HH:MM)",
           "update_time_3": "Tercera hora d'actualització (Format 24h: HH:MM)",
           "enable_forecast_daily": "Vull la predicció diària",
-          "enable_forecast_hourly": "Vull la predicció horària",
-          "configure_station_rules": "Configura regles de llindar i accions"
+          "enable_forecast_hourly": "Vull la predicció horària"
         }
       },
       "station_rules": {
@@ -161,12 +160,13 @@
       },
       "station_rule": {
         "title": "Configura una regla de l’estació",
-        "description": "L’acció s’executarà quan la condició passi de falsa a certa. Els paràmetres Meteocat s’avaluen quan s’actualitzen les mesures.",
+        "description": "L’acció s’executarà quan la condició passi de falsa a certa. Els paràmetres Meteocat s’avaluen quan s’actualitzen les mesures. El llindar es compara amb el valor numèric de la font, sense conversió d’unitats.",
         "data": {
           "parameter": "Paràmetre de l’estació",
           "operator": "Comparació",
           "threshold": "Llindar",
-          "actions": "Accions"
+          "actions": "Accions",
+          "form_action": "En acabar"
         }
       },
       "local_sensors": {

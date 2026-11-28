@@ -18,6 +18,16 @@ from custom_components.meteocat_community_edition.const import (
     CONF_ENABLE_FORECAST_HOURLY,
 )
 
+
+async def _complete_station_rules(hass: HomeAssistant, result: dict):
+    """Finish the always-present final station rules step."""
+    if result.get("step_id") == "station_rules":
+        return await hass.config_entries.options.async_configure(
+            result["flow_id"], user_input={"rule_action": "done"}
+        )
+    return result
+
+
 @pytest.mark.asyncio
 async def test_options_flow_init(hass: HomeAssistant):
     """Test options flow initialization."""
@@ -38,6 +48,10 @@ async def test_options_flow_init(hass: HomeAssistant):
 
     assert result["type"] == FlowResultType.FORM
     assert result["step_id"] == "init"
+    assert all(
+        str(key) != "configure_station_rules"
+        for key in result["data_schema"].schema
+    )
 
 @pytest.mark.asyncio
 async def test_options_flow_save(hass: HomeAssistant):
@@ -69,6 +83,8 @@ async def test_options_flow_save(hass: HomeAssistant):
             result["flow_id"], user_input=user_input
         )
 
+    result = await _complete_station_rules(hass, result)
+    result = await _complete_station_rules(hass, result)
     assert result["type"] == FlowResultType.CREATE_ENTRY
     # Verify that API key is preserved in data (prevents corruption)
     assert entry.data[CONF_API_KEY] == "test_key"

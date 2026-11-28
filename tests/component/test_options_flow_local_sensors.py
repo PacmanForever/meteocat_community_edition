@@ -30,6 +30,16 @@ from custom_components.meteocat_community_edition.const import (
     CONF_SENSOR_APPARENT_TEMPERATURE,
 )
 
+
+async def _complete_station_rules(hass: HomeAssistant, result: dict):
+    """Finish the always-present final station rules step."""
+    if result.get("step_id") == "station_rules":
+        return await hass.config_entries.options.async_configure(
+            result["flow_id"], user_input={"rule_action": "done"}
+        )
+    return result
+
+
 @pytest.mark.asyncio
 async def test_options_flow_local_sensors(hass: HomeAssistant):
     """Test options flow for Local Mode allows reconfiguring sensors."""
@@ -94,6 +104,7 @@ async def test_options_flow_local_sensors(hass: HomeAssistant):
         )
 
     # Should finish and update entry
+    result = await _complete_station_rules(hass, result)
     assert result["type"] == FlowResultType.CREATE_ENTRY
     assert entry.data[CONF_SENSOR_TEMPERATURE] == "sensor.new_temp"
     assert entry.data[CONF_SENSOR_HUMIDITY] == "sensor.new_hum"
@@ -177,6 +188,7 @@ async def test_options_flow_local_switch_to_custom_mapping(hass: HomeAssistant):
         )
 
     # Should finish and update entry
+    result = await _complete_station_rules(hass, result)
     assert result["type"] == FlowResultType.CREATE_ENTRY
     assert entry.data["mapping_type"] == "custom"
     assert entry.data["local_condition_entity"] == "sensor.weather_condition"
@@ -247,6 +259,7 @@ async def test_options_flow_local_switch_to_meteocat_mapping(hass: HomeAssistant
         )
 
     # Should finish and update entry
+    result = await _complete_station_rules(hass, result)
     assert result["type"] == FlowResultType.CREATE_ENTRY
     assert entry.data["mapping_type"] == "meteocat"
     assert "local_condition_entity" not in entry.data
@@ -334,6 +347,7 @@ async def test_options_flow_local_edit_custom_mapping(hass: HomeAssistant):
         )
 
     # Should finish and update entry
+    result = await _complete_station_rules(hass, result)
     assert result["type"] == FlowResultType.CREATE_ENTRY
     assert entry.data["mapping_type"] == "custom"
     assert entry.data["local_condition_entity"] == "sensor.new_condition"
@@ -405,6 +419,7 @@ async def test_options_flow_local_edit_meteocat_mapping(hass: HomeAssistant):
         )
 
     # Should finish and update entry
+    result = await _complete_station_rules(hass, result)
     assert result["type"] == FlowResultType.CREATE_ENTRY
     assert entry.data["mapping_type"] == "meteocat"
     assert "local_condition_entity" not in entry.data
@@ -476,6 +491,7 @@ async def test_options_flow_local_sensors_validation_errors(hass: HomeAssistant)
         )
 
     # Should finish and update entry
+    result = await _complete_station_rules(hass, result)
     assert result["type"] == FlowResultType.CREATE_ENTRY
     assert entry.data[CONF_SENSOR_TEMPERATURE] == "sensor.new_temp"
     assert entry.data[CONF_SENSOR_HUMIDITY] == "sensor.new_hum"
@@ -545,6 +561,7 @@ async def test_options_flow_local_no_changes(hass: HomeAssistant):
         )
 
     # Should finish
+    result = await _complete_station_rules(hass, result)
     assert result["type"] == FlowResultType.CREATE_ENTRY
 
 
@@ -620,6 +637,7 @@ async def test_options_flow_api_key_preservation_full_sequence(hass: HomeAssista
     )
 
     # Should finish and update entry
+    result = await _complete_station_rules(hass, result)
     assert result["type"] == FlowResultType.CREATE_ENTRY
     
     # CRITICAL: Verify API key is still preserved in data
@@ -687,6 +705,7 @@ async def test_options_flow_no_initial_mapping_type(hass: HomeAssistant):
         )
 
     # Should finish successfully
+    result = await _complete_station_rules(hass, result)
     assert result["type"] == FlowResultType.CREATE_ENTRY
     assert entry.data[CONF_API_KEY] == "test_api_key"
     assert entry.data.get("mapping_type") == "meteocat"
@@ -727,6 +746,7 @@ async def test_options_flow_external_station_api_key_preservation(hass: HomeAssi
     )
 
     # For external mode, should finish immediately
+    result = await _complete_station_rules(hass, result)
     assert result["type"] == FlowResultType.CREATE_ENTRY
     
     # CRITICAL: Verify API key is still preserved
@@ -769,6 +789,7 @@ async def test_options_flow_api_key_migration_from_options(hass: HomeAssistant):
         }
     )
     
+    result = await _complete_station_rules(hass, result)
     assert result["type"] == FlowResultType.CREATE_ENTRY
     
     # API key should now be in data
@@ -831,6 +852,7 @@ async def test_options_flow_multiple_edits_preserve_data(hass: HomeAssistant):
     result = await hass.config_entries.options.async_configure(
         result["flow_id"], user_input_mapping
     )
+    result = await _complete_station_rules(hass, result)
     assert result["type"] == FlowResultType.CREATE_ENTRY
 
     # Verify first edit results
@@ -873,6 +895,7 @@ async def test_options_flow_multiple_edits_preserve_data(hass: HomeAssistant):
     result = await hass.config_entries.options.async_configure(
         result["flow_id"], user_input_mapping2
     )
+    result = await _complete_station_rules(hass, result)
     assert result["type"] == FlowResultType.CREATE_ENTRY
 
     # Verify second edit results - everything preserved
@@ -952,6 +975,7 @@ async def test_options_flow_change_mapping_type_then_edit_again(hass: HomeAssist
     result = await hass.config_entries.options.async_configure(
         result["flow_id"], user_input_custom
     )
+    result = await _complete_station_rules(hass, result)
     assert result["type"] == FlowResultType.CREATE_ENTRY
 
     # Verify first edit results
@@ -1008,6 +1032,7 @@ async def test_options_flow_change_mapping_type_then_edit_again(hass: HomeAssist
     result = await hass.config_entries.options.async_configure(
         result["flow_id"], user_input_custom2
     )
+    result = await _complete_station_rules(hass, result)
     assert result["type"] == FlowResultType.CREATE_ENTRY
 
     # Verify second edit results - all data preserved including custom mapping
@@ -1086,6 +1111,7 @@ async def test_options_flow_switch_mapping_types_multiple_times(hass: HomeAssist
     result = await hass.config_entries.options.async_configure(
         result["flow_id"], user_input_custom
     )
+    result = await _complete_station_rules(hass, result)
     assert result["type"] == FlowResultType.CREATE_ENTRY
 
     assert entry.data["mapping_type"] == "custom"
@@ -1127,6 +1153,7 @@ async def test_options_flow_switch_mapping_types_multiple_times(hass: HomeAssist
     result = await hass.config_entries.options.async_configure(
         result["flow_id"], user_input_mapping2
     )
+    result = await _complete_station_rules(hass, result)
     assert result["type"] == FlowResultType.CREATE_ENTRY
 
     # Verify custom fields are removed
@@ -1183,6 +1210,7 @@ async def test_options_flow_switch_mapping_types_multiple_times(hass: HomeAssist
     result = await hass.config_entries.options.async_configure(
         result["flow_id"], user_input_custom3
     )
+    result = await _complete_station_rules(hass, result)
     assert result["type"] == FlowResultType.CREATE_ENTRY
 
     # Verify final state
@@ -1253,6 +1281,7 @@ async def test_options_flow_invalid_mapping_type_auto_correction(hass: HomeAssis
             result["flow_id"], user_input={"mapping_type": "meteocat"}
         )
 
+    result = await _complete_station_rules(hass, result)
     assert result["type"] == FlowResultType.CREATE_ENTRY
     
     # NOW check that the entry was updated
@@ -1309,6 +1338,7 @@ async def test_options_flow_invalid_forecast_booleans_auto_correction(hass: Home
             result["flow_id"], user_input={"mapping_type": "meteocat"}
         )
 
+    result = await _complete_station_rules(hass, result)
     assert result["type"] == FlowResultType.CREATE_ENTRY
     
     # Check that the invalid values were corrected

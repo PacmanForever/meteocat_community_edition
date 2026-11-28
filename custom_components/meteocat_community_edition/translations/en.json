@@ -147,8 +147,7 @@
           "update_time_2": "Second update time (24h format: HH:MM)",
           "update_time_3": "Third update time (24h format: HH:MM)",
           "enable_forecast_daily": "I want daily forecast",
-          "enable_forecast_hourly": "I want hourly forecast",
-          "configure_station_rules": "Configure threshold rules and actions"
+          "enable_forecast_hourly": "I want hourly forecast"
         }
       },
       "station_rules": {
@@ -161,12 +160,13 @@
       },
       "station_rule": {
         "title": "Configure a station rule",
-        "description": "Actions run when the condition changes from false to true. Meteocat parameters are evaluated when measurements are updated.",
+        "description": "Actions run when the condition changes from false to true. Meteocat parameters are evaluated when measurements are updated. Thresholds use the source's numeric value without unit conversion.",
         "data": {
           "parameter": "Station parameter",
           "operator": "Comparison",
           "threshold": "Threshold",
-          "actions": "Actions"
+          "actions": "Actions",
+          "form_action": "On finish"
         }
       },
       "local_sensors": {

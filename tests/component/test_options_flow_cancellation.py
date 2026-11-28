@@ -19,6 +19,16 @@ from custom_components.meteocat_community_edition.const import (
     CONF_SENSOR_PRESSURE,
 )
 
+
+async def _complete_station_rules(hass: HomeAssistant, result: dict):
+    """Finish the always-present final station rules step."""
+    if result.get("step_id") == "station_rules":
+        return await hass.config_entries.options.async_configure(
+            result["flow_id"], user_input={"rule_action": "done"}
+        )
+    return result
+
+
 @pytest.mark.asyncio
 async def test_options_flow_local_cancellation_no_save(hass: HomeAssistant):
     """Test that changes are not saved if the flow is not completed (Local Mode)."""
@@ -146,6 +156,7 @@ async def test_options_flow_local_success_save(hass: HomeAssistant):
             }
         )
 
+    result = await _complete_station_rules(hass, result)
     assert result["type"] == FlowResultType.CREATE_ENTRY
     
     # CRITICAL: Verify NOW changes are saved
@@ -215,6 +226,7 @@ async def test_options_flow_custom_mapping_save(hass: HomeAssistant):
             }
         )
 
+    result = await _complete_station_rules(hass, result)
     assert result["type"] == FlowResultType.CREATE_ENTRY
     
     # Check SAVED NOW

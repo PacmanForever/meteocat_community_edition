@@ -77,21 +77,23 @@ En Home Assistant 2026.10 o anterior, cerca **Meteocat** a HACS.
 
 ### Regles de llindar i accions de l'estació
 
-Cada estació pot tenir regles pròpies que executen accions de Home Assistant quan canvia una lectura. Les regles es configuren a **Configuració** → **Dispositius i serveis** → **Meteocat** → **Opcions**; activa **Configura regles de llindar i accions** per obrir-ne la pantalla de gestió.
+Cada estació pot tenir regles pròpies que executen accions de Home Assistant quan canvia una lectura. La pantalla de regles apareix sempre com a pas final del flux d'opcions de l'estació. Si no vols afegir o editar regles, selecciona **Desa i acaba**.
 
 #### Crear i gestionar regles
 
-1. Obre les opcions de la integració i activa **Configura regles de llindar i accions**.
+1. Obre les opcions de la integració i continua fins a la pantalla final de regles.
 2. A la pantalla de regles, tria **Afegeix una regla**.
 3. Selecciona un paràmetre, una comparació (`>`, `>=`, `<` o `<=`) i el valor llindar.
 4. Selecciona una o més accions amb el selector d'accions de Home Assistant.
 5. Desa la regla i, quan hagis acabat, tria **Desa i acaba**.
 
-Per modificar o eliminar una regla existent, torna a obrir les opcions, activa la configuració de regles, selecciona **Edita una regla** o **Elimina una regla** i tria la regla corresponent. Els canvis es desen en acabar el flux d'opcions.
+Si decideixes no crear o no desar una regla mentre l'estàs configurant, tria **Descarta la regla**; tornaràs a la pantalla de gestió sense sortir de la configuració de l'estació.
+
+Per modificar o eliminar una regla existent, torna a obrir les opcions, selecciona **Edita una regla** o **Elimina una regla** a la pantalla final i tria la regla corresponent. Els canvis es desen en acabar el flux d'opcions.
 
 #### Quan s'executen les accions
 
-- Una regla s'executa quan la seva condició canvia de **falsa a certa**. Per exemple, `temperatura > 25 °C` s'activa en passar de 25 °C o menys a més de 25 °C.
+- Una regla s'executa quan la seva condició canvia de **falsa a certa**. Per exemple, `temperatura > 25` s'activa quan el valor numèric passa de 25 o menys a més de 25.
 - No es repeteix l'acció mentre la condició continuï sent certa. Quan torni a ser falsa, la regla queda preparada per a un nou creuament.
 - La primera lectura vàlida després d'iniciar o recarregar Home Assistant només estableix l'estat inicial: no executa accions. Els valors `unknown`, `unavailable` o no numèrics tampoc no disparen accions; la primera lectura vàlida posterior torna a inicialitzar la regla.
 - Les regles d'una estació local s'avaluen quan canvia l'estat de l'entitat sensor seleccionada.
@@ -99,8 +101,9 @@ Per modificar o eliminar una regla existent, torna a obrir les opcions, activa l
 
 #### Requisits i unitats
 
-- **Estació local**: cal tenir configurat almenys un sensor local numèric a la configuració de l'estació. Només s'ofereixen com a paràmetres els sensors seleccionats per aquella estació. El llindar s'ha d'introduir en la mateixa unitat que publica el sensor.
-- **Estació Meteocat**: cal que l'estació retorni a l'API una de les variables numèriques que admet la integració. La disponibilitat depèn de les mesures rebudes; la pantalla mostra la unitat de la variable.
+- **Estació local**: cal tenir configurat almenys un sensor local numèric a la configuració de l'estació. Només s'ofereixen com a paràmetres els sensors seleccionats per aquella estació.
+- **Estació Meteocat**: cal que l'estació retorni a l'API una de les variables numèriques que admet la integració. La disponibilitat depèn de les mesures rebudes.
+- Els llindars es comparen amb el valor numèric directe de l'entitat local o de la resposta de l'API, sense conversió d'unitats. Si canvia la unitat o l'escala del valor d'origen, cal ajustar manualment el llindar de la regla.
 - Cada regla ha de tenir almenys una acció. Les accions es configuren i s'executen des de la integració, associades a l'estació; no cal crear un trigger d'automatització separat.
 - No hi ha comparador d'igualtat exacta (`=`): amb lectures decimals, la igualtat exacta pot ser poc fiable. Per a valors concrets, es poden combinar llindars o usar un interval amb dues regles.
 - La variable Meteocat **precipitació** representa l'acumulació del dia en mil·límetres, no la intensitat instantània de pluja. Els paràmetres Meteocat només s'actualitzen quan la integració consulta les mesures, segons el seu calendari o una actualització manual.
@@ -136,11 +139,11 @@ El càlcul de Magnus és `γ = ln(HR / 100) + 17,625 × T / (243,04 + T)` i `pun
 
 ## Traduccions
 
-- Totes les pantalles, inclòs el nou pas de mapeig, estan traduïdes a català, castellà i anglès.
+- Totes les pantalles, inclosos els passos de mapeig i de regles de l'estació, estan traduïdes a català, castellà i anglès.
 
 ## Versionat
 
-- La versió actual del manifest és `1.2.105` i coincideix amb l'últim tag de git.
+- La versió actual del manifest és `1.2.106` i coincideix amb l'últim tag de git.
 
 ## Tests
 

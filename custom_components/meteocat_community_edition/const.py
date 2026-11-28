@@ -4,7 +4,7 @@ from typing import Final
 DOMAIN: Final = "meteocat_community_edition"
 ATTRIBUTION: Final = "Meteocat"
 MANUFACTURER: Final = "@pacmanforever"
-INTEGRATION_VERSION: Final = "1.2.105"
+INTEGRATION_VERSION: Final = "1.2.106"
 
 # API Configuration
 DEFAULT_API_BASE_URL: Final = "https://api.meteo.cat"
@@ -26,7 +26,6 @@ CONF_UPDATE_TIME_3: Final = "update_time_3"
 CONF_ENABLE_FORECAST_DAILY: Final = "enable_forecast_daily"
 CONF_ENABLE_FORECAST_HOURLY: Final = "enable_forecast_hourly"
 CONF_STATION_RULES: Final = "station_rules"
-CONF_CONFIGURE_STATION_RULES: Final = "configure_station_rules"
 
 # Local Sensors Configuration
 CONF_SENSOR_TEMPERATURE: Final = "sensor_temperature"
