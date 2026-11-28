@@ -29,7 +29,6 @@ from homeassistant.helpers.event import async_track_sunrise, async_track_sunset
 
 from .const import (
     ATTRIBUTION, 
-    INTEGRATION_VERSION,
     MANUFACTURER,
     METEOCAT_CONDITION_MAP, 
     CONF_ENABLE_FORECAST_DAILY,
@@ -144,8 +143,8 @@ class MeteocatWeather(SingleCoordinatorWeatherEntity[MeteocatCoordinator]):
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": f"{station_name} {station_code}",
             "manufacturer": MANUFACTURER,
+            "sw_version": None,
             "model": "Estació Externa",
-            "sw_version": INTEGRATION_VERSION,
         }
 
     async def async_added_to_hass(self) -> None:
@@ -578,8 +577,8 @@ class MeteocatLocalWeather(MeteocatWeather):
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._attr_name,
             "manufacturer": MANUFACTURER,
+            "sw_version": None,
             "model": "Estació Local",
-            "sw_version": INTEGRATION_VERSION,
         }
         def get_conf(key):
             val = entry.data.get(key)

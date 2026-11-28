@@ -20,7 +20,6 @@ from custom_components.meteocat_community_edition.button import (
 )
 from custom_components.meteocat_community_edition.const import (
     DOMAIN,
-    INTEGRATION_VERSION,
     MANUFACTURER,
     MODE_EXTERNAL,
 )
@@ -173,7 +172,7 @@ def test_all_entities_share_same_device_name(mock_coordinator, mock_entry):
         button_forecast,
     ):
         assert entity._attr_device_info["manufacturer"] == MANUFACTURER
-        assert entity._attr_device_info["sw_version"] == INTEGRATION_VERSION
+        assert entity._attr_device_info["sw_version"] is None
 
 
 def test_entity_ids_include_station_code(mock_coordinator, mock_entry):

@@ -15,7 +15,6 @@ from homeassistant.const import SUN_EVENT_SUNSET, SUN_EVENT_SUNRISE
 from custom_components.meteocat_community_edition.weather import MeteocatWeather, MeteocatLocalWeather
 from custom_components.meteocat_community_edition.const import (
     DOMAIN,
-    INTEGRATION_VERSION,
     MANUFACTURER,
     MODE_EXTERNAL,
     MODE_LOCAL,
@@ -136,7 +135,7 @@ def test_weather_entity_initialization(mock_coordinator, mock_entry):
     assert weather._attr_device_info["name"] == "Granollers YM"
     assert (DOMAIN, "test_entry_weather") in weather._attr_device_info["identifiers"]
     assert weather._attr_device_info["manufacturer"] == MANUFACTURER
-    assert weather._attr_device_info["sw_version"] == INTEGRATION_VERSION
+    assert weather._attr_device_info["sw_version"] is None
 
 
 def test_weather_entity_native_temperature(mock_coordinator, mock_entry):

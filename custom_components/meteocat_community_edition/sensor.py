@@ -60,7 +60,6 @@ from .const import (
     CONF_SENSOR_HUMIDITY,
     CONF_SENSOR_WIND_SPEED,
     DOMAIN,
-    INTEGRATION_VERSION,
     MANUFACTURER,
     MODE_LOCAL,
     MODE_EXTERNAL,
@@ -379,8 +378,8 @@ class MeteocatQuotaSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
             "manufacturer": MANUFACTURER,
+            "sw_version": None,
             "model": "Estaci\u00f3 XEMA" if mode == MODE_EXTERNAL else "Predicci\u00f3 Municipi",
-            "sw_version": INTEGRATION_VERSION,
         }
         
         # Quota sensors are diagnostic information
@@ -520,8 +519,8 @@ class MeteocatXemaSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": f"{entity_name} {station_code}",
             "manufacturer": MANUFACTURER,
+            "sw_version": None,
             "model": "Estaci\u00f3 XEMA",
-            "sw_version": INTEGRATION_VERSION,
         }
 
     @property
@@ -593,8 +592,8 @@ class MeteocatForecastSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
             "manufacturer": MANUFACTURER,
+            "sw_version": None,
             "model": "Predicci\u00f3 Municipi",
-            "sw_version": INTEGRATION_VERSION,
         }
 
     @property
@@ -808,8 +807,8 @@ class MeteocatLastUpdateSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnt
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
             "manufacturer": MANUFACTURER,
+            "sw_version": None,
             "model": "Estaci\u00f3 XEMA" if mode == MODE_EXTERNAL else "Predicci\u00f3 Municipi",
-            "sw_version": INTEGRATION_VERSION,
 
         }
         
@@ -866,8 +865,8 @@ class MeteocatNextForecastUpdateSensor(CoordinatorEntity[MeteocatCoordinator], S
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
             "manufacturer": MANUFACTURER,
+            "sw_version": None,
             "model": "Estaci\u00f3 XEMA",
-            "sw_version": INTEGRATION_VERSION,
         }
         
         self._attr_entity_category = EntityCategory.DIAGNOSTIC
@@ -921,8 +920,8 @@ class MeteocatLastForecastUpdateSensor(CoordinatorEntity[MeteocatCoordinator], S
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
             "manufacturer": MANUFACTURER,
+            "sw_version": None,
             "model": "Estaci\u00f3 XEMA",
-            "sw_version": INTEGRATION_VERSION,
         }
         
         self._attr_entity_category = EntityCategory.DIAGNOSTIC
@@ -998,8 +997,8 @@ class MeteocatNextUpdateSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnt
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
             "manufacturer": MANUFACTURER,
+            "sw_version": None,
             "model": "Estaci\u00f3 XEMA" if mode == MODE_EXTERNAL else "Predicci\u00f3 Municipi",
-            "sw_version": INTEGRATION_VERSION,
 
         }
         
@@ -1068,8 +1067,8 @@ class MeteocatUpdateTimeSensor(SensorEntity):
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
             "manufacturer": MANUFACTURER,
+            "sw_version": None,
             "model": "Estaci\u00f3 XEMA" if mode == MODE_EXTERNAL else "Predicci\u00f3 Municipi",
-            "sw_version": INTEGRATION_VERSION,
         }
         
         self._attr_entity_registry_enabled_default = True
@@ -1121,12 +1120,12 @@ class MeteocatForecastConfigurationSensor(SensorEntity):
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": device_name,
             "manufacturer": MANUFACTURER,
+            "sw_version": None,
             "model": (
                 "Estaci\u00f3 XEMA"
                 if coordinator.mode == MODE_EXTERNAL
                 else "Predicci\u00f3 Municipi"
             ),
-            "sw_version": INTEGRATION_VERSION,
         }
 
     @property
@@ -1185,8 +1184,8 @@ class MeteocatAltitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
             "manufacturer": MANUFACTURER,
+            "sw_version": None,
             "model": "Estaci\u00f3 XEMA",
-            "sw_version": INTEGRATION_VERSION,
         }
         
         self._attr_entity_registry_enabled_default = True
@@ -1260,8 +1259,8 @@ class MeteocatLatitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEntit
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
             "manufacturer": MANUFACTURER,
+            "sw_version": None,
             "model": "Estaci\u00f3 XEMA",
-            "sw_version": INTEGRATION_VERSION,
         }
         
         self._attr_entity_registry_enabled_default = True
@@ -1333,8 +1332,8 @@ class MeteocatLongitudeSensor(CoordinatorEntity[MeteocatCoordinator], SensorEnti
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
             "manufacturer": MANUFACTURER,
+            "sw_version": None,
             "model": "Estaci\u00f3 XEMA",
-            "sw_version": INTEGRATION_VERSION,
         }
         
         self._attr_entity_registry_enabled_default = True
@@ -1408,8 +1407,8 @@ class MeteocatMunicipalityNameSensor(SensorEntity):
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
             "manufacturer": MANUFACTURER,
+            "sw_version": None,
             "model": "Predicci\u00f3 Municipi",
-            "sw_version": INTEGRATION_VERSION,
         }
         
         self._attr_entity_registry_enabled_default = True
@@ -1470,8 +1469,8 @@ class MeteocatComarcaNameSensor(SensorEntity):
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
             "manufacturer": MANUFACTURER,
+            "sw_version": None,
             "model": "Predicci\u00f3 Municipi",
-            "sw_version": INTEGRATION_VERSION,
         }
         
         self._attr_entity_registry_enabled_default = True
@@ -1535,8 +1534,8 @@ class MeteocatMunicipalityLatitudeSensor(SensorEntity):
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
             "manufacturer": MANUFACTURER,
+            "sw_version": None,
             "model": "Predicci\u00f3 Municipi",
-            "sw_version": INTEGRATION_VERSION,
         }
         
         self._attr_entity_registry_enabled_default = True
@@ -1599,8 +1598,8 @@ class MeteocatMunicipalityLongitudeSensor(SensorEntity):
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
             "manufacturer": MANUFACTURER,
+            "sw_version": None,
             "model": "Predicci\u00f3 Municipi",
-            "sw_version": INTEGRATION_VERSION,
         }
         
         self._attr_entity_registry_enabled_default = True
@@ -1660,8 +1659,8 @@ class MeteocatProvinciaNameSensor(SensorEntity):
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
             "manufacturer": MANUFACTURER,
+            "sw_version": None,
             "model": "Predicci\u00f3 Municipi",
-            "sw_version": INTEGRATION_VERSION,
         }
         
         self._attr_entity_registry_enabled_default = True
@@ -1723,8 +1722,8 @@ class MeteocatStationComarcaNameSensor(SensorEntity):
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
             "manufacturer": MANUFACTURER,
+            "sw_version": None,
             "model": "Estaci\u00f3 XEMA",
-            "sw_version": INTEGRATION_VERSION,
         }
         
         self._attr_entity_registry_enabled_default = True
@@ -1786,8 +1785,8 @@ class MeteocatStationMunicipalityNameSensor(SensorEntity):
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
             "manufacturer": MANUFACTURER,
+            "sw_version": None,
             "model": "Estaci\u00f3 XEMA",
-            "sw_version": INTEGRATION_VERSION,
         }
         
         self._attr_entity_registry_enabled_default = True
@@ -1848,8 +1847,8 @@ class MeteocatStationProvinciaNameSensor(SensorEntity):
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
             "manufacturer": MANUFACTURER,
+            "sw_version": None,
             "model": "Estaci\u00f3 XEMA",
-            "sw_version": INTEGRATION_VERSION,
         }
         
         self._attr_available = True
@@ -1998,7 +1997,7 @@ class MeteocatUTCISensor(CoordinatorEntity[MeteocatCoordinator], SensorEntity):
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": device_name,
             "manufacturer": MANUFACTURER,
-            "sw_version": INTEGRATION_VERSION,
+            "sw_version": None,
         }
 
         # Local mode input entities

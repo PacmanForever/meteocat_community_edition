@@ -143,7 +143,7 @@ El càlcul de Magnus és `γ = ln(HR / 100) + 17,625 × T / (243,04 + T)` i `pun
 
 ## Versionat
 
-- La versió actual del manifest és `1.2.106` i coincideix amb l'últim tag de git.
+- La versió actual del manifest és `1.2.107` i coincideix amb l'últim tag de git.
 
 ## Tests
 

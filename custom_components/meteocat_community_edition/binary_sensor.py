@@ -35,7 +35,6 @@ from .const import (
     CONF_SENSOR_WIND_SPEED,
     DEFAULT_MUGGY_DEW_POINT_THRESHOLD,
     DOMAIN,
-    INTEGRATION_VERSION,
     MANUFACTURER,
     MODE_EXTERNAL,
     MODE_LOCAL,
@@ -220,8 +219,8 @@ class MeteocatCalculatedConditionBinarySensor(
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": device_name,
             "manufacturer": MANUFACTURER,
+            "sw_version": None,
             "model": model,
-            "sw_version": INTEGRATION_VERSION,
         }
 
     async def async_added_to_hass(self) -> None:
@@ -406,8 +405,8 @@ class MeteocatUpdateStatusBinarySensor(CoordinatorEntity[MeteocatCoordinator], B
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": self._device_name,
             "manufacturer": MANUFACTURER,
+            "sw_version": None,
             "model": model,
-            "sw_version": INTEGRATION_VERSION,
         }
 
     @property
